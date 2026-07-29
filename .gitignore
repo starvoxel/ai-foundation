@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local / personal scratch files — not tracked
+scratch/
+tmp/
+local/
+*.local.md
+*.draft.md
