@@ -1,0 +1,16 @@
+{
+  "name": "ai-foundation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Portable, harness-agnostic framework for AI-assisted software development",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "test": "node --test \"**/*.test.js\" --test-reporter spec"
+  },
+  "devDependencies": {
+    "@iarna/toml": "2.2.5"
+  }
+}
