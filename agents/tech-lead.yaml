@@ -51,7 +51,6 @@ approved_tools:
   - "grep"
   - "glob"
 
-# TODO: Add skills once created:
-#   - "skill/epic-planning"
-#   - "skill/chunk-planning"
-skills: []
+skills:
+  - "skill/epic-planning"
+  - "skill/chunk-planning"
