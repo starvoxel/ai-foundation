@@ -141,8 +141,10 @@ an optional `reference/` subfolder for templates, examples, or supporting materi
 ```
 skills/{skill-name}/
 ├── SKILL.md              ← The procedure definition (entry point)
-└── reference/            ← Optional: templates, examples, supporting docs
-    └── template.md       ← e.g. output format template
+├── reference/            ← Optional: templates, examples, supporting docs
+│   └── template.md       ← e.g. output format template
+└── scripts/              ← Optional: executable scripts the skill can invoke
+    └── validate.js       ← e.g. validation logic, transforms, checks
 ```
 
 **Applicability:** Declared by the agent in its `skills` field, not by the skill itself.
@@ -369,6 +371,7 @@ skill in their `skills` field should be reviewed to confirm they still work corr
 4. Skills must be self-contained — no references to specific agents or projects
 5. Inputs and outputs must be explicit
 6. Place any output templates, examples, or reference material in `reference/`
+7. Place any executable scripts (validation, transforms, checks) in `scripts/`
 
 ### When creating a new steering file
 
