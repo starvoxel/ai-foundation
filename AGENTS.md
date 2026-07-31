@@ -31,14 +31,16 @@ ai-foundation/
 ├── README.md                        ← Human-facing overview. Do not load.
 │
 ├── agents/                          ← Agent definitions
-│   ├── _template.toml               ← Template for new agents
-│   ├── architect.toml               ← Canonical agent definitions (.toml)
+│   ├── _template.yaml               ← Template for new agents
+│   ├── architect.yaml               ← Canonical agent definitions (.yaml)
 │   ├── architect.md                 ← Supplementary docs, optional (.md)
 │   └── ...
 │
 ├── skills/                          ← Reusable procedures agents can invoke
-│   ├── _template.md                 ← Template for new skills
-│   └── ...
+│   ├── _template/                   ← Template for new skills
+│   │   ├── SKILL.md
+│   │   └── reference/
+│   └── ...                          ← Each skill is a folder
 │
 ├── steering/                        ← Always-on rules applied to agents
 │   ├── _template.md                 ← Template for new steering files
@@ -52,7 +54,7 @@ ai-foundation/
 │   └── csharp-avalonia.md
 │
 ├── servers/                         ← Tool server definitions (MCP or other protocols)
-│   ├── _template.toml               ← Template for new server definitions
+│   ├── _template.yaml               ← Template for new server definitions
 │   └── ...
 │
 ├── projects/                        ← Per-project overrides and standards
@@ -71,14 +73,14 @@ ai-foundation/
 
 | File type | When to load |
 |---|---|
-| `agents/{name}.toml` | Load to understand and execute an agent role |
+| `agents/{name}.yaml` | Load to understand and execute an agent role |
 | `agents/{name}.md` | Load for deeper context on an agent when needed |
 | `skills/{name}.md` | Load when an agent needs to execute that skill |
 | `steering/global/core.md` | Load at the start of every session |
 | `steering/{domain}/core.md` | Load based on the agent's domain |
 | `standards/{name}.md` | Load when working in that language/stack |
 | `projects/{name}/project-standards.md` | Load when working on that project |
-| `servers/{name}.toml` | Load to understand an available tool server |
+| `servers/{name}.yaml` | Load to understand an available tool server |
 
 ### What not to load
 
@@ -93,7 +95,7 @@ This is the suggested order for an agent or harness to load context at session s
 1. `AGENTS.md` — this file (framework rules and schemas)
 2. `steering/global/**/*.md` — always (all files in global folder)
 3. `steering/{your-domain}/**/*.md` — based on your agent's domain
-4. Your agent's `.toml` file — for your role definition
+4. Your agent's `.yaml` file — for your role definition
 5. Relevant skills — load as needed for the task
 6. Relevant standards/knowledge — load as needed for the task
 
@@ -110,7 +112,7 @@ initial context before the prompt.
 A named persona with a defined role, prompt, tools, and skills. Agents have a specific
 job in the workflow and operate within their domain's steering rules.
 
-**Format:** `.toml` required, `.md` optional companion for extended documentation.
+**Format:** `.yaml` required, `.md` optional companion for extended documentation.
 
 **Lives in:** `agents/`
 
@@ -130,9 +132,18 @@ A reusable, self-contained procedure. Skills define inputs, a sequence of steps,
 outputs. They are not personas — they have no identity, no domain, no hard rules.
 An agent invokes a skill when the task requires that procedure.
 
-**Format:** `.md` with TOML front-matter.
+**Format:** Each skill is a folder containing `SKILL.md` (with YAML front-matter) and
+an optional `reference/` subfolder for templates, examples, or supporting material.
 
-**Lives in:** `skills/`
+**Lives in:** `skills/{skill-name}/`
+
+**Structure:**
+```
+skills/{skill-name}/
+├── SKILL.md              ← The procedure definition (entry point)
+└── reference/            ← Optional: templates, examples, supporting docs
+    └── template.md       ← e.g. output format template
+```
 
 **Applicability:** Declared by the agent in its `skills` field, not by the skill itself.
 
@@ -145,7 +156,7 @@ a procedure — it does not have steps. It is a set of enforced constraints.
 
 - **Global scope** (`steering/global/`) — applies to every agent, every session
 - **Domain scope** (`steering/{domain}/`) — applies to all agents in that domain
-- **Agent-level** — hard rules specific to one agent stay in that agent's `.toml` prompt
+- **Agent-level** — hard rules specific to one agent stay in that agent's `.yaml` prompt
 
 **Format:** `.md` with YAML front-matter.
 
@@ -169,7 +180,7 @@ exception noted in the plan. These are not suggestions — they are requirements
 Descriptive reference material. Knowledge describes how things are, not how they must be.
 An agent uses knowledge to inform decisions but can deviate with justification.
 
-**Format:** `.md` with TOML front-matter.
+**Format:** `.md` with YAML front-matter.
 
 **Lives in:** `knowledge/` (directory to be created when first knowledge file is needed)
 
@@ -178,17 +189,17 @@ An agent uses knowledge to inform decisions but can deviate with justification.
 ### Server
 
 A tool provider definition. Describes a server an agent can connect to, what tools it
-exposes, and how to interact with it. Protocol is declared in the TOML (`protocol = "mcp"`).
+exposes, and how to interact with it. Protocol is declared in the YAML (`protocol: "mcp"`).
 
-**Format:** `.toml` required, `.md` optional for detailed tool documentation.
+**Format:** `.yaml` required, `.md` optional for detailed tool documentation.
 
 **Lives in:** `servers/`
 
 ---
 
-## TOML Schemas
+## Schemas
 
-### Agent schema (`agents/{name}.toml`)
+### Agent schema (`agents/{name}.yaml`)
 
 ```yaml
 ---
@@ -225,7 +236,7 @@ skills:                        # Skills this agent can invoke
 
 ---
 
-### Skill schema (`skills/{name}.md`)
+### Skill schema (`skills/{name}/SKILL.md`)
 
 ```yaml
 ---
@@ -242,6 +253,12 @@ Followed by markdown body with these sections:
 - **Steps** — the ordered procedure
 - **Outputs** — what the skill produces
 - **Edge Cases** — how to handle failures or unusual situations
+
+**Required front-matter fields:** `name`, `version`, `description`
+
+**Supporting files:** Place templates, examples, or reference material in
+`skills/{name}/reference/`. The skill's Steps section should reference these
+files explicitly when the agent needs them.
 
 **Required front-matter fields:** `name`, `version`, `description`
 
@@ -268,7 +285,7 @@ Followed by markdown body with these sections:
 
 ---
 
-### Server schema (`servers/{name}.toml`)
+### Server schema (`servers/{name}.yaml`)
 
 ```yaml
 ---
@@ -336,7 +353,7 @@ skill in their `skills` field should be reviewed to confirm they still work corr
 
 ### When creating a new agent
 
-1. Copy `agents/_template.toml` to `agents/{name}.toml`
+1. Copy `agents/_template.yaml` to `agents/{name}.yaml`
 2. Fill in all required fields
 3. Write the prompt as a direct instruction to the agent
 4. Declare only tools the agent genuinely needs
@@ -346,11 +363,12 @@ skill in their `skills` field should be reviewed to confirm they still work corr
 
 ### When creating a new skill
 
-1. Copy `skills/_template.md` to `skills/{name}.md`
-2. Fill in front-matter
+1. Copy `skills/_template/` to `skills/{name}/`
+2. Rename and fill in `SKILL.md` front-matter
 3. Write all required body sections
 4. Skills must be self-contained — no references to specific agents or projects
 5. Inputs and outputs must be explicit
+6. Place any output templates, examples, or reference material in `reference/`
 
 ### When creating a new steering file
 
@@ -361,7 +379,7 @@ skill in their `skills` field should be reviewed to confirm they still work corr
 
 ### When creating a new server definition
 
-1. Copy `servers/_template.toml` to `servers/{name}.toml`
+1. Copy `servers/_template.yaml` to `servers/{name}.yaml`
 2. Document every tool the server exposes
 3. Be precise about inputs — include types and whether optional/required
 4. Optionally create `servers/{name}.md` for detailed tool documentation
@@ -372,7 +390,7 @@ skill in their `skills` field should be reviewed to confirm they still work corr
 
 Before declaring a new file complete, verify:
 
-- [ ] Front-matter is valid TOML (no syntax errors)
+- [ ] Front-matter is valid YAML (no syntax errors)
 - [ ] All required fields are present for this file type
 - [ ] `version` follows semver format (`X.Y.Z`)
 - [ ] `description` is one sentence and accurately describes the content
@@ -404,12 +422,12 @@ node --test servers/servers.test.js
 
 | File | What it validates |
 |---|---|
-| `servers/servers.test.js` | Server `.toml` schema: required fields, semver, kebab-case, tool entries |
+| `servers/servers.test.js` | Server `.yaml` schema: required fields, semver, kebab-case, tool entries |
 | `tests/tools.test.js` | Tool availability: install script exists, agent tools documented in servers, `approved_tools ⊆ tools` |
 
-**Dependencies:** Install with `npm install` (only runtime dependency is `@iarna/toml` for TOML parsing).
+**Dependencies:** Install with `npm install` (only runtime dependency is `yaml` for YAML parsing).
 
-**When to run:** After creating or modifying any `.toml` agent or server definition.
+**When to run:** After creating or modifying any `.yaml` agent or server definition.
 
 **Adding tests:** Place test files in the directory of the component they validate,
 named `{component}.test.js`. The glob pattern `**/*.test.js` picks them up automatically.
@@ -418,7 +436,7 @@ named `{component}.test.js`. The glob pattern `**/*.test.js` picks them up autom
 
 ## Specs We Follow
 
-- **YAML:** [YAML 1.2](https://yaml.org) — used for all front-matter in `.toml` and `.md` files
+- **YAML:** [YAML 1.2](https://yaml.org) — used for all `.yaml` definition files and all front-matter in `.md` files
 - **Semver:** [semver.org](https://semver.org) — used for all version fields
 - **MCP:** [Model Context Protocol spec](https://modelcontextprotocol.io/docs/specification/server) — used for server definitions with `protocol: "mcp"`
 
@@ -429,11 +447,11 @@ named `{component}.test.js`. The glob pattern `**/*.test.js` picks them up autom
 Rather than maintaining a roster here (which would drift out of date), discover what
 is available by scanning the relevant directories:
 
-- **Agents** — list `agents/*.toml` (exclude `_template.toml`)
-- **Skills** — list `skills/*.md` (exclude `_template.md` and `README.md`)
+- **Agents** — list `agents/*.yaml` (exclude `_template.yaml`)
+- **Skills** — list `skills/*/SKILL.md` (exclude `_template/`)
 - **Steering** — list `steering/**/*.md` (exclude `_template.md` and `README.md`)
 - **Standards** — list `standards/*.md` (exclude `README.md`)
-- **Servers** — list `servers/*.toml` (exclude `_template.toml`)
+- **Servers** — list `servers/*.yaml` (exclude `_template.yaml`)
 
 Each file's front-matter `description` field tells you what it covers without
 loading the full content.

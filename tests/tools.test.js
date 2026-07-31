@@ -3,30 +3,30 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import TOML from '@iarna/toml';
+import YAML from 'yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
 const AGENTS_DIR = join(ROOT, 'agents');
 const SERVERS_DIR = join(ROOT, 'servers');
 
-function getAgentTomlFiles() {
+function getAgentYamlFiles() {
   if (!existsSync(AGENTS_DIR)) return [];
   return readdirSync(AGENTS_DIR)
-    .filter(f => f.endsWith('.toml') && f !== '_template.toml');
+    .filter(f => f.endsWith('.yaml') && f !== '_template.yaml');
 }
 
-function getServerTomlFiles() {
+function getServerYamlFiles() {
   if (!existsSync(SERVERS_DIR)) return [];
   return readdirSync(SERVERS_DIR)
-    .filter(f => f.endsWith('.toml') && f !== '_template.toml');
+    .filter(f => f.endsWith('.yaml') && f !== '_template.yaml');
 }
 
 function getAllServerToolNames() {
   const toolNames = new Set();
-  for (const file of getServerTomlFiles()) {
+  for (const file of getServerYamlFiles()) {
     const content = readFileSync(join(SERVERS_DIR, file), 'utf-8');
-    const parsed = TOML.parse(content);
+    const parsed = YAML.parse(content);
     if (Array.isArray(parsed.tools)) {
       for (const tool of parsed.tools) {
         if (tool.name) toolNames.add(tool.name);
@@ -47,11 +47,11 @@ describe('tool availability', () => {
   });
 
   describe('agent tool references', () => {
-    const agentFiles = getAgentTomlFiles();
+    const agentFiles = getAgentYamlFiles();
     const serverTools = getAllServerToolNames();
 
     if (agentFiles.length === 0) {
-      it('no agent .toml files to validate yet (skipped)', () => {
+      it('no agent .yaml files to validate yet (skipped)', () => {
         assert.ok(true);
       });
       return;
@@ -63,7 +63,7 @@ describe('tool availability', () => {
 
         before(() => {
           const content = readFileSync(join(AGENTS_DIR, file), 'utf-8');
-          parsed = TOML.parse(content);
+          parsed = YAML.parse(content);
         });
 
         it('has tools field', () => {

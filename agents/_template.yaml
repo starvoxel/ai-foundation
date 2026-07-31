@@ -79,5 +79,5 @@ skills: []
 # Add a machine-exclusion notice at the top of the .md file:
 #
 # > **Note:** This file is supplementary documentation for humans.
-# > The canonical agent definition is in `{name}.toml`.
-# > Agents should load the `.toml` file, not this one.
+# > The canonical agent definition is in `{name}.yaml`.
+# > Agents should load the `.yaml` file, not this one.

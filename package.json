@@ -11,6 +11,6 @@
     "test": "node --test \"**/*.test.js\" --test-reporter spec"
   },
   "devDependencies": {
-    "@iarna/toml": "2.2.5"
+    "yaml": "2.9.0"
   }
 }

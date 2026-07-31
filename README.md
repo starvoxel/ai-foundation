@@ -33,7 +33,7 @@ Nothing here is tied to a specific AI harness. Everything is plain text.
 | Test-Engineer | Test authoring and execution |
 | Engineering-Tech-Writer | Inline docs, README updates, CHANGELOG |
 
-Agent definitions live in `agents/`. Each agent has a `.toml` file (canonical definition)
+Agent definitions live in `agents/`. Each agent has a `.yaml` file (canonical definition)
 and optionally a `.md` companion for extended documentation.
 
 ---
@@ -74,8 +74,8 @@ ai-foundation/
 ├── AGENTS.md                        ← Entry point for AI agents
 ├── README.md                        ← This file (human reference)
 │
-├── agents/                          ← Agent definitions (.toml + optional .md)
-│   └── _template.toml
+├── agents/                          ← Agent definitions (.yaml + optional .md)
+│   └── _template.yaml
 │
 ├── skills/                          ← Reusable procedures agents invoke
 │   └── _template.md
@@ -91,7 +91,7 @@ ai-foundation/
 │   └── csharp-avalonia.md
 │
 ├── servers/                         ← Tool server definitions (MCP, etc.)
-│   └── _template.toml
+│   └── _template.yaml
 │
 └── projects/                        ← Per-project overrides and standards
     └── _template/
@@ -107,12 +107,12 @@ not here. This repo is the framework only.
 
 | Type | Format | Purpose |
 |---|---|---|
-| Agent | `.toml` (+ optional `.md`) | Named persona with role, prompt, tools, skills |
+| Agent | `.yaml` (+ optional `.md`) | Named persona with role, prompt, tools, skills |
 | Skill | `.md` with front-matter | Reusable step-by-step procedure |
 | Steering | `.md` with front-matter | Always-on rules enforced unconditionally |
 | Standards | `.md` | Prescriptive coding/stack rules |
 | Knowledge | `.md` | Descriptive reference material |
-| Server | `.toml` (+ optional `.md`) | Tool provider definition (MCP, etc.) |
+| Server | `.yaml` (+ optional `.md`) | Tool provider definition (MCP, etc.) |
 
 See `AGENTS.md` for full schemas, loading rules, and authoring guidelines.
 
@@ -166,4 +166,4 @@ Uses **symlinks** so `git pull` automatically propagates updates — no reinstal
 - **Product domain agents** — PRD authoring, UX, product decision-making
 - **Self-improvement pipeline** — outcome logging, evaluation, prompt evolution
 - **Context and memory layer** — RAG over codebase, episodic memory of past tasks
-- **Agent `.toml` migration** — convert existing agent `.md` files to canonical `.toml` format
+- **Agent `.yaml` migration** — convert existing agent `.md` files to canonical `.yaml` format

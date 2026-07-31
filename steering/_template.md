@@ -1,16 +1,16 @@
-+++
+---
 # Unique identifier for this steering file. Use kebab-case.
-# Example: "global", "engineering", "product"
-name = "steering-name"
+# Example: "global-core", "engineering-core"
+name: "steering-name"
 
-# Semantic version. Start at 1.0.0 for new steering files.
+# Semantic version. Start at 0.1.0 for new steering files.
 # MAJOR.MINOR.PATCH — see AGENTS.md versioning rules.
-version = "0.1.0"
+version: "0.1.0"
 
 # One-sentence description of what domain/scope this covers and what it enforces.
 # This is what appears in discovery scans — make it clear and specific.
-description = "Brief description of the scope and what rules this enforces."
-+++
+description: "Brief description of the scope and what rules this enforces."
+---
 
 ## Scope
 

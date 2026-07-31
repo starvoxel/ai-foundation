@@ -1,8 +1,8 @@
-+++
-name = "engineering-core"
-version = "0.1.0"
-description = "Core rules that apply to all agents operating in the engineering domain."
-+++
+---
+name: "engineering-core"
+version: "0.1.0"
+description: "Core rules that apply to all agents operating in the engineering domain."
+---
 
 ## Scope
 

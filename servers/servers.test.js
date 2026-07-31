@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import TOML from '@iarna/toml';
+import YAML from 'yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SERVERS_DIR = __dirname;
@@ -14,7 +14,7 @@ const KEBAB_CASE_PATTERN = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/;
 
 function getServerFiles() {
   return readdirSync(SERVERS_DIR)
-    .filter(f => f.endsWith('.toml') && f !== '_template.toml');
+    .filter(f => f.endsWith('.yaml') && f !== '_template.yaml');
 }
 
 describe('server definitions', () => {
@@ -32,11 +32,11 @@ describe('server definitions', () => {
 
       before(() => {
         const content = readFileSync(join(SERVERS_DIR, file), 'utf-8');
-        parsed = TOML.parse(content);
+        parsed = YAML.parse(content);
       });
 
-      it('parses as valid TOML', () => {
-        assert.ok(parsed, 'TOML did not parse');
+      it('parses as valid YAML', () => {
+        assert.ok(parsed, 'YAML did not parse');
       });
 
       it('has required top-level fields', () => {
@@ -62,7 +62,7 @@ describe('server definitions', () => {
       it('has at least one tool defined', () => {
         assert.ok(
           Array.isArray(parsed.tools) && parsed.tools.length > 0,
-          'Must have at least one [[tools]] entry'
+          'Must have at least one tool entry'
         );
       });
 
