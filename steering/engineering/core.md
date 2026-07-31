@@ -106,4 +106,4 @@ These rules exist because the most common and expensive engineering failures are
 
 When a rule feels like it is slowing things down, that is usually a sign that planning was skipped, not that the rule is wrong.
 
-**Placeholder — Git Workflow Standards:** Rules for branch naming, commit conventions, PR process, and agent-driven automation of git workflows will be added to `steering/engineering/git-workflow.md` when defined.
+**Git Workflow Standards:** See `steering/engineering/git-workflow-framework.md` (this repo) and `steering/engineering/git-workflow-projects.md` (project repos).

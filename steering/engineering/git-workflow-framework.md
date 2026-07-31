@@ -1,0 +1,29 @@
+---
+name: "git-workflow-framework"
+version: "0.1.0"
+description: "Git workflow for the ai-foundation repository."
+---
+
+## Scope
+
+All agents working in the `ai-foundation` repository.
+
+---
+
+## Rules
+
+1. **Direct commits to main are permitted.** No branch or PR required.
+2. **Commits must be atomic.** One logical change per commit. Imperative mood, <70 chars.
+3. **Never force push main.** Use `git revert` to undo mistakes.
+4. **Tests must pass before pushing.** Run `npm test` first.
+
+---
+
+## Rationale
+
+This repo is framework docs and plain text — low risk, easy to revert. Branching overhead isn't justified yet.
+
+## Exceptions
+
+- When a code review bot or CI is added, this file will be replaced with a PR-based workflow.
+- Pushing with broken tests is only acceptable if the commit itself fixes the breakage.
