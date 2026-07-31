@@ -24,37 +24,19 @@ All agents working in project repositories that use the ai-foundation framework.
 5. **Never force push.** No `--force` or `--amend` on pushed commits.
 6. **Include Plan ID** in the first commit message on a branch.
 
-### Human Gates
+### Merging
 
-7. **Epic Plan** — human approves before any chunk plans are written.
-8. **Chunk Plans** — human approves before any code is written.
-9. **PR review** — human reviews and merges after all agent work is complete (code, review, tests, docs).
-
-### Merge
-
-10. **Main is always deployable.** Do not merge broken code.
-11. **Squash merge preferred.** Keeps main history clean.
-12. **Delete branch after merge.**
-
----
-
-## Agent Workflow on a Branch
-
-```
-Branch created → Software-Engineer implements
-    → Principal-Engineer reviews → corrections if needed
-    → Test-Engineer verifies → Engineering-Tech-Writer documents
-    → PR opened → Human reviews and merges
-```
-
-The entire review-correction loop stays on the branch. The human sees only the final result.
+7. **Main is always deployable.** Do not merge broken code.
+8. **Squash merge preferred.** Keeps main history clean.
+9. **Delete branch after merge.**
+10. **Human reviews and merges every PR.** No agent may merge to main.
 
 ---
 
 ## Rationale
 
-Agents produce code at speed. Branches contain blast radius. Human gates at plan approval and PR review ensure nothing ships without oversight.
+Branches contain blast radius. Human-only merges ensure nothing ships without oversight.
 
 ## Exceptions
 
-- Trivial fixes (typos, comment corrections) may skip the full plan cycle but still require a branch and PR.
+- Trivial fixes (typos, comment corrections) may use a branch without a full plan but still require a PR and human merge.
