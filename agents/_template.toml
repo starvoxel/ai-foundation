@@ -1,0 +1,83 @@
+---
+# Unique identifier for this agent. Use kebab-case.
+# Example: "architect", "tech-lead", "software-engineer"
+name: "agent-name"
+
+# Semantic version. Start at 0.1.0 for new agents.
+# MAJOR.MINOR.PATCH — see AGENTS.md versioning rules.
+# 0.x.y = pre-stable. 1.0.0 = first stable release after validation.
+version: "0.1.0"
+
+# The domain this agent operates in. Determines which steering files apply.
+# Common values: "engineering", "product", "docs"
+# An engineering agent automatically loads steering/global/**/*.md and steering/engineering/**/*.md
+# See AGENTS.md "Steering is implicit from domain" for details.
+domain: "engineering"
+
+# One-sentence description of what this agent does.
+# This is what appears in discovery scans — make it clear and specific.
+description: "Brief description of the agent's role and primary responsibility."
+
+# Full system prompt. This is injected as the agent's instructions by the harness.
+# Write it as if speaking directly to the agent: "You are the X agent. Your role is..."
+# Can be as long as needed.
+prompt: |
+  You are the [Agent Name] agent.
+
+  Your role is to [primary responsibility].
+
+  [Describe the agent's responsibilities, process, and behaviour here.
+  Be specific about when the agent should be invoked, what its inputs are,
+  what its outputs are, and any hard rules it must follow.]
+
+  Key responsibilities:
+  - [Responsibility 1]
+  - [Responsibility 2]
+  - [Responsibility 3]
+
+  When to invoke this agent:
+  - [Condition 1]
+  - [Condition 2]
+
+  Hard rules:
+  - [Rule 1 — state as an imperative with no exceptions]
+  - [Rule 2]
+  - [Rule 3]
+
+# All tools this agent can potentially use.
+# Only list tools the agent genuinely needs for its role.
+# IMPORTANT: Use harness-specific tool names here. Examples below are placeholders.
+# Kiro uses: "read", "write", "code", "shell", "web_search", "grep", "glob"
+# Your harness may use different names — replace these with actual names.
+tools:
+  - "file-read"
+  - "file-write"
+  - "web-search"
+  - "shell-exec"
+
+# Subset of tools the agent can use without requiring human approval.
+# Be conservative here — when in doubt, require approval.
+# Tools in `tools` but not in `approved_tools` will prompt the user before use.
+approved_tools:
+  - "file-read"
+
+# Skills this agent can invoke. Reference by path relative to repo root without extension.
+# Example: ["skill/decision-record", "skill/option-analysis"]
+# Omit this field entirely if the agent uses no skills.
+skills: []
+---
+
+# Optional: Create a companion .md file for extended documentation
+#
+# agents/{name}.md should contain:
+# - Detailed process description
+# - Examples of inputs and outputs
+# - Decision record formats or artifact schemas if applicable
+# - Integration with the planning flow
+# - Future considerations
+#
+# Add a machine-exclusion notice at the top of the .md file:
+#
+# > **Note:** This file is supplementary documentation for humans.
+# > The canonical agent definition is in `{name}.toml`.
+# > Agents should load the `.toml` file, not this one.

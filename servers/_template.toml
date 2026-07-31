@@ -1,0 +1,57 @@
++++
+# Unique identifier for this server. Use kebab-case.
+# Example: "filesystem", "github", "database"
+name = "server-name"
+
+# Semantic version. Start at 1.0.0 for new servers.
+# MAJOR.MINOR.PATCH — see AGENTS.md versioning rules.
+version = "0.1.0"
+
+# Protocol this server uses.
+# Current supported value: "mcp" (Model Context Protocol)
+protocol = "mcp"
+
+# Transport layer.
+# Common values: "stdio" (subprocess), "http" (remote)
+transport = "stdio"
+
+# One-sentence description of what this server provides.
+# This is what appears in discovery scans — make it clear and specific.
+description = "Brief description of what tools this server exposes and what domain it covers."
+
+# Define each tool the server exposes.
+# Add one [[tools]] block per tool.
+# Inputs: list each parameter as "name (type): description [optional]"
+# Types: string, number, boolean, array, object
+
+[[tools]]
+name = "tool-name"
+description = "What this tool does and when to use it. One or two sentences."
+inputs = [
+    "param1 (string): Description of this parameter",
+    "param2 (boolean): Description of this parameter [optional, default: false]"
+]
+outputs = "Description of what this tool returns and in what format."
+
+[[tools]]
+name = "another-tool"
+description = "What this tool does and when to use it."
+inputs = [
+    "param1 (string): Description of this parameter"
+]
+outputs = "Description of what this tool returns."
+
+# Add more [[tools]] blocks as needed.
+
++++
+
+# Optional: Create a companion .md file for detailed tool documentation
+#
+# servers/{name}.md is useful when:
+# - Tools have complex input schemas that need examples
+# - Tools have non-obvious behaviour or edge cases
+# - The server requires setup or configuration instructions
+#
+# Add a machine-exclusion notice at the top only if the .md is purely
+# human documentation. If agents may benefit from the detail, leave it
+# readable by both.

@@ -1,23 +1,24 @@
 # AI Foundation
 
-A framework for structured AI-assisted software development using a team of specialized agents.
-Defines agent roles, planning artifacts, coding standards, and a self-improving feedback loop.
+A portable, harness-agnostic framework for AI-assisted software development.
+Defines agent roles, reusable procedures, enforced rules, and coding standards
+as plain files that any AI harness can load.
 
-Designed to work with any AI agent harness (Kiro, Cursor, Copilot, LangGraph, AutoGen, etc.)
-by keeping all agent definitions, rules, and artifact formats as plain markdown files.
+Works with Kiro, Cursor, Copilot, LangGraph, AutoGen, or any tool that can
+inject text into an agent's context.
 
 ---
 
 ## What This Is
 
-A set of portable, harness-agnostic documents that define:
+A structured framework that defines:
 
-- **Who** does what — named agent roles with explicit responsibilities and hard rules
-- **What** they produce — standardized artifact formats for plans, decisions, reviews, and tests
-- **How** quality is enforced — security, logging, and standards rules baked into every artifact
-- **How** work grows over time — a feedback loop from outcomes back into agent improvement
+- **Who** does what — named agent roles with explicit responsibilities and prompts
+- **What procedures they follow** — skills that define reusable step-by-step processes
+- **What rules govern them** — steering files that enforce behaviour unconditionally
+- **What reference material they draw on** — standards and knowledge files
 
-Everything is markdown. Nothing is tied to a specific tool.
+Nothing here is tied to a specific AI harness. Everything is plain text.
 
 ---
 
@@ -25,12 +26,15 @@ Everything is markdown. Nothing is tied to a specific tool.
 
 | Agent | Role |
 |---|---|
-| [Architect](agents/architect.md) | Technical decision-making, option exploration, Decision Records |
-| [Tech-Lead](agents/tech-lead.md) | Epic and Chunk Plan authoring, decomposition, parallelization |
-| [Software-Engineer](agents/software-engineer.md) | Implementation and correction of review findings |
-| [Principal-Engineer](agents/principal-engineer.md) | Code review, security enforcement, standards verification |
-| [Test-Engineer](agents/test-engineer.md) | Test authoring and execution |
-| [Engineering-Tech-Writer](agents/engineering-tech-writer.md) | Inline docs, README updates, CHANGELOG |
+| Architect | Technical decision-making, option exploration, Decision Records |
+| Tech-Lead | Epic and Chunk Plan authoring, decomposition, parallelization |
+| Software-Engineer | Implementation and correction of review findings |
+| Principal-Engineer | Code review, security enforcement, standards verification |
+| Test-Engineer | Test authoring and execution |
+| Engineering-Tech-Writer | Inline docs, README updates, CHANGELOG |
+
+Agent definitions live in `agents/`. Each agent has a `.toml` file (canonical definition)
+and optionally a `.md` companion for extended documentation.
 
 ---
 
@@ -63,60 +67,95 @@ Human review gates occur at three points:
 
 ---
 
-## Artifact Formats
-
-| Artifact | File | Description |
-|---|---|---|
-| Epic Plan | [epic-plan-format.md](epic-plan-format.md) | Full feature scope, human-reviewable |
-| Chunk Plan | [plan-artifact-format.md](plan-artifact-format.md) | Agent-executable, parallelizable |
-| Decision Record | Embedded in [architect.md](agents/architect.md) | Technical decision + rationale |
-| Review Report | Embedded in [principal-engineer.md](agents/principal-engineer.md) | Findings by severity |
-| Test Results | Embedded in [test-engineer.md](agents/test-engineer.md) | Pass/fail per test case |
-
----
-
-## Standards
-
-Standards files populate the security, logging, testing, and documentation sections
-of every plan. They are composed in layers:
-
-```
-Universal schema (plan-artifact-format.md)
-    + Language/stack standards (standards/{stack}.md)
-        + Project standards (projects/{name}/project-standards.md)
-```
-
-| File | Applies To |
-|---|---|
-| [standards/csharp-avalonia.md](standards/csharp-avalonia.md) | C# / .NET / Avalonia / ReactiveUI projects |
-| [projects/_template/project-standards.md](projects/_template/project-standards.md) | Copy per project and fill in |
-
----
-
 ## Directory Structure
 
 ```
 ai-foundation/
-├── README.md                              ← This file
-├── architecture-scoping.md               ← Decisions made in setting up this framework
-├── epic-plan-format.md                   ← Epic Plan artifact schema
-├── plan-artifact-format.md               ← Chunk Plan artifact schema
-├── agents/
-│   ├── architect.md
-│   ├── tech-lead.md
-│   ├── software-engineer.md
-│   ├── principal-engineer.md
-│   ├── test-engineer.md
-│   └── engineering-tech-writer.md
-├── standards/
+├── AGENTS.md                        ← Entry point for AI agents
+├── README.md                        ← This file (human reference)
+│
+├── agents/                          ← Agent definitions (.toml + optional .md)
+│   └── _template.toml
+│
+├── skills/                          ← Reusable procedures agents invoke
+│   └── _template.md
+│
+├── steering/                        ← Always-on rules applied to agents
+│   ├── _template.md
+│   ├── global/                      ← Applies to all agents
+│   │   └── core.md
+│   └── engineering/                 ← Applies to engineering-domain agents
+│       └── core.md
+│
+├── standards/                       ← Prescriptive coding/stack rules
 │   └── csharp-avalonia.md
-└── projects/
+│
+├── servers/                         ← Tool server definitions (MCP, etc.)
+│   └── _template.toml
+│
+└── projects/                        ← Per-project overrides and standards
     └── _template/
         └── project-standards.md
 ```
 
 Plans and decisions for specific projects live in the project's own repository,
 not here. This repo is the framework only.
+
+---
+
+## Component Types
+
+| Type | Format | Purpose |
+|---|---|---|
+| Agent | `.toml` (+ optional `.md`) | Named persona with role, prompt, tools, skills |
+| Skill | `.md` with front-matter | Reusable step-by-step procedure |
+| Steering | `.md` with front-matter | Always-on rules enforced unconditionally |
+| Standards | `.md` | Prescriptive coding/stack rules |
+| Knowledge | `.md` | Descriptive reference material |
+| Server | `.toml` (+ optional `.md`) | Tool provider definition (MCP, etc.) |
+
+See `AGENTS.md` for full schemas, loading rules, and authoring guidelines.
+
+---
+
+## Standards
+
+Standards files define prescriptive rules for a language or stack. Deviation requires
+an explicit exception noted in the plan.
+
+| File | Applies To |
+|---|---|
+| `standards/csharp-avalonia.md` | C# / .NET / Avalonia / ReactiveUI projects |
+| `projects/_template/project-standards.md` | Copy per project and fill in |
+
+---
+
+## Installation
+
+Agent definitions can be deployed to supported AI harnesses using the install script.
+Uses **symlinks** so `git pull` automatically propagates updates — no reinstall needed.
+
+```powershell
+# Install to all detected harnesses (run as Administrator)
+.\install.ps1
+
+# Install to a specific harness only
+.\install.ps1 -Harness Kiro
+.\install.ps1 -Harness Copilot
+
+# Preview what would happen without making changes
+.\install.ps1 -DryRun
+
+# Remove all installed symlinks/files
+.\install.ps1 -Uninstall
+```
+
+| Harness | How it installs | Location |
+|---|---|---|
+| Kiro CLI | Symlinks `.md` files | `~/.kiro/agents/` |
+| VS Code Copilot | Generates `.agent.md` wrapper files | `%APPDATA%/Code/User/globalStorage/github.copilot-chat/` |
+
+> Requires running PowerShell as Administrator for symlink creation on Windows.
 
 ---
 
@@ -127,18 +166,4 @@ not here. This repo is the framework only.
 - **Product domain agents** — PRD authoring, UX, product decision-making
 - **Self-improvement pipeline** — outcome logging, evaluation, prompt evolution
 - **Context and memory layer** — RAG over codebase, episodic memory of past tasks
-
----
-
-## Using This With an AI Harness
-
-Each agent definition in `agents/` is structured to be usable as a system prompt
-or agent instruction file. The key sections are:
-
-- **Purpose** — what the agent is for
-- **Hard Rules** — non-negotiable constraints to enforce strictly
-- **Process** — the steps the agent follows
-- **Inputs / Outputs** — what it reads and what it produces
-
-To configure an agent in your harness, point it at the relevant `agents/*.md` file
-and the applicable `standards/` and `projects/` files for context.
+- **Agent `.toml` migration** — convert existing agent `.md` files to canonical `.toml` format
