@@ -34,6 +34,7 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Shared test library (lib/test-helpers.js) | S | v0.1 | ✅ Done |
 | Directory READMEs | S | v0.1 | ✅ Done |
 | Harness integration (load agents + steering in real sessions) | M | v1.0 | 🔲 |
+| Install/deploy overhaul (dynamic discovery, .yaml support, tested) | M | v1.0 | 🔲 |
 | Model selection per agent | S | v1.0 | 🔲 |
 | Work Log system (persistent activity tracking) | M | v1.1 | 🔲 |
 | Task/progress tracking (chunk status across Epics) | L | v1.1 | 🔲 |
@@ -54,8 +55,9 @@ Structure defined and validated. Agents, skills, steering, and tests exist as pl
 Everything is portable and harness-agnostic.
 
 ### v1.0 — MVP
-Agents load in a harness with steering applied. The planning flow works end-to-end
-on a real project. Minimum needed to start using this for actual development.
+Agents load in a harness with steering applied. The install/deploy process is tested
+and works with the current .yaml format. The planning flow works end-to-end on a
+real project. Minimum needed to start using this for actual development.
 
 ### v1.1 — Observability
 Track what happened (Work Log), what's in progress (task tracking), and catch

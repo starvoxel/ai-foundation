@@ -430,6 +430,7 @@ node --test servers/servers.test.js
 |---|---|
 | `tests/schemas.test.js` | Schema validation: required fields, semver, kebab-case, naming conventions |
 | `tests/tools.test.js` | Tool availability: install script exists, agent tools documented in servers |
+| `tests/install.test.js` | Install script: dry-run output, idempotency, dynamic agent discovery |
 | `servers/{name}/{name}.test.js` | Server integration: startup, tool listing, tool invocation |
 
 **Dependencies:** Install with `npm install` (only runtime dependency is `yaml` for YAML parsing).
