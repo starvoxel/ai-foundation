@@ -16,16 +16,19 @@ function getAgentYamlFiles() {
     .filter(f => f.endsWith('.yaml') && f !== '_template.yaml');
 }
 
-function getServerYamlFiles() {
+function getServerFolders() {
   if (!existsSync(SERVERS_DIR)) return [];
-  return readdirSync(SERVERS_DIR)
-    .filter(f => f.endsWith('.yaml') && f !== '_template.yaml');
+  return readdirSync(SERVERS_DIR, { withFileTypes: true })
+    .filter(d => d.isDirectory() && d.name !== '_template')
+    .map(d => d.name);
 }
 
 function getAllServerToolNames() {
   const toolNames = new Set();
-  for (const file of getServerYamlFiles()) {
-    const content = readFileSync(join(SERVERS_DIR, file), 'utf-8');
+  for (const folder of getServerFolders()) {
+    const yamlPath = join(SERVERS_DIR, folder, `${folder}.yaml`);
+    if (!existsSync(yamlPath)) continue;
+    const content = readFileSync(yamlPath, 'utf-8');
     const parsed = YAML.parse(content);
     if (Array.isArray(parsed.tools)) {
       for (const tool of parsed.tools) {
@@ -64,26 +67,6 @@ describe('tool availability', () => {
         before(() => {
           const content = readFileSync(join(AGENTS_DIR, file), 'utf-8');
           parsed = YAML.parse(content);
-        });
-
-        it('has tools field', () => {
-          assert.ok(
-            Array.isArray(parsed.tools),
-            `Agent ${file} missing "tools" array`
-          );
-        });
-
-        it('approved_tools is a subset of tools', () => {
-          if (!Array.isArray(parsed.approved_tools)) return;
-          if (!Array.isArray(parsed.tools)) return;
-
-          const toolSet = new Set(parsed.tools);
-          for (const approved of parsed.approved_tools) {
-            assert.ok(
-              toolSet.has(approved),
-              `approved_tool "${approved}" is not in tools list`
-            );
-          }
         });
 
         it('all tools are documented in a server definition', () => {

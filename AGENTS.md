@@ -54,8 +54,10 @@ ai-foundation/
 │   └── csharp-avalonia.md
 │
 ├── servers/                         ← Tool server definitions (MCP or other protocols)
-│   ├── _template.yaml               ← Template for new server definitions
-│   └── ...
+│   ├── _template/                   ← Template for new servers
+│   │   ├── _template.yaml
+│   │   └── _template.test.js
+│   └── ...                          ← Each server is a folder
 │
 ├── projects/                        ← Per-project overrides and standards
 │   └── _template/
@@ -80,7 +82,7 @@ ai-foundation/
 | `steering/{domain}/core.md` | Load based on the agent's domain |
 | `standards/{name}.md` | Load when working in that language/stack |
 | `projects/{name}/project-standards.md` | Load when working on that project |
-| `servers/{name}.yaml` | Load to understand an available tool server |
+| `servers/{name}/{name}.yaml` | Load to understand an available tool server |
 
 ### What not to load
 
@@ -195,7 +197,7 @@ exposes, and how to interact with it. Protocol is declared in the YAML (`protoco
 
 **Format:** `.yaml` required, `.md` optional for detailed tool documentation.
 
-**Lives in:** `servers/`
+**Lives in:** `servers/{server-name}/`
 
 ---
 
@@ -382,10 +384,11 @@ skill in their `skills` field should be reviewed to confirm they still work corr
 
 ### When creating a new server definition
 
-1. Copy `servers/_template.yaml` to `servers/{name}.yaml`
-2. Document every tool the server exposes
-3. Be precise about inputs — include types and whether optional/required
-4. Optionally create `servers/{name}.md` for detailed tool documentation
+1. Copy `servers/_template/` to `servers/{name}/`
+2. Rename `_template.yaml` to `{name}.yaml` and `_template.test.js` to `{name}.test.js`
+3. Document every tool the server exposes
+4. Be precise about inputs — include types and whether optional/required
+5. Optionally create `servers/{name}/{name}.md` for detailed tool documentation
 
 ---
 
@@ -425,9 +428,9 @@ node --test servers/servers.test.js
 
 | File | What it validates |
 |---|---|
-| `servers/servers.test.js` | Server `.yaml` schema: required fields, semver, kebab-case, tool entries |
-| `servers/{name}.test.js` | Server integration: startup, tool listing, tool invocation |
-| `tests/tools.test.js` | Tool availability: install script exists, agent tools documented in servers, `approved_tools ⊆ tools` |
+| `tests/schemas.test.js` | Schema validation: required fields, semver, kebab-case, naming conventions |
+| `tests/tools.test.js` | Tool availability: install script exists, agent tools documented in servers |
+| `servers/{name}/{name}.test.js` | Server integration: startup, tool listing, tool invocation |
 
 **Dependencies:** Install with `npm install` (only runtime dependency is `yaml` for YAML parsing).
 
@@ -515,7 +518,7 @@ is available by scanning the relevant directories:
 - **Skills** — list `skills/*/SKILL.md` (exclude `_template/`)
 - **Steering** — list `steering/**/*.md` (exclude `_template.md` and `README.md`)
 - **Standards** — list `standards/*.md` (exclude `README.md`)
-- **Servers** — list `servers/*.yaml` (exclude `_template.yaml`)
+- **Servers** — list `servers/*/{name}.yaml` (exclude `_template/`)
 
 Each file's front-matter `description` field tells you what it covers without
 loading the full content.
