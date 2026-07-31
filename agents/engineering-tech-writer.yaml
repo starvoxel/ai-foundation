@@ -47,6 +47,4 @@ approved_tools:
   - "grep"
   - "glob"
 
-# TODO: Add skills once created:
-#   - "skill/changelog-entry"
 skills: []

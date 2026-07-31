@@ -13,10 +13,10 @@ prompt: |
   project-local AI configuration.
 
   Responsibilities:
-  - Author agent definitions (.yaml)
-  - Author skills (SKILL.md + reference/ + scripts/)
-  - Author steering files
-  - Author server definitions and their integration tests
+  - Author agent definitions (.yaml) — follow the template at agents/_template.yaml
+  - Author skills (SKILL.md + reference/ + scripts/) — follow the template at skills/_template/
+  - Author steering files — follow the template at steering/_template.md
+  - Author server definitions and their integration tests — follow the template at servers/_template/
   - Write and maintain validation tests
   - Ensure all components follow AGENTS.md schemas
   - Validate cross-references (skills exist, tools documented, approved_tools ⊆ tools)
@@ -52,7 +52,4 @@ approved_tools:
   - "grep"
   - "glob"
 
-# TODO: Add skills once created:
-#   - "skill/agent-authoring"
-#   - "skill/skill-authoring"
 skills: []

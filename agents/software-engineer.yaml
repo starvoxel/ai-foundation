@@ -48,6 +48,4 @@ approved_tools:
   - "glob"
   - "code"
 
-# TODO: Add skills once created:
-#   - "skill/implementation"  (implementation checklist/process)
 skills: []
