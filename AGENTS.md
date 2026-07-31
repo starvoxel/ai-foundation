@@ -426,6 +426,7 @@ node --test servers/servers.test.js
 | File | What it validates |
 |---|---|
 | `servers/servers.test.js` | Server `.yaml` schema: required fields, semver, kebab-case, tool entries |
+| `servers/{name}.test.js` | Server integration: startup, tool listing, tool invocation |
 | `tests/tools.test.js` | Tool availability: install script exists, agent tools documented in servers, `approved_tools ⊆ tools` |
 
 **Dependencies:** Install with `npm install` (only runtime dependency is `yaml` for YAML parsing).
@@ -434,6 +435,66 @@ node --test servers/servers.test.js
 
 **Adding tests:** Place test files in the directory of the component they validate,
 named `{component}.test.js`. The glob pattern `**/*.test.js` picks them up automatically.
+
+---
+
+### Server Integration Test Requirements
+
+Every server definition in `servers/` must have a corresponding integration test at
+`servers/{name}.test.js` that validates the server is functional — not just well-formed.
+
+**Required test coverage for each server:**
+
+1. **Startup** — The server process starts without error and is ready to accept requests
+   within a reasonable timeout (default: 10 seconds).
+
+2. **Tool listing** — The server responds to a tool/list request and returns all tools
+   declared in its `.yaml` definition. The test must verify that every tool name in
+   the YAML is present in the server's response.
+
+3. **Tool invocation** — Each tool declared by the server can be called with valid
+   inputs and returns a response without error. The test must:
+   - Call each tool with minimal valid parameters
+   - Verify the response is not an error
+   - Verify the response structure matches what `outputs` describes (where verifiable)
+
+**Test structure:**
+
+```javascript
+import { describe, it, before, after } from 'node:test';
+
+describe('server: {name}', () => {
+  let server;
+
+  before(async () => {
+    // Start the server process (stdio or http based on transport field)
+    // Wait for ready signal
+  });
+
+  after(async () => {
+    // Gracefully shut down the server
+  });
+
+  it('starts without error', () => { /* ... */ });
+
+  it('lists all declared tools', () => { /* ... */ });
+
+  describe('tool invocation', () => {
+    it('{tool-name} responds to valid input', () => { /* ... */ });
+    // One test per tool
+  });
+});
+```
+
+**Exceptions:**
+- Servers that require external infrastructure (databases, APIs with auth) may mark
+  specific tool invocation tests as skipped with a documented reason.
+- The startup and tool listing tests are never optional.
+
+**When to write:** A server integration test must exist before the server definition
+is considered complete. Schema-only definitions (`.yaml` without a running server)
+are acceptable during development but must be marked `version: "0.x.y"` to signal
+they are not yet validated.
 
 ---
 
