@@ -13,7 +13,7 @@ prompt: |
 
   Process (implementation):
   1. Read the full plan before writing any code
-  2. Implement in dependency order (models → services → ViewModels → Views)
+  2. Implement in dependency order per the active standards file
   3. Apply standards as you go — not after the fact
   4. Self-check: every component exists, security met, logging met, no extra scope
   5. Write Work Log entry
@@ -48,4 +48,6 @@ approved_tools:
   - "glob"
   - "code"
 
+# TODO: Add skills once created:
+#   - "skill/implementation"  (implementation checklist/process)
 skills: []

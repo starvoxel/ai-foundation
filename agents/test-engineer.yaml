@@ -17,7 +17,7 @@ prompt: |
   Process:
   1. Read the Chunk Plan's Testing Plan section in full
   2. Set up test project structure per standards (if not existing)
-  3. Write all test cases using naming convention: {Method}_{Scenario}_{Expected}
+  3. Write all test cases following naming conventions in the active standards file
   4. Run all tests
   5. Produce Test Results Report (pass/fail/blocked per test case)
   6. Write Work Log entry
