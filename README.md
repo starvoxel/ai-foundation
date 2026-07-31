@@ -161,9 +161,12 @@ Uses **symlinks** so `git pull` automatically propagates updates — no reinstal
 
 ## Future / Planned
 
+- **Work Log system** — persistent tracking of agent activity for audit and self-improvement
+- **Task/progress tracking** — system to track chunk status (in progress, blocked, done) across Epics
+- **Model selection per agent** — allow agents to declare preferred model in their definition
+- **Self-improvement pipeline** — outcome logging, evaluation, prompt evolution
+- **CI/CD pipeline** — automated test runs on push
 - **Plan Reviewer agent** — reviews Epic and Chunk Plans before human approval
 - **Epic QA agent** — broad end-to-end acceptance verification across a completed Epic
 - **Product domain agents** — PRD authoring, UX, product decision-making
-- **Self-improvement pipeline** — outcome logging, evaluation, prompt evolution
 - **Context and memory layer** — RAG over codebase, episodic memory of past tasks
-- **Agent `.yaml` migration** — convert existing agent `.md` files to canonical `.yaml` format
