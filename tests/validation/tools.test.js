@@ -7,10 +7,10 @@ import {
   parseYaml,
   getAgentFiles,
   getAllServerToolNames,
-} from '../lib/test-helpers.js';
+} from '../../lib/test-helpers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, '..');
+const ROOT = join(__dirname, '..', '..');
 const AGENTS_DIR = join(ROOT, 'agents');
 const SERVERS_DIR = join(ROOT, 'servers');
 
