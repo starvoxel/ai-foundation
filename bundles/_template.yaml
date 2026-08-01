@@ -1,0 +1,16 @@
+name: "bundle-name"
+version: "0.1.0"
+description: "One sentence describing what this bundle installs."
+
+# Auto-discover all components in this domain (optional).
+# When set, the resolver finds agents with this domain, collects their
+# skills, includes global + domain steering, and resolves servers from
+# agent tool references (@server/tool format).
+domain: ""
+
+# Explicit additions — appended after auto-discovered components.
+# All lists are optional. Omit any you don't need.
+agents: []
+skills: []
+steering: []
+servers: []
