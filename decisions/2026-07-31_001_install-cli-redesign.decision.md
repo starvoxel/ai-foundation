@@ -10,7 +10,7 @@
 | Author (Agent) | Architect |
 | Confirmed By | Pending |
 | Created | 2026-07-31 21:08 |
-| Referenced By | — |
+| Referenced By | AIF-002 |
 
 ---
 
@@ -195,6 +195,6 @@ Used for:
 | # | Item | Resolution |
 |---|---|---|
 | 1 | Kiro MCP server install location | MCP settings live at `~/.kiro/settings/mcp.json` (for registration). Local-run server scripts/executables are copied to `~/.kiro/servers/{name}/` so they exist on disk for the MCP config to reference. The installer both copies server files and merges entries into `mcp.json`. |
-| 2 | Define Copilot/Claude Code adapter specs | Deferred to v2. |
+| 2 | Define Copilot/Claude Code adapter specs | Steering scoping resolved in AIF-002. Full adapter implementation deferred to v2. |
 | 3 | `aif validate` vs existing `tests/` scripts | Deferred. Will replace them when implemented. |
 | 4 | Bundle `domain` field required or optional | Optional. Each component list (`agents`, `skills`, `steering`, `servers`) is also optional. A bundle with only `domain` is valid. A bundle with only explicit lists is valid. Resolver errors if nothing is specified (no domain and no lists). Resolver deduplicates components across domain-discovered and explicitly-listed entries. |
