@@ -2,7 +2,6 @@
 name: "engineering-core"
 version: "0.2.0"
 description: "Core rules that apply to all agents operating in the engineering domain."
-applies_to: "all"
 file_patterns: []
 ---
 

@@ -5,20 +5,9 @@ name: "steering-name"
 # Semantic version. Start at 0.1.0 for new steering files.
 version: "0.1.0"
 
-# One-sentence description of what this enforces. Agents use this to decide
-# whether to load the full content — make it specific.
+# One-sentence description of what this enforces. Should be specific enough
+# to decide relevance without reading the body.
 description: "Brief description of the scope and what rules this enforces."
-
-# Which agents should load this file. Helps agents and harnesses skip irrelevant
-# steering without reading the body.
-#
-# Values:
-#   "all"                        — Every agent in this domain/scope
-#   ["agent-name", ...]          — Only these specific agents
-#   { roles: ["impl", "test"] }  — Agents performing these roles
-#
-# When omitted, defaults to "all".
-applies_to: "all"
 
 # Glob patterns controlling when this file is loaded.
 # Empty or omitted = always loaded (unconditional).
@@ -38,7 +27,7 @@ file_patterns: []
 Define who this steering applies to and when.
 
 **This steering applies to:**
-- {Global: all agents, or Domain: agents in the X domain, or specific agents/roles}
+- {Global: all agents, or Domain: agents in the X domain}
 
 **Loaded when:**
 - {When is this steering file loaded? e.g. "Every session start", "When working with test files"}

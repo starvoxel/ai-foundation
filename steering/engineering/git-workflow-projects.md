@@ -2,7 +2,6 @@
 name: "git-workflow-projects"
 version: "0.1.0"
 description: "Git workflow for project repositories where agents produce code."
-applies_to: "all"
 file_patterns: []
 ---
 

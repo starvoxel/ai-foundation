@@ -80,7 +80,6 @@ A single `file_patterns` field captures the portable intent: "this file applies 
 name: "steering-name"
 version: "0.1.0"
 description: "One sentence."
-applies_to: "all"          # Who: "all" | ["agent-name", ...] | { roles: [...] }
 file_patterns: []          # When: [] = always | ["glob", ...] = conditional
 ---
 ```
@@ -93,9 +92,18 @@ file_patterns: []          # When: [] = always | ["glob", ...] = conditional
 | `["**/*.test.js"]` | `inclusion: "fileMatch"` | `applyTo: "**/*.test.js"` | `paths: ["**/*.test.js"]` |
 | `["src/**", "lib/**"]` | `inclusion: "fileMatch"` | `applyTo: "src/**, lib/**"` | `paths: ["src/**", "lib/**"]` |
 
-### `applies_to` Resolution
+### Agent/Role Scoping — Removed
 
-The `applies_to` field is resolved at install time by the bundle resolver — not by the harness adapter. If a file's `applies_to` doesn't match the agent being installed, the file is simply skipped (not copied to the target). No harness has native agent-scoping, so this is always a resolver concern.
+The `applies_to` field was initially included to let agents skip irrelevant steering
+based on frontmatter alone. It was removed because:
+
+1. No harness supports agent-role scoping natively — all load entire files or nothing
+2. Frontmatter vs body makes no difference to context consumption (whole file loads)
+3. Agent-scoped steering is better handled by bundle composition (install different
+   bundles for different agents) or by putting agent-specific rules in the agent's
+   `prompt` field where they belong
+4. The Scope section in the body already documents who the steering is for (as prose
+   for human/agent comprehension), which is sufficient
 
 ---
 
@@ -115,7 +123,7 @@ The `applies_to` field is resolved at install time by the bundle resolver — no
 |---|---|---|
 | 1 | Whether `inclusion` or `file_patterns` is the right field name | `file_patterns` — harness-agnostic, self-contained with actual globs. |
 | 2 | What happens to the `manual` case | Dropped. Files not in a bundle don't get installed. Equivalent outcome. |
-| 3 | Where does `applies_to` get resolved | At the resolver/installer level, not at the harness adapter level. No harness supports native agent scoping. |
+| 3 | Whether `applies_to` should exist | Removed. No harness supports agent-role scoping. Whole file loads or nothing — frontmatter doesn't help skip context. Use bundle composition or agent `prompt` field instead. |
 | 4 | Copilot format for conditional instructions | `.instructions.md` files with `applyTo: "glob"` in YAML frontmatter. Lives in `.github/instructions/`. |
 | 5 | Claude Code format for conditional rules | `.md` files in `.claude/rules/` with optional `paths: ["glob"]` in YAML frontmatter. No paths = always loaded. |
 | 6 | Kiro format for conditional steering | `.md` files in `.kiro/steering/` with `inclusion: "always"` or `inclusion: "fileMatch"` in frontmatter. |
