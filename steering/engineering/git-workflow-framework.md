@@ -3,7 +3,7 @@ name: "git-workflow-framework"
 version: "0.1.0"
 description: "Git workflow for the ai-foundation repository."
 applies_to: "all"
-inclusion: "always"
+file_patterns: []
 ---
 
 ## Scope

@@ -276,7 +276,7 @@ name: "steering-name"         # Unique identifier, kebab-case
 version: "0.1.0"              # Semver
 description: "One sentence."  # What scope this covers and what it enforces
 applies_to: "all"             # Who loads this — see below
-inclusion: "always"           # When to load — see below
+file_patterns: []             # When to load — see below
 ---
 ```
 
@@ -285,10 +285,14 @@ inclusion: "always"           # When to load — see below
 - `["agent-name", ...]` — only specific named agents
 - `{ roles: ["impl", "test"] }` — agents performing these roles
 
-**`inclusion`** — Controls loading behaviour (Kiro-compatible):
-- `"always"` (default) — loaded every session
-- `"fileMatch"` — only loaded when working with matching file patterns
-- `"manual"` — only loaded when explicitly added
+**`file_patterns`** — Glob patterns controlling when this file is loaded:
+- `[]` or omitted — always loaded (unconditional)
+- `["**/*.test.js", "tests/**"]` — loaded only when working with matching files
+
+Harness adapters translate this to the native mechanism:
+- **Kiro:** `inclusion: "always"` vs `"fileMatch"`
+- **Copilot:** `applyTo: "**"` vs `applyTo: "pattern"`
+- **Claude Code:** no `paths` field vs `paths: ["pattern"]`
 
 Agents can read front-matter to decide whether to load the body. If `applies_to`
 does not match the current agent, the file should be skipped.
@@ -302,7 +306,7 @@ Followed by markdown body with these sections:
 
 **Required front-matter fields:** `name`, `version`, `description`
 
-**Optional front-matter fields:** `applies_to`, `inclusion` (default to `"all"` and `"always"` when omitted)
+**Optional front-matter fields:** `applies_to`, `file_patterns` (default to `"all"` and `[]` when omitted)
 
 ---
 

@@ -3,7 +3,7 @@ name: "global-core"
 version: "0.1.0"
 description: "Core rules that apply to all agents in every session."
 applies_to: "all"
-inclusion: "always"
+file_patterns: []
 ---
 
 ## Scope

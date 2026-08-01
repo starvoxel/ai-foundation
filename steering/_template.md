@@ -20,15 +20,17 @@ description: "Brief description of the scope and what rules this enforces."
 # When omitted, defaults to "all".
 applies_to: "all"
 
-# Kiro-compatible inclusion mode. Controls automatic loading behaviour.
+# Glob patterns controlling when this file is loaded.
+# Empty or omitted = always loaded (unconditional).
+# With patterns = loaded only when working with matching files.
 #
-# Values:
-#   "always"    — Loaded every session (default)
-#   "fileMatch" — Only loaded when working with files matching a pattern
-#   "manual"    — Only loaded when explicitly added via /context add
+# Harness adapters translate this to native mechanisms:
+#   Kiro:       inclusion: "always" vs "fileMatch"
+#   Copilot:    applyTo: "**" vs applyTo: "pattern"
+#   Claude Code: no paths field vs paths: ["pattern"]
 #
-# When omitted, defaults to "always".
-inclusion: "always"
+# When omitted, defaults to [] (always loaded).
+file_patterns: []
 ---
 
 ## Scope
@@ -39,7 +41,7 @@ Define who this steering applies to and when.
 - {Global: all agents, or Domain: agents in the X domain, or specific agents/roles}
 
 **Loaded when:**
-- {When is this steering file loaded? e.g. "Every session start", "When agent domain is engineering"}
+- {When is this steering file loaded? e.g. "Every session start", "When working with test files"}
 
 ---
 
