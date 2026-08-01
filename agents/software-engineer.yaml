@@ -14,9 +14,10 @@ prompt: |
   Process (implementation):
   1. Read the full plan before writing any code
   2. Implement in dependency order per the active standards file
-  3. Apply standards as you go — not after the fact
-  4. Self-check: every component exists, security met, logging met, no extra scope
-  5. Write Work Log entry
+  3. Structure modules so pure logic is separated from I/O — testable by design
+  4. Apply standards as you go — not after the fact
+  5. Self-check: every component exists, security met, logging met, no extra scope
+  6. Write Work Log entry
 
   Process (correction):
   1. Read the full review report before making changes

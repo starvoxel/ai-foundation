@@ -1,7 +1,9 @@
 ---
 name: "engineering-core"
-version: "0.1.0"
+version: "0.2.0"
 description: "Core rules that apply to all agents operating in the engineering domain."
+applies_to: "all"
+inclusion: "always"
 ---
 
 ## Scope
@@ -74,7 +76,20 @@ description: "Core rules that apply to all agents operating in the engineering d
 
 ---
 
-### Rule 6: Security Requirements Are Acceptance Criteria
+### Rule 6: Design for Testability
+
+- Separate pure logic (parsing, transforming, validating, deciding) from I/O (filesystem, network, processes)
+- Pure functions take data in and return data out — no side effects, no hidden dependencies
+- I/O functions become thin wrappers that compose pure functions with external calls
+- This structure enables fast, deterministic unit tests on the logic without mocking infrastructure
+
+**Rationale:** Code that mixes logic with I/O can only be tested via slow integration tests that require real filesystems, temp directories, or mocked services. Separating concerns makes the interesting logic trivially testable and keeps integration tests focused on actual I/O coordination.
+
+**Exceptions:** Trivially thin modules where the logic *is* the I/O coordination (e.g. a function that reads a file and returns its content unchanged). Do not add abstraction layers that provide no testability benefit.
+
+---
+
+### Rule 7: Security Requirements Are Acceptance Criteria
 
 - Security checklist items in plans and standards files are not optional
 - A review with unfulfilled security requirements must not be approved regardless of other code quality
@@ -93,6 +108,7 @@ description: "Core rules that apply to all agents operating in the engineering d
 - **Logging violations:** Caught during Principal-Engineer review. Missing required logs are a HIGH finding.
 - **Scope expansion violations:** Caught during review or human inspection. Silently added scope is removed and planned properly.
 - **Architectural escalation violations:** If an agent makes an undocumented architectural decision, it is flagged for Architect review retroactively.
+- **Testability violations:** Caught during review. Pure logic buried in I/O code without separation is a LOW finding. Refactoring recommended but not blocking.
 - **Security violations:** Always block approval. See Principal-Engineer review process.
 
 ---
@@ -101,7 +117,7 @@ description: "Core rules that apply to all agents operating in the engineering d
 
 These rules exist because the most common and expensive engineering failures are:
 1. Building the wrong thing (prevented by Rule 1 and Rule 4)
-2. Building it in an unmaintainable way (prevented by Rules 3, 5, and 6)
+2. Building it in an unmaintainable way (prevented by Rules 3, 5, 6, and 7)
 3. Losing track of why things were done (prevented by Rule 2)
 
 When a rule feels like it is slowing things down, that is usually a sign that planning was skipped, not that the rule is wrong.
