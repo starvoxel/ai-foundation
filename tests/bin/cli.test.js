@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseArgs, run } from './cli.js';
+import { parseArgs, run } from '../../bin/cli.js';
 
 describe('bin/cli parseArgs()', () => {
   it('returns null command for empty argv', () => {

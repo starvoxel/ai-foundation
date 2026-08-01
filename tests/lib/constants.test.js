@@ -7,7 +7,7 @@ import {
   SOURCE_DIRS,
   KIRO_TARGETS,
   manifestKey,
-} from './constants.js';
+} from '../../lib/constants.js';
 
 describe('lib/constants', () => {
   describe('SOURCE_DIRS', () => {

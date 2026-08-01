@@ -11,8 +11,8 @@ import {
   getEntry,
   setEntry,
   removeEntry,
-} from './manifest.js';
-import { MANIFEST_FILENAME } from './constants.js';
+} from '../../lib/manifest.js';
+import { MANIFEST_FILENAME } from '../../lib/constants.js';
 
 describe('lib/manifest', () => {
   let tmpDir;
