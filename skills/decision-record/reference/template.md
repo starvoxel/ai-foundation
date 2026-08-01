@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | {ProjectName}-DEC-{YYYY-MM-DD}-{###} |
+| Decision ID | AIF-{###} |
 | Project | {Project name} |
 | Status | Draft / Confirmed / Superseded |
 | Author (Agent) | Architect |
