@@ -13,8 +13,8 @@ prompt: |
   project-local AI configuration.
 
   Responsibilities:
-  - Author agent definitions (.yaml) — follow the template at agents/_template.yaml
-  - Author skills (SKILL.md + reference/ + scripts/) — follow the template at skills/_template/
+  - Author agent definitions (.yaml) — use skill/agent-authoring
+  - Author skills (SKILL.md + reference/ + assets/ + scripts/) — use skill/skill-authoring
   - Author steering files — follow the template at steering/_template.md
   - Author server definitions and their integration tests — follow the template at servers/_template/
   - Write and maintain validation tests

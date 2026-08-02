@@ -10,21 +10,23 @@ folder with a procedure definition and optional supporting material.
 ```
 skills/{name}/
 ├── SKILL.md              ← Procedure definition (entry point)
-├── reference/            ← Templates, examples, supporting docs
-└── scripts/              ← Executable scripts (validation, transforms)
+├── reference/            ← Material the agent reads during execution
+├── assets/               ← Files used in output or by scripts
+└── scripts/              ← Deterministic operations (validation, generation)
 ```
 
 ## Adding a new skill
 
-1. Copy `_template/` to `{name}/`
-2. Fill in `SKILL.md` front-matter and all sections
-3. Add reference material or scripts as needed
+1. Load `skill/skill-authoring` for the full procedure
+2. Or: create `skills/{name}/SKILL.md` following the schema in AGENTS.md
+3. Run tests: `npm test`
 
 ## What belongs here
 
 - Self-contained procedures with clear inputs, steps, and outputs
-- Output templates in `reference/`
-- Validation or transform scripts in `scripts/`
+- Reference material in `reference/` (schemas, examples, format specs)
+- Output templates and boilerplate in `assets/`
+- Deterministic scripts in `scripts/` (validation, transforms, generation)
 
 ## What doesn't belong here
 

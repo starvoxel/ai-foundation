@@ -7,8 +7,8 @@ prompt, tools, and skills.
 
 ## Adding a new agent
 
-1. Copy `_template.yaml` to `{name}.yaml`
-2. Fill in all required fields (see `AGENTS.md` for schema)
+1. Load `skill/agent-authoring` for the full procedure
+2. Or: create `{name}.yaml` following the schema in AGENTS.md
 3. Run tests: `npm test`
 
 ## What belongs here

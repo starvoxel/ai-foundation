@@ -15,10 +15,10 @@ servers/{name}/
 
 ## Adding a new server
 
-1. Copy `_template/` to `{name}/`
-2. Rename `_template.yaml` → `{name}.yaml` and `_template.test.js` → `{name}.test.js`
-3. Document every tool with name, description, inputs, and outputs
-4. Implement the integration test
+1. Create `servers/{name}/` with `{name}.yaml` and `{name}.test.js`
+2. Document every tool with name, description, inputs, and outputs
+3. Implement the integration test
+4. See AGENTS.md for the server schema
 
 ## What belongs here
 

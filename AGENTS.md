@@ -2,9 +2,7 @@
 
 > This file is the entry point for AI agents working in this repository.
 > Read this file first. It defines what this repo is, how it is structured,
-> and the rules for authoring and loading its components.
->
-> README.md files in subdirectories are for human reference only — do not load them.
+> and the rules for loading its components.
 
 ---
 
@@ -30,41 +28,31 @@ ai-foundation/
 ├── AGENTS.md                        ← This file. Read first.
 ├── README.md                        ← Human-facing overview. Do not load.
 │
-├── agents/                          ← Agent definitions
-│   ├── _template.yaml               ← Template for new agents
-│   ├── architect.yaml               ← Canonical agent definitions (.yaml)
-│   ├── architect.md                 ← Supplementary docs, optional (.md)
-│   └── ...
+├── agents/                          ← Agent definitions (.yaml + optional .md)
 │
 ├── skills/                          ← Reusable procedures agents can invoke
-│   ├── _template/                   ← Template for new skills
-│   │   ├── SKILL.md
-│   │   └── reference/
-│   └── ...                          ← Each skill is a folder
+│   ├── skill-authoring/             ← How to create new skills
+│   ├── agent-authoring/             ← How to create new agents
+│   └── {name}/                      ← Each skill is a folder with SKILL.md
 │
 ├── steering/                        ← Always-on rules applied to agents
 │   ├── _template.md                 ← Template for new steering files
-│   ├── global/
-│   │   └── core.md                  ← Applies to all agents
-│   ├── engineering/
-│   │   └── core.md                  ← Applies to all engineering-domain agents
-│   └── ...
+│   ├── global/                      ← Applies to all agents
+│   └── {domain}/                    ← Applies to agents in that domain
 │
 ├── standards/                       ← Prescriptive coding/stack rules
-│   └── csharp-avalonia.md
 │
 ├── servers/                         ← Tool server definitions (MCP or other protocols)
-│   ├── _template/                   ← Template for new servers
-│   │   ├── _template.yaml
-│   │   └── _template.test.js
-│   └── ...                          ← Each server is a folder
+│
+├── bundles/                         ← Install bundles (what to deploy per harness)
 │
 ├── projects/                        ← Per-project overrides and standards
-│   └── _template/
-│       └── project-standards.md
 │
-└── tests/                           ← Validation scripts (human-run)
-    └── validate.py
+├── docs/                            ← Decision records and documentation
+│
+├── bin/                             ← CLI entry point (aif)
+├── lib/                             ← CLI modules
+└── tests/                           ← Unit, integration, and validation tests
 ```
 
 ---
@@ -77,9 +65,9 @@ ai-foundation/
 |---|---|
 | `agents/{name}.yaml` | Load to understand and execute an agent role |
 | `agents/{name}.md` | Load for deeper context on an agent when needed |
-| `skills/{name}.md` | Load when an agent needs to execute that skill |
-| `steering/global/core.md` | Load at the start of every session |
-| `steering/{domain}/core.md` | Load based on the agent's domain |
+| `skills/{name}/SKILL.md` | Load when an agent needs to execute that skill |
+| `steering/global/**/*.md` | Load at the start of every session |
+| `steering/{domain}/**/*.md` | Load based on the agent's domain |
 | `standards/{name}.md` | Load when working in that language/stack |
 | `projects/{name}/project-standards.md` | Load when working on that project |
 | `servers/{name}/{name}.yaml` | Load to understand an available tool server |
@@ -87,23 +75,16 @@ ai-foundation/
 ### What not to load
 
 - `README.md` files in any directory — human reference only
-- `meta-standards-plan.md` — planning artifact, not operational
-- Template files (`_template.*`) — reference only when authoring new files
+- Files starting with `_` — templates/internal, not operational
 
-### Recommended loading order for a new session
+### Recommended loading order
 
-This is the suggested order for an agent or harness to load context at session start:
-
-1. `AGENTS.md` — this file (framework rules and schemas)
-2. `steering/global/**/*.md` — always (all files in global folder)
+1. `AGENTS.md` — this file
+2. `steering/global/**/*.md` — always
 3. `steering/{your-domain}/**/*.md` — based on your agent's domain
-4. Your agent's `.yaml` file — for your role definition
+4. Your agent's `.yaml` file — your role definition
 5. Relevant skills — load as needed for the task
-6. Relevant standards/knowledge — load as needed for the task
-
-Harnesses that support automatic loading should implement steps 2-3 based on the agent's
-`domain` field. Harnesses that don't should inject steering content into the agent's
-initial context before the prompt.
+6. Relevant standards — load as needed for the task
 
 ---
 
@@ -111,455 +92,177 @@ initial context before the prompt.
 
 ### Agent
 
-A named persona with a defined role, prompt, tools, and skills. Agents have a specific
-job in the workflow and operate within their domain's steering rules.
+A named persona with a defined role, prompt, tools, and skills.
 
-**Format:** `.yaml` required, `.md` optional companion for extended documentation.
-
+**Format:** `.yaml` required, `.md` optional companion.
 **Lives in:** `agents/`
+**Authoring guide:** `skill/agent-authoring`
 
-**Steering is implicit from domain:** When an agent declares `domain`, the harness (or
-agent on session init) must load all `.md` files matching `steering/global/**/*.md` then
-`steering/{domain}/**/*.md` — in that order. No explicit steering list is needed in the
-agent file. New files added to those directories are picked up automatically.
-
-**Knowledge is on-demand:** Any agent may read files in `standards/` or `knowledge/`
-as needed. These are not pre-declared — load what is relevant to the task.
+Required fields: `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved_tools`
+Optional fields: `skills`
 
 ---
 
 ### Skill
 
-A reusable, self-contained procedure. Skills define inputs, a sequence of steps, and
-outputs. They are not personas — they have no identity, no domain, no hard rules.
-An agent invokes a skill when the task requires that procedure.
+A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
-**Format:** Each skill is a folder containing `SKILL.md` (with YAML front-matter) and
-an optional `reference/` subfolder for templates, examples, or supporting material.
-
+**Format:** Folder containing `SKILL.md` with YAML front-matter.
 **Lives in:** `skills/{skill-name}/`
+**Authoring guide:** `skill/skill-authoring`
 
-**Structure:**
+Structure:
 ```
-skills/{skill-name}/
-├── SKILL.md              ← The procedure definition (entry point)
-├── reference/            ← Optional: templates, examples, supporting docs
-│   └── template.md       ← e.g. output format template
-└── scripts/              ← Optional: executable scripts the skill can invoke
-    └── validate.js       ← e.g. validation logic, transforms, checks
+skills/{name}/
+├── SKILL.md              ← Procedure definition (entry point)
+├── reference/            ← Material the agent reads during execution
+├── assets/               ← Files used in output or by scripts
+└── scripts/              ← Deterministic operations (validation, generation)
 ```
 
-**Applicability:** Declared by the agent in its `skills` field, not by the skill itself.
+Required front-matter: `name`, `version`, `description`
+Required body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
 ---
 
 ### Steering
 
-Always-on rules that apply unconditionally to agents within a scope. Steering is not
-a procedure — it does not have steps. It is a set of enforced constraints.
+Always-on rules that apply unconditionally within a scope.
 
-- **Global scope** (`steering/global/`) — applies to every agent, every session
-- **Domain scope** (`steering/{domain}/`) — applies to all agents in that domain
-- **Agent-level** — hard rules specific to one agent stay in that agent's `.yaml` prompt
+- **Global** (`steering/global/`) — every agent, every session
+- **Domain** (`steering/{domain}/`) — all agents in that domain
+- **Agent-level** — hard rules stay in the agent's `prompt` field
 
 **Format:** `.md` with YAML front-matter.
-
 **Lives in:** `steering/{scope}/`
+**Template:** `steering/_template.md`
+
+Required front-matter: `name`, `version`, `description`
+Optional front-matter: `file_patterns` (defaults to `[]` — always loaded)
 
 ---
 
 ### Standards
 
-Prescriptive rules for a language, stack, or methodology. Deviation requires an explicit
-exception noted in the plan. These are not suggestions — they are requirements.
+Prescriptive rules for a language, stack, or methodology. Deviation requires an
+explicit exception noted in the plan.
 
-**Format:** `.md` (no front-matter requirement, but add it when authoring new files).
-
+**Format:** `.md` with YAML front-matter.
 **Lives in:** `standards/`
 
 ---
 
 ### Knowledge
 
-Descriptive reference material. Knowledge describes how things are, not how they must be.
-An agent uses knowledge to inform decisions but can deviate with justification.
+Descriptive reference material. Describes how things are, not how they must be.
 
 **Format:** `.md` with YAML front-matter.
-
-**Lives in:** `knowledge/` (directory to be created when first knowledge file is needed)
+**Lives in:** `knowledge/`
 
 ---
 
 ### Server
 
-A tool provider definition. Describes a server an agent can connect to, what tools it
-exposes, and how to interact with it. Protocol is declared in the YAML (`protocol: "mcp"`).
+A tool provider definition. Describes an MCP server, its tools, and how to connect.
 
-**Format:** `.yaml` required, `.md` optional for detailed tool documentation.
-
+**Format:** `.yaml` required, `.md` optional.
 **Lives in:** `servers/{server-name}/`
+
+Required fields: `name`, `version`, `protocol`, `transport`, `description`, `tools`
 
 ---
 
 ## Schemas
 
-### Agent schema (`agents/{name}.yaml`)
+Full schema documentation lives in the authoring skills. Below are concise summaries
+for quick reference.
+
+### Agent (`agents/{name}.yaml`)
 
 ```yaml
----
-name: "agent-name"            # Unique identifier, kebab-case
-version: "0.1.0"              # Semver — see versioning rules below
-domain: "engineering"         # Determines which steering files apply — see Steering Resolution below
-description: "One sentence."  # What this agent does
-
+name: "agent-name"            # kebab-case, matches filename
+version: "0.1.0"             # semver
+domain: "engineering"        # determines steering scope
+description: "One sentence."
 prompt: |
-  Full system prompt. This is what the harness injects as the agent's
-  instructions. Write it as if speaking directly to the agent.
-  Can be as long as needed.
-
-tools:                         # All tools available to this agent
-  - "read"                     # See "Available Tools" section below
-  - "write"                    # for the full list of generic tool names
-  - "shell"
-  - "grep"
-  - "glob"
-
-approved_tools:                # Subset usable without human approval
-  - "read"                     # Tools in `tools` but not here require
-  - "grep"                     # human confirmation before use
-  - "glob"
-
-skills:                        # Skills this agent can invoke
-  - "skill/decision-record"    # Path relative to repo root, no extension
----
+  Direct instruction to the agent.
+tools: ["read", "write", "shell", "grep", "glob"]
+approved_tools: ["read", "grep", "glob"]
+skills: ["skill/decision-record"]
 ```
 
-**Required fields:** `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved_tools`
+Full schema and authoring procedure: load `skill/agent-authoring`
 
-**Optional fields:** `skills` (omit if agent uses no skills)
-
-**Type and status** are not declared — type is inferred from directory, status is not tracked at this time.
-
----
-
-### Available Tools
-
-These are the canonical tool names used in agent `tools` and `approved_tools` fields.
-They are shared across Kiro and Copilot. Other harness adapters translate to their
-native names at install time.
-
-| Tool | Description |
-|---|---|
-| `read` | Read file contents |
-| `write` | Create or edit files |
-| `shell` | Execute shell commands |
-| `web_search` | Search the web |
-| `web_fetch` | Fetch content from a URL |
-| `grep` | Regex pattern search in files |
-| `glob` | Find files by glob pattern |
-| `code` | Code intelligence (symbols, references, AST) |
-
-**MCP server tools** use the `@server/tool_name` format (e.g. `@git/git_status`).
-These pass through to all harnesses unchanged and resolve to the corresponding
-server definition in `servers/`.
-
-When authoring a new agent, only include tools it genuinely needs. Set
-`approved_tools` conservatively — when in doubt, require human approval.
-
----
-
-### Skill schema (`skills/{name}/SKILL.md`)
+### Skill (`skills/{name}/SKILL.md`)
 
 ```yaml
----
-name: "skill-name"            # Unique identifier, kebab-case
-version: "0.1.0"              # Semver
-description: "One sentence."  # What this skill produces or accomplishes
----
+name: "skill-name"            # kebab-case, matches folder
+version: "0.1.0"             # semver
+description: "One sentence."
 ```
 
-Followed by markdown body with these sections:
+Full schema and authoring procedure: load `skill/skill-authoring`
 
-- **Purpose** — expanded description of what the skill does and when to use it
-- **Inputs** — what information the skill needs to run
-- **Steps** — the ordered procedure
-- **Outputs** — what the skill produces
-- **Edge Cases** — how to handle failures or unusual situations
-
-**Required front-matter fields:** `name`, `version`, `description`
-
-**Supporting files:** Place templates, examples, or reference material in
-`skills/{name}/reference/`. The skill's Steps section should reference these
-files explicitly when the agent needs them.
-
-**Required front-matter fields:** `name`, `version`, `description`
-
----
-
-### Steering schema (`steering/{scope}/{name}.md`)
+### Steering (`steering/{scope}/{name}.md`)
 
 ```yaml
----
-name: "steering-name"         # Unique identifier, kebab-case
-version: "0.1.0"              # Semver
-description: "One sentence."  # What scope this covers and what it enforces
-file_patterns: []             # When to load — see below
----
+name: "steering-name"         # kebab-case
+version: "0.1.0"             # semver
+description: "One sentence."
+file_patterns: []            # [] = always | ["glob"] = conditional
 ```
 
-**`file_patterns`** — Glob patterns controlling when this file is loaded:
-- `[]` or omitted — always loaded (unconditional)
-- `["**/*.test.js", "tests/**"]` — loaded only when working with matching files
+Body sections: Scope, Rules (with Rationale + Exceptions), Enforcement
 
-Harness adapters translate this to the native mechanism:
-- **Kiro:** `inclusion: "always"` vs `"fileMatch"`
-- **Copilot:** `applyTo: "**"` vs `applyTo: "pattern"`
-- **Claude Code:** no `paths` field vs `paths: ["pattern"]`
-
-Followed by markdown body with these sections:
-
-- **Scope** — which agents this applies to and when
-- **Rules** — the enforced constraints, written as clear imperatives
-- **Rationale** — why each rule exists (helps agents apply rules correctly in edge cases)
-- **Exceptions** — the process for deviating when genuinely necessary
-
-**Required front-matter fields:** `name`, `version`, `description`
-
-**Optional front-matter fields:** `file_patterns` (defaults to `[]` when omitted)
-
----
-
-### Server schema (`servers/{name}.yaml`)
+### Server (`servers/{name}/{name}.yaml`)
 
 ```yaml
----
-name: "server-name"           # Unique identifier, kebab-case
-version: "0.1.0"              # Semver
-protocol: "mcp"               # Protocol used (e.g. "mcp", future: others)
-transport: "stdio"            # Transport layer (e.g. "stdio", "http")
-description: "One sentence."  # What this server provides
-
+name: "server-name"
+version: "0.1.0"
+protocol: "mcp"
+transport: "stdio"
+description: "One sentence."
 tools:
   - name: "tool-name"
-    description: "What this tool does."
+    description: "What it does."
     inputs:
-      - "param1 (string): description"
-      - "param2 (bool): description [optional]"
-    outputs: "Description of what is returned."
-
-  - name: "another-tool"
-    description: "What this tool does."
-    inputs:
-      - "param1 (string): description"
-    outputs: "Description of what is returned."
----
+      - "param (type): description"
+    outputs: "What is returned."
 ```
-
-**Required fields:** `name`, `version`, `protocol`, `transport`, `description`, at least one entry under `tools`
-
----
-
-### Standards/Knowledge schema (`.md` files)
-
-```yaml
----
-name: "file-name"             # Unique identifier, kebab-case
-version: "0.1.0"              # Semver
-description: "One sentence."  # What this file covers
----
-```
-
-Front-matter is required for all new standards and knowledge files. It allows agents
-to scan descriptions before deciding whether to load the full content.
-
----
-
-## Versioning Rules
-
-All files use **semantic versioning** ([semver.org](https://semver.org)):
-
-```
-MAJOR.MINOR.PATCH
-```
-
-| Change type | Version bump | Examples |
-|---|---|---|
-| Wording fix, typo, clarification | PATCH | `1.0.0` → `1.0.1` |
-| New section, new field, new rule | MINOR | `1.0.0` → `1.1.0` |
-| Schema change, breaking behaviour change, field renamed/removed | MAJOR | `1.0.0` → `2.0.0` |
-
-When a skill is updated with a breaking change (MAJOR bump), agents that declare that
-skill in their `skills` field should be reviewed to confirm they still work correctly.
-
----
-
-## Authoring Rules
-
-### When creating a new agent
-
-1. Copy `agents/_template.yaml` to `agents/{name}.yaml`
-2. Fill in all required fields
-3. Write the prompt as a direct instruction to the agent
-4. Declare only tools the agent genuinely needs
-5. Set `approved_tools` conservatively — when in doubt, require human approval
-6. Reference only skills that exist in `skills/`
-7. Optionally create `agents/{name}.md` for extended documentation
-
-### When creating a new skill
-
-1. Copy `skills/_template/` to `skills/{name}/`
-2. Rename and fill in `SKILL.md` front-matter
-3. Write all required body sections
-4. Skills must be self-contained — no references to specific agents or projects
-5. Inputs and outputs must be explicit
-6. Place any output templates, examples, or reference material in `reference/`
-7. Place any executable scripts (validation, transforms, checks) in `scripts/`
-
-### When creating a new steering file
-
-1. Copy `steering/_template.md` to `steering/{name}.md`
-2. Scope must be global or domain — agent-level rules stay in the agent's prompt
-3. Every rule must have a rationale
-4. Every rule must have an exceptions process — "no exceptions" is valid but must be stated
-
-### When creating a new server definition
-
-1. Copy `servers/_template/` to `servers/{name}/`
-2. Rename `_template.yaml` to `{name}.yaml` and `_template.test.js` to `{name}.test.js`
-3. Document every tool the server exposes
-4. Be precise about inputs — include types and whether optional/required
-5. Optionally create `servers/{name}/{name}.md` for detailed tool documentation
-
----
-
-## AI Self-Validation Checklist
-
-Before declaring a new file complete, verify:
-
-- [ ] Front-matter is valid YAML (no syntax errors)
-- [ ] All required fields are present for this file type
-- [ ] `version` follows semver format (`X.Y.Z`)
-- [ ] `description` is one sentence and accurately describes the content
-- [ ] For agents: all paths in `skills` exist in the `skills/` directory
-- [ ] For agents: `approved_tools` is a subset of `tools`
-- [ ] For agents: `prompt` is written as a direct instruction to the agent
-- [ ] For skills: all five body sections are present (Purpose, Inputs, Steps, Outputs, Edge Cases)
-- [ ] For steering: all rules have a rationale and an exceptions process
-- [ ] For servers: every tool has name, description, inputs, and outputs documented
-- [ ] No `README.md` content has been mixed into an operational file
-- [ ] File is saved to the correct directory for its type
 
 ---
 
 ## Testing
 
-Tests validate file schemas and cross-references. They use Node.js's built-in test
-runner (requires Node 20+) and live co-located with the components they test.
+Tests use Node.js's built-in test runner (Node 20+):
 
 ```bash
-# Run all tests
-node --test "**/*.test.js"
-
-# Run a specific test file
-node --test servers/servers.test.js
+node --test "tests/unit/**/*.test.js"          # Fast, no I/O
+node --test "tests/integration/**/*.test.js"   # Filesystem tests
+node --test "tests/validation/**/*.test.js"    # Real repo checks
+node --test "tests/**/*.test.js"               # Everything
 ```
 
-**Test locations:**
-
-| File | What it validates |
-|---|---|
-| `tests/schemas.test.js` | Schema validation: required fields, semver, kebab-case, naming conventions |
-| `tests/tools.test.js` | Tool availability: install script exists, agent tools documented in servers |
-| `tests/install.test.js` | Install script: dry-run output, idempotency, dynamic agent discovery |
-| `servers/{name}/{name}.test.js` | Server integration: startup, tool listing, tool invocation |
-
-**Dependencies:** Install with `npm install` (only runtime dependency is `yaml` for YAML parsing).
-
-**When to run:** After creating or modifying any `.yaml` agent or server definition.
-
-**Adding tests:** Place test files in the directory of the component they validate,
-named `{component}.test.js`. The glob pattern `**/*.test.js` picks them up automatically.
-
----
-
-### Server Integration Test Requirements
-
-Every server definition in `servers/` must have a corresponding integration test at
-`servers/{name}.test.js` that validates the server is functional — not just well-formed.
-
-**Required test coverage for each server:**
-
-1. **Startup** — The server process starts without error and is ready to accept requests
-   within a reasonable timeout (default: 10 seconds).
-
-2. **Tool listing** — The server responds to a tool/list request and returns all tools
-   declared in its `.yaml` definition. The test must verify that every tool name in
-   the YAML is present in the server's response.
-
-3. **Tool invocation** — Each tool declared by the server can be called with valid
-   inputs and returns a response without error. The test must:
-   - Call each tool with minimal valid parameters
-   - Verify the response is not an error
-   - Verify the response structure matches what `outputs` describes (where verifiable)
-
-**Test structure:**
-
-```javascript
-import { describe, it, before, after } from 'node:test';
-
-describe('server: {name}', () => {
-  let server;
-
-  before(async () => {
-    // Start the server process (stdio or http based on transport field)
-    // Wait for ready signal
-  });
-
-  after(async () => {
-    // Gracefully shut down the server
-  });
-
-  it('starts without error', () => { /* ... */ });
-
-  it('lists all declared tools', () => { /* ... */ });
-
-  describe('tool invocation', () => {
-    it('{tool-name} responds to valid input', () => { /* ... */ });
-    // One test per tool
-  });
-});
-```
-
-**Exceptions:**
-- Servers that require external infrastructure (databases, APIs with auth) may mark
-  specific tool invocation tests as skipped with a documented reason.
-- The startup and tool listing tests are never optional.
-
-**When to write:** A server integration test must exist before the server definition
-is considered complete. Schema-only definitions (`.yaml` without a running server)
-are acceptable during development but must be marked `version: "0.x.y"` to signal
-they are not yet validated.
+Run after creating or modifying any agent, skill, or server definition.
 
 ---
 
 ## Specs We Follow
 
-- **YAML:** [YAML 1.2](https://yaml.org) — used for all `.yaml` definition files and all front-matter in `.md` files
-- **Semver:** [semver.org](https://semver.org) — used for all version fields
-- **MCP:** [Model Context Protocol spec](https://modelcontextprotocol.io/docs/specification/server) — used for server definitions with `protocol: "mcp"`
+- **YAML:** [YAML 1.2](https://yaml.org)
+- **Semver:** [semver.org](https://semver.org) — all version fields
+- **MCP:** [Model Context Protocol](https://modelcontextprotocol.io/docs/specification/server) — server definitions
 
 ---
 
 ## Discovering Available Components
 
-Rather than maintaining a roster here (which would drift out of date), discover what
-is available by scanning the relevant directories:
+Scan directories rather than maintaining a roster:
 
-- **Agents** — list `agents/*.yaml` (exclude `_template.yaml`)
-- **Skills** — list `skills/*/SKILL.md` (exclude `_template/`)
-- **Steering** — list `steering/**/*.md` (exclude `_template.md` and `README.md`)
-- **Standards** — list `standards/*.md` (exclude `README.md`)
-- **Servers** — list `servers/*/{name}.yaml` (exclude `_template/`)
+- **Agents** — `agents/*.yaml`
+- **Skills** — `skills/*/SKILL.md`
+- **Steering** — `steering/**/*.md` (exclude `_template.md`)
+- **Standards** — `standards/*.md`
+- **Servers** — `servers/*/*.yaml`
 
-Each file's front-matter `description` field tells you what it covers without
-loading the full content.
+Each file's `description` field tells you what it covers without loading the full content.

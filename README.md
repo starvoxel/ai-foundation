@@ -75,10 +75,11 @@ ai-foundation/
 ├── README.md                        ← This file (human reference)
 │
 ├── agents/                          ← Agent definitions (.yaml + optional .md)
-│   └── _template.yaml
 │
 ├── skills/                          ← Reusable procedures agents invoke
-│   └── _template.md
+│   ├── skill-authoring/             ← How to create new skills
+│   ├── agent-authoring/             ← How to create new agents
+│   └── ...
 │
 ├── steering/                        ← Always-on rules applied to agents
 │   ├── _template.md
@@ -91,11 +92,16 @@ ai-foundation/
 │   └── csharp-avalonia.md
 │
 ├── servers/                         ← Tool server definitions (MCP, etc.)
-│   └── _template.yaml
+│
+├── bundles/                         ← Install bundles (what to deploy per harness)
+│
+├── docs/                            ← Decision records and documentation
+│
+├── bin/                             ← CLI entry point (aif)
+├── lib/                             ← CLI modules
+├── tests/                           ← Unit, integration, and validation tests
 │
 └── projects/                        ← Per-project overrides and standards
-    └── _template/
-        └── project-standards.md
 ```
 
 Plans and decisions for specific projects live in the project's own repository,
