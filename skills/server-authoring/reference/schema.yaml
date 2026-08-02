@@ -1,0 +1,38 @@
+# Server definition schema.
+# Lives at servers/{name}/{name}.yaml
+
+fields:
+  name:        "kebab-case identifier, matches folder name"
+  version:     "semver (0.1.0)"
+  protocol:    "mcp"
+  transport:   "stdio | http"
+  description: "One sentence — what tools this server exposes"
+  tools:       "Array of tool definitions (see below)"
+
+tool_definition:
+  name:        "Tool name — agents reference as @server/tool_name"
+  description: "When to use this tool (one or two sentences)"
+  inputs:      "Array of 'param (type): description [optional]'"
+  outputs:     "What is returned and in what format"
+
+# Input types: string, number, boolean, array, object
+# Mark optional params with [optional] or [optional, default: value]
+
+example:
+  name: "git"
+  version: "0.1.0"
+  protocol: "mcp"
+  transport: "stdio"
+  description: "Git operations for version control."
+  tools:
+    - name: "git_status"
+      description: "Returns the working tree status."
+      inputs:
+        - "path (string): Repository path [optional, default: cwd]"
+      outputs: "Status output as text."
+    - name: "git_diff"
+      description: "Shows unstaged changes."
+      inputs:
+        - "path (string): Repository path [optional, default: cwd]"
+        - "staged (boolean): Show staged changes instead [optional, default: false]"
+      outputs: "Diff output as text."

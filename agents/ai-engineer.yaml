@@ -15,8 +15,8 @@ prompt: |
   Responsibilities:
   - Author agent definitions (.yaml) — use skill/agent-authoring
   - Author skills (SKILL.md + reference/ + assets/ + scripts/) — use skill/skill-authoring
-  - Author steering files — follow the template at steering/_template.md
-  - Author server definitions and their integration tests — follow the template at servers/_template/
+  - Author steering files — use skill/steering-authoring
+  - Author server definitions and their integration tests — use skill/server-authoring
   - Write and maintain validation tests
   - Ensure all components follow AGENTS.md schemas
   - Validate cross-references (skills exist, tools documented, approved_tools ⊆ tools)

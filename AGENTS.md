@@ -79,7 +79,7 @@ Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
 Always-on rules. Unconditional within scope.
 
-**Lives in:** `steering/{scope}/` | **Format:** `.md` | **Template:** `steering/_template.md`
+**Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
 
 Front-matter: `name`, `version`, `description`, optional `file_patterns`
 Scopes: `global/` (all agents) or `{domain}/` (domain agents). Agent-specific rules go in the agent's `prompt`.
@@ -93,7 +93,7 @@ Scopes: `global/` (all agents) or `{domain}/` (domain agents). Agent-specific ru
 
 MCP tool provider definition.
 
-**Lives in:** `servers/{name}/` | **Format:** `.yaml`
+**Lives in:** `servers/{name}/` | **Format:** `.yaml` | **Authoring:** `skill/server-authoring`
 
 Fields: `name`, `version`, `protocol`, `transport`, `description`, `tools`
 

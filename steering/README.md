@@ -9,15 +9,14 @@ They are not procedures — they define constraints, not steps.
 
 ```
 steering/
-├── _template.md          ← Template for new steering files
 ├── global/               ← Applies to all agents, every session
 └── engineering/          ← Applies to all engineering-domain agents
 ```
 
 ## Adding a new steering file
 
-1. Copy `_template.md` to the appropriate scope directory
-2. Fill in front-matter and all sections (Scope, Rules, Rationale, Exceptions)
+1. Load `skill/steering-authoring` for the full procedure
+2. Or: create a `.md` file in the appropriate scope directory following AGENTS.md
 3. Every rule must have a rationale and an exceptions process
 
 ## How steering is loaded

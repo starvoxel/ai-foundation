@@ -15,10 +15,9 @@ servers/{name}/
 
 ## Adding a new server
 
-1. Create `servers/{name}/` with `{name}.yaml` and `{name}.test.js`
-2. Document every tool with name, description, inputs, and outputs
-3. Implement the integration test
-4. See AGENTS.md for the server schema
+1. Load `skill/server-authoring` for the full procedure
+2. Or: create `servers/{name}/` with `{name}.yaml` and `{name}.test.js`
+3. Document every tool with name, description, inputs, and outputs
 
 ## What belongs here
 
