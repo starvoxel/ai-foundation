@@ -78,6 +78,11 @@ Use `node:test` with `describe/it` structure. See existing tests for patterns.
 
 ## Edge Cases
 
+> **TODO:** Revisit this skill to enforce specific file naming conventions
+> (e.g. must the YAML and test match the folder name exactly?) and testing
+> standards (required test structure, coverage expectations, timeout defaults).
+> Current guidance is advisory — consider making it prescriptive with a validation script.
+
 - **Server requires external infrastructure** — mark tool invocation tests as skipped with documented reason. Startup and listing tests are never optional.
 - **Server not yet implemented** — definition-only is acceptable during development. Set `version: "0.x.y"` to signal it's not yet validated.
 - **Tool has complex input schema** — create the optional `.md` companion with examples.
