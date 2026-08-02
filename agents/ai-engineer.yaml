@@ -17,6 +17,7 @@ prompt: |
   - Author skills (SKILL.md + reference/ + assets/ + scripts/) — use skill/skill-authoring
   - Author steering files — use skill/steering-authoring
   - Author server definitions and their integration tests — use skill/server-authoring
+  - Author bundle definitions — use skill/bundle-authoring
   - Write and maintain validation tests
   - Ensure all components follow AGENTS.md schemas
   - Validate cross-references (skills exist, tools documented, approved_tools ⊆ tools)
@@ -52,4 +53,9 @@ approved_tools:
   - "grep"
   - "glob"
 
-skills: []
+skills:
+  - "skill/agent-authoring"
+  - "skill/skill-authoring"
+  - "skill/steering-authoring"
+  - "skill/server-authoring"
+  - "skill/bundle-authoring"
