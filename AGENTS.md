@@ -218,14 +218,16 @@ prompt: |
   Can be as long as needed.
 
 tools:                         # All tools available to this agent
-  - "file-read"                # Use harness-specific tool names here
-  - "file-write"               # These are examples — replace with actual names
-  - "web-search"               # your harness provides
-  - "shell-exec"
+  - "read"                     # See "Available Tools" section below
+  - "write"                    # for the full list of generic tool names
+  - "shell"
+  - "grep"
+  - "glob"
 
 approved_tools:                # Subset usable without human approval
-  - "file-read"                # Tools in `tools` but not here require
-                               # human confirmation before use
+  - "read"                     # Tools in `tools` but not here require
+  - "grep"                     # human confirmation before use
+  - "glob"
 
 skills:                        # Skills this agent can invoke
   - "skill/decision-record"    # Path relative to repo root, no extension
@@ -237,6 +239,32 @@ skills:                        # Skills this agent can invoke
 **Optional fields:** `skills` (omit if agent uses no skills)
 
 **Type and status** are not declared — type is inferred from directory, status is not tracked at this time.
+
+---
+
+### Available Tools
+
+These are the canonical tool names used in agent `tools` and `approved_tools` fields.
+They are shared across Kiro and Copilot. Other harness adapters translate to their
+native names at install time.
+
+| Tool | Description |
+|---|---|
+| `read` | Read file contents |
+| `write` | Create or edit files |
+| `shell` | Execute shell commands |
+| `web_search` | Search the web |
+| `web_fetch` | Fetch content from a URL |
+| `grep` | Regex pattern search in files |
+| `glob` | Find files by glob pattern |
+| `code` | Code intelligence (symbols, references, AST) |
+
+**MCP server tools** use the `@server/tool_name` format (e.g. `@git/git_status`).
+These pass through to all harnesses unchanged and resolve to the corresponding
+server definition in `servers/`.
+
+When authoring a new agent, only include tools it genuinely needs. Set
+`approved_tools` conservatively — when in doubt, require human approval.
 
 ---
 

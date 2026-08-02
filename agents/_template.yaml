@@ -46,9 +46,8 @@ prompt: |
 
 # All tools this agent can potentially use.
 # Only list tools the agent genuinely needs for its role.
-# IMPORTANT: Use harness-specific tool names here. Examples below are placeholders.
-# Kiro uses: "read", "write", "code", "shell", "web_search", "grep", "glob"
-# Your harness may use different names — replace these with actual names.
+# Available: read, write, shell, web_search, web_fetch, grep, glob, code
+# MCP server tools use @server/tool_name format (e.g. @git/git_status)
 tools:
   - "read"
   - "write"
@@ -56,8 +55,7 @@ tools:
   - "shell"
 
 # Subset of tools the agent can use without requiring human approval.
-# Be conservative here — when in doubt, require approval.
-# Tools in `tools` but not in `approved_tools` will prompt the user before use.
+# Be conservative — when in doubt, require approval.
 approved_tools:
   - "read"
 
