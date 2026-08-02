@@ -1,0 +1,31 @@
+# Bundle definition schema.
+# Lives at bundles/{name}.yaml
+
+fields:
+  name:        "kebab-case identifier, matches filename"
+  version:     "semver (1.0.0)"
+  description: "One sentence — what this bundle installs"
+  domain:      "Optional. Auto-discover all components in this domain"
+  agents:      "Optional. Explicit agent filenames to include"
+  skills:      "Optional. Explicit skill folder names to include"
+  steering:    "Optional. Explicit steering paths (relative to repo root)"
+  servers:     "Optional. Explicit server folder names to include"
+
+# Resolution rules:
+#   - domain + explicit lists: discovery runs first, explicit appended, deduped
+#   - domain only: everything for that domain
+#   - explicit only: just what's listed
+#   - neither: ERROR — bundle must resolve to something
+
+resolution:
+  domain_discovery:
+    agents:   "All agents where agent.domain == bundle.domain"
+    skills:   "Collected from discovered agents' skills fields"
+    steering: "steering/global/**/*.md + steering/{domain}/**/*.md"
+    servers:  "Resolved from @server/tool refs in agent tools"
+
+example:
+  name: "engineering"
+  version: "1.0.0"
+  description: "Full engineering domain bundle."
+  domain: "engineering"
