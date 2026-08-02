@@ -34,17 +34,17 @@ prompt: |
   - Never expand scope. Raise discoveries as open questions on the parent Epic.
 
 tools:
-  - "file-read"
-  - "file-write"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "shell"
   - "grep"
   - "glob"
   - "code"
 
 approved_tools:
-  - "file-read"
-  - "file-write"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "shell"
   - "grep"
   - "glob"
   - "code"

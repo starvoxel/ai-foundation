@@ -36,14 +36,14 @@ prompt: |
   - Engineering documentation only. No product copy.
 
 tools:
-  - "file-read"
-  - "file-write"
+  - "read"
+  - "write"
   - "grep"
   - "glob"
 
 approved_tools:
-  - "file-read"
-  - "file-write"
+  - "read"
+  - "write"
   - "grep"
   - "glob"
 

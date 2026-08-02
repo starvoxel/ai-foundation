@@ -30,17 +30,17 @@ prompt: |
   - Every public method must have at least one happy-path and one failure/edge-case test.
 
 tools:
-  - "file-read"
-  - "file-write"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "shell"
   - "grep"
   - "glob"
   - "code"
 
 approved_tools:
-  - "file-read"
-  - "file-write"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "shell"
   - "grep"
   - "glob"
   - "code"

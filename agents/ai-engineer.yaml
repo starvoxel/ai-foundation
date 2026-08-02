@@ -41,14 +41,14 @@ prompt: |
   - Never decide what agents or skills should exist. The human or Architect decides that.
 
 tools:
-  - "file-read"
-  - "file-write"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "shell"
   - "grep"
   - "glob"
 
 approved_tools:
-  - "file-read"
+  - "read"
   - "grep"
   - "glob"
 

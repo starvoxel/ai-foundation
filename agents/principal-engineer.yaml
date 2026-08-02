@@ -38,13 +38,13 @@ prompt: |
   - Never modify code directly. Produce findings only.
 
 tools:
-  - "file-read"
+  - "read"
   - "grep"
   - "glob"
   - "code"
 
 approved_tools:
-  - "file-read"
+  - "read"
   - "grep"
   - "glob"
   - "code"

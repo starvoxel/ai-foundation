@@ -38,16 +38,16 @@ prompt: |
   - If one exists, the Epic must not contradict it.
 
 tools:
-  - "file-read"
-  - "file-write"
-  - "web-search"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "web_search"
+  - "shell"
   - "grep"
   - "glob"
 
 approved_tools:
-  - "file-read"
-  - "web-search"
+  - "read"
+  - "web_search"
   - "grep"
   - "glob"
 

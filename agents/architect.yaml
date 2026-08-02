@@ -35,16 +35,16 @@ prompt: |
   - Keep options grounded in the project's existing stack and standards.
 
 tools:
-  - "file-read"
-  - "file-write"
-  - "web-search"
-  - "shell-exec"
+  - "read"
+  - "write"
+  - "web_search"
+  - "shell"
   - "grep"
   - "glob"
 
 approved_tools:
-  - "file-read"
-  - "web-search"
+  - "read"
+  - "web_search"
   - "grep"
   - "glob"
 
