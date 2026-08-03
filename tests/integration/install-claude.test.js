@@ -1,0 +1,89 @@
+import { describe, it, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+import { mkdtempSync } from 'node:fs';
+
+import { runInstall } from '../../lib/commands/install.js';
+import { runUninstall } from '../../lib/commands/uninstall.js';
+import { readManifest } from '../../lib/manifest.js';
+import { TARGETS } from '../../lib/harnesses/claude.js';
+import { createTempRepo, destroyTempRepo } from '../helpers/fixture.js';
+
+describe('integration: install (claude-specific)', () => {
+  let repo;
+  let originalTargets;
+
+  beforeEach(() => {
+    repo = createTempRepo({
+      agents: [
+        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test agent.', prompt: 'You are a test agent.', tools: ['read', 'grep', 'shell'], approved_tools: ['read'], skills: ['skill/test-skill'] },
+      ],
+      skills: ['test-skill'],
+      steering: { global: ['core.md'], eng: ['rules.md'] },
+      servers: [],
+      bundles: [
+        { name: 'test-bundle', version: '1.0.0', description: 'Test bundle.', domain: 'eng' },
+      ],
+    });
+
+    const tempClaude = mkdtempSync(join(tmpdir(), 'aif-claude-target-'));
+    originalTargets = { ...TARGETS };
+    TARGETS.agents = join(tempClaude, 'agents');
+    TARGETS.rules = join(tempClaude, 'rules');
+    TARGETS.skills = join(tempClaude, 'skills');
+  });
+
+  afterEach(() => {
+    Object.assign(TARGETS, originalTargets);
+    destroyTempRepo(repo);
+  });
+
+  function quiet(fn) {
+    const origLog = console.log;
+    const origErr = console.error;
+    console.log = () => {};
+    console.error = () => {};
+    try { return fn(); }
+    finally { console.log = origLog; console.error = origErr; }
+  }
+
+  it('transforms agents to markdown with Claude Code tool names', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    const agentPath = join(TARGETS.agents, 'test-agent.md');
+    assert.ok(existsSync(agentPath));
+    const content = readFileSync(agentPath, 'utf8');
+    assert.ok(content.includes('name: test-agent'));
+    assert.ok(content.includes('Read, Grep, Bash'));
+    assert.ok(content.includes('You are a test agent.'));
+  });
+
+  it('installs steering as rules in .claude/rules/', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    assert.ok(existsSync(join(TARGETS.rules, 'global-core.md')));
+    assert.ok(existsSync(join(TARGETS.rules, 'eng-rules.md')));
+  });
+
+  it('installs skills as .md files in .claude/skills/', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    const skillPath = join(TARGETS.skills, 'test-skill.md');
+    assert.ok(existsSync(skillPath));
+  });
+
+  it('records manifest and uninstall works', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    const manifest = readManifest(repo);
+    assert.ok(manifest['test-bundle_claude']);
+
+    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    const after = readManifest(repo);
+    assert.equal(after['test-bundle_claude'], undefined);
+    assert.ok(!existsSync(join(TARGETS.agents, 'test-agent.md')));
+  });
+});
