@@ -22,7 +22,7 @@
 | 2 | Bundle resolver (`lib/resolver.js`) | ✅ Complete | `7e5cb65` |
 | 3 | Kiro harness adapter (`lib/harnesses/kiro.js`) | ✅ Complete | `230675c` |
 | 4 | Command implementations (install, uninstall, status, list) | ✅ Complete | `4379c55` |
-| 5 | `aif validate` command | Next | — |
+| 5 | `aif validate` + `aif test` commands | ✅ Complete | `04fd21a` |
 | 6 | Claude Code adapter | Planned | — |
 | 7 | Copilot adapter | Planned | — |
 
