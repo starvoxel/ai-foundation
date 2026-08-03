@@ -23,7 +23,7 @@
 | 3 | Kiro harness adapter (`lib/harnesses/kiro.js`) | ✅ Complete | `230675c` |
 | 4 | Command implementations (install, uninstall, status, list) | ✅ Complete | `4379c55` |
 | 5 | `aif validate` + `aif test` commands | ✅ Complete | `04fd21a` |
-| 6 | Claude Code adapter | Planned | — |
+| 6 | Claude Code adapter | ✅ Complete | `c98bca2` |
 | 7 | Copilot adapter | Planned | — |
 
 ---
