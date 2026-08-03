@@ -14,6 +14,20 @@
 
 ---
 
+## Implementation Progress
+
+| Phase | Description | Status | Commit |
+|---|---|---|---|
+| 1 | CLI entry point, constants, manifest | ✅ Complete | Pre-session |
+| 2 | Bundle resolver (`lib/resolver.js`) | ✅ Complete | `7e5cb65` |
+| 3 | Kiro harness adapter (`lib/harnesses/kiro.js`) | ✅ Complete | `230675c` |
+| 4 | Command implementations (install, uninstall, status, list) | ✅ Complete | `4379c55` |
+| 5 | Copilot adapter | Planned | — |
+| 6 | Claude Code adapter | Planned | — |
+| 7 | `aif validate` command | Planned | — |
+
+---
+
 ## Problem Statement
 
 The existing `install.ps1` is Windows/PowerShell-only, uses symlinks, assumes agents are `.md` files for Kiro (incorrect — Kiro expects `.json`), and has no structured way to install subsets of components. We need a portable, OS-agnostic install system that correctly transforms components for each target harness.
