@@ -76,6 +76,8 @@ Commands:
   uninstall   Uninstall a bundle from a harness
   status      Show what is currently installed
   list        List available bundles, agents, skills, or servers
+  validate    Check repo health (schema, refs, bundles)
+  test        Run test suite (unit, integration, validation)
 
 Options:
   --bundle <name>    Bundle to install/uninstall
@@ -87,7 +89,9 @@ Examples:
   aif uninstall --bundle engineering --harness kiro
   aif status
   aif list bundles
-  aif list agents
+  aif validate
+  aif validate schema
+  aif test unit
 `.trim();
 
 function printHelp() {
@@ -104,6 +108,8 @@ import { runInstall } from '../lib/commands/install.js';
 import { runUninstall } from '../lib/commands/uninstall.js';
 import { runStatus } from '../lib/commands/status.js';
 import { runList } from '../lib/commands/list.js';
+import { runValidate } from '../lib/commands/validate.js';
+import { runTest } from '../lib/commands/test.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -135,6 +141,10 @@ export async function run(parsed) {
       return runStatus(parsed, REPO_ROOT);
     case 'list':
       return runList(parsed, REPO_ROOT);
+    case 'validate':
+      return runValidate(parsed, REPO_ROOT);
+    case 'test':
+      return runTest(parsed, REPO_ROOT);
     default:
       return 1;
   }
