@@ -96,6 +96,19 @@ function printHelp() {
 
 // --- Command routing ---
 
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { resolve, join } from 'node:path';
+
+import { runInstall } from '../lib/commands/install.js';
+import { runUninstall } from '../lib/commands/uninstall.js';
+import { runStatus } from '../lib/commands/status.js';
+import { runList } from '../lib/commands/list.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const REPO_ROOT = resolve(__dirname, '..');
+
 /**
  * Routes a parsed command to the appropriate handler.
  * @param {{ command: string|null, args: Record<string, string|boolean>, positional: string[] }} parsed
@@ -113,15 +126,15 @@ export async function run(parsed) {
     return 1;
   }
 
-  // Commands will be implemented in Phase 4
-  // For now, acknowledge the command
   switch (parsed.command) {
     case 'install':
+      return runInstall(parsed, REPO_ROOT);
     case 'uninstall':
+      return runUninstall(parsed, REPO_ROOT);
     case 'status':
+      return runStatus(parsed, REPO_ROOT);
     case 'list':
-      console.error(`Command "${parsed.command}" is not yet implemented.`);
-      return 1;
+      return runList(parsed, REPO_ROOT);
     default:
       return 1;
   }
@@ -129,10 +142,7 @@ export async function run(parsed) {
 
 // --- Main (only when run directly) ---
 
-import { fileURLToPath } from 'node:url';
-import { resolve } from 'node:path';
-
-const currentFile = fileURLToPath(import.meta.url);
+const currentFile = __filename;
 const entryFile = process.argv[1] ? resolve(process.argv[1]) : null;
 
 if (currentFile === entryFile) {

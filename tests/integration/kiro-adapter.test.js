@@ -58,6 +58,6 @@ describe('integration: kiro adapter', () => {
   it('gets skill files for a skill directory', () => {
     const files = getSkillFiles('test-skill', repo);
     assert.ok(files.length > 0);
-    assert.ok(files.some(f => f.dest.includes('SKILL.md')));
+    assert.ok(files.some(f => f.relDest.includes('SKILL.md')));
   });
 });

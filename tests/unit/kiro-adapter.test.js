@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 
 import {
   TOOL_MAP,
+  TARGETS,
   mapToolName,
   transformAgent,
   transformSteering,
@@ -10,6 +11,17 @@ import {
 } from '../../lib/harnesses/kiro.js';
 
 describe('unit: kiro adapter', () => {
+  describe('TARGETS', () => {
+    it('all paths are under ~/.kiro', () => {
+      for (const [key, value] of Object.entries(TARGETS)) {
+        assert.ok(
+          value.includes('.kiro'),
+          `TARGETS.${key} should be under ~/.kiro, got ${value}`
+        );
+      }
+    });
+  });
+
   describe('TOOL_MAP', () => {
     it('contains all standard tool names', () => {
       const expected = ['read', 'write', 'shell', 'web_search', 'web_fetch', 'grep', 'glob', 'code'];
@@ -91,6 +103,12 @@ describe('unit: kiro adapter', () => {
       const { skills, ...noSkillsField } = agent;
       const result = transformAgent(noSkillsField);
       assert.deepEqual(result.resources, ['file://.kiro/steering/**/*.md']);
+    });
+
+    it('passes @server/tool references through in tools', () => {
+      const withServer = { ...agent, tools: ['read', '@git/git_status', '@git/git_diff'] };
+      const result = transformAgent(withServer);
+      assert.deepEqual(result.tools, ['read', '@git/git_status', '@git/git_diff']);
     });
   });
 
