@@ -12,6 +12,9 @@ desktop.ini
 *.swp
 *.swo
 
+# Kiro local settings
+.kiro/settings/
+
 # Local / personal scratch files — not tracked
 scratch/
 tmp/
