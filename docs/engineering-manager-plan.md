@@ -8,7 +8,7 @@
 | Author (Agent) | AI Engineer |
 | Approved By | Jeremy |
 | Created | 2026-08-03 21:32 |
-| Last Updated | 2026-08-03 21:32 |
+| Last Updated | 2026-08-03 22:16 |
 
 ---
 
@@ -41,9 +41,10 @@ Design constraints:
 |---|---|---|
 | `skills/epic-planning/SKILL.md` | Modify | Add DAG validity requirement |
 | `skills/epic-planning/reference/template.md` | Modify | Tighten Section 8 format for machine-parseability |
-| `agents/tech-lead.yaml` | Modify | Add DAG validity to hard rules |
-| `lib/dag.js` | Create | Pure DAG utilities (buildGraph, validate, computeWaves) |
-| `agents/engineering-manager.yaml` | Create | New agent definition |
+| `agents/tech-lead.yaml` | Modify | Add DAG validity to hard rules, add `dag` server tools |
+| `servers/dag/dag.yaml` | Create | MCP server definition |
+| `servers/dag/index.js` | Create | Server implementation (buildGraph, validate, computeWaves) |
+| `agents/engineering-manager.yaml` | Create | New agent definition, references `dag` server |
 | `skills/chunk-orchestration/SKILL.md` | Create | Execution procedure |
 | `skills/chunk-orchestration/reference/state-schema.md` | Create | Tracking artifact format |
 | `lib/harnesses/kiro.js` | Modify | Add `subagent` tool mapping |
@@ -54,9 +55,11 @@ Design constraints:
 ## Design Decisions
 
 ### DAG Implementation
-- No external library. Pure JS implementation (~30 lines).
-- Interface: `buildGraph(chunks)`, `validate(graph)`, `computeWaves(graph)`
-- Trivially replaceable with a library later if visualization is needed (interface stays the same).
+- MCP server (`servers/dag/`) exposing `dag_validate` and `dag_compute_waves` tools.
+- Available to any agent that declares the server — Tech-Lead uses `dag_validate` when producing epics, Engineering-Manager uses `dag_compute_waves` when orchestrating.
+- No external library. Pure JS implementation (~30 lines per tool).
+- Interface: `dag_validate(epic_path)` → `{ valid, cycles, missing }`, `dag_compute_waves(epic_path)` → `[[chunk1, chunk2], [chunk3], ...]`
+- Trivially replaceable with a library later if visualization is needed (tool interface stays the same).
 
 ### Per-Chunk Pipeline
 ```
@@ -93,23 +96,23 @@ Principal-Engineer reviews on same branch
 ### Phase 0: DAG-ready planning
 Update epic-planning skill and template so Tech-Lead produces a valid, machine-parseable DAG. Add DAG validity to Tech-Lead's hard rules. Standardize dependency notation in Section 8.
 
-### Phase 1: DAG utility module
-Create `lib/dag.js` — pure functions for `buildGraph`, `validate` (cycle detection, missing refs), `computeWaves` (topological sort grouped by depth). Unit tests.
+### Phase 1: DAG MCP server
+Create `servers/dag/` — server definition (`dag.yaml`) and implementation (`index.js`). Exposes `dag_validate` and `dag_compute_waves` tools. Pure functions internally (buildGraph, validate, computeWaves). Unit tests for the logic, integration test for the server.
 
 ### Phase 2: Tool mapping
 Add `subagent` to the tool maps in Kiro and Claude Code adapters. Update adapter tests.
 
 ### Phase 3: Agent definition
-Create `agents/engineering-manager.yaml` with prompt, tools (`subagent`, `read`, `write`, `grep`, `glob`), and skill reference to `skill/chunk-orchestration`.
+Create `agents/engineering-manager.yaml` with prompt, tools (`subagent`, `read`, `write`, `grep`, `glob`, `dag_validate`, `dag_compute_waves`), skill reference to `skill/chunk-orchestration`, and `dag` server declaration. Update `agents/tech-lead.yaml` to declare `dag` server and add `dag_validate` to tools.
 
 ### Phase 4: State schema
 Create `skills/chunk-orchestration/reference/state-schema.md` defining the execution state artifact format.
 
 ### Phase 5: Orchestration skill
-Create `skills/chunk-orchestration/SKILL.md` — full procedure: parse DAG, compute waves, dispatch, monitor pipeline (SE → TE → PE with 5-iteration loop cap), gate waves, update state, escalate on failure.
+Create `skills/chunk-orchestration/SKILL.md` — full procedure: call `dag_compute_waves`, dispatch per wave, monitor pipeline (SE → TE → PE with 5-iteration loop cap), gate waves, update state, escalate on failure.
 
 ### Phase 6: Validation
-Write tests — unit tests for DAG module, validation tests for schema compliance and cross-references. Run full suite.
+Write tests — unit tests for DAG server logic, integration test for server, validation tests for schema compliance and cross-references. Run full suite.
 
 ---
 
