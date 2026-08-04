@@ -152,10 +152,18 @@ export async function run(parsed) {
 
 // --- Main (only when run directly) ---
 
-const currentFile = __filename;
-const entryFile = process.argv[1] ? resolve(process.argv[1]) : null;
+import { realpathSync } from 'node:fs';
 
-if (currentFile === entryFile) {
+function isMain() {
+  if (!process.argv[1]) return false;
+  try {
+    return realpathSync(__filename) === realpathSync(resolve(process.argv[1]));
+  } catch {
+    return false;
+  }
+}
+
+if (isMain()) {
   const parsed = parseArgs(process.argv.slice(2));
   const exitCode = await run(parsed);
   process.exitCode = exitCode;
