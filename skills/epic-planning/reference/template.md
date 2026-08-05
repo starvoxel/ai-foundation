@@ -85,11 +85,14 @@
 
 ## 8. Chunk Decomposition
 
-| Chunk | Title | Depends On | Can Parallel With | Agent(s) |
-|---|---|---|---|---|
-| 001 | {Title} | None | 002 | Software-Engineer |
-| 002 | {Title} | None | 001 | Software-Engineer |
-| 003 | {Title} | 001 | — | Software-Engineer, Test-Engineer |
+Dependency graph: [`chunks.json`](./chunks.json)
+
+Summary: {N} chunks across {M} waves. {Brief description of parallelization.}
+
+The `chunks.json` file is the machine-parseable source of truth for the dependency
+graph. It must pass `dag-validate` before the epic is considered decomposed.
+
+See `skills/epic-planning/reference/chunks-schema.md` for the file format.
 
 Parallelization notes:
 - {Constraints on parallel execution}

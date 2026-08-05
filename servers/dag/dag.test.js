@@ -1,6 +1,6 @@
 /**
  * Integration test for DAG MCP server.
- * Validates tool invocation against real epic plan files.
+ * Validates tool invocation against real chunks.json files.
  *
  * Plan ID: engineering-manager-plan (Phase 1)
  */
@@ -8,89 +8,67 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { dagValidate, dagComputeWaves } from '../../servers/dag/index.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
-const VALID_EPIC = `# Epic Plan: Test Feature
+const VALID_CHUNKS = {
+  epic_id: 'TEST-2026-08-01-001',
+  chunks: [
+    { id: '001', title: 'Data models', depends_on: [], agents: ['Software-Engineer'] },
+    { id: '002', title: 'API service', depends_on: [], agents: ['Software-Engineer'] },
+    { id: '003', title: 'Controller', depends_on: ['001', '002'], agents: ['Software-Engineer'] },
+    { id: '004', title: 'Tests', depends_on: ['003'], agents: ['Test-Engineer'] },
+  ],
+};
 
-## 1. Metadata
+const CYCLIC_CHUNKS = {
+  epic_id: 'TEST-CYCLIC',
+  chunks: [
+    { id: '001', title: 'First', depends_on: ['002'], agents: ['Software-Engineer'] },
+    { id: '002', title: 'Second', depends_on: ['001'], agents: ['Software-Engineer'] },
+  ],
+};
 
-| Field | Value |
-|---|---|
-| Epic ID | TEST-2026-08-01-001 |
+const MISSING_REF_CHUNKS = {
+  epic_id: 'TEST-MISSING',
+  chunks: [
+    { id: '001', title: 'First', depends_on: [], agents: ['Software-Engineer'] },
+    { id: '002', title: 'Second', depends_on: ['999'], agents: ['Software-Engineer'] },
+  ],
+};
 
-## 8. Chunk Decomposition
+const EMPTY_CHUNKS = {
+  epic_id: 'TEST-EMPTY',
+  chunks: [],
+};
 
-| Chunk | Title | Depends On | Can Parallel With | Agent(s) |
-|---|---|---|---|---|
-| 001 | Data models | None | 002 | Software-Engineer |
-| 002 | API service | None | 001 | Software-Engineer |
-| 003 | Controller | 001, 002 | — | Software-Engineer |
-| 004 | Tests | 003 | — | Test-Engineer |
-
-Parallelization notes:
-- Chunks 001 and 002 can run in parallel.
-
-## 9. Acceptance Criteria
-
-- All chunks complete.
-`;
-
-const CYCLIC_EPIC = `# Epic Plan: Broken
-
-## 8. Chunk Decomposition
-
-| Chunk | Title | Depends On | Can Parallel With | Agent(s) |
-|---|---|---|---|---|
-| 001 | First | 002 | — | Software-Engineer |
-| 002 | Second | 001 | — | Software-Engineer |
-
-## 9. Done
-`;
-
-const MISSING_REF_EPIC = `# Epic Plan: Missing
-
-## 8. Chunk Decomposition
-
-| Chunk | Title | Depends On | Can Parallel With | Agent(s) |
-|---|---|---|---|---|
-| 001 | First | None | — | Software-Engineer |
-| 002 | Second | 999 | — | Software-Engineer |
-
-## 9. Done
-`;
-
-const NO_TABLE_EPIC = `# Epic Plan: Empty
-
-## 8. Chunk Decomposition
-
-TBD — not yet decomposed.
-
-## 9. Acceptance Criteria
-`;
+const INVALID_SCHEMA = {
+  epic_id: 'TEST-BAD',
+  chunks: [
+    { id: '001', depends_on: [], agents: [] },
+    { title: 'No ID', depends_on: [], agents: [] },
+  ],
+};
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function writeTempEpic(name, content) {
-  const dir = join(tmpdir(), 'dag-test-' + Date.now());
+function writeTempChunks(name, data) {
+  const dir = join(tmpdir(), 'dag-test-' + Date.now() + '-' + Math.random().toString(36).slice(2));
   mkdirSync(dir, { recursive: true });
   const path = join(dir, name);
-  writeFileSync(path, content, 'utf-8');
+  writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   return { path, dir };
 }
 
-// ── dag_validate ─────────────────────────────────────────────────────────────
+// ── dag-validate ─────────────────────────────────────────────────────────────
 
-describe('integration: dag/dag_validate', () => {
-  it('validates a well-formed epic as valid', () => {
-    const { path, dir } = writeTempEpic('valid.epic.md', VALID_EPIC);
+describe('integration: dag/dag-validate', () => {
+  it('validates a well-formed chunks file as valid', () => {
+    const { path, dir } = writeTempChunks('chunks.json', VALID_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, true);
@@ -101,7 +79,7 @@ describe('integration: dag/dag_validate', () => {
   });
 
   it('detects cycles in chunk dependencies', () => {
-    const { path, dir } = writeTempEpic('cyclic.epic.md', CYCLIC_EPIC);
+    const { path, dir } = writeTempChunks('chunks.json', CYCLIC_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
@@ -112,7 +90,7 @@ describe('integration: dag/dag_validate', () => {
   });
 
   it('detects missing dependency references', () => {
-    const { path, dir } = writeTempEpic('missing.epic.md', MISSING_REF_EPIC);
+    const { path, dir } = writeTempChunks('chunks.json', MISSING_REF_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
@@ -122,23 +100,35 @@ describe('integration: dag/dag_validate', () => {
     }
   });
 
-  it('returns invalid when no chunk table exists', () => {
-    const { path, dir } = writeTempEpic('empty.epic.md', NO_TABLE_EPIC);
+  it('returns invalid when chunks array is empty', () => {
+    const { path, dir } = writeTempChunks('chunks.json', EMPTY_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
-      assert.ok(result.errors[0].includes('No chunk table'));
+      assert.ok(result.errors[0].includes('No chunks defined'));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it('returns schema errors for malformed chunks', () => {
+    const { path, dir } = writeTempChunks('chunks.json', INVALID_SCHEMA);
+    try {
+      const result = dagValidate(path);
+      assert.equal(result.valid, false);
+      assert.ok(result.errors.some(e => e.includes('title')));
+      assert.ok(result.errors.some(e => e.includes('"id"')));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 });
 
-// ── dag_compute_waves ────────────────────────────────────────────────────────
+// ── dag-compute-waves ────────────────────────────────────────────────────────
 
-describe('integration: dag/dag_compute_waves', () => {
-  it('computes correct waves for a valid epic', () => {
-    const { path, dir } = writeTempEpic('valid.epic.md', VALID_EPIC);
+describe('integration: dag/dag-compute-waves', () => {
+  it('computes correct waves for a valid chunks file', () => {
+    const { path, dir } = writeTempChunks('chunks.json', VALID_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.equal(result.waves.length, 3);
@@ -151,7 +141,7 @@ describe('integration: dag/dag_compute_waves', () => {
   });
 
   it('returns chunk metadata alongside waves', () => {
-    const { path, dir } = writeTempEpic('valid.epic.md', VALID_EPIC);
+    const { path, dir } = writeTempChunks('chunks.json', VALID_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.equal(result.chunks.length, 4);
@@ -164,8 +154,8 @@ describe('integration: dag/dag_compute_waves', () => {
     }
   });
 
-  it('returns empty waves for an epic with no table', () => {
-    const { path, dir } = writeTempEpic('empty.epic.md', NO_TABLE_EPIC);
+  it('returns empty waves for an empty chunks file', () => {
+    const { path, dir } = writeTempChunks('chunks.json', EMPTY_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.deepEqual(result.waves, []);
@@ -176,7 +166,7 @@ describe('integration: dag/dag_compute_waves', () => {
   });
 
   it('returns errors when DAG is invalid', () => {
-    const { path, dir } = writeTempEpic('cyclic.epic.md', CYCLIC_EPIC);
+    const { path, dir } = writeTempChunks('chunks.json', CYCLIC_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.deepEqual(result.waves, []);

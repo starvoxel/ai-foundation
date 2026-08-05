@@ -53,11 +53,12 @@ Design constraints:
 
 | Component | Action | Notes |
 |---|---|---|
-| `skills/epic-planning/SKILL.md` | Modify | Add DAG validity requirement |
-| `skills/epic-planning/reference/template.md` | Modify | Tighten Section 8 format for machine-parseability |
+| `skills/epic-planning/SKILL.md` | Modify | Add DAG validity requirement, reference chunks.json |
+| `skills/epic-planning/reference/template.md` | Modify | Section 8 references chunks.json instead of inline table |
+| `skills/epic-planning/reference/chunks-schema.md` | Create | Documents the chunks.json file format |
 | `agents/tech-lead.yaml` | Modify | Add DAG validity to hard rules, add `dag` server tools |
 | `servers/dag/dag.yaml` | Create | MCP server definition |
-| `servers/dag/index.js` | Create | Server implementation (buildGraph, validate, computeWaves) |
+| `servers/dag/index.js` | Create | Server implementation (parseChunksFile, buildGraph, validate, computeWaves) |
 | `agents/engineering-manager.yaml` | Create | New agent definition, references `dag` server |
 | `skills/chunk-orchestration/SKILL.md` | Create | Execution procedure |
 | `skills/chunk-orchestration/reference/state-schema.md` | Create | Tracking artifact format |
@@ -69,10 +70,10 @@ Design constraints:
 ## Design Decisions
 
 ### DAG Implementation
-- MCP server (`servers/dag/`) exposing `dag_validate` and `dag_compute_waves` tools.
-- Available to any agent that declares the server — Tech-Lead uses `dag_validate` when producing epics, Engineering-Manager uses `dag_compute_waves` when orchestrating.
-- No external library. Pure JS implementation (~30 lines per tool).
-- Interface: `dag_validate(epic_path)` → `{ valid, cycles, missing }`, `dag_compute_waves(epic_path)` → `[[chunk1, chunk2], [chunk3], ...]`
+- MCP server (`servers/dag/`) exposing `dag-validate` and `dag-compute-waves` tools.
+- Input format: `chunks.json` — a dedicated JSON file produced by Tech-Lead during epic decomposition. Stored at `plans/{ProjectName}/{EpicID}/chunks.json`.
+- Available to any agent that declares the server — Tech-Lead uses `dag-validate` when producing epics, Engineering-Manager uses `dag-compute-waves` when orchestrating.
+- No external library. Pure JS implementation.
 - Trivially replaceable with a library later if visualization is needed (tool interface stays the same).
 
 ### Per-Chunk Pipeline

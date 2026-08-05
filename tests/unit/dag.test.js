@@ -8,120 +8,94 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
-  parseChunkTable,
-  parseList,
+  parseChunksFile,
   buildGraph,
   validate,
   computeWaves,
 } from '../../servers/dag/index.js';
 
-// ── parseList ────────────────────────────────────────────────────────────────
+// ── parseChunksFile ──────────────────────────────────────────────────────────
 
-describe('unit: dag/parseList', () => {
-  it('returns empty array for "None"', () => {
-    assert.deepEqual(parseList('None'), []);
+describe('unit: dag/parseChunksFile', () => {
+  it('parses a valid chunks object', () => {
+    const data = {
+      epic_id: 'TEST-001',
+      chunks: [
+        { id: '001', title: 'Data layer', depends_on: [], agents: ['Software-Engineer'] },
+        { id: '002', title: 'API routes', depends_on: ['001'], agents: ['Software-Engineer'] },
+      ],
+    };
+    const { chunks, errors } = parseChunksFile(data);
+    assert.equal(chunks.length, 2);
+    assert.deepEqual(errors, []);
   });
 
-  it('returns empty array for "none" (case-insensitive)', () => {
-    assert.deepEqual(parseList('none'), []);
+  it('extracts chunk fields correctly', () => {
+    const data = {
+      chunks: [
+        { id: '003', title: 'Integration', depends_on: ['001', '002'], agents: ['Software-Engineer', 'Test-Engineer'] },
+      ],
+    };
+    const { chunks } = parseChunksFile(data);
+    assert.equal(chunks[0].id, '003');
+    assert.equal(chunks[0].title, 'Integration');
+    assert.deepEqual(chunks[0].depends_on, ['001', '002']);
+    assert.deepEqual(chunks[0].agents, ['Software-Engineer', 'Test-Engineer']);
   });
 
-  it('returns empty array for em-dash', () => {
-    assert.deepEqual(parseList('—'), []);
+  it('returns error for null input', () => {
+    const { chunks, errors } = parseChunksFile(null);
+    assert.equal(chunks.length, 0);
+    assert.ok(errors[0].includes('not a valid JSON object'));
   });
 
-  it('returns empty array for hyphen', () => {
-    assert.deepEqual(parseList('-'), []);
+  it('returns error for non-object input', () => {
+    const { chunks, errors } = parseChunksFile('string');
+    assert.equal(chunks.length, 0);
+    assert.ok(errors[0].includes('not a valid JSON object'));
   });
 
-  it('returns empty array for empty string', () => {
-    assert.deepEqual(parseList(''), []);
+  it('returns error when chunks array is missing', () => {
+    const { chunks, errors } = parseChunksFile({ epic_id: 'TEST' });
+    assert.equal(chunks.length, 0);
+    assert.ok(errors[0].includes('Missing or invalid "chunks" array'));
   });
 
-  it('returns empty array for null/undefined', () => {
-    assert.deepEqual(parseList(null), []);
-    assert.deepEqual(parseList(undefined), []);
+  it('returns error for chunk without id', () => {
+    const data = { chunks: [{ title: 'No ID', depends_on: [], agents: [] }] };
+    const { errors } = parseChunksFile(data);
+    assert.ok(errors.some(e => e.includes('missing or invalid "id"')));
   });
 
-  it('splits comma-separated values', () => {
-    assert.deepEqual(parseList('001, 002'), ['001', '002']);
+  it('returns error for chunk without title', () => {
+    const data = { chunks: [{ id: '001', depends_on: [], agents: [] }] };
+    const { errors } = parseChunksFile(data);
+    assert.ok(errors.some(e => e.includes('missing or invalid "title"')));
   });
 
-  it('splits semicolon-separated values', () => {
-    assert.deepEqual(parseList('001; 002'), ['001', '002']);
+  it('returns error when depends_on is not an array', () => {
+    const data = { chunks: [{ id: '001', title: 'Test', depends_on: 'bad', agents: [] }] };
+    const { errors } = parseChunksFile(data);
+    assert.ok(errors.some(e => e.includes('"depends_on" must be an array')));
   });
 
-  it('handles single value', () => {
-    assert.deepEqual(parseList('001'), ['001']);
+  it('returns error when agents is not an array', () => {
+    const data = { chunks: [{ id: '001', title: 'Test', depends_on: [], agents: 'bad' }] };
+    const { errors } = parseChunksFile(data);
+    assert.ok(errors.some(e => e.includes('"agents" must be an array')));
   });
 
-  it('trims whitespace from values', () => {
-    assert.deepEqual(parseList('  001 , 002  '), ['001', '002']);
-  });
-});
-
-// ── parseChunkTable ──────────────────────────────────────────────────────────
-
-describe('unit: dag/parseChunkTable', () => {
-  const validEpic = `# Epic Plan: Test
-
-## 1. Metadata
-
-Some metadata here.
-
-## 8. Chunk Decomposition
-
-| Chunk | Title | Depends On | Can Parallel With | Agent(s) |
-|---|---|---|---|---|
-| 001 | Data layer | None | 002 | Software-Engineer |
-| 002 | API routes | None | 001 | Software-Engineer |
-| 003 | Integration | 001, 002 | — | Software-Engineer, Test-Engineer |
-
-Parallelization notes:
-- Chunks 001 and 002 can run in parallel.
-
-## 9. Acceptance Criteria
-
-Done.
-`;
-
-  it('parses a well-formed chunk table', () => {
-    const chunks = parseChunkTable(validEpic);
-    assert.equal(chunks.length, 3);
-  });
-
-  it('extracts chunk IDs correctly', () => {
-    const chunks = parseChunkTable(validEpic);
-    assert.deepEqual(chunks.map(c => c.id), ['001', '002', '003']);
-  });
-
-  it('extracts titles correctly', () => {
-    const chunks = parseChunkTable(validEpic);
-    assert.equal(chunks[0].title, 'Data layer');
-    assert.equal(chunks[2].title, 'Integration');
-  });
-
-  it('parses dependencies correctly', () => {
-    const chunks = parseChunkTable(validEpic);
-    assert.deepEqual(chunks[0].depends_on, []);
-    assert.deepEqual(chunks[1].depends_on, []);
-    assert.deepEqual(chunks[2].depends_on, ['001', '002']);
-  });
-
-  it('parses agents correctly', () => {
-    const chunks = parseChunkTable(validEpic);
-    assert.deepEqual(chunks[0].agents, ['Software-Engineer']);
-    assert.deepEqual(chunks[2].agents, ['Software-Engineer', 'Test-Engineer']);
-  });
-
-  it('returns empty array when no Section 8 exists', () => {
-    const noSection8 = '# Epic\n\n## 7. Open Questions\n\nStuff\n';
-    assert.deepEqual(parseChunkTable(noSection8), []);
-  });
-
-  it('returns empty array when Section 8 has no table', () => {
-    const emptySection = '## 8. Chunk Decomposition\n\nTBD\n\n## 9. Acceptance\n';
-    assert.deepEqual(parseChunkTable(emptySection), []);
+  it('still collects valid chunks when some are invalid', () => {
+    const data = {
+      chunks: [
+        { id: '001', title: 'Good', depends_on: [], agents: [] },
+        'not an object',
+        { id: '002', title: 'Also good', depends_on: [], agents: [] },
+      ],
+    };
+    const { chunks, errors } = parseChunksFile(data);
+    assert.equal(chunks.length, 2);
+    assert.equal(errors.length, 1);
   });
 });
 
@@ -259,7 +233,6 @@ describe('unit: dag/computeWaves', () => {
   });
 
   it('computes diamond dependency correctly', () => {
-    // 001 and 002 independent, 003 depends on both
     const graph = buildGraph([
       { id: '001', depends_on: [] },
       { id: '002', depends_on: [] },
@@ -272,9 +245,6 @@ describe('unit: dag/computeWaves', () => {
   });
 
   it('handles complex multi-wave graph', () => {
-    // Wave 1: 001, 002
-    // Wave 2: 003 (depends 001), 004 (depends 002)
-    // Wave 3: 005 (depends 003, 004)
     const graph = buildGraph([
       { id: '001', depends_on: [] },
       { id: '002', depends_on: [] },

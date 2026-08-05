@@ -1,6 +1,6 @@
 /**
  * DAG MCP server — validates and computes execution waves from epic chunk
- * dependency graphs.
+ * dependency graphs stored as chunks.json files.
  *
  * Plan ID: engineering-manager-plan (Phase 1)
  */
@@ -10,77 +10,62 @@ import { readFileSync } from 'node:fs';
 // ── Pure Logic ───────────────────────────────────────────────────────────────
 
 /**
- * Parse the Section 8 chunk table from epic plan markdown.
- * Expects rows like: | 001 | Title | None | 002 | Software-Engineer |
+ * Parse and validate the structure of a chunks.json object.
+ * Expected format:
+ * {
+ *   "epic_id": "PROJECT-2026-08-01-001",
+ *   "chunks": [
+ *     { "id": "001", "title": "Data layer", "depends_on": [], "agents": ["Software-Engineer"] },
+ *     ...
+ *   ]
+ * }
  *
- * @param {string} content - Epic plan markdown content
- * @returns {Array<{ id: string, title: string, depends_on: string[], parallel_with: string[], agents: string[] }>}
+ * @param {object} data - Parsed JSON content
+ * @returns {{ chunks: Array<{ id: string, title: string, depends_on: string[], agents: string[] }>, errors: string[] }}
  */
-export function parseChunkTable(content) {
-  const lines = content.split(/\r?\n/);
+export function parseChunksFile(data) {
+  const errors = [];
+
+  if (!data || typeof data !== 'object') {
+    return { chunks: [], errors: ['File content is not a valid JSON object'] };
+  }
+
+  if (!Array.isArray(data.chunks)) {
+    return { chunks: [], errors: ['Missing or invalid "chunks" array'] };
+  }
+
   const chunks = [];
+  for (let i = 0; i < data.chunks.length; i++) {
+    const chunk = data.chunks[i];
+    const prefix = `chunks[${i}]`;
 
-  let inSection8 = false;
-  let headerPassed = false;
-
-  for (const line of lines) {
-    // Detect Section 8 start
-    if (/^##\s+8\.\s+Chunk Decomposition/i.test(line)) {
-      inSection8 = true;
+    if (!chunk || typeof chunk !== 'object') {
+      errors.push(`${prefix}: not an object`);
       continue;
     }
-
-    // Stop at next section
-    if (inSection8 && /^##\s+\d+\./.test(line) && !/^##\s+8\./.test(line)) {
-      break;
-    }
-
-    if (!inSection8) continue;
-
-    // Skip non-table lines
-    if (!line.trim().startsWith('|')) continue;
-
-    // Skip header separator (|---|---|...)
-    if (/^\|\s*-+/.test(line)) {
-      headerPassed = true;
+    if (typeof chunk.id !== 'string' || !chunk.id) {
+      errors.push(`${prefix}: missing or invalid "id"`);
       continue;
     }
-
-    // Skip the header row itself
-    if (!headerPassed) continue;
-
-    const cells = line.split('|')
-      .slice(1, -1) // Remove leading/trailing empty splits
-      .map(c => c.trim());
-
-    if (cells.length < 5) continue;
-
-    const [id, title, dependsOn, parallelWith, agents] = cells;
+    if (typeof chunk.title !== 'string' || !chunk.title) {
+      errors.push(`${prefix} (${chunk.id}): missing or invalid "title"`);
+    }
+    if (!Array.isArray(chunk.depends_on)) {
+      errors.push(`${prefix} (${chunk.id}): "depends_on" must be an array`);
+    }
+    if (!Array.isArray(chunk.agents)) {
+      errors.push(`${prefix} (${chunk.id}): "agents" must be an array`);
+    }
 
     chunks.push({
-      id: id.trim(),
-      title: title.trim(),
-      depends_on: parseList(dependsOn),
-      parallel_with: parseList(parallelWith),
-      agents: parseList(agents),
+      id: chunk.id,
+      title: chunk.title || '',
+      depends_on: Array.isArray(chunk.depends_on) ? chunk.depends_on : [],
+      agents: Array.isArray(chunk.agents) ? chunk.agents : [],
     });
   }
 
-  return chunks;
-}
-
-/**
- * Parse a comma/space-separated list or "None" into an array.
- * @param {string} value
- * @returns {string[]}
- */
-export function parseList(value) {
-  if (!value || /^none$/i.test(value.trim()) || value.trim() === '—' || value.trim() === '-') {
-    return [];
-  }
-  return value.split(/[,;]+/)
-    .map(s => s.trim())
-    .filter(Boolean);
+  return { chunks, errors };
 }
 
 /**
@@ -123,12 +108,6 @@ export function validate(graph) {
   const inDegree = new Map();
   for (const node of nodes) {
     inDegree.set(node, 0);
-  }
-
-  for (const [, deps] of edges) {
-    // deps are predecessors of this node, so this node has inDegree from each dep
-    // Actually: edges maps node -> its dependencies (predecessors)
-    // For topo sort, we need: for each dep -> node, dep must come before node
   }
 
   // Rebuild as forward adjacency: dep -> [nodes that depend on it]
@@ -229,36 +208,43 @@ export function computeWaves(graph) {
 // ── I/O Layer ────────────────────────────────────────────────────────────────
 
 /**
- * Read and parse an epic file's chunk table.
- * @param {string} epicPath
- * @returns {Array<{ id: string, title: string, depends_on: string[], parallel_with: string[], agents: string[] }>}
+ * Read and parse a chunks.json file.
+ * @param {string} chunksPath - Path to chunks.json
+ * @returns {{ chunks: Array<{ id: string, title: string, depends_on: string[], agents: string[] }>, errors: string[] }}
  */
-export function readEpicChunks(epicPath) {
-  const content = readFileSync(epicPath, 'utf-8');
-  return parseChunkTable(content);
+export function readChunksFile(chunksPath) {
+  const content = readFileSync(chunksPath, 'utf-8');
+  const data = JSON.parse(content);
+  return parseChunksFile(data);
 }
 
 /**
- * Tool: dag_validate — validates an epic's chunk DAG.
- * @param {string} epicPath
+ * Tool: dag-validate — validates a chunks.json dependency graph.
+ * @param {string} chunksPath - Path to chunks.json
  * @returns {{ valid: boolean, errors: string[] }}
  */
-export function dagValidate(epicPath) {
-  const chunks = readEpicChunks(epicPath);
+export function dagValidate(chunksPath) {
+  const { chunks, errors: parseErrors } = readChunksFile(chunksPath);
+  if (parseErrors.length > 0) {
+    return { valid: false, errors: parseErrors };
+  }
   if (chunks.length === 0) {
-    return { valid: false, errors: ['No chunk table found in Section 8'] };
+    return { valid: false, errors: ['No chunks defined in file'] };
   }
   const graph = buildGraph(chunks);
   return validate(graph);
 }
 
 /**
- * Tool: dag_compute_waves — computes execution waves from an epic's chunk DAG.
- * @param {string} epicPath
- * @returns {{ waves: string[][], chunks: Array<{ id: string, title: string, depends_on: string[], agents: string[] }> }}
+ * Tool: dag-compute-waves — computes execution waves from a chunks.json file.
+ * @param {string} chunksPath - Path to chunks.json
+ * @returns {{ waves: string[][], chunks: Array<{ id: string, title: string, depends_on: string[], agents: string[] }>, errors?: string[] }}
  */
-export function dagComputeWaves(epicPath) {
-  const chunks = readEpicChunks(epicPath);
+export function dagComputeWaves(chunksPath) {
+  const { chunks, errors: parseErrors } = readChunksFile(chunksPath);
+  if (parseErrors.length > 0) {
+    return { waves: [], chunks: [], errors: parseErrors };
+  }
   if (chunks.length === 0) {
     return { waves: [], chunks: [] };
   }
