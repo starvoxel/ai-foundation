@@ -8,7 +8,21 @@
 | Author (Agent) | AI Engineer |
 | Approved By | Jeremy |
 | Created | 2026-08-03 21:32 |
-| Last Updated | 2026-08-03 22:16 |
+| Last Updated | 2026-08-04 21:08 |
+
+---
+
+## Progress
+
+| Phase | Description | Status | Commit |
+|---|---|---|---|
+| 0 | DAG-ready planning | Planned | — |
+| 1 | DAG MCP server | ✅ Complete | `f29d00e` |
+| 2 | Tool mapping (`subagent`) | Planned | — |
+| 3 | Agent definition | Planned | — |
+| 4 | State schema | Planned | — |
+| 5 | Orchestration skill | Planned | — |
+| 6 | Validation | Planned | — |
 
 ---
 
