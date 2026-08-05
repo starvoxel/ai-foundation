@@ -138,6 +138,14 @@ Write tests — unit tests for DAG server logic, integration test for server, va
 
 ## References
 
+### Subagent / Harness
 - [Kiro subagent docs](https://kiro.dev/docs/cli/chat/subagents/)
 - [Claude Code subagent SDK docs](https://code.claude.com/docs/en/agent-sdk/subagents)
 - [GitHub Copilot custom agents](https://docs.github.com/en/copilot/how-tos/copilot-sdk/features/custom-agents)
+
+### DAG Concepts & Algorithms
+- [Databricks: What is a DAG?](https://www.databricks.com/blog/what-is-dag) — Clear conceptual explainer of directed, acyclic, graph properties
+- [MIT/LibreTexts: DAGs and Scheduling](https://eng.libretexts.org/Bookshelves/Computer_Science/Programming_and_Computation_Fundamentals/Mathematics_for_Computer_Science_(Lehman_Leighton_and_Meyer)/02:_Structures/09:_Directed_graphs_and_Partial_Orders/9.05:_Directed_Acyclic_Graphs_and_Scheduling) — Formal math: partial orders, critical paths, parallel scheduling
+- [Topological Sort Explained from First Principles](https://www.codeintuition.io/blogs/topological-sort-explained) — Intuition-first walkthrough of dependency resolution
+- [Baeldung: Topological Sort of a DAG](https://www.baeldung.com/cs/dag-topological-sort) — Kahn's algorithm (BFS) and DFS approaches with pseudocode
+- [Apache Airflow DAG concepts](https://airflow.apache.org/docs/apache-airflow/stable/core-concepts/dags.html) — Production DAG orchestrator; relevant patterns for scheduling and execution
