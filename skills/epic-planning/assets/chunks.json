@@ -1,0 +1,11 @@
+{
+  "epic_id": "",
+  "chunks": [
+    {
+      "id": "001",
+      "title": "",
+      "depends_on": [],
+      "agents": ["Software-Engineer"]
+    }
+  ]
+}
