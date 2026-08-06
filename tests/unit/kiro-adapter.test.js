@@ -24,7 +24,7 @@ describe('unit: kiro adapter', () => {
 
   describe('TOOL_MAP', () => {
     it('contains all standard tool names', () => {
-      const expected = ['read', 'write', 'shell', 'web_search', 'web_fetch', 'grep', 'glob', 'code'];
+      const expected = ['read', 'write', 'shell', 'web_search', 'web_fetch', 'grep', 'glob', 'code', 'subagent'];
       for (const name of expected) {
         assert.ok(name in TOOL_MAP, `missing ${name}`);
       }
@@ -35,6 +35,7 @@ describe('unit: kiro adapter', () => {
       assert.equal(TOOL_MAP['write'], 'write');
       assert.equal(TOOL_MAP['shell'], 'shell');
       assert.equal(TOOL_MAP['web_search'], 'web_search');
+      assert.equal(TOOL_MAP['subagent'], 'subagent');
     });
   });
 

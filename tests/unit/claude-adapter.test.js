@@ -32,6 +32,7 @@ describe('unit: claude adapter', () => {
       assert.equal(TOOL_MAP['grep'], 'Grep');
       assert.equal(TOOL_MAP['glob'], 'Glob');
       assert.equal(TOOL_MAP['code'], 'LSP');
+      assert.equal(TOOL_MAP['subagent'], 'Agent');
     });
   });
 
