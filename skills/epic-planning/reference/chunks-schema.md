@@ -4,36 +4,14 @@ The chunk decomposition for an epic is stored as a `chunks.json` file alongside
 the epic plan. This file is the machine-parseable source of truth for the
 dependency graph consumed by the DAG server tools (`dag-validate`, `dag-compute-waves`).
 
+Start from the template at `skills/epic-planning/assets/chunks.json`.
+
 ---
 
 ## Location
 
 ```
 plans/{ProjectName}/{EpicID}/chunks.json
-```
-
----
-
-## Schema
-
-```json
-{
-  "epic_id": "PROJECT-YYYY-MM-DD-###",
-  "chunks": [
-    {
-      "id": "001",
-      "title": "Short descriptive title",
-      "depends_on": [],
-      "agents": ["Software-Engineer"]
-    },
-    {
-      "id": "002",
-      "title": "Another chunk",
-      "depends_on": ["001"],
-      "agents": ["Software-Engineer", "Test-Engineer"]
-    }
-  ]
-}
 ```
 
 ---
