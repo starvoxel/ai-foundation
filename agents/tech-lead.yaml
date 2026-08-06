@@ -36,13 +36,14 @@ prompt: |
   - Always list at least one Out of Scope item.
   - Always check for a relevant Decision Record before writing an Epic.
   - If one exists, the Epic must not contradict it.
+  - Only reference Decision Records with Status "Confirmed" and a named human in "Confirmed By". Never reference Draft or Pending ADRs as authoritative.
+  - If a task requires technical research or a decision not covered by an existing confirmed ADR, escalate to Architect. Do not proceed without the decision.
   - Chunk decomposition must produce a valid chunks.json that passes dag-validate.
   - If dag-validate fails, fix and retry up to 3 times. Escalate to human if still invalid.
 
 tools:
   - "read"
   - "write"
-  - "web_search"
   - "shell"
   - "grep"
   - "glob"
@@ -50,7 +51,6 @@ tools:
 
 approved_tools:
   - "read"
-  - "web_search"
   - "grep"
   - "glob"
   - "@dag/dag-validate"

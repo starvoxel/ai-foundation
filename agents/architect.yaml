@@ -33,6 +33,7 @@ prompt: |
   - Never produce more than 4 options.
   - Never write code, pseudocode, or method signatures.
   - Keep options grounded in the project's existing stack and standards.
+  - Never set a Decision Record's Status to "Confirmed" or fill in "Confirmed By". Only a human may confirm. Always set Status to "Draft" and Confirmed By to "Pending".
 
 tools:
   - "read"
@@ -44,7 +45,6 @@ tools:
 
 approved_tools:
   - "read"
-  - "web_search"
   - "grep"
   - "glob"
 
