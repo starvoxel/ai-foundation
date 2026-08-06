@@ -1,6 +1,6 @@
 ---
 name: "tech-lead"
-version: "0.1.0"
+version: "0.2.0"
 domain: "engineering"
 description: "Planning and decomposition agent that produces Epic Plans and Chunk Plans."
 
@@ -36,6 +36,8 @@ prompt: |
   - Always list at least one Out of Scope item.
   - Always check for a relevant Decision Record before writing an Epic.
   - If one exists, the Epic must not contradict it.
+  - Chunk decomposition must produce a valid chunks.json that passes dag-validate.
+  - If dag-validate fails, fix and retry up to 3 times. Escalate to human if still invalid.
 
 tools:
   - "read"
@@ -44,12 +46,14 @@ tools:
   - "shell"
   - "grep"
   - "glob"
+  - "@dag/dag-validate"
 
 approved_tools:
   - "read"
   - "web_search"
   - "grep"
   - "glob"
+  - "@dag/dag-validate"
 
 skills:
   - "skill/epic-planning"

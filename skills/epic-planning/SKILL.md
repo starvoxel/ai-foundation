@@ -44,11 +44,22 @@ Do not decompose into chunks. Do not proceed until the human approves.
 
 ### Step 4 — Decompose into Chunks
 
-After approval, fill in Section 8:
-- Identify natural boundaries (data layer, service layer, UI, tests, docs)
-- Map dependencies between chunks explicitly
-- Identify which chunks can run in parallel
-- Assign appropriate agent(s) to each chunk
+After approval, produce the `chunks.json` file:
+1. Copy the template from `skills/epic-planning/assets/chunks.json`
+2. Set `epic_id` to this epic's ID
+3. Identify natural boundaries (data layer, service layer, UI, tests, docs)
+4. Define each chunk with explicit `depends_on` references
+5. Assign appropriate agent(s) to each chunk
+6. Run `dag-validate` against the file
+
+If `dag-validate` fails:
+- Read the errors (cycles, missing refs, schema issues)
+- Fix the `chunks.json` and re-validate
+- Retry up to 3 times
+- If still invalid after 3 attempts, stop and escalate to the human with the validation errors
+
+Once valid, update Section 8 of the epic plan with a summary (chunk count, wave count,
+parallelization notes) and a reference to the `chunks.json` file.
 
 ---
 
@@ -56,6 +67,8 @@ After approval, fill in Section 8:
 
 - **Epic Plan** — markdown file following the template
 - **Location:** `plans/{ProjectName}/epics/{YYYY-MM-DD}_{###}_{ShortTitle}.epic.md`
+- **Chunk Decomposition** — `chunks.json` file (produced after approval, validated by `dag-validate`)
+- **Location:** `plans/{ProjectName}/{EpicID}/chunks.json`
 
 ---
 
@@ -64,3 +77,4 @@ After approval, fill in Section 8:
 - **PRD conflicts with Decision Record** — raise as a HIGH priority open question. Do not silently resolve.
 - **Scope too large to decompose cleanly** — suggest splitting into multiple Epics.
 - **No Out of Scope items** — the iteration is too large. Find something to defer.
+- **DAG validation fails after 3 retries** — stop and escalate to the human. Present the validation errors and the current `chunks.json` state. Do not proceed with an invalid dependency graph.

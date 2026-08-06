@@ -16,7 +16,7 @@
 
 | Phase | Description | Status | Commit |
 |---|---|---|---|
-| 0 | DAG-ready planning | Planned | — |
+| 0 | DAG-ready planning | ✅ Complete | `40a6f56` |
 | 1 | DAG MCP server | ✅ Complete | `f29d00e` |
 | 2 | Tool mapping (`subagent`) | Planned | — |
 | 3 | Agent definition | Planned | — |
