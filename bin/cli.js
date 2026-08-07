@@ -83,10 +83,13 @@ Commands:
 Options:
   --bundle <name>    Bundle to install/uninstall
   --harness <name>   Target harness (${HARNESSES.join(', ')})
+  --update           Update all installed bundles that are stale
+  --check            Verify snapshots without writing (snapshot command)
   --help             Show this help message
 
 Examples:
   aif install --bundle engineering --harness kiro
+  aif install --update
   aif uninstall --bundle engineering --harness kiro
   aif status
   aif list bundles
