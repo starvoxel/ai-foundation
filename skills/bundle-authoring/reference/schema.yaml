@@ -1,8 +1,8 @@
 # Bundle definition schema.
-# Lives at bundles/{name}.yaml
+# Lives at bundles/{name}/bundle.yaml
 
 fields:
-  name:        "kebab-case identifier, matches filename"
+  name:        "kebab-case identifier, matches directory name"
   version:     "semver (1.0.0)"
   description: "One sentence — what this bundle installs"
   domain:      "Optional. Auto-discover all components in this domain"

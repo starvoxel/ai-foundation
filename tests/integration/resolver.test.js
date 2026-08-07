@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import YAML from 'yaml';
 
@@ -40,8 +40,9 @@ describe('integration: resolver', () => {
     });
 
     it('throws when bundle has neither domain nor explicit lists', () => {
+      mkdirSync(join(repo, 'bundles', 'empty'), { recursive: true });
       writeFileSync(
-        join(repo, 'bundles', 'empty.yaml'),
+        join(repo, 'bundles', 'empty', 'bundle.yaml'),
         YAML.stringify({ name: 'empty', version: '1.0.0', description: 'Empty' }),
         'utf8'
       );
@@ -87,8 +88,9 @@ describe('integration: resolver', () => {
     });
 
     it('appends explicit lists to domain-discovered components', () => {
+      mkdirSync(join(repo, 'bundles', 'eng-plus'), { recursive: true });
       writeFileSync(
-        join(repo, 'bundles', 'eng-plus.yaml'),
+        join(repo, 'bundles', 'eng-plus', 'bundle.yaml'),
         YAML.stringify({
           name: 'eng-plus',
           version: '1.0.0',
@@ -108,8 +110,9 @@ describe('integration: resolver', () => {
     });
 
     it('deduplicates when explicit list overlaps with domain discovery', () => {
+      mkdirSync(join(repo, 'bundles', 'overlap'), { recursive: true });
       writeFileSync(
-        join(repo, 'bundles', 'overlap.yaml'),
+        join(repo, 'bundles', 'overlap', 'bundle.yaml'),
         YAML.stringify({
           name: 'overlap',
           version: '1.0.0',
@@ -127,9 +130,10 @@ describe('integration: resolver', () => {
   });
 
   describe('listBundles()', () => {
-    it('returns bundle names without .yaml extension, excludes _template', () => {
+    it('returns bundle directory names, excludes _template', () => {
+      mkdirSync(join(repo, 'bundles', '_template'), { recursive: true });
       writeFileSync(
-        join(repo, 'bundles', '_template.yaml'),
+        join(repo, 'bundles', '_template', 'bundle.yaml'),
         YAML.stringify({ name: 'template', version: '0.1.0', description: 'T' }),
         'utf8'
       );

@@ -84,8 +84,10 @@ export function createTempRepo(options) {
   }
 
   for (const bundle of bundles) {
+    const bundleDir = join(root, 'bundles', bundle.name);
+    mkdirSync(bundleDir, { recursive: true });
     writeFileSync(
-      join(root, 'bundles', `${bundle.name}.yaml`),
+      join(bundleDir, 'bundle.yaml'),
       YAML.stringify(bundle),
       'utf8'
     );

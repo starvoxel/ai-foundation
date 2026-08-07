@@ -16,7 +16,7 @@ Use this skill when adding a new installable configuration for a harness.
 
 ## Inputs
 
-- **Bundle name** — kebab-case identifier (becomes the filename)
+- **Bundle name** — kebab-case identifier (becomes the directory name)
 - **What to install** — domain-based discovery, explicit lists, or a combination
 - **Target audience** — which users/teams will install this bundle
 
@@ -26,7 +26,7 @@ Use this skill when adding a new installable configuration for a harness.
 
 ### Step 1 — Create the bundle file
 
-Create `bundles/{name}.yaml`. Use the schema in `skills/bundle-authoring/reference/schema.yaml`.
+Create `bundles/{name}/bundle.yaml`. Use the schema in `skills/bundle-authoring/reference/schema.yaml`.
 
 ### Step 2 — Choose a resolution strategy
 
@@ -59,17 +59,17 @@ Explicit lists are appended after discovery. Duplicates are removed automaticall
 
 ### Step 5 — Self-validate
 
-- [ ] File is at `bundles/{name}.yaml`
+- [ ] File is at `bundles/{name}/bundle.yaml`
 - [ ] Has `name`, `version`, `description`
 - [ ] Has either `domain` or at least one non-empty list (or both)
-- [ ] `name` is kebab-case, matches filename without `.yaml`
+- [ ] `name` is kebab-case, matches directory name
 - [ ] Referenced agents/skills/servers actually exist in the repo
 
 ---
 
 ## Outputs
 
-- **`bundles/{name}.yaml`** — the bundle definition
+- **`bundles/{name}/bundle.yaml`** — the bundle definition
 
 ---
 
