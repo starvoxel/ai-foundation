@@ -17,6 +17,7 @@ All agents working in the `ai-foundation` repository.
 2. **Commits must be atomic.** One logical change per commit. Imperative mood, <70 chars.
 3. **Never force push main.** Use `git revert` to undo mistakes.
 4. **Tests must pass before pushing.** Run `npm test` first.
+5. **Verify snapshot freshness after component changes.** After modifying any component (agent, skill, steering, server, bundle), run `aif snapshot --check`. If stale, run `aif snapshot` to regenerate only the affected bundles before committing.
 
 ---
 
