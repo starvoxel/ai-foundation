@@ -19,9 +19,9 @@
 | 0 | DAG-ready planning | ✅ Complete | `40a6f56` |
 | 1 | DAG MCP server | ✅ Complete | `f29d00e` |
 | 2 | Tool mapping (`subagent`) | ✅ Complete | `213a0e4` |
-| 3 | Agent definition | Planned | — |
-| 4 | State schema | Planned | — |
-| 5 | Orchestration skill | Planned | — |
+| 3 | State schema | Planned | — |
+| 4 | Orchestration skill | Planned | — |
+| 5 | Agent definition | Planned | — |
 | 6 | Validation | Planned | — |
 
 ---
@@ -117,17 +117,17 @@ Create `servers/dag/` — server definition (`dag.yaml`) and implementation (`in
 ### Phase 2: Tool mapping
 Add `subagent` to the tool maps in Kiro and Claude Code adapters. Update adapter tests.
 
-### Phase 3: Agent definition
-Create `agents/engineering-manager.yaml` with prompt, tools (`subagent`, `read`, `write`, `grep`, `glob`, `dag_validate`, `dag_compute_waves`), skill reference to `skill/chunk-orchestration`, and `dag` server declaration. Update `agents/tech-lead.yaml` to declare `dag` server and add `dag_validate` to tools.
+### Phase 3: State schema
+Create `skills/chunk-orchestration/reference/state-schema.md` defining the execution state artifact format (chunk status table, current wave, escalations).
 
-### Phase 4: State schema
-Create `skills/chunk-orchestration/reference/state-schema.md` defining the execution state artifact format.
+### Phase 4: Orchestration skill
+Create `skills/chunk-orchestration/SKILL.md` — full procedure: call `dag-compute-waves`, dispatch per wave, monitor pipeline (SE → TE → PE with 5-iteration loop cap), gate waves, update state, escalate on failure.
 
-### Phase 5: Orchestration skill
-Create `skills/chunk-orchestration/SKILL.md` — full procedure: call `dag_compute_waves`, dispatch per wave, monitor pipeline (SE → TE → PE with 5-iteration loop cap), gate waves, update state, escalate on failure.
+### Phase 5: Agent definition
+Create `agents/engineering-manager.yaml` with prompt, tools (`subagent`, `read`, `write`, `grep`, `glob`, `@dag/dag-compute-waves`), skill reference to `skill/chunk-orchestration`. No web access.
 
 ### Phase 6: Validation
-Write tests — unit tests for DAG server logic, integration test for server, validation tests for schema compliance and cross-references. Run full suite.
+Validation tests for schema compliance and cross-references. Run full suite.
 
 ---
 
