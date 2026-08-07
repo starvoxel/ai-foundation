@@ -11,8 +11,10 @@ Start from the template at `skills/epic-planning/assets/chunks.json`.
 ## Location
 
 ```
-plans/{ProjectName}/{EpicID}/chunks.json
+{paths.chunks}/{EpicID}/chunks.json
 ```
+
+Resolved from `.aiconfig.json` at project root. Default: `plans/chunks/`.
 
 ---
 

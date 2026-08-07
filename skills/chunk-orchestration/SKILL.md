@@ -26,16 +26,17 @@ and advances waves until the epic is complete or fully blocked.
 
 ### Step 1 — Initialize
 
-1. Read `chunks.json` for the epic
-2. Call `dag-compute-waves` to get the ordered wave structure
-3. Copy the template from `skills/chunk-orchestration/assets/orchestration-state.json`
-4. Populate the state file:
+1. Read `.aiconfig.json` from the project root to resolve artifact paths
+2. Read `chunks.json` for the epic (at `{paths.chunks}/{EpicID}/chunks.json`)
+3. Call `dag-compute-waves` to get the ordered wave structure
+4. Copy the template from `skills/chunk-orchestration/assets/orchestration-state.json`
+5. Populate the state file:
    - Set `epic_id` from chunks.json
    - Set `total_waves` from the wave computation result
    - Set `current_wave` to 0
    - Create a chunk state entry for each chunk (status: `Ready`, wave assignment from computation)
-5. Write the state file to `plans/{ProjectName}/{EpicID}/orchestration-state.json`
-6. Log: `wave_started` for wave 0
+6. Write the state file to `{paths.orchestration}/{EpicID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/orchestration/`)
+7. Log: `wave_started` for wave 0
 
 ### Step 2 — Dispatch Wave
 
@@ -149,7 +150,7 @@ After each chunk completion, check wave status:
 
 ## Outputs
 
-- **Orchestration state file** — continuously updated at `plans/{ProjectName}/{EpicID}/orchestration-state.json`
+- **Orchestration state file** — continuously updated at `{paths.orchestration}/{EpicID}/orchestration-state.json`
 - **Completion summary** — presented to human when all waves are done or fully blocked
 
 ---

@@ -99,6 +99,68 @@ Fields: `name`, `version`, `protocol`, `transport`, `description`, `tools`
 
 ---
 
+## Project Configuration
+
+### `.aiconfig.json`
+
+Every project that uses ai-foundation agents should have a `.aiconfig.json` file at
+the repository root. This file provides project-specific configuration that agents
+read before performing any path-dependent operation.
+
+**Location:** Project repository root (where agents run)
+
+**Resolution order:**
+1. Read `.aiconfig.json` from the current working directory
+2. If not found, fall back to default conventions (see below)
+
+**Agents MUST check for `.aiconfig.json` before assuming any paths.** If the file
+exists, its values override all defaults. If it does not exist, agents use the
+default conventions documented in each skill.
+
+### Schema
+
+```json
+{
+  "project_name": "my-app",
+  "standards": "csharp-avalonia",
+  "project_standards": "projects/my-app/project-standards.md",
+  "paths": {
+    "plans": "plans",
+    "epics": "plans/epics",
+    "chunks": "plans/chunks",
+    "decisions": "plans/decisions",
+    "orchestration": "plans/orchestration"
+  }
+}
+```
+
+### Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `project_name` | string | Yes | Project identifier used in Plan IDs and file naming |
+| `standards` | string | No | Language/stack standards file name (without `.md`) |
+| `project_standards` | string | No | Path to project-specific standards override |
+| `paths` | object | No | Artifact output directories (relative to repo root) |
+| `paths.plans` | string | No | Root for all plan artifacts. Default: `plans` |
+| `paths.epics` | string | No | Epic plan location. Default: `plans/epics` |
+| `paths.chunks` | string | No | Chunk plans and chunks.json. Default: `plans/chunks` |
+| `paths.decisions` | string | No | Decision Records. Default: `plans/decisions` |
+| `paths.orchestration` | string | No | Orchestration state files. Default: `plans/orchestration` |
+
+### Defaults (when `.aiconfig.json` is absent)
+
+If no config file exists, agents fall back to:
+- `project_name`: inferred from repository directory name
+- `standards`: none (agent must ask or search `standards/`)
+- `paths.plans`: `plans`
+- `paths.epics`: `plans/epics`
+- `paths.chunks`: `plans/chunks`
+- `paths.decisions`: `plans/decisions`
+- `paths.orchestration`: `plans/orchestration`
+
+---
+
 ## Testing
 
 ```bash

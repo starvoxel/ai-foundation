@@ -47,7 +47,7 @@ Set status to Draft. The human confirms before it is finalized.
 ## Outputs
 
 - **Decision Record** — markdown file following the template format
-- **Location:** `plans/{ProjectName}/decisions/{YYYY-MM-DD}_{###}_{ShortTitle}.decision.md`
+- **Location:** `{paths.decisions}/{YYYY-MM-DD}_{###}_{ShortTitle}.decision.md` (from `.aiconfig.json`, default: `plans/decisions/`)
 
 ---
 

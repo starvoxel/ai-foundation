@@ -51,7 +51,7 @@ Do not begin implementation. Set status to Draft. Wait for approval.
 ## Outputs
 
 - **Chunk Plan** — markdown file following the template
-- **Location:** `plans/{ProjectName}/{EpicID}/chunks/{###}_{ShortTitle}.plan.md`
+- **Location:** `{paths.chunks}/{EpicID}/{###}_{ShortTitle}.plan.md` (from `.aiconfig.json`, default: `plans/chunks/`)
 
 ---
 

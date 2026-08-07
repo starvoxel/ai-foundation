@@ -15,8 +15,9 @@ Does not contain implementation detail — that lives in Chunk Plans.
 ## Inputs
 
 - **Goal** — human request, PRD, or Decision Record describing what to build
-- **Project standards** — from `projects/{name}/project-standards.md`
-- **Language standards** — from `standards/{stack}.md`
+- **Project config** — `.aiconfig.json` at project root (for paths, project name, standards reference)
+- **Project standards** — from `projects/{name}/project-standards.md` or path in `.aiconfig.json`
+- **Language standards** — from `standards/{stack}.md` (stack identified by `.aiconfig.json` or ask)
 - **Decision Records** — any relevant prior decisions (check before writing)
 
 ---
@@ -66,9 +67,9 @@ parallelization notes) and a reference to the `chunks.json` file.
 ## Outputs
 
 - **Epic Plan** — markdown file following the template
-- **Location:** `plans/{ProjectName}/epics/{YYYY-MM-DD}_{###}_{ShortTitle}.epic.md`
+- **Location:** `{paths.epics}/{YYYY-MM-DD}_{###}_{ShortTitle}.epic.md` (from `.aiconfig.json`, default: `plans/epics/`)
 - **Chunk Decomposition** — `chunks.json` file (produced after approval, validated by `dag-validate`)
-- **Location:** `plans/{ProjectName}/{EpicID}/chunks.json`
+- **Location:** `{paths.chunks}/{EpicID}/chunks.json` (from `.aiconfig.json`, default: `plans/chunks/`)
 
 ---
 

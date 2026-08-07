@@ -11,8 +11,10 @@ Start from the template at `skills/chunk-orchestration/assets/orchestration-stat
 ## Location
 
 ```
-plans/{ProjectName}/{EpicID}/orchestration-state.json
+{paths.orchestration}/{EpicID}/orchestration-state.json
 ```
+
+Resolved from `.aiconfig.json` at project root. Default: `plans/orchestration/`.
 
 ---
 
