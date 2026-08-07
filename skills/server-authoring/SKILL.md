@@ -1,13 +1,13 @@
 ---
 name: "server-authoring"
-version: "0.1.0"
-description: "Creates an MCP server definition with tool documentation and integration test."
+version: "0.2.0"
+description: "Creates a server definition with tool documentation, implementation, and tests."
 ---
 
 ## Purpose
 
 Creates a new server definition in `servers/`. A server exposes tools that agents can
-call via MCP (Model Context Protocol). The definition describes what tools exist, their
+call via a protocol (MCP, HTTP, etc.). The definition describes what tools exist, their
 inputs/outputs, and how to connect.
 
 Use this skill when adding a new tool server to the framework.
@@ -18,8 +18,8 @@ Use this skill when adding a new tool server to the framework.
 
 - **Server name** — kebab-case identifier (becomes the folder name)
 - **What tools it exposes** — names, descriptions, parameters
-- **Protocol and transport** — typically `mcp` / `stdio`
-- **Whether it needs implementation** — definition-only or with running code
+- **Protocol and transport** — `mcp`/`stdio`, `mcp`/`http`, `http`, etc.
+- **Runtime dependencies** — any packages beyond what the protocol SDK provides
 
 ---
 
@@ -31,10 +31,29 @@ Create `servers/{name}/` containing:
 
 ```
 servers/{name}/
-├── {name}.yaml           ← Server definition (required)
-├── {name}.test.js        ← Integration test (required)
-└── {name}.md             ← Extended docs (optional)
+├── {name}.yaml                        ← Server definition (required)
+├── index.js                           ← Protocol entry point (required)
+├── logic.js                           ← Pure business logic (required)
+├── package.json                       ← Runtime dependencies for standalone install (required)
+└── tests/
+    ├── unit/
+    │   └── {name}.test.js             ← Pure logic tests (required)
+    └── integration/
+        ├── {name}.test.js             ← I/O layer tests (required)
+        └── {name}.mcp.test.js         ← MCP protocol layer tests (required for MCP servers)
 ```
+
+**File naming conventions:**
+
+| File | Purpose |
+|---|---|
+| `{name}.yaml` | Protocol-agnostic server definition. Declares tools, inputs, outputs. |
+| `index.js` | Protocol entry point. Registers tools with the protocol SDK and connects the transport. This is what gets spawned at runtime. |
+| `logic.js` | Pure business logic. No protocol awareness, no transport code. All tool implementations live here as exported functions. |
+| `package.json` | Declares runtime dependencies needed when the server is installed standalone (away from the monorepo). |
+| `tests/unit/{name}.test.js` | Tests pure logic functions directly. No I/O, no protocol. |
+| `tests/integration/{name}.test.js` | Tests I/O layer functions against real filesystem. |
+| `tests/integration/{name}.mcp.test.js` | Tests MCP protocol layer via in-memory transport (tool listing + invocation). |
 
 ### Step 2 — Write the YAML definition
 
@@ -46,16 +65,68 @@ Every tool must document:
 - `inputs` — every parameter with type and description
 - `outputs` — what is returned
 
-### Step 3 — Write the integration test
+### Step 3 — Implement pure logic (`logic.js`)
 
-The test must cover:
-1. **Startup** — server starts without error
-2. **Tool listing** — server reports all tools declared in YAML
-3. **Tool invocation** — each tool responds to valid input without error
+All business logic goes in `logic.js` as exported functions:
+- Functions take data in and return data out
+- No protocol awareness (no MCP types, no transport references)
+- I/O (file reads, network calls) is acceptable here but should be minimal
+- Each tool maps to one exported function
 
-Use `node:test` with `describe/it` structure. See existing tests for patterns.
+### Step 4 — Implement the protocol entry point (`index.js`)
 
-### Step 4 — Self-validate
+The entry point is a thin wrapper that:
+1. Imports logic functions from `logic.js`
+2. Registers each tool with the protocol SDK
+3. Connects the transport and starts listening
+
+See the protocol-specific section below for implementation details.
+
+### Step 5 — Create `package.json`
+
+The server's `package.json` declares dependencies needed for standalone installation:
+
+```json
+{
+  "name": "aif-server-{name}",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Brief description matching the YAML.",
+  "engines": { "node": ">=20.0.0" },
+  "dependencies": {
+    // Protocol SDK + any runtime-only deps
+  }
+}
+```
+
+Only include dependencies that are needed at runtime. Dev/test dependencies live in
+the monorepo root `package.json`, not here.
+
+### Step 6 — Write tests
+
+Tests are organized into `tests/unit/` and `tests/integration/`:
+
+**Unit tests** (`tests/unit/{name}.test.js`):
+- Import pure functions from `logic.js`
+- Call functions directly with in-memory data
+- No filesystem, no network, no protocol
+- Cover happy paths, error cases, edge cases
+
+**Integration tests** (`tests/integration/{name}.test.js`):
+- Import I/O-layer functions from `logic.js`
+- Test against real filesystem (temp files)
+- Cover file read errors, invalid content, end-to-end flows
+
+**MCP protocol tests** (`tests/integration/{name}.mcp.test.js`):
+- Instantiate the server with an in-memory transport
+- Connect a test client
+- Verify tool listing and invocation end-to-end via the MCP protocol
+
+Use `node:test` with `describe/it` structure. Group tests under descriptive
+prefixes: `describe('unit: ...')`, `describe('integration: ...')`, `describe('mcp: ...')`.
+
+### Step 7 — Self-validate
 
 - [ ] Folder is `servers/{name}/`
 - [ ] YAML has `name`, `version`, `protocol`, `transport`, `description`, `tools`
@@ -63,27 +134,120 @@ Use `node:test` with `describe/it` structure. See existing tests for patterns.
 - [ ] Every tool has `name`, `description`, `inputs`, `outputs`
 - [ ] Input types are specified: `string`, `number`, `boolean`, `array`, `object`
 - [ ] Optional inputs are marked `[optional]`
-- [ ] Integration test file exists at `servers/{name}/{name}.test.js`
-- [ ] Test covers startup, tool listing, and invocation
+- [ ] `logic.js` contains only pure business logic — no protocol imports
+- [ ] `index.js` is a thin protocol wrapper — imports from `logic.js`, registers tools
+- [ ] `package.json` declares runtime dependencies for standalone install
+- [ ] `tests/unit/{name}.test.js` tests pure logic with no I/O
+- [ ] `tests/integration/{name}.test.js` tests I/O layer with real files
+- [ ] `tests/integration/{name}.mcp.test.js` tests MCP protocol layer (for MCP servers)
+- [ ] Protocol tests cover: tool listing, tool invocation with valid input, error handling
+
+---
+
+## Protocol: MCP
+
+When `protocol: "mcp"` in the YAML definition, the server must implement the
+Model Context Protocol using `@modelcontextprotocol/sdk`.
+
+### MCP entry point (`index.js`)
+
+```js
+#!/usr/bin/env node
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { z } from 'zod';
+
+import { myToolFunction } from './logic.js';
+
+const server = new McpServer({
+  name: '{server-name}',
+  version: '{version}',
+});
+
+server.registerTool('{tool-name}', {
+  description: '{tool description}',
+  inputSchema: {
+    param_name: z.string().describe('Parameter description'),
+  },
+}, async ({ param_name }) => {
+  const result = myToolFunction(param_name);
+  return {
+    content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+  };
+});
+
+async function main() {
+  const transport = new StdioServerTransport();
+  await server.connect(transport);
+  console.error('{server-name} MCP server running on stdio');
+}
+
+main().catch((error) => {
+  console.error('{server-name} MCP server error:', error);
+  process.exit(1);
+});
+```
+
+### MCP `package.json` dependencies
+
+```json
+{
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0"
+  }
+}
+```
+
+Pin the SDK version. Zod is provided as a peer dependency of the SDK — do not
+list it separately unless you need a specific version.
+
+### MCP protocol tests
+
+Use the SDK's `InMemoryTransport` and `Client` to test without spawning a process:
+
+```js
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { Client } from '@modelcontextprotocol/sdk/client/index.js';
+import { InMemoryTransport } from '@modelcontextprotocol/sdk/inMemory.js';
+
+// Create server (same registration as index.js but without stdio)
+const server = createServer();
+const client = new Client({ name: 'test-client', version: '1.0.0' });
+const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
+await server.connect(serverTransport);
+await client.connect(clientTransport);
+
+// Test tool listing
+const tools = await client.listTools();
+
+// Test tool invocation
+const result = await client.callTool({ name: 'tool-name', arguments: { ... } });
+```
+
+Protocol tests must verify:
+- All declared tools appear in `listTools()` response
+- Each tool has a description and input schema
+- Tool invocation returns expected results for valid input
+- Tool invocation handles errors gracefully (no unhandled exceptions)
 
 ---
 
 ## Outputs
 
 - **`servers/{name}/{name}.yaml`** — server definition
-- **`servers/{name}/{name}.test.js`** — integration test
-- **`servers/{name}/{name}.md`** (optional) — extended documentation
+- **`servers/{name}/index.js`** — protocol entry point
+- **`servers/{name}/logic.js`** — pure business logic
+- **`servers/{name}/package.json`** — runtime dependencies
+- **`servers/{name}/tests/unit/{name}.test.js`** — pure logic tests
+- **`servers/{name}/tests/integration/{name}.test.js`** — I/O layer tests
+- **`servers/{name}/tests/integration/{name}.mcp.test.js`** — MCP protocol tests (MCP servers only)
 
 ---
 
 ## Edge Cases
 
-> **TODO:** Revisit this skill to enforce specific file naming conventions
-> (e.g. must the YAML and test match the folder name exactly?) and testing
-> standards (required test structure, coverage expectations, timeout defaults).
-> Current guidance is advisory — consider making it prescriptive with a validation script.
-
-- **Server requires external infrastructure** — mark tool invocation tests as skipped with documented reason. Startup and listing tests are never optional.
-- **Server not yet implemented** — definition-only is acceptable during development. Set `version: "0.x.y"` to signal it's not yet validated.
-- **Tool has complex input schema** — create the optional `.md` companion with examples.
+- **Server requires external infrastructure** — mark tool invocation tests as skipped with documented reason. Tool listing and protocol connection tests are never optional.
+- **Server not yet implemented** — definition-only is acceptable during planning. Set `version: "0.x.y"` to signal it's not yet validated. Implementation is required before the server can be installed.
+- **Tool has complex input schema** — use zod's composable types in `index.js`. Document complex schemas with examples in the YAML `outputs` field.
 - **Tool name collides with another server** — agents disambiguate via the `@server/tool` format, so same tool names across different servers is fine.
+- **Non-MCP protocols** — follow the same `index.js`/`logic.js` split. The protocol-specific section for that protocol will be added to this skill when needed.
