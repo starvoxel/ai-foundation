@@ -1,6 +1,6 @@
 /**
- * Integration test for DAG MCP server.
- * Validates tool invocation against real chunks.json files.
+ * Integration tests for DAG server I/O layer.
+ * Tests dagValidate and dagComputeWaves against real filesystem operations.
  *
  * Plan ID: engineering-manager-plan (Phase 1)
  */
@@ -11,7 +11,7 @@ import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { dagValidate, dagComputeWaves } from '../../servers/dag/index.js';
+import { dagValidate, dagComputeWaves } from '../../logic.js';
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -56,10 +56,10 @@ const INVALID_SCHEMA = {
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function writeTempChunks(name, data) {
+function writeTempChunks(data, filename = 'chunks.json') {
   const dir = join(tmpdir(), 'dag-test-' + Date.now() + '-' + Math.random().toString(36).slice(2));
   mkdirSync(dir, { recursive: true });
-  const path = join(dir, name);
+  const path = join(dir, filename);
   writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
   return { path, dir };
 }
@@ -68,7 +68,7 @@ function writeTempChunks(name, data) {
 
 describe('integration: dag/dag-validate', () => {
   it('validates a well-formed chunks file as valid', () => {
-    const { path, dir } = writeTempChunks('chunks.json', VALID_CHUNKS);
+    const { path, dir } = writeTempChunks(VALID_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, true);
@@ -79,7 +79,7 @@ describe('integration: dag/dag-validate', () => {
   });
 
   it('detects cycles in chunk dependencies', () => {
-    const { path, dir } = writeTempChunks('chunks.json', CYCLIC_CHUNKS);
+    const { path, dir } = writeTempChunks(CYCLIC_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
@@ -90,7 +90,7 @@ describe('integration: dag/dag-validate', () => {
   });
 
   it('detects missing dependency references', () => {
-    const { path, dir } = writeTempChunks('chunks.json', MISSING_REF_CHUNKS);
+    const { path, dir } = writeTempChunks(MISSING_REF_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
@@ -101,7 +101,7 @@ describe('integration: dag/dag-validate', () => {
   });
 
   it('returns invalid when chunks array is empty', () => {
-    const { path, dir } = writeTempChunks('chunks.json', EMPTY_CHUNKS);
+    const { path, dir } = writeTempChunks(EMPTY_CHUNKS);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
@@ -112,7 +112,7 @@ describe('integration: dag/dag-validate', () => {
   });
 
   it('returns schema errors for malformed chunks', () => {
-    const { path, dir } = writeTempChunks('chunks.json', INVALID_SCHEMA);
+    const { path, dir } = writeTempChunks(INVALID_SCHEMA);
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
@@ -148,7 +148,7 @@ describe('integration: dag/dag-validate', () => {
 
 describe('integration: dag/dag-compute-waves', () => {
   it('computes correct waves for a valid chunks file', () => {
-    const { path, dir } = writeTempChunks('chunks.json', VALID_CHUNKS);
+    const { path, dir } = writeTempChunks(VALID_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.equal(result.waves.length, 3);
@@ -161,7 +161,7 @@ describe('integration: dag/dag-compute-waves', () => {
   });
 
   it('returns chunk metadata alongside waves', () => {
-    const { path, dir } = writeTempChunks('chunks.json', VALID_CHUNKS);
+    const { path, dir } = writeTempChunks(VALID_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.equal(result.chunks.length, 4);
@@ -175,7 +175,7 @@ describe('integration: dag/dag-compute-waves', () => {
   });
 
   it('returns empty waves for an empty chunks file', () => {
-    const { path, dir } = writeTempChunks('chunks.json', EMPTY_CHUNKS);
+    const { path, dir } = writeTempChunks(EMPTY_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.deepEqual(result.waves, []);
@@ -186,7 +186,7 @@ describe('integration: dag/dag-compute-waves', () => {
   });
 
   it('returns errors when DAG is invalid', () => {
-    const { path, dir } = writeTempChunks('chunks.json', CYCLIC_CHUNKS);
+    const { path, dir } = writeTempChunks(CYCLIC_CHUNKS);
     try {
       const result = dagComputeWaves(path);
       assert.deepEqual(result.waves, []);

@@ -12,7 +12,7 @@ import {
   buildGraph,
   validate,
   computeWaves,
-} from '../../servers/dag/index.js';
+} from '../../logic.js';
 
 // ── parseChunksFile ──────────────────────────────────────────────────────────
 
