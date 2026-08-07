@@ -12,13 +12,18 @@ import {
 
 describe('unit: claude adapter', () => {
   describe('TARGETS', () => {
-    it('all paths are under .claude/', () => {
-      for (const [key, value] of Object.entries(TARGETS)) {
+    it('component paths are under .claude/', () => {
+      const { mcpSettings, ...componentTargets } = TARGETS;
+      for (const [key, value] of Object.entries(componentTargets)) {
         assert.ok(
           value.includes('.claude'),
           `TARGETS.${key} should be under .claude/, got ${value}`
         );
       }
+    });
+
+    it('mcpSettings points to .mcp.json at project root', () => {
+      assert.equal(TARGETS.mcpSettings, '.mcp.json');
     });
   });
 
