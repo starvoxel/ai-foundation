@@ -94,6 +94,7 @@ tools:
   - "shell"
   - "grep"
   - "glob"
+  - "web_search"
 
 approved_tools:
   - "read"
