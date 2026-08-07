@@ -1,0 +1,13 @@
+{
+  "name": "aif-server-dag",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "DAG operations for dependency graph validation and wave computation.",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.30.0"
+  }
+}
