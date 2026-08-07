@@ -78,6 +78,7 @@ Commands:
   list        List available bundles, agents, skills, or servers
   validate    Check repo health (schema, refs, bundles)
   test        Run test suite (unit, integration, validation)
+  snapshot    Compute source hashes for bundles
 
 Options:
   --bundle <name>    Bundle to install/uninstall
@@ -110,6 +111,7 @@ import { runStatus } from '../lib/commands/status.js';
 import { runList } from '../lib/commands/list.js';
 import { runValidate } from '../lib/commands/validate.js';
 import { runTest } from '../lib/commands/test.js';
+import { runSnapshot } from '../lib/commands/snapshot.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -145,6 +147,8 @@ export async function run(parsed) {
       return runValidate(parsed, REPO_ROOT);
     case 'test':
       return runTest(parsed, REPO_ROOT);
+    case 'snapshot':
+      return runSnapshot(parsed, REPO_ROOT);
     default:
       return 1;
   }
