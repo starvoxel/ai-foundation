@@ -19,7 +19,7 @@
 | 0 | DAG-ready planning | ✅ Complete | `40a6f56` |
 | 1 | DAG MCP server | ✅ Complete | `f29d00e` |
 | 2 | Tool mapping (`subagent`) | ✅ Complete | `213a0e4` |
-| 3 | State schema | Planned | — |
+| 3 | State schema | ✅ Complete | `5122a17` |
 | 4 | Orchestration skill | Planned | — |
 | 5 | Agent definition | Planned | — |
 | 6 | Validation | Planned | — |
