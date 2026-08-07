@@ -1,0 +1,12 @@
+{
+  "project_name": "my-project",
+  "standards": "",
+  "project_standards": "",
+  "paths": {
+    "plans": "plans",
+    "epics": "plans/epics",
+    "chunks": "plans/chunks",
+    "decisions": "plans/decisions",
+    "orchestration": "plans/orchestration"
+  }
+}

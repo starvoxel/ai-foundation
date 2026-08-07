@@ -117,22 +117,7 @@ read before performing any path-dependent operation.
 exists, its values override all defaults. If it does not exist, agents use the
 default conventions documented in each skill.
 
-### Schema
-
-```json
-{
-  "project_name": "my-app",
-  "standards": "csharp-avalonia",
-  "project_standards": "projects/my-app/project-standards.md",
-  "paths": {
-    "plans": "plans",
-    "epics": "plans/epics",
-    "chunks": "plans/chunks",
-    "decisions": "plans/decisions",
-    "orchestration": "plans/orchestration"
-  }
-}
-```
+See `projects/_template/.aiconfig.json` for the schema and default values.
 
 ### Fields
 
