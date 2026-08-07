@@ -97,6 +97,18 @@ describe('unit: dag/parseChunksFile', () => {
     assert.equal(chunks.length, 2);
     assert.equal(errors.length, 1);
   });
+
+  it('detects duplicate chunk IDs', () => {
+    const data = {
+      chunks: [
+        { id: '001', title: 'First', depends_on: [], agents: [] },
+        { id: '001', title: 'Duplicate', depends_on: [], agents: [] },
+      ],
+    };
+    const { chunks, errors } = parseChunksFile(data);
+    assert.equal(chunks.length, 1);
+    assert.ok(errors.some(e => e.includes('duplicate chunk id "001"')));
+  });
 });
 
 // ── buildGraph ───────────────────────────────────────────────────────────────
@@ -273,5 +285,14 @@ describe('unit: dag/computeWaves', () => {
     ]);
     const waves = computeWaves(graph);
     assert.deepEqual(waves[0], ['001', '002', '003']);
+  });
+
+  it('handles a single-chunk graph', () => {
+    const graph = buildGraph([
+      { id: '001', depends_on: [] },
+    ]);
+    const waves = computeWaves(graph);
+    assert.equal(waves.length, 1);
+    assert.deepEqual(waves[0], ['001']);
   });
 });

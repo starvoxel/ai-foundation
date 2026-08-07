@@ -35,6 +35,8 @@ export function parseChunksFile(data) {
   }
 
   const chunks = [];
+  const seenIds = new Set();
+
   for (let i = 0; i < data.chunks.length; i++) {
     const chunk = data.chunks[i];
     const prefix = `chunks[${i}]`;
@@ -47,6 +49,11 @@ export function parseChunksFile(data) {
       errors.push(`${prefix}: missing or invalid "id"`);
       continue;
     }
+    if (seenIds.has(chunk.id)) {
+      errors.push(`${prefix}: duplicate chunk id "${chunk.id}"`);
+      continue;
+    }
+    seenIds.add(chunk.id);
     if (typeof chunk.title !== 'string' || !chunk.title) {
       errors.push(`${prefix} (${chunk.id}): missing or invalid "title"`);
     }
@@ -213,8 +220,18 @@ export function computeWaves(graph) {
  * @returns {{ chunks: Array<{ id: string, title: string, depends_on: string[], agents: string[] }>, errors: string[] }}
  */
 export function readChunksFile(chunksPath) {
-  const content = readFileSync(chunksPath, 'utf-8');
-  const data = JSON.parse(content);
+  let content;
+  try {
+    content = readFileSync(chunksPath, 'utf-8');
+  } catch (err) {
+    return { chunks: [], errors: [`Failed to read file: ${err.message}`] };
+  }
+  let data;
+  try {
+    data = JSON.parse(content);
+  } catch (err) {
+    return { chunks: [], errors: [`Invalid JSON: ${err.message}`] };
+  }
   return parseChunksFile(data);
 }
 
