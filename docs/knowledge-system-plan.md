@@ -64,73 +64,70 @@ Standards are mapped by domain so agents only load what's relevant:
 
 ## Tasks
 
-### 1. Standards resolution steering (global)
+### 1. Standards resolution steering (global) ✅
 
-- Create `steering/global/standards-loading.md`
+- Created `steering/global/standards-loading.md`
 - Resolution order: project-local `./standards/{name}.md` → installed global `{harness_path}/{name}.md`
 - `.aiconfig.json` `standards` map by domain = defaults loaded per-agent
 - Agents can reference additional standards by name in their prompts
 - Adapter injects the harness-specific path at install time (`{{standards_path}}` replacement)
 
-### 2. Install standards to harness
+### 2. Install standards to harness ✅
 
-- Add `installStandards` to the adapter (copies `standards/*.md` to harness location)
+- Added `installStandards` to the base adapter (copies `standards/*.md` to harness location)
 - Kiro: `~/.kiro/standards/`
 - Claude: `.claude/standards/`
-- Resolver discovers standards files (scan `standards/*.md`, exclude `_template`, `README`)
-- All standards installed regardless of bundle (they're small, loading is gated by resolution rules)
+- `listStandards` in resolver discovers files (excludes `_template`, `README`)
+- All standards installed regardless of bundle (loading gated by resolution rules)
 
-### 3. Update `.aiconfig.json` schema
+### 3. Update `.aiconfig.json` schema ✅
 
-- Change `standards` from string to `Record<string, string[]>` (domain → names map)
-- Add `paths.knowledge` (default: `knowledge`)
-- Change `paths.decisions` default to `knowledge/decisions`
-- Update AGENTS.md, project template, and existing skills that reference these paths
+- Changed `standards` from string to `Record<string, string[]>` (domain → names map)
+- Added `paths.knowledge` (default: `knowledge`)
+- Changed `paths.decisions` default to `knowledge/decisions`
+- Updated AGENTS.md and project template
 
-### 4. Define knowledge file format and conventions
+### 4. Define knowledge file format and conventions ✅
 
+- Created `docs/knowledge-file-format.md` — full format spec
 - Frontmatter: `name`, `type`, `tags`, `scope`, `description`
 - Types: `decision`, `reference`, `architecture`, `api`, `business-rule`
-- `scope`: `all` or comma-separated agent/domain names
-- `tags`: for relevance matching when agents search the index
+- Added `projects/_template/knowledge/` with example file and `decisions/` subdirectory
 
-### 5. Relocate ADRs into knowledge
+### 5. Relocate ADRs into knowledge ✅
 
-- Update decision-record skill output path to `{paths.decisions}` (now `knowledge/decisions/`)
-- Update agent prompts/steering that reference ADR locations
-- Existing ADR format unchanged — `status` field gates authority
+- Updated decision-record skill output path default to `knowledge/decisions/`
+- Agent prompts already reference decisions conceptually (no path changes needed)
+- `status` field continues to gate authority (Confirmed vs Draft)
 
-### 6. Create knowledge-authoring skill
+### 6. Create knowledge-authoring skill ✅
 
-- Procedure for creating knowledge entries
-- When to create knowledge vs standards vs project-standards
-- Validation checklist
+- Created `skills/knowledge-authoring/SKILL.md`
+- Covers: when to use knowledge, type selection, frontmatter writing, scope/tags guidance
+- Self-validation checklist included
 
-### 7. Implement knowledge index generation
+### 7. Implement knowledge index generation 🔲
 
 - Command: `aif knowledge index` or integrate into `aif snapshot`
 - Scans `{paths.knowledge}/**/*.md`, reads frontmatter
 - Writes `knowledge/index.json` with metadata per entry
 - Agents read the index to discover relevant knowledge without loading everything
 
-### 8. Add agent guidance steering for knowledge consumption
+### 8. Add agent guidance steering for knowledge consumption 🔲
 
 - Global steering: "Before starting work, check knowledge/index.json for relevant entries by tags/scope. Load matching entries."
 - Resolution: agents filter by their domain/name in `scope` or by task-relevant `tags`
 
-### 9. Update project template
+### 9. Update project template 🔲
 
-- `projects/_template/` gets `knowledge/` directory with `decisions/` subdirectory
-- Template `.aiconfig.json` updated with new paths and domain-mapped `standards`
-- Example knowledge file included
+- Already partially done (knowledge/ directory exists in template)
+- Remaining: add guidance comments, ensure template .aiconfig.json is complete
 
-### 10. Tests
+### 10. Tests 🔲
 
-- Standards installation (both harnesses)
-- Standards path injection in steering transform
-- Knowledge index generation (unit + integration)
-- `.aiconfig.json` schema validation with new fields
-- Resolution priority (project-local trumps global)
+- Standards installation tests ✅ (done in task 1-3)
+- Knowledge index generation tests (pending task 7)
+- Resolution priority tests (pending)
 
 ---
 
