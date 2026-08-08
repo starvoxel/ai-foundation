@@ -1,12 +1,16 @@
 {
   "project_name": "my-project",
-  "standards": "",
+  "standards": {
+    "engineering": [],
+    "all": []
+  },
   "project_standards": "",
   "paths": {
     "plans": "plans",
     "epics": "plans/epics",
     "chunks": "plans/chunks",
-    "decisions": "plans/decisions",
-    "orchestration": "plans/orchestration"
+    "decisions": "knowledge/decisions",
+    "orchestration": "plans/orchestration",
+    "knowledge": "knowledge"
   }
 }

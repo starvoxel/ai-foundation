@@ -124,14 +124,33 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `project_name` | string | Yes | Project identifier used in Plan IDs and file naming |
-| `standards` | string | No | Language/stack standards file name (without `.md`) |
+| `standards` | object | No | Map of domain → standard names (without `.md`). See below. |
 | `project_standards` | string | No | Path to project-specific standards override |
 | `paths` | object | No | Artifact output directories (relative to repo root) |
 | `paths.plans` | string | No | Root for all plan artifacts. Default: `plans` |
 | `paths.epics` | string | No | Epic plan location. Default: `plans/epics` |
 | `paths.chunks` | string | No | Chunk plans and chunks.json. Default: `plans/chunks` |
-| `paths.decisions` | string | No | Decision Records. Default: `plans/decisions` |
+| `paths.decisions` | string | No | Decision Records. Default: `knowledge/decisions` |
 | `paths.orchestration` | string | No | Orchestration state files. Default: `plans/orchestration` |
+| `paths.knowledge` | string | No | Knowledge directory. Default: `knowledge` |
+
+#### `standards` field
+
+A map of agent domain → array of standard names to load:
+
+```json
+{
+  "standards": {
+    "engineering": ["typescript-node", "api-design"],
+    "product": ["ux-design"],
+    "all": ["customer-release-notes"]
+  }
+}
+```
+
+- Agents load standards listed under their `domain`
+- All agents load standards listed under `"all"`
+- Names resolve via: project-local `./standards/{name}.md` first, then global installed copy
 
 ### Defaults (when `.aiconfig.json` is absent)
 
@@ -141,8 +160,9 @@ If no config file exists, agents fall back to:
 - `paths.plans`: `plans`
 - `paths.epics`: `plans/epics`
 - `paths.chunks`: `plans/chunks`
-- `paths.decisions`: `plans/decisions`
+- `paths.decisions`: `knowledge/decisions`
 - `paths.orchestration`: `plans/orchestration`
+- `paths.knowledge`: `knowledge`
 
 ---
 
