@@ -18,11 +18,18 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 3. **Never force push main.** Use `git revert` to undo mistakes.
 4. **Tests must pass before pushing.** Run `npm test` first.
 
+### AI Identity
+
+5. **Use `--author` on all commits.** When `.aiconfig.json` defines `ai_identity`, agents must commit with `--author="<git_author_name> <<git_author_email>>"`. The system git config (user.name/user.email) stays untouched.
+6. **Authenticate with the AI token for push operations.** Read the PAT from the environment variable named in `ai_identity.git_token_env`. Use `gh` CLI with `GH_TOKEN` set to this value for push operations.
+7. **Require `gh` CLI.** If `gh` is not installed or the token env var is not set, the agent must stop and report the missing prerequisite. Do not fall back to the human's credentials.
+8. **Never log or echo the token value.** Reference it by env var name only.
+
 ---
 
 ## Rationale
 
-Framework repos are docs and plain text — low risk, easy to revert. Branching overhead isn't justified.
+Framework repos are docs and plain text — low risk, easy to revert. Branching overhead isn't justified. Separate AI identity and credentials keep agent commits clearly attributable and prevent agents from acting under the human's identity.
 
 ## Exceptions
 
