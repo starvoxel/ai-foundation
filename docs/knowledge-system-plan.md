@@ -106,28 +106,35 @@ Standards are mapped by domain so agents only load what's relevant:
 - Covers: when to use knowledge, type selection, frontmatter writing, scope/tags guidance
 - Self-validation checklist included
 
-### 7. Implement knowledge index generation 🔲
+### 7. Implement knowledge index generation ✅
 
-- Command: `aif knowledge index` or integrate into `aif snapshot`
-- Scans `{paths.knowledge}/**/*.md`, reads frontmatter
-- Writes `knowledge/index.json` with metadata per entry
-- Agents read the index to discover relevant knowledge without loading everything
+- Created `lib/commands/index.js` — scans knowledge dir, writes `index.json`
+- Created `lib/knowledge.js` — pure validation (`validateKnowledgeFrontmatter`) and entry construction (`buildIndexEntry`)
+- Added `KNOWLEDGE_TYPES` to `lib/constants.js`
+- `aif index` command wired to CLI (uses `process.cwd()` for project context)
 
-### 8. Add agent guidance steering for knowledge consumption 🔲
+### 8. Add agent guidance steering for knowledge consumption ✅
 
-- Global steering: "Before starting work, check knowledge/index.json for relevant entries by tags/scope. Load matching entries."
-- Resolution: agents filter by their domain/name in `scope` or by task-relevant `tags`
+- Created `steering/global/knowledge-consumption.md`
+- Strong enforcement: "Do not begin implementation without first checking"
+- "Never skip" / "Never ignore" wording for relevant entries and confirmed decisions
+- Priority order when context is constrained (decisions are never dropped)
 
-### 9. Update project template 🔲
+### 9. Update project template ✅
 
-- Already partially done (knowledge/ directory exists in template)
-- Remaining: add guidance comments, ensure template .aiconfig.json is complete
+- `projects/_template/knowledge/` with example file and `decisions/` subdirectory
+- `projects/_template/plans/` with `epics/`, `chunks/`, `orchestration/` scaffolded
+- `project-standards.md` updated: removed redundant decision table, references `.aiconfig.json` for standards
+- `.aiconfig.json` template has domain-mapped standards and knowledge paths
 
-### 10. Tests 🔲
+### 10. Tests ✅
 
-- Standards installation tests ✅ (done in task 1-3)
-- Knowledge index generation tests (pending task 7)
-- Resolution priority tests (pending)
+- Standards installation integration tests (7 tests)
+- Knowledge index integration tests (6 tests)
+- Knowledge validation unit tests (16 tests)
+- `parseFrontmatter` and `hashContent` unit tests (14 tests)
+- Snapshot `diffSnapshot` unit tests (7 tests)
+- Total: 344 tests passing
 
 ---
 
