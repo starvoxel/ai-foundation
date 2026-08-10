@@ -80,6 +80,7 @@ Commands:
   test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles
   index       Generate knowledge/index.json for a project
+  init        Scaffold a new project directory
 
 Options:
   --bundle <name>    Bundle to install/uninstall
@@ -117,6 +118,7 @@ import { runValidate } from '../lib/commands/validate.js';
 import { runTest } from '../lib/commands/test.js';
 import { runSnapshot } from '../lib/commands/snapshot.js';
 import { runIndex } from '../lib/commands/index.js';
+import { runInit } from '../lib/commands/init.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -156,6 +158,8 @@ export async function run(parsed) {
       return runSnapshot(parsed, REPO_ROOT);
     case 'index':
       return runIndex(parsed, process.cwd());
+    case 'init':
+      return runInit(parsed, process.cwd());
     default:
       return 1;
   }
