@@ -41,12 +41,14 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Snapshot system (source freshness detection) | M | v1.0 | ✅ Done |
 | Install --update and skip-if-current | S | v1.0 | ✅ Done |
 | Bundle directory restructure | S | v1.0 | ✅ Done |
-| Knowledge system (project-local reference material for agents) | M | v1.0 | 🔲 |
-| Standards resolution and installation (domain-mapped, harness-injected) | M | v1.0 | 🔲 |
+| Knowledge system (project-local reference material for agents) | M | v1.0 | ✅ Done |
+| Standards resolution and installation (domain-mapped, harness-injected) | M | v1.0 | ✅ Done |
+| Knowledge-authoring skill | S | v1.0 | ✅ Done |
+| Knowledge index command (`aif index`) | S | v1.0 | ✅ Done |
 | Standards: additional languages (TypeScript, Python) | M | v1.0 | 🔲 |
 | Standards distribution and sync (push/pull between aif and projects) | M | v1.0 | 🔲 |
 
-> **Implementation plan:** See `docs/plans/completed/knowledge-system-plan.md` for the full design
+> **Completed plan:** See `docs/plans/completed/knowledge-system-plan.md` for the full design
 > covering knowledge files, standards resolution, ADR relocation, and `.aiconfig.json` changes.
 
 | Project init command (`aif init`) | S | v1.0 | 🔲 |
