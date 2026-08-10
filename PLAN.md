@@ -47,7 +47,7 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Knowledge index command (`aif index`) | S | v1.0 | ✅ Done |
 | Standards: additional languages (TypeScript, Python) | M | v1.0 | 🔲 |
 | Standards distribution and sync (push/pull between aif and projects) | M | v1.0 | 🔲 |
-| Project init command (`aif init`) | S | v1.0 | 🔲 |
+| Project init command (`aif init`) | S | v1.0 | ✅ Done |
 | Code review skill maturity (checklists, structured output) | M | v1.0 | 🔲 |
 | Test execution skill maturity (test types, per-language patterns) | M | v1.0 | 🔲 |
 | Model selection per agent | S | v1.0 | 🔲 |
