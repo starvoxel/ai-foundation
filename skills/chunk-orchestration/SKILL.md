@@ -42,22 +42,30 @@ and advances waves until the epic is complete or fully blocked.
 
 ### Step 2 — Dispatch Wave
 
+**⚠️ PREREQUISITE GATE: Every chunk MUST have a dedicated branch and worktree created
+BEFORE any subagent is dispatched. No exceptions. No fallback to main directory.**
+
 For each chunk in the current wave with status `Ready`:
 
 1. Verify the chunk plan exists and is approved
-2. Determine the branch name: `{epic-id}/{chunk-id}-{short-title}`
-3. Create a worktree for the chunk (skill/worktree-management Steps 1–3):
+2. **Create branch and worktree** (skill/worktree-management Steps 1–3):
+   - Determine the branch name: `{epic-id}/{chunk-id}-{short-title}`
    - Resolve the worktree path from `paths.worktrees` config
-   - Create the worktree on the branch (branching from `main`)
+   - Create the worktree on a new branch from `main`:
+     ```bash
+     git worktree add <worktree-path> -b <branch-name> main
+     ```
    - Run dependency installation in the worktree
-   - Record `worktree_path` in the chunk state
-4. Dispatch a Software-Engineer subagent with:
+   - Confirm the worktree exists and is on the correct branch
+   - Record `worktree_path` and `branch` in the chunk state
+   - **If worktree creation fails → mark chunk as `Blocked`, do NOT dispatch**
+3. **Only after worktree is confirmed**, dispatch a Software-Engineer subagent with:
    - The chunk plan path
    - The branch name
-   - The worktree path as the agent's working directory
+   - **The worktree path as the agent's working directory** (the agent works HERE, not in the main repo)
    - Instruction to implement per the plan
-5. Update chunk status to `Implementing`
-6. Log: `chunk_dispatched` with agent, branch, and worktree path details
+4. Update chunk status to `Implementing`
+5. Log: `chunk_dispatched` with agent, branch, and worktree path details
 
 Constraints:
 - Maximum concurrent subagents is read from `orchestration.max_concurrent` (default: 4)
