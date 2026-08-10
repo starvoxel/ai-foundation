@@ -1,6 +1,6 @@
 ---
 name: "standards-loading"
-version: "0.1.0"
+version: "0.2.0"
 description: "Instructs agents how to resolve and load standards files for a project."
 file_patterns: []
 ---
@@ -12,6 +12,19 @@ All agents, all sessions. Standards apply across every domain.
 ---
 
 ## Rules
+
+### Standards Are Not Optional
+
+- **Do not begin implementation without loading your project's standards.**
+- **Never deviate from a loaded standard without explicit human approval.** If a standard
+  conflicts with the task requirements, raise it — do not silently ignore the standard.
+- **Never substitute your own conventions** when a standard defines the convention.
+  The standard exists precisely to prevent per-agent inconsistency.
+- **Never skip loading standards** because a task seems simple. Standards apply to all
+  implementation work regardless of scope or complexity.
+
+Standards are acceptance criteria. Code that violates the active standards will not
+pass review regardless of other quality.
 
 ### Standards Resolution
 
