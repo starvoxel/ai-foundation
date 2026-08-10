@@ -127,9 +127,9 @@ See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 ## Testing
 
 ```bash
-node --test "tests/unit/**/*.test.js"          # Fast, no I/O
-node --test "tests/integration/**/*.test.js"   # Filesystem tests
-node --test "tests/validation/**/*.test.js"    # Real repo checks
+aif test unit          # Fast, no I/O
+aif test integration   # Filesystem tests
+aif test validation    # Real repo checks
 ```
 
 Requires Node.js 20+. Install dependencies: `npm install`.
