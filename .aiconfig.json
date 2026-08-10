@@ -1,0 +1,12 @@
+{
+  "project_name": "ai-foundation",
+  "repo_type": "framework",
+  "standards": {
+    "engineering": [],
+    "all": []
+  },
+  "paths": {
+    "plans": "docs/plans",
+    "knowledge": "docs"
+  }
+}

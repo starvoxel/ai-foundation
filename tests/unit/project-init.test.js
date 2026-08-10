@@ -5,7 +5,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { generateProjectManifest, validateProjectName } from '../../lib/project-init.js';
+import { validateProjectName, applyProjectName } from '../../lib/project-init.js';
 
 // ── validateProjectName ──────────────────────────────────────────────────────
 
@@ -62,62 +62,31 @@ describe('unit: project-init/validateProjectName', () => {
   });
 });
 
-// ── generateProjectManifest ──────────────────────────────────────────────────
+// ── applyProjectName ─────────────────────────────────────────────────────────
 
-describe('unit: project-init/generateProjectManifest', () => {
-  it('returns dirs and files arrays', () => {
-    const { dirs, files } = generateProjectManifest('test-project');
-    assert.ok(Array.isArray(dirs));
-    assert.ok(Array.isArray(files));
-    assert.ok(dirs.length > 0);
-    assert.ok(files.length > 0);
+describe('unit: project-init/applyProjectName', () => {
+  it('replaces {ProjectName} with the given name', () => {
+    const result = applyProjectName('Project Name: {ProjectName}', 'cool-app');
+    assert.equal(result, 'Project Name: cool-app');
   });
 
-  it('includes all required directories', () => {
-    const { dirs } = generateProjectManifest('test-project');
-    assert.ok(dirs.includes('knowledge/decisions'));
-    assert.ok(dirs.includes('plans/epics'));
-    assert.ok(dirs.includes('plans/chunks'));
-    assert.ok(dirs.includes('plans/orchestration'));
+  it('replaces my-project with the given name', () => {
+    const result = applyProjectName('"project_name": "my-project"', 'cool-app');
+    assert.equal(result, '"project_name": "cool-app"');
   });
 
-  it('generates .aiconfig.json with correct project name', () => {
-    const { files } = generateProjectManifest('my-app');
-    const config = files.find(f => f.path === '.aiconfig.json');
-    assert.ok(config);
-    const parsed = JSON.parse(config.content);
-    assert.equal(parsed.project_name, 'my-app');
+  it('replaces all occurrences of both placeholders', () => {
+    const input = '{ProjectName} uses my-project as {ProjectName}';
+    const result = applyProjectName(input, 'foo');
+    assert.equal(result, 'foo uses foo as foo');
   });
 
-  it('.aiconfig.json has standards map with engineering and all keys', () => {
-    const { files } = generateProjectManifest('test');
-    const parsed = JSON.parse(files.find(f => f.path === '.aiconfig.json').content);
-    assert.ok(Array.isArray(parsed.standards.engineering));
-    assert.ok(Array.isArray(parsed.standards.all));
+  it('returns content unchanged if no placeholder present', () => {
+    const input = 'no placeholder here';
+    assert.equal(applyProjectName(input, 'test'), 'no placeholder here');
   });
 
-  it('.aiconfig.json has all required paths', () => {
-    const { files } = generateProjectManifest('test');
-    const parsed = JSON.parse(files.find(f => f.path === '.aiconfig.json').content);
-    assert.equal(parsed.paths.plans, 'plans');
-    assert.equal(parsed.paths.epics, 'plans/epics');
-    assert.equal(parsed.paths.chunks, 'plans/chunks');
-    assert.equal(parsed.paths.decisions, 'knowledge/decisions');
-    assert.equal(parsed.paths.orchestration, 'plans/orchestration');
-    assert.equal(parsed.paths.knowledge, 'knowledge');
-  });
-
-  it('generates project-standards.md with project name', () => {
-    const { files } = generateProjectManifest('cool-app');
-    const standards = files.find(f => f.path === 'project-standards.md');
-    assert.ok(standards);
-    assert.ok(standards.content.includes('cool-app'));
-  });
-
-  it('generates knowledge example file', () => {
-    const { files } = generateProjectManifest('test');
-    const example = files.find(f => f.path === 'knowledge/example.md');
-    assert.ok(example);
-    assert.ok(example.content.includes('name: "example"'));
+  it('handles empty content', () => {
+    assert.equal(applyProjectName('', 'test'), '');
   });
 });

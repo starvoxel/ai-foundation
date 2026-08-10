@@ -124,6 +124,7 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `project_name` | string | Yes | Project identifier used in Plan IDs and file naming |
+| `repo_type` | string | No | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply. |
 | `standards` | object | No | Map of domain → standard names (without `.md`). See below. |
 | `project_standards` | string | No | Path to project-specific standards override |
 | `paths` | object | No | Artifact output directories (relative to repo root) |

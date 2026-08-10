@@ -1,13 +1,13 @@
 ---
 name: "git-workflow-framework"
-version: "0.1.0"
-description: "Git workflow for the ai-foundation repository."
+version: "0.2.0"
+description: "Git workflow for framework-style repositories (direct commits to main)."
 file_patterns: []
 ---
 
 ## Scope
 
-All agents working in framework-style repositories (direct-commit workflow).
+All agents working in repositories where `.aiconfig.json` specifies `"repo_type": "framework"`.
 
 ---
 
@@ -22,7 +22,7 @@ All agents working in framework-style repositories (direct-commit workflow).
 
 ## Rationale
 
-This repo is framework docs and plain text — low risk, easy to revert. Branching overhead isn't justified yet.
+Framework repos are docs and plain text — low risk, easy to revert. Branching overhead isn't justified.
 
 ## Exceptions
 

@@ -7,7 +7,7 @@ file_patterns: []
 
 ## Scope
 
-All agents working in project repositories that use the ai-foundation framework.
+All agents working in repositories where `.aiconfig.json` specifies `"repo_type": "project"` (this is the default when `repo_type` is not set).
 
 ---
 

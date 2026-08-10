@@ -1,5 +1,6 @@
 {
   "project_name": "my-project",
+  "repo_type": "project",
   "standards": {
     "engineering": [],
     "all": []

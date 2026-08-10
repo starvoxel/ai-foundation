@@ -46,10 +46,11 @@ describe('integration: init command', () => {
     assert.ok(existsSync(join(workDir, 'test-project')));
   });
 
-  it('creates .aiconfig.json with correct name', () => {
+  it('creates .aiconfig.json with correct name and repo_type', () => {
     quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
     const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
     assert.equal(config.project_name, 'my-app');
+    assert.equal(config.repo_type, 'project');
   });
 
   it('creates knowledge directory structure', () => {
@@ -65,10 +66,11 @@ describe('integration: init command', () => {
     assert.ok(existsSync(join(workDir, 'test', 'plans', 'orchestration', '.gitkeep')));
   });
 
-  it('creates project-standards.md', () => {
+  it('creates project-standards.md with project name substituted', () => {
     quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
     const content = readFileSync(join(workDir, 'my-app', 'project-standards.md'), 'utf8');
     assert.ok(content.includes('my-app'));
+    assert.ok(!content.includes('{ProjectName}'));
   });
 
   it('fails if directory already exists without --force', () => {
