@@ -1,6 +1,12 @@
 {
-  "project_name": "my-project",
+  "project_name": "{ProjectName}",
   "repo_type": "project",
+  "language": "{Language}",
+  "ai_identity": {
+    "git_author_name": "{AI Agent Name}",
+    "git_author_email": "{ai-agent@example.com}",
+    "git_token_env": "{AI_GIT_TOKEN}"
+  },
   "standards": {
     "engineering": [],
     "all": []

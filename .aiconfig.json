@@ -8,5 +8,10 @@
   "paths": {
     "plans": "docs/plans",
     "knowledge": "docs"
+  },
+  "ai_identity": {
+    "git_author_name": "Starvoxel AI Agent",
+    "git_author_email": "ai-agent@starvoxel.com",
+    "git_token_env": "AI_GIT_TOKEN"
   }
 }
