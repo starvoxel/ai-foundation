@@ -79,6 +79,7 @@ Commands:
   validate    Check repo health (schema, refs, bundles)
   test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles
+  index       Generate knowledge/index.json for a project
 
 Options:
   --bundle <name>    Bundle to install/uninstall
@@ -115,6 +116,7 @@ import { runList } from '../lib/commands/list.js';
 import { runValidate } from '../lib/commands/validate.js';
 import { runTest } from '../lib/commands/test.js';
 import { runSnapshot } from '../lib/commands/snapshot.js';
+import { runIndex } from '../lib/commands/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -152,6 +154,8 @@ export async function run(parsed) {
       return runTest(parsed, REPO_ROOT);
     case 'snapshot':
       return runSnapshot(parsed, REPO_ROOT);
+    case 'index':
+      return runIndex(parsed, process.cwd());
     default:
       return 1;
   }
