@@ -49,6 +49,7 @@ tools:
   - "subagent"
   - "read"
   - "write"
+  - "shell"
   - "grep"
   - "glob"
   - "@dag/dag-compute-waves"
@@ -57,9 +58,11 @@ approved_tools:
   - "subagent"
   - "read"
   - "write"
+  - "shell"
   - "grep"
   - "glob"
   - "@dag/dag-compute-waves"
 
 skills:
   - "skill/chunk-orchestration"
+  - "skill/worktree-management"

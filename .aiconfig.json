@@ -7,7 +7,11 @@
   },
   "paths": {
     "plans": "docs/plans",
-    "knowledge": "docs"
+    "knowledge": "docs",
+    "worktrees": "../worktrees/ai-foundation"
+  },
+  "orchestration": {
+    "max_concurrent": 4
   },
   "ai_identity": {
     "git_author_name": "Starvoxel AI Agent",

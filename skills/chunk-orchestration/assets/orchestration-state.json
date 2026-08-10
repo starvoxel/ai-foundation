@@ -9,6 +9,7 @@
       "wave": 0,
       "status": "Ready",
       "branch": "",
+      "worktree_path": "",
       "iterations": 0,
       "blocked_reason": null,
       "agents": ["Software-Engineer"]

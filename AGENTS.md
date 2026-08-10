@@ -138,6 +138,9 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `paths.decisions` | string | No | Decision Records. Default: `knowledge/decisions` |
 | `paths.orchestration` | string | No | Orchestration state files. Default: `plans/orchestration` |
 | `paths.knowledge` | string | No | Knowledge directory. Default: `knowledge` |
+| `paths.worktrees` | string | No | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_name}` |
+| `orchestration` | object | No | Orchestration behaviour configuration |
+| `orchestration.max_concurrent` | number | No | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4` |
 
 #### `standards` field
 
@@ -168,6 +171,7 @@ If no config file exists, agents fall back to:
 - `paths.decisions`: `knowledge/decisions`
 - `paths.orchestration`: `plans/orchestration`
 - `paths.knowledge`: `knowledge`
+- `paths.worktrees`: `../worktrees/{project_name}`
 
 ---
 

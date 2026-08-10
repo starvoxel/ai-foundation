@@ -18,6 +18,10 @@
     "chunks": "plans/chunks",
     "decisions": "knowledge/decisions",
     "orchestration": "plans/orchestration",
-    "knowledge": "knowledge"
+    "knowledge": "knowledge",
+    "worktrees": "../worktrees/{ProjectName}"
+  },
+  "orchestration": {
+    "max_concurrent": 4
   }
 }

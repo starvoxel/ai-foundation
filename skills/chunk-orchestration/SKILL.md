@@ -36,7 +36,9 @@ and advances waves until the epic is complete or fully blocked.
    - Set `current_wave` to 0
    - Create a chunk state entry for each chunk (status: `Ready`, wave assignment from computation)
 6. Write the state file to `{paths.orchestration}/{EpicID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/orchestration/`)
-7. Log: `wave_started` for wave 0
+7. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
+8. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
+9. Log: `wave_started` for wave 0
 
 ### Step 2 — Dispatch Wave
 
@@ -44,17 +46,24 @@ For each chunk in the current wave with status `Ready`:
 
 1. Verify the chunk plan exists and is approved
 2. Determine the branch name: `{epic-id}/{chunk-id}-{short-title}`
-3. Dispatch a Software-Engineer subagent with:
+3. Create a worktree for the chunk (skill/worktree-management Steps 1–3):
+   - Resolve the worktree path from `paths.worktrees` config
+   - Create the worktree on the branch (branching from `main`)
+   - Run dependency installation in the worktree
+   - Record `worktree_path` in the chunk state
+4. Dispatch a Software-Engineer subagent with:
    - The chunk plan path
    - The branch name
+   - The worktree path as the agent's working directory
    - Instruction to implement per the plan
-4. Update chunk status to `Implementing`
-5. Log: `chunk_dispatched` with agent and branch details
+5. Update chunk status to `Implementing`
+6. Log: `chunk_dispatched` with agent, branch, and worktree path details
 
 Constraints:
-- Maximum 4 concurrent subagents at any time
-- If more than 4 chunks in a wave, queue the rest and dispatch as slots free up
+- Maximum concurrent subagents is read from `orchestration.max_concurrent` (default: 4)
+- If more chunks in a wave than the concurrency limit, queue the rest and dispatch as slots free up
 - Never dispatch a chunk whose dependencies are not all `Done`
+- If worktree creation fails, mark chunk as `Blocked` with reason and do not dispatch
 
 ### Step 3 — Monitor Pipeline
 
@@ -62,19 +71,27 @@ As each subagent completes, advance the chunk through its pipeline:
 
 **After Software-Engineer completes:**
 1. Update chunk status to `Testing`
-2. Dispatch Test-Engineer subagent for the same branch and chunk plan
+2. Dispatch Test-Engineer subagent for the same branch, chunk plan, and worktree path
 3. Log: `chunk_status_changed`
 
 **After Test-Engineer completes:**
 1. Update chunk status to `Reviewing`
-2. Dispatch Principal-Engineer subagent for the same branch and chunk plan
+2. Dispatch Principal-Engineer subagent for the same branch, chunk plan, and worktree path
 3. Log: `chunk_status_changed`
 
 **After Principal-Engineer completes — APPROVED:**
 1. Update chunk status to `Done`
-2. Log: `chunk_status_changed`
-3. Check if a queued chunk can now be dispatched (free slot)
-4. Check if the wave is complete (Step 5)
+2. The SE agent creates a PR from the chunk's branch via `gh pr create`
+3. Log: `chunk_status_changed`
+4. Check if a queued chunk can now be dispatched (free slot)
+5. Check if the wave is complete (Step 5)
+
+Note: The worktree remains active until the human confirms the PR is merged.
+When the human confirms merge, run worktree teardown (skill/worktree-management Step 4):
+- Remove the worktree directory
+- Delete the merged branch
+- Clear `worktree_path` in chunk state
+- Log: `worktree_removed`
 
 **After Principal-Engineer completes — NEEDS_CHANGES:**
 1. Increment chunk `iterations`
@@ -126,6 +143,9 @@ After each chunk completion, check wave status:
 
 1. Are all non-blocked chunks in the current wave `Done`?
 2. If yes:
+   - Present all open PRs for the wave to the human
+   - Wait for human to confirm all PRs in the wave are merged
+   - Once confirmed, tear down worktrees for all merged chunks (skill/worktree-management Step 4)
    - Log: `wave_completed`
    - Increment `current_wave`
    - If more waves remain:
@@ -164,3 +184,5 @@ After each chunk completion, check wave status:
 - **Epic has only one chunk** — still follow the full pipeline (SE → TE → PE). No shortcuts.
 - **Chunk depends on a blocked chunk** — remains in `Ready` but cannot be dispatched. Will dispatch once the dependency is unblocked and completed.
 - **Human requests early termination** — set overall status to `Blocked`, log the reason, stop dispatching. State file preserves progress for later resumption.
+- **Worktree creation fails** — mark chunk as `Blocked` with reason from worktree-management. Do not dispatch. Common causes: path conflict, disk space, branch already checked out in another worktree.
+- **Agent needs to resume in existing worktree** — when a blocked chunk is unblocked and re-dispatched, the worktree may already exist. Worktree-management Step 2 handles this (detects existing valid worktree and reuses it).
