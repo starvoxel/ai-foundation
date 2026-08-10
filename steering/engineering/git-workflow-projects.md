@@ -48,3 +48,11 @@ Branches contain blast radius. Human-only merges ensure nothing ships without ov
 ## Exceptions
 
 - Trivial fixes (typos, comment corrections) may use a branch without a full plan but still require a PR and human merge.
+- **Plans, orchestration state, and knowledge are committed directly to main.** Files under
+  `paths.plans`, `paths.orchestration`, and `paths.knowledge` are planning and reference
+  artifacts, not deployable code. They do NOT require a branch or PR. Rules:
+  - Commit and push each version to main BEFORE presenting it to the human for review.
+    This preserves full revision history in git (e.g. draft → feedback → approved).
+  - Atomic commits: one plan or one logical change per commit.
+  - Include the Plan ID or document name in the commit message.
+  - The human approval step is the review conversation, not a PR merge.

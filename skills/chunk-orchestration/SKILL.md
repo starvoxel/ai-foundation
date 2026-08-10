@@ -36,9 +36,14 @@ and advances waves until the epic is complete or fully blocked.
    - Set `current_wave` to 0
    - Create a chunk state entry for each chunk (status: `Ready`, wave assignment from computation)
 6. Write the state file to `{paths.orchestration}/{EpicID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/orchestration/`)
-7. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
-8. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
-9. Log: `wave_started` for wave 0
+7. **Commit plans and orchestration state to main before proceeding:**
+   - Verify all chunk plans and the epic plan are committed and pushed to main.
+     If any are uncommitted, commit and push them now (directly to main — plans do not use branches).
+   - Commit and push the orchestration state file to main.
+   - This ensures all worktrees (branched from main) will have access to the plans.
+8. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
+9. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
+10. Log: `wave_started` for wave 0
 
 ### Step 2 — Dispatch Wave
 
