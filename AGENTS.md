@@ -128,8 +128,8 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `standards` | object | No | Map of domain → standard names (without `.md`). See below. |
 | `project_standards` | string | No | Path to project-specific standards override |
 | `ai_identity` | object | No | AI agent git identity for commits and push auth |
-| `ai_identity.git_author_name` | string | No | Name used in `--author` on agent commits |
-| `ai_identity.git_author_email` | string | No | Email used in `--author` on agent commits |
+| `ai_identity.git_author_name` | string | No | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars |
+| `ai_identity.git_author_email` | string | No | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars |
 | `ai_identity.git_token_env` | string | No | Name of env var holding the PAT for push/PR ops |
 | `paths` | object | No | Artifact output directories (relative to repo root) |
 | `paths.plans` | string | No | Root for all plan artifacts. Default: `plans` |

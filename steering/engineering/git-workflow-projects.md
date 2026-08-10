@@ -34,7 +34,7 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 
 ### AI Identity
 
-11. **Use `--author` on all commits.** When `.aiconfig.json` defines `ai_identity`, agents must commit with `--author="<git_author_name> <<git_author_email>>"`. The system git config (user.name/user.email) stays untouched.
+11. **Set git identity env vars for all git operations.** When `.aiconfig.json` defines `ai_identity`, agents must set `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, and `GIT_COMMITTER_EMAIL` env vars to the configured values before any commit or push. The system git config (user.name/user.email) stays untouched — env vars are per-process only.
 12. **Authenticate with the AI token for push and PR operations.** Read the PAT from the environment variable named in `ai_identity.git_token_env`. Use `gh` CLI with `GH_TOKEN` set to this value for all push and PR operations (e.g. `GH_TOKEN=<token> gh pr create ...`).
 13. **Require `gh` CLI.** If `gh` is not installed or the token env var is not set, the agent must stop and report the missing prerequisite. Do not fall back to the human's credentials.
 14. **Never log or echo the token value.** Reference it by env var name only.
