@@ -46,7 +46,7 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Standards: additional languages (TypeScript, Python) | M | v1.0 | 🔲 |
 | Standards distribution and sync (push/pull between aif and projects) | M | v1.0 | 🔲 |
 
-> **Implementation plan:** See `docs/knowledge-system-plan.md` for the full design
+> **Implementation plan:** See `docs/plans/completed/knowledge-system-plan.md` for the full design
 > covering knowledge files, standards resolution, ADR relocation, and `.aiconfig.json` changes.
 
 | Project init command (`aif init`) | S | v1.0 | 🔲 |
