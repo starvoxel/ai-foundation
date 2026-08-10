@@ -89,6 +89,15 @@ Options:
   --check            Verify snapshots without writing (snapshot command)
   --help             Show this help message
 
+Init Options:
+  --name <name>         Project directory name
+  --language <lang>     Primary language (e.g. typescript, python, go)
+  --org <organization>  Organization name
+  --module-id <id>      Language-specific package/module identifier
+  --repo <url>          Git repository URL
+  --standards <list>    Comma-separated standards (e.g. typescript-node,api-design)
+  --interactive         Force interactive prompts (flag values as defaults)
+
 Examples:
   aif install --bundle engineering --harness kiro
   aif install --update
@@ -98,6 +107,8 @@ Examples:
   aif validate
   aif validate schema
   aif test unit
+  aif init --name my-app --language typescript --org acme
+  aif init --interactive
 `.trim();
 
 function printHelp() {

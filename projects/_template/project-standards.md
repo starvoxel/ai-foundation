@@ -9,14 +9,19 @@ It is composed on top of the universal schema and the language standards file.
 
 ## Project Identity
 
-| Field          | Value                                    |
-|----------------|------------------------------------------|
-| Project Name   | {ProjectName}                            |
-| Company / Namespace | {Company}                           |
-| Root Namespace | {Company}.{ProjectName}                  |
-| Language       | {e.g. C#, TypeScript}                   |
-| Repository     | {Git URL or local path}                  |
-| Created        | {YYYY-MM-DD}                             |
+| Field              | Value                                                        |
+|--------------------|--------------------------------------------------------------|
+| Project Name       | {ProjectName}                                                |
+| Organization       | {Organization}                                               |
+| Language           | {Language}                                                   |
+| Module ID          | {ModuleID}                                                   |
+| Repository         | {Repository}                                                 |
+| Created            | {YYYY-MM-DD}                                                 |
+
+**Module ID** is the language-specific package or module identifier for this project.
+Examples: npm scope (`@org/package`), Go module (`github.com/org/repo`),
+Rust crate name, Python package name, .NET root namespace (`Company.Project`),
+Java group ID (`com.company.project`).
 
 Standards for this project are configured in `.aiconfig.json` under the `standards` field.
 
@@ -46,7 +51,7 @@ Only document additions or deviations from the base standards layout.
 
 ## Project-Specific Dependencies
 
-List the NuGet packages (or equivalents) approved for this project.
+List the packages approved for this project.
 The Coder agent must not add packages not listed here without a plan update.
 
 | Package                      | Version  | Purpose                        |
