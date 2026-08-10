@@ -14,10 +14,11 @@ It is composed on top of the universal schema and the language standards file.
 | Project Name   | {ProjectName}                            |
 | Company / Namespace | {Company}                           |
 | Root Namespace | {Company}.{ProjectName}                  |
-| Language       | {e.g. C#}                               |
-| Standards File | {e.g. csharp-avalonia}                  |
+| Language       | {e.g. C#, TypeScript}                   |
 | Repository     | {Git URL or local path}                  |
 | Created        | {YYYY-MM-DD}                             |
+
+Standards for this project are configured in `.aiconfig.json` under the `standards` field.
 
 ---
 
@@ -80,12 +81,8 @@ specific data fixtures, or environment setup requirements.
 
 ## Known Constraints & Decisions
 
-Document design decisions already made for this project that the Planner must respect.
-These prevent agents from re-litigating settled decisions in future plans.
-
-| # | Decision                         | Rationale                    | Date       |
-|---|----------------------------------|------------------------------|------------|
-| 1 | {What was decided}               | {Why}                        | {YYYY-MM-DD}|
+Technical decisions and constraints are stored in `knowledge/decisions/`.
+Use the decision-record skill to create them.
 
 ---
 
