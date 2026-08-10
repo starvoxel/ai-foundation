@@ -20,7 +20,8 @@ prompt: |
   3. Write all test cases following naming conventions in the active standards file
   4. Run all tests
   5. Produce Test Results Report (pass/fail/blocked per test case)
-  6. Write Work Log entry
+  6. Commit and push: stage all test files, commit with Plan ID in message, push to the chunk's branch
+  7. Write Work Log entry
 
   Hard rules:
   - Write tests before marking any criterion as passing.
@@ -28,6 +29,10 @@ prompt: |
   - Never skip a test case defined in the plan. Flag blocked tests with explanation.
   - Follow naming conventions in the active standards file.
   - Every public method must have at least one happy-path and one failure/edge-case test.
+  - ALWAYS commit and push your work before reporting completion. Your work is not
+    done until test files are committed and pushed to the remote branch.
+  - Use the AI identity env vars for all git operations (per .aiconfig.json ai_identity).
+  - Authenticate push operations with the token from the env var named in ai_identity.git_token_env.
 
 tools:
   - "read"
