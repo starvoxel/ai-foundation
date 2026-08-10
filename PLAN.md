@@ -47,10 +47,6 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Knowledge index command (`aif index`) | S | v1.0 | ✅ Done |
 | Standards: additional languages (TypeScript, Python) | M | v1.0 | 🔲 |
 | Standards distribution and sync (push/pull between aif and projects) | M | v1.0 | 🔲 |
-
-> **Completed plan:** See `docs/plans/completed/knowledge-system-plan.md` for the full design
-> covering knowledge files, standards resolution, ADR relocation, and `.aiconfig.json` changes.
-
 | Project init command (`aif init`) | S | v1.0 | 🔲 |
 | Code review skill maturity (checklists, structured output) | M | v1.0 | 🔲 |
 | Test execution skill maturity (test types, per-language patterns) | M | v1.0 | 🔲 |
@@ -66,6 +62,8 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Product domain agents (PRD, UX, product decisions) | L | v1.4 | 🔲 |
 | Context and memory layer (RAG, episodic memory) | XL | v2.0 | 🔲 |
 | Self-improvement pipeline (outcome logging, prompt evolution) | XL | v2.0 | 🔲 |
+
+**Completed plans:** `docs/plans/completed/`
 
 ---
 
