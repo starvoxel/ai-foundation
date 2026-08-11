@@ -54,6 +54,7 @@ Resolved from `.aiconfig.json` at project root. Default: `plans/orchestration/`.
 | `Testing` | Test-Engineer is working |
 | `Reviewing` | Principal-Engineer is reviewing |
 | `Done` | Approved and complete |
+| `Conflict` | Merge conflict detected — resolution in progress |
 | `Blocked` | Cannot proceed — see `blocked_reason` |
 
 ### Status transitions
@@ -64,12 +65,17 @@ Ready → Implementing → Testing → Reviewing → Done
                                       ▼
                               Implementing (review loop, iterations++)
 
+Any pipeline status → Conflict (when merge conflict detected)
+Conflict → Implementing (when resolved — pipeline restarts, iterations reset to 0)
+Conflict → Blocked (when SE cannot resolve — human intervention needed)
+
 Any status → Blocked (with reason)
 Blocked → Ready (when human unblocks)
 ```
 
 - Maximum 5 iterations through the review loop before escalation.
 - A chunk may be blocked at any point (e.g., requires out-of-domain work, merge conflict, human input needed).
+- When a conflict is resolved, the pipeline restarts from Implementing with iterations reset. This ensures tests and review validate the post-resolution code.
 
 ### Escalation object
 
@@ -103,6 +109,11 @@ Blocked → Ready (when human unblocks)
 | `escalation_resolved` | Human resolved a prior escalation |
 | `chunk_blocked` | Chunk marked as blocked |
 | `chunk_unblocked` | Chunk unblocked and returned to Ready |
+| `conflict_detected` | Merge conflict detected on a chunk branch |
+| `conflict_resolved` | SE successfully resolved the merge conflict |
+| `conflict_escalated` | Conflict could not be auto-resolved, escalated to human |
+| `overlap_warning` | File overlap detected between chunks in the same wave |
+| `wave_rebase` | Wave boundary rebase performed on existing branches |
 | `worktree_created` | Worktree created for a chunk |
 | `worktree_removed` | Worktree torn down after PR merge confirmed |
 | `orchestration_complete` | All waves done, epic fully implemented |

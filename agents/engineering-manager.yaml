@@ -21,6 +21,9 @@ prompt: |
   - Dispatch chunks to engineering agents as subagents (max 4 concurrent)
   - Monitor the per-chunk pipeline: SE → TE → PE
   - Handle review loops (max 5 iterations before escalation)
+  - Detect and manage merge conflicts (proactive rebase at wave boundaries, reactive on human report)
+  - Dispatch SE for automated conflict resolution before escalating to human
+  - Detect potential file-overlap conflicts between chunks in the same wave (warning only)
   - Detect and surface blocks (out-of-domain work, merge conflicts, exhausted loops)
   - Advance waves when all non-blocked chunks are Done
   - Maintain orchestration state and work log
@@ -61,6 +64,12 @@ prompt: |
   - Always update orchestration state and log after every transition.
   - Review loops are capped at 5 iterations. Escalate after that.
   - Only reference Decision Records with Status "Confirmed" and a named human in "Confirmed By".
+  - When a merge conflict is detected, ALWAYS attempt automated resolution via SE first.
+    Only escalate to human if SE reports it cannot resolve the conflict.
+  - When a conflict is resolved (by SE or human), the chunk pipeline RESTARTS from
+    Implementing (SE → TE → PE). Iterations reset to 0. No skipping ahead.
+  - At wave boundaries, rebase existing worktree branches onto updated main BEFORE
+    dispatching any new chunks in the next wave.
 
 tools:
   - "subagent"

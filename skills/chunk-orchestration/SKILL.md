@@ -50,6 +50,17 @@ and advances waves until the epic is complete or fully blocked.
 **⚠️ PREREQUISITE GATE: Every chunk MUST have a dedicated branch and worktree created
 BEFORE any subagent is dispatched. No exceptions. No fallback to main directory.**
 
+**File Overlap Detection (warning only):**
+
+Before dispatching any chunks in the wave, compare `files_modified` or `components_affected`
+across all chunk plans in the current wave:
+1. Read each chunk plan for the wave and extract the list of files/components it modifies
+2. Compare across all chunks in the wave for overlapping file paths
+3. If overlap is found:
+   - Log: `overlap_warning` with the overlapping chunk IDs and file paths
+   - Present the warning to the human: "Potential merge conflict — chunks {X} and {Y} both modify {files}. Proceeding in parallel; conflicts will be handled at PR merge time."
+   - **Do not block or serialize.** Proceed with parallel dispatch.
+
 For each chunk in the current wave with status `Ready`:
 
 1. Verify the chunk plan exists and is approved
@@ -137,12 +148,40 @@ If a chunk plan references components, skills, or work outside the engineering d
 - Add escalation entry
 - Surface to human: state what is needed and which chunk is affected
 
-**Merge conflict:**
-If an agent reports a merge conflict it cannot resolve:
-- Mark chunk as `Blocked`
-- `blocked_reason`: "Merge conflict on branch {branch}"
-- Log: `chunk_blocked`
-- Add escalation entry
+**Merge conflict — Conflict Resolution Sub-Flow:**
+
+Triggered by: human reports conflict during PR review, OR wave-boundary rebase fails (Step 5).
+
+1. Update chunk status to `Conflict`
+2. Log: `conflict_detected` with branch name, conflicting files (if known), and trigger source
+3. Dispatch Software-Engineer subagent to the chunk's worktree with instructions:
+   - Fetch latest main: `git fetch origin main`
+   - Rebase onto main: `git rebase origin/main`
+   - Resolve any conflicts that arise
+   - Run build/lint to verify the resolution compiles and passes basic checks
+   - Commit the resolution and push the branch (force-push is acceptable here — it's a feature branch with only agent commits)
+   - Report success or failure
+4. **If SE reports success:**
+   - Update chunk status to `Implementing`
+   - Reset `iterations` to 0
+   - Log: `conflict_resolved` with details of which files were resolved
+   - Re-dispatch SE to verify/complete implementation in context of the new base
+   - The full pipeline restarts: SE → TE → PE
+5. **If SE reports inability to resolve** (complex conflict, semantic ambiguity, or build failures after resolution):
+   - Mark chunk as `Blocked`
+   - `blocked_reason`: "Merge conflict requires human resolution on branch {branch}: {conflicting files}"
+   - Log: `conflict_escalated`
+   - Add escalation entry with:
+     - The conflicting file paths
+     - The branch name
+     - Which chunks contributed to the conflict (if known from overlap warnings)
+   - Present to human: state the branch, conflicting files, and suggest `git rebase origin/main` in the worktree to resolve manually
+6. **When human reports conflict resolved** (after manual intervention):
+   - Update chunk status to `Implementing`
+   - Reset `iterations` to 0
+   - Set escalation `resolved` to true
+   - Log: `chunk_unblocked`
+   - Pipeline restarts from SE (full SE → TE → PE)
 
 **Blocked chunks and wave progression:**
 - A blocked chunk does NOT prevent other chunks in the wave from completing
@@ -168,7 +207,17 @@ After each chunk completion, check wave status:
    - Log: `wave_completed`
    - Increment `current_wave`
    - If more waves remain:
+     - **Wave-Boundary Rebase** — ensure next wave's branches are up-to-date with main:
+       1. Run `git fetch origin main` in the main repository
+       2. For each chunk in the new wave that already has a worktree (resumed/unblocked chunks only):
+          - In the chunk's worktree, run `git rebase origin/main`
+          - If rebase succeeds cleanly: log `wave_rebase` with chunk ID, proceed normally
+          - If rebase conflicts: enter the Conflict Resolution Sub-Flow (Step 4) for that chunk.
+            The chunk cannot be dispatched until conflict is resolved.
+       3. For new chunks (no worktree yet): no action needed — they will branch from the
+          current main when their worktree is created in Step 2, so they naturally get the latest code.
      - Set all chunks in the new wave whose dependencies are `Done` to `Ready`
+       (except any currently in `Conflict` from the rebase above)
      - Log: `wave_started`
      - Go to Step 2 (dispatch new wave)
    - If no more waves remain:
@@ -205,3 +254,8 @@ After each chunk completion, check wave status:
 - **Human requests early termination** — set overall status to `Blocked`, log the reason, stop dispatching. State file preserves progress for later resumption.
 - **Worktree creation fails** — mark chunk as `Blocked` with reason from worktree-management. Do not dispatch. Common causes: path conflict, disk space, branch already checked out in another worktree.
 - **Agent needs to resume in existing worktree** — when a blocked chunk is unblocked and re-dispatched, the worktree may already exist. Worktree-management Step 2 handles this (detects existing valid worktree and reuses it).
+- **Merge conflict during PR review** — human reports the conflict. EM enters the Conflict Resolution Sub-Flow (Step 4). The chunk goes from `Done` → `Conflict` → `Implementing` (pipeline restarts). The existing PR should be updated by the force-push after resolution.
+- **Wave-boundary rebase conflicts on multiple chunks** — each conflicting chunk enters the sub-flow independently. Non-conflicting chunks in the wave proceed normally with dispatch.
+- **Conflict resolution introduces test failures** — handled naturally because the pipeline restarts from SE. TE will catch the failures in the Testing phase.
+- **Human resolves conflict but doesn't push** — SE is re-dispatched and will detect the branch state. If the rebase is incomplete or uncommitted, SE completes it. Instruct the human to commit and push their resolution before reporting "unblocked."
+- **Overlap warning false positive** — two chunks touch the same file but different sections. No action needed; the warning is informational. Actual conflicts are handled reactively if they occur at merge time.
