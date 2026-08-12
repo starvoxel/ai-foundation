@@ -125,7 +125,7 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 |---|---|---|---|
 | `project_name` | string | Yes | Project identifier used in Plan IDs and file naming |
 | `repo_type` | string | No | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply. |
-| `standards` | object | No | Map of domain → standard names (without `.md`). See below. |
+| `standards` | object | No | Map of domain → tags for tag-based standard matching. See below. |
 | `project_standards` | string | No | Path to project-specific standards override |
 | `ai_identity` | object | No | AI agent git identity for commits and push auth |
 | `ai_identity.git_author_name` | string | No | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars |
@@ -144,21 +144,23 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 
 #### `standards` field
 
-A map of agent domain → array of standard names to load:
+A map of agent domain → array of tags for tag-based standard matching:
 
 ```json
 {
   "standards": {
-    "engineering": ["typescript-node", "api-design"],
+    "engineering": ["csharp", "avalonia"],
     "product": ["ux-design"],
-    "all": ["customer-release-notes"]
+    "all": []
   }
 }
 ```
 
-- Agents load standards listed under their `domain`
-- All agents load standards listed under `"all"`
-- Names resolve via: project-local `./standards/{name}.md` first, then global installed copy
+- Agents collect tags from their `domain` entry plus `"all"`
+- Standards declare their own tags in YAML front-matter
+- A standard loads if **ALL** of its tags are present in the project's collected tags
+- `depends_on` chains are resolved automatically (dependencies load first)
+- Resolution: project-local `./standards/{name}.md` first, then global installed copy
 
 ### Defaults (when `.aiconfig.json` is absent)
 

@@ -1,7 +1,7 @@
 ---
 name: "standards-loading"
-version: "0.2.0"
-description: "Instructs agents how to resolve and load standards files for a project."
+version: "0.3.0"
+description: "Instructs agents how to resolve and load standards files for a project using tag-based matching."
 file_patterns: []
 ---
 
@@ -26,47 +26,73 @@ All agents, all sessions. Standards apply across every domain.
 Standards are acceptance criteria. Code that violates the active standards will not
 pass review regardless of other quality.
 
-### Standards Resolution
+### Standards Resolution — Tag Matching
 
-When loading a standard by name (e.g. "typescript-node"):
-
-1. Check the project directory: `./standards/{name}.md`
-2. If not found, read from: `{{standards_path}}/{name}.md`
-
-The first match wins. Project-local standards override global ones.
-
-### Default Standards
-
-If the project has a `.aiconfig.json` with a `standards` field (a map of domain → names),
-load the standards for your domain before starting work:
+The project's `.aiconfig.json` declares tags (not filenames) in its `standards` field:
 
 ```json
 {
   "standards": {
-    "engineering": ["typescript-node", "api-design"],
+    "engineering": ["csharp", "avalonia"],
     "product": ["ux-design"],
-    "all": ["customer-release-notes"]
+    "all": []
   }
 }
 ```
 
-- Load standards listed under your agent's `domain`
-- Always load standards listed under `"all"`
-- If no entry exists for your domain, load only `"all"`
+Each standards file declares its own tags in YAML front-matter:
+
+```yaml
+---
+name: csharp_avalonia
+tags: [csharp, avalonia]
+depends_on: [csharp_base]
+---
+```
+
+**Resolution procedure:**
+
+1. Read `.aiconfig.json` and collect the tags for your agent's `domain` plus `"all"`
+2. Scan available standards files and read their front-matter
+3. A standard matches if **ALL** of its `tags` are present in the collected project tags
+4. For each matched standard, resolve its `depends_on` chain — add dependencies even
+   if they were not in the initial matched set
+5. Load in dependency order (dependencies first, then dependents)
+
+**Example:** Project tags `["csharp", "avalonia"]` with these standards:
+
+| Standard | Tags | Depends on | Loaded? |
+|---|---|---|---|
+| `csharp_base` | `[csharp]` | — | ✓ (has `csharp`) |
+| `csharp_avalonia` | `[csharp, avalonia]` | `csharp_base` | ✓ (has both) |
+| `csharp_unity` | `[csharp, unity]` | `csharp_base` | ✗ (missing `unity`) |
+
+Load order: `csharp_base` → `csharp_avalonia`
+
+### File Location
+
+Standards are resolved from:
+
+1. Project-local: `./standards/{name}.md`
+2. Global install: `{{standards_path}}/{name}.md`
+
+The first match wins. Project-local standards override global ones.
 
 ### Agent-Specific Standards
 
 Individual agents may reference additional standards by name in their prompts.
-These follow the same resolution order (project-local first, then global).
+These follow the same file location resolution (project-local first, then global)
+and their `depends_on` chains are also resolved.
 
 ---
 
 ## Rationale
 
-Standards must be accessible to agents without living in every project repository.
-Installing them globally and resolving by name keeps projects lean while giving
-agents consistent rules. The domain map prevents irrelevant standards from consuming
-context (e.g. a UX agent doesn't need C# coding rules).
+Tag-based resolution means projects declare *what they use* (e.g. "csharp", "avalonia")
+rather than memorising exact standard filenames. Adding a new layered standard
+(e.g. `csharp_avalonia_reactiveui`) automatically loads for projects with matching
+tags — no `.aiconfig.json` changes needed. The ALL-of matching ensures standards only
+load when all their prerequisites are relevant to the project.
 
 ## Exceptions
 
