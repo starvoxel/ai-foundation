@@ -1,6 +1,6 @@
 ---
 name: "principal-engineer"
-version: "0.1.0"
+version: "0.2.0"
 domain: "engineering"
 description: "Code review agent that enforces quality, security, and standards compliance."
 
@@ -51,3 +51,7 @@ approved_tools:
 
 skills:
   - "skill/code-review"
+
+blocked_commands:
+  - "git *"
+  - "gh *"

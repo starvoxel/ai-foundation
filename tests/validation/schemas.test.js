@@ -138,6 +138,14 @@ describe('agent schemas', () => {
           assert.ok(toolSet.has(approved), `approved_tool "${approved}" not in tools`);
         }
       });
+
+      it('blocked_commands is an array of strings when present', () => {
+        if (parsed.blocked_commands === undefined) return;
+        assert.ok(Array.isArray(parsed.blocked_commands), 'blocked_commands must be an array');
+        for (const cmd of parsed.blocked_commands) {
+          assert.equal(typeof cmd, 'string', `blocked_commands entry must be a string, got: ${typeof cmd}`);
+        }
+      });
     });
   }
 });

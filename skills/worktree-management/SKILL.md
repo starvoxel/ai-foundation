@@ -43,19 +43,19 @@ Example resolution:
 ### Step 2 — Create Worktree
 
 1. Verify the target path does not already exist. If it does:
-   - Check if it is a valid worktree for the expected branch (`git worktree list`)
+   - Check if it is a valid worktree for the expected branch (`ai-git worktree list`)
    - If valid and on the correct branch, skip creation (resume scenario)
-   - If stale or on wrong branch, run `git worktree remove <path> --force` first
+   - If stale or on wrong branch, run `ai-git worktree remove <path> --force` first
 2. Create the branch and worktree:
    ```bash
-   git worktree add <path> -b <branch-name> main
+   ai-git worktree add <path> -b <branch-name> main
    ```
    This creates a new branch from `main` and checks it out in the worktree directory.
 3. If the branch already exists (e.g. resuming after a block):
    ```bash
-   git worktree add <path> <branch-name>
+   ai-git worktree add <path> <branch-name>
    ```
-4. Verify creation succeeded: confirm the path exists and `git worktree list` includes it.
+4. Verify creation succeeded: confirm the path exists and `ai-git worktree list` includes it.
 
 ### Step 3 — Setup Worktree
 
@@ -78,15 +78,15 @@ Called after the human confirms the PR is merged:
 1. Verify the worktree path exists
 2. Remove the worktree:
    ```bash
-   git worktree remove <path>
+   ai-git worktree remove <path>
    ```
 3. If removal fails (locked or dirty):
    ```bash
-   git worktree remove <path> --force
+   ai-git worktree remove <path> --force
    ```
 4. Delete the merged branch (optional, only if confirmed merged):
    ```bash
-   git branch -d <branch-name>
+   ai-git branch -d <branch-name>
    ```
    Use `-d` (not `-D`) so git refuses if the branch is not fully merged.
 5. Clean up empty parent directories (e.g. if all chunks in an epic are torn down,
@@ -96,11 +96,11 @@ Called after the human confirms the PR is merged:
 
 On orchestration startup (before dispatching any new chunks):
 
-1. Run `git worktree list` to see all active worktrees
+1. Run `ai-git worktree list` to see all active worktrees
 2. Cross-reference with the orchestration state file:
    - Worktrees in state with status `Done` that still exist → teardown candidates (PR may not be merged yet — leave them, but log)
    - Worktrees on disk not in state → stale, log a warning for human
-3. Run `git worktree prune` to clean up any worktrees whose directories were manually deleted
+3. Run `ai-git worktree prune` to clean up any worktrees whose directories were manually deleted
 
 ---
 
@@ -118,6 +118,6 @@ On orchestration startup (before dispatching any new chunks):
 - **Worktree creation fails (branch already checked out elsewhere)** — git prevents two worktrees from having the same branch checked out. If this happens, find and remove the stale worktree first.
 - **Windows path length** — if the constructed path exceeds 240 characters, log a warning. Consider shortening the description segment or using a flatter structure.
 - **Disk space** — if `npm install` or equivalent fails due to disk space, mark chunk as Blocked with reason "Disk space insufficient for worktree setup."
-- **Worktree lock files** — if `.git/worktrees/<name>/locked` exists from a crashed process, run `git worktree unlock <path>` before attempting removal.
-- **Human deletes worktree directory manually** — `git worktree prune` in Step 5 handles this gracefully.
+- **Worktree lock files** — if `.git/worktrees/<name>/locked` exists from a crashed process, run `ai-git worktree unlock <path>` before attempting removal.
+- **Human deletes worktree directory manually** — `ai-git worktree prune` in Step 5 handles this gracefully.
 - **Resume after crash** — Step 2 handles the case where the worktree already exists. The orchestrator can re-dispatch to an existing worktree without recreating it.

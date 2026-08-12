@@ -1,6 +1,6 @@
 ---
 name: "git-workflow-projects"
-version: "0.1.0"
+version: "0.2.0"
 description: "Git workflow for project repositories where agents produce code."
 file_patterns: []
 ---
@@ -34,16 +34,14 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 
 ### AI Identity
 
-11. **Set git identity env vars for all git operations.** When `.aiconfig.json` defines `ai_identity`, agents must set `GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, and `GIT_COMMITTER_EMAIL` env vars to the configured values before any commit or push. The system git config (user.name/user.email) stays untouched — env vars are per-process only.
-12. **Authenticate with the AI token for push and PR operations.** Read the PAT from the environment variable named in `ai_identity.git_token_env`. Use `gh` CLI with `GH_TOKEN` set to this value for all push and PR operations (e.g. `GH_TOKEN=<token> gh pr create ...`).
-13. **Require `gh` CLI.** If `gh` is not installed or the token env var is not set, the agent must stop and report the missing prerequisite. Do not fall back to the human's credentials.
-14. **Never log or echo the token value.** Reference it by env var name only.
+11. **Use `ai-git` for all git and GitHub operations.** Never use `git` or `gh` directly. `ai-git` reads `.aiconfig.json`, injects identity env vars, and authenticates push/PR operations automatically. If `ai-git` reports a missing prerequisite (no `.aiconfig.json`, no token env var), the agent must stop and report it to the human.
+12. **Never log or echo the token value.** Reference it by env var name only.
 
 ---
 
 ## Rationale
 
-Branches contain blast radius. Human-only merges ensure nothing ships without oversight. Separate AI identity and credentials ensure PRs clearly show AI-authored work and enforce that a different user (the human) must review and approve.
+Branches contain blast radius. Human-only merges ensure nothing ships without oversight. `ai-git` ensures all agent git operations use a separate AI identity and credentials, so PRs clearly show AI-authored work and enforce that a different user (the human) must review and approve.
 
 ## Exceptions
 

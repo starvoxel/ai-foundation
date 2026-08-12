@@ -64,7 +64,9 @@ A named persona with a defined role, prompt, tools, and skills.
 
 **Lives in:** `agents/` | **Format:** `.yaml` | **Authoring:** `skill/agent-authoring`
 
-Fields: `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved_tools`, optional `skills`
+Fields: `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved_tools`, optional `skills`, optional `blocked_commands`
+
+`blocked_commands`: array of shell command glob patterns (using `*` as wildcard) that the agent is forbidden from executing directly. Each harness adapter translates these into its native denial format (e.g. Kiro `permissions.rules` deny, Claude Code `Bash()` deny rules).
 
 ### Skill
 

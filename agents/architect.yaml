@@ -1,6 +1,6 @@
 ---
 name: "architect"
-version: "0.1.0"
+version: "0.2.0"
 domain: "engineering"
 description: "Technical decision-making agent that explores options and produces Decision Records."
 
@@ -50,3 +50,7 @@ approved_tools:
 
 skills:
   - "skill/decision-record"
+
+blocked_commands:
+  - "git *"
+  - "gh *"

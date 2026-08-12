@@ -94,6 +94,27 @@ describe('unit: claude adapter', () => {
       const result = transformAgent(noTools);
       assert.ok(result.includes('tools: ""'));
     });
+
+    it('emits permissions deny rules for blocked_commands', () => {
+      const withBlocked = { ...agent, blocked_commands: ['git *', 'gh *'] };
+      const result = transformAgent(withBlocked);
+      assert.ok(result.includes('Bash(git *)'));
+      assert.ok(result.includes('Bash(gh *)'));
+      assert.ok(result.includes('deny'));
+    });
+
+    it('omits permissions when blocked_commands is absent', () => {
+      const result = transformAgent(agent);
+      assert.ok(!result.includes('permissions'));
+      assert.ok(!result.includes('deny'));
+    });
+
+    it('omits permissions when blocked_commands is empty', () => {
+      const withEmpty = { ...agent, blocked_commands: [] };
+      const result = transformAgent(withEmpty);
+      assert.ok(!result.includes('permissions'));
+      assert.ok(!result.includes('deny'));
+    });
   });
 
   describe('transformSteering()', () => {

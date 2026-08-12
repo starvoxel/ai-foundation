@@ -111,6 +111,27 @@ describe('unit: kiro adapter', () => {
       const result = transformAgent(withServer);
       assert.deepEqual(result.tools, ['read', '@git/git_status', '@git/git_diff']);
     });
+
+    it('emits permissions deny rules for blocked_commands', () => {
+      const withBlocked = { ...agent, blocked_commands: ['git *', 'gh *'] };
+      const result = transformAgent(withBlocked);
+      assert.deepEqual(result.permissions, {
+        rules: [
+          { capability: 'shell', match: ['git *', 'gh *'], effect: 'deny' },
+        ],
+      });
+    });
+
+    it('omits permissions when blocked_commands is absent', () => {
+      const result = transformAgent(agent);
+      assert.strictEqual(result.permissions, undefined);
+    });
+
+    it('omits permissions when blocked_commands is empty', () => {
+      const withEmpty = { ...agent, blocked_commands: [] };
+      const result = transformAgent(withEmpty);
+      assert.strictEqual(result.permissions, undefined);
+    });
   });
 
   describe('parseFrontmatter()', () => {
