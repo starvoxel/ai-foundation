@@ -8,7 +8,7 @@
     "node": ">=20.0.0"
   },
   "bin": {
-    "aif": "./bin/cli.js",
+    "aif": "./bin/aif.js",
     "ai-git": "./bin/ai-git.js"
   },
   "scripts": {
