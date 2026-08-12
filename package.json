@@ -8,7 +8,8 @@
     "node": ">=20.0.0"
   },
   "bin": {
-    "aif": "./bin/cli.js"
+    "aif": "./bin/cli.js",
+    "ai-git": "./bin/ai-git.js"
   },
   "scripts": {
     "test": "node --test \"**/*.test.js\" --test-reporter spec"
