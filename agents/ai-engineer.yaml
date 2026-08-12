@@ -95,6 +95,7 @@ tools:
   - "grep"
   - "glob"
   - "web_search"
+  - "web_fetch"
 
 approved_tools:
   - "read"
