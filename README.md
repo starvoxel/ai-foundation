@@ -110,7 +110,7 @@ Scaffold a new project with `aif init` or create the file manually. Key fields:
     "git_token_env": "AI_GIT_TOKEN"
   },
   "standards": {
-    "engineering": ["typescript-node"],
+    "engineering": ["csharp", "avalonia"],
     "all": []
   }
 }

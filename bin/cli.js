@@ -95,7 +95,7 @@ Init Options:
   --org <organization>  Organization name
   --module-id <id>      Language-specific package/module identifier
   --repo <url>          Git repository URL
-  --standards <list>    Comma-separated standards (e.g. typescript-node,api-design)
+  --standards <list>    Comma-separated standard tags (e.g. csharp,avalonia)
   --interactive         Force interactive prompts (flag values as defaults)
 
 Examples:
