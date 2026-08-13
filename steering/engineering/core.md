@@ -1,6 +1,6 @@
 ---
 name: "engineering-core"
-version: "0.2.0"
+version: "0.3.0"
 description: "Core rules that apply to all agents operating in the engineering domain."
 file_patterns: []
 ---
@@ -19,9 +19,10 @@ file_patterns: []
 
 - No code may be written until a Chunk Plan exists and has been approved by a human
 - "Approved" means the human has explicitly confirmed — not just reviewed
+- A plan is not "approved" for implementation purposes until the `Approved` status has been committed to git per `skill/plan-lifecycle`. Verbal/chat confirmation alone does not satisfy this rule. Any other status, including `Deferred`, is not approved and must not be implemented
 - If a plan does not exist, the engineering agent must stop and route to Tech-Lead to create one
 
-**Rationale:** Implementing before planning leads to scope creep, rework, and code that doesn't fit the larger architecture. The planning gate exists precisely to catch problems before they are expensive.
+**Rationale:** Implementing before planning leads to scope creep, rework, and code that doesn't fit the larger architecture. The planning gate exists precisely to catch problems before they are expensive. Requiring the approval itself to be a git commit (not just a conversational "yes") makes the gate objectively checkable instead of relying on memory of a conversation.
 
 **Exceptions:** Exploratory spikes and proof-of-concept code — but only when explicitly requested by the human, and the spike output must never be treated as production-ready without a proper plan.
 
@@ -100,6 +101,31 @@ file_patterns: []
 
 ---
 
+### Rule 8: Plans Are Committed Artifacts, Not Chat Output
+
+- Every plan or record requiring human approval (Chunk Plan, Epic Plan, Decision Record, or a Tier 3 `ai-engineering-plan`) must be saved to the repository and committed with `Status: Draft` before being presented for review
+- Each round of human-requested revision is committed as a new commit (never amended or squashed) before re-presenting, preserving the full Draft → feedback → Draft → ... history
+- Once the human gives an explicit decision, the agent updates the status field (`Approved` or `Deferred`) and commits that change as its own commit, separate from the revision history and from any implementation commit
+- This applies uniformly in framework and project repos — see `skill/plan-lifecycle` for the full procedure, and the repo-type-specific git-workflow steering for branch/direct-commit mechanics
+
+**Rationale:** Ties directly to Rule 1: makes "approved" objectively checkable via `git log` instead of relying on conversational memory. Centralizing the procedure in `skill/plan-lifecycle` means every planning skill follows the same mechanics without restating them.
+
+**Exceptions:** None. If a repo has no formal plan path configured, fall back to the default documented in `skill/plan-lifecycle` rather than skipping the commit gate.
+
+---
+
+### Rule 9: Commit Incrementally During Implementation
+
+- Implementation of an approved plan must be committed in small, logically atomic increments as work progresses — not accumulated into a single commit at the end
+- The recommended checkpoint is one commit per completed plan step (or per completed task in a Chunk Plan's task list), once that step's work is verified
+- Exact mechanics and alternative checkpoint options are defined in the repo-type-specific git-workflow steering (`steering/engineering/git-workflow-framework.md` or `steering/engineering/git-workflow-projects.md`)
+
+**Rationale:** Small commits make review, bisection, and recovery from a bad step far cheaper than a single large commit at the end. Batching everything into one commit defeats the purpose of the atomic-commit rules already required by the git-workflow steering.
+
+**Exceptions:** None. If a step turns out to be too large to commit atomically, split the step rather than skipping the commit.
+
+---
+
 ## Enforcement
 
 - **No-plan violations:** The agent stops work and routes to Tech-Lead. No exceptions.
@@ -109,6 +135,8 @@ file_patterns: []
 - **Architectural escalation violations:** If an agent makes an undocumented architectural decision, it is flagged for Architect review retroactively.
 - **Testability violations:** Caught during review. Pure logic buried in I/O code without separation is a LOW finding. Refactoring recommended but not blocking.
 - **Security violations:** Always block approval. See Principal-Engineer review process.
+- **Uncommitted-approval violations:** If an agent begins implementation without a committed `Approved` status on the governing plan, work stops immediately and the approval commit is created before continuing.
+- **Batched-commit violations:** Caught during review. A single large commit covering multiple plan steps is a LOW finding; the agent should have split it.
 
 ---
 
@@ -118,7 +146,10 @@ These rules exist because the most common and expensive engineering failures are
 1. Building the wrong thing (prevented by Rule 1 and Rule 4)
 2. Building it in an unmaintainable way (prevented by Rules 3, 5, 6, and 7)
 3. Losing track of why things were done (prevented by Rule 2)
+4. Losing the record of what was actually approved and when (prevented by Rules 8 and 9)
 
 When a rule feels like it is slowing things down, that is usually a sign that planning was skipped, not that the rule is wrong.
 
 **Git Workflow Standards:** See `steering/engineering/git-workflow-framework.md` (this repo) and `steering/engineering/git-workflow-projects.md` (project repos).
+
+**Plan Lifecycle:** See `skill/plan-lifecycle` for the commit-gate procedure and status vocabulary referenced in Rules 1, 8, and 9.
