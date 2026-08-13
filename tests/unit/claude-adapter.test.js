@@ -7,9 +7,12 @@ import {
   TOOL_MAP,
   TARGETS,
   mapToolName,
+  mapAgentTools,
   transformAgent,
   transformSteering,
   parseFrontmatter,
+  detectSharedResource,
+  BLOCK_COMMAND_RESOURCE,
 } from '../../lib/harnesses/claude.js';
 
 describe('unit: claude adapter', () => {
@@ -62,6 +65,23 @@ describe('unit: claude adapter', () => {
     });
   });
 
+  describe('mapAgentTools()', () => {
+    it('expands the generic write tool to both Write and Edit', () => {
+      assert.deepEqual(mapAgentTools(['write']), ['Write', 'Edit']);
+    });
+
+    it('maps other tools normally alongside an expanded write', () => {
+      assert.deepEqual(
+        mapAgentTools(['read', 'write', 'grep']),
+        ['Read', 'Write', 'Edit', 'Grep']
+      );
+    });
+
+    it('returns an empty list for an empty input', () => {
+      assert.deepEqual(mapAgentTools([]), []);
+    });
+  });
+
   describe('transformAgent()', () => {
     const agent = {
       name: 'architect',
@@ -86,9 +106,9 @@ describe('unit: claude adapter', () => {
       assert.ok(result.includes('description: Technical decision-making agent.'));
     });
 
-    it('maps tools to Claude Code names as comma-separated string', () => {
+    it('maps tools to Claude Code names as comma-separated string, expanding write to Write and Edit', () => {
       const result = transformAgent(agent);
-      assert.ok(result.includes('tools: Read, Write, WebSearch, Bash, Grep, Glob'));
+      assert.ok(result.includes('tools: Read, Write, Edit, WebSearch, Bash, Grep, Glob'));
     });
 
     it('includes prompt as markdown body', () => {
@@ -179,6 +199,32 @@ describe('unit: claude adapter', () => {
       const input = '# No frontmatter\nJust rules.';
       const result = transformSteering(input);
       assert.equal(result, input);
+    });
+  });
+
+  describe('detectSharedResource()', () => {
+    const baseAgent = {
+      name: 'restricted',
+      version: '0.1.0',
+      domain: 'engineering',
+      description: 'Restricted agent.',
+      prompt: 'x',
+      tools: ['read', 'shell'],
+      approved_tools: ['read'],
+    };
+
+    it('returns the block-command resource name when blocked_commands is non-empty', () => {
+      const agent = { ...baseAgent, blocked_commands: ['git *'] };
+      assert.equal(detectSharedResource(agent), BLOCK_COMMAND_RESOURCE);
+    });
+
+    it('returns null when blocked_commands is absent', () => {
+      assert.equal(detectSharedResource(baseAgent), null);
+    });
+
+    it('returns null when blocked_commands is an empty array', () => {
+      const agent = { ...baseAgent, blocked_commands: [] };
+      assert.equal(detectSharedResource(agent), null);
     });
   });
 });
