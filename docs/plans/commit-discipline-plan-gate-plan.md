@@ -1,8 +1,8 @@
 # Explicit Commit Discipline & Plan-First-Commit Gate — Implementation Plan
 
-> Status: Draft
+> Status: Approved
 > Created: 2026-08-13
-> Approved by: Pending
+> Approved by: Jeremy Smellie
 
 ---
 
