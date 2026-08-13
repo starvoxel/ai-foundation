@@ -1,6 +1,6 @@
 # Explicit Commit Discipline & Plan-First-Commit Gate — Implementation Plan
 
-> Status: Approved
+> Status: Done
 > Created: 2026-08-13
 > Approved by: Jeremy Smellie
 
@@ -108,3 +108,29 @@ None.
 ## Revision Note
 
 Third revision. Original scope was a single steering-wording change. First revision centralized the commit-gate procedure and status vocabulary into a new `skill/plan-lifecycle`. Second revision promoted `Deferred` to a first-class core status and proposed special orchestration handling for it. This revision simplifies that: orchestration only ever needs to check for `Approved` — no distinct handling for `Deferred` or any other non-`Approved` status is required, since the existing gate already excludes all of them equally. The Epic-approval gap in `chunk-orchestration` Step 1 remains a real, closed gap.
+
+---
+
+## Completion Note
+
+Implemented in commits 6de27f1 through a0a636d on main (2026-08-13). All planned
+components delivered: `skill/plan-lifecycle` created; `core.md` Rules 1/8/9 added;
+both git-workflow steering files updated with the commit-gate reference and
+granularity guidance; `chunk-planning`, `epic-planning`, `decision-record`, and
+`ai-engineering-plan` skills updated to the shared vocabulary and commit-gate
+reference; `chunk-orchestration` gained the Epic-approval check; `engineering-manager.yaml`
+updated for the Confirmed to Approved rename and the Epic-approval check.
+
+Discovery during validation (not in original Components Affected, fixed as a direct
+consequence of the approved DR rename, not new scope): `agents/tech-lead.yaml` and
+`agents/architect.yaml` also referenced the old `Confirmed`/`Confirmed By` wording
+and were updated to `Approved`/`Approved By` for consistency.
+
+Confirmed out of scope and left untouched: `docs/decisions/*.decision.md` (existing
+records, grandfathered per plan), and `docs/knowledge-file-format.md` plus its
+associated tests (`tests/unit/knowledge.test.js`, `tests/unit/base.test.js`,
+`tests/integration/knowledge-index.test.js`) — a separate knowledge-index subsystem
+that independently uses `Confirmed` as an example status value, unrelated to the
+Decision Record skill/template this plan changed.
+
+Full test suite: 489/489 passing.
