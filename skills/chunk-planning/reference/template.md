@@ -10,7 +10,7 @@
 | Depends On | {Chunk Plan IDs} or None |
 | Can Parallel | {Chunk Plan IDs} or None |
 | Project | {Project name} |
-| Status | Draft / Approved / In Progress / Done |
+| Status | Draft / Approved / Done / Deferred |
 | Author (Agent) | Tech-Lead |
 | Reviewed By | {human name or "Pending"} |
 | Created | {YYYY-MM-DD HH:mm} |

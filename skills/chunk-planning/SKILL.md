@@ -1,6 +1,6 @@
 ---
 name: "chunk-planning"
-version: "0.1.0"
+version: "0.2.0"
 description: "Produces a Chunk Plan with enough detail for an agent to implement without ambiguity."
 ---
 
@@ -42,9 +42,11 @@ Key rules:
 - Section 6 (Components) must be detailed enough to implement without questions
 - Write interfaces/contracts before considering implementation
 
-### Step 3 — Stop for Human Approval
+### Step 3 — Follow the Commit-Gate Procedure
 
-Do not begin implementation. Set status to Draft. Wait for approval.
+Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, and
+present it for human approval. Do not begin implementation. Do not proceed until
+the human's decision (`Approved` or `Deferred`) is committed.
 
 ---
 
