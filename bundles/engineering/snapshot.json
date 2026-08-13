@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-08-13T02:40:35.035Z",
+  "computed_at": "2026-08-13T14:44:17.067Z",
   "sources": {
     "agents/ai-engineer.yaml": "sha256:8fbceac1b06210419990d0bb7729857be3bae73190fb51b4f38c4987d10f0033",
     "agents/architect.yaml": "sha256:9d83593e8962a6e6129c4e858bd45585373cebb2326e24d35cdfe266cd7aed3c",
@@ -45,10 +45,6 @@
     "skills/chunk-planning/reference/template.md": "sha256:d9b0391d54d8ba17e594245b1be15f83b1764270350660811c35d3514f58b293",
     "skills/chunk-planning/SKILL.md": "sha256:115fdc707d995be1b2600e396de35b244745a9927ed1e1c6db9fa2291d03e5a5",
     "skills/test-execution/reference/template.md": "sha256:f25421f6fd8409a1d02c6fbd3a197d7402e6c40c4614b7bcf903bb5f6e5f730f",
-    "skills/test-execution/SKILL.md": "sha256:7d19d167849d5749a06896368790aa47ad495a8945391fe17c16953ba43a0759",
-    "servers/dag/dag.yaml": "sha256:662b7ff59c7a973c0fd0ac56a2ff422948ef971ec40cf4319691bb7259e7f7b5",
-    "servers/dag/index.js": "sha256:b2bd1fa8671aeb0a818e203df26d4fa1b3ebfa7b10acefb1add2d336f3056f76",
-    "servers/dag/logic.js": "sha256:17b1867bee08dc2edcea5bdb74f6d718919710df0e5cd8959ef4e2120e902402",
-    "servers/dag/package.json": "sha256:02a44b3b0c214215aaf019b94144216d66dcfc9f190fcbe631f3d3f28cc2b00f"
+    "skills/test-execution/SKILL.md": "sha256:7d19d167849d5749a06896368790aa47ad495a8945391fe17c16953ba43a0759"
   }
 }
