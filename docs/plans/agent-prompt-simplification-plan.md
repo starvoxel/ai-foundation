@@ -22,7 +22,7 @@ possible future specialized agents).
 
 | Component | Action | Notes |
 |---|---|---|
-| `agents/principal-engineer.yaml` | Modify | Collapse restated `skill/code-review` Steps into a pointer |
+| `agents/principal-engineer.yaml` | Modify | Collapse restated `skill/code-review` Steps into a pointer; remove inline severity table (moves to the skill) |
 | `agents/test-engineer.yaml` | Modify | Collapse restated `skill/test-execution` Steps into a pointer; drop restated ai-git rule |
 | `agents/tech-lead.yaml` | Modify | Collapse restated `skill/epic-planning`/`skill/chunk-planning` Steps into a pointer; drop restated Decision-Record-approval sentence |
 | `agents/engineering-manager.yaml` | Modify | Drop restated Decision-Record-approval sentence; remove intra-file duplication of the branch/worktree creation steps |
@@ -31,6 +31,7 @@ possible future specialized agents).
 | `skills/complexity-tiers/SKILL.md` | Create | New shared skill housing the tier definitions, signals, and per-tier process |
 | `docs/agent-prompt-extraction-candidates.md` | Create | Knowledge file (type: `reference`) codifying prompt blocks that are agent-specific today but are candidates for skill extraction if reused |
 | `skills/agent-authoring/SKILL.md` | Modify | Add a checkpoint in Step 5 (write the prompt) referencing the extraction-candidates file, and an Edge Case describing when/how to add an entry |
+| `skills/code-review/SKILL.md` | Modify | Add CRITICAL/HIGH/MEDIUM/LOW severity definitions (moved from `principal-engineer.yaml`) so the skill is self-contained |
 | Frontmatter `version` on all modified/created files | Modify | Minor version bump (patch for the new skill: `0.1.0`) |
 
 ---
@@ -122,24 +123,29 @@ possible future specialized agents).
    and revisit when a second agent needs it." This makes the codification durable
    and discoverable rather than a one-off document nobody re-checks.
 
-9. **Version bumps.** Minor bump on every modified file's frontmatter `version`;
-   new skill starts at `0.1.0`.
+9. **Move the severity table from `principal-engineer.yaml` into `skill/code-review`.**
+   `skill/code-review` Step 5 says "classify each finding by severity" but never
+   defines the levels — `principal-engineer.yaml` is currently the only place
+   CRITICAL/HIGH/MEDIUM/LOW are defined, so the skill is not self-contained.
+   Add the definitions to the skill (e.g. as part of Step 5, or a short
+   "Severity Levels" subsection) using the exact wording currently in the agent
+   prompt. Remove the table from `principal-engineer.yaml`, replacing it with a
+   pointer if needed ("severity levels are defined in `skill/code-review`").
+   Per human direction: if `skill/code-review` is ever split into domain-specific
+   variants, the per-domain skills can revisit/diverge the descriptions at that
+   time — for now, one shared definition keeps the skill self-contained.
+
+10. **Version bumps.** Minor bump on every modified file's frontmatter `version`;
+    new skill starts at `0.1.0`.
 
 ---
 
 ## Open Questions
 
-- **Discovered, not in scope of this plan:** `principal-engineer.yaml` defines the
-  CRITICAL/HIGH/MEDIUM/LOW severity table inline, but `skill/code-review` (Step 5,
-  "classify each finding by severity") never defines what the levels mean — the
-  skill is not currently self-contained without the agent prompt. This is a
-  genuine skill gap (not a "future multi-agent" candidate — Principal-Engineer is
-  the only reviewer and likely to stay that way), but it's a different kind of fix
-  than the 6 agreed changes above. Should this be folded into this plan (move the
-  severity table into `skill/code-review`) or handled separately? Recommend
-  folding in as a 10th approach step if approved, since it's a small, contained
-  addition discovered directly from this investigation — but flagging per Rule 4
-  rather than silently expanding scope.
+None. The severity-table gap raised in the prior revision was resolved by the
+human: fold it into this plan as Approach step 9. If `skill/code-review` is
+later split into domain-specific review skills, the severity descriptions can be
+revisited per-domain at that time — out of scope for now.
 
 ---
 
@@ -171,6 +177,8 @@ possible future specialized agents).
   other than `ai-engineer` could adopt it by reference alone).
 - Confirm `docs/agent-prompt-extraction-candidates.md` follows
   `docs/knowledge-file-format.md` frontmatter schema.
+- Confirm `skill/code-review` now defines all four severity levels and that
+  `principal-engineer.yaml` no longer duplicates them.
 - Run `npm test`; check `tests/validation/` for cross-reference assertions
   (skills referenced by agents must exist, etc.) this touches.
 
@@ -185,7 +193,8 @@ possible future specialized agents).
 - Modifying `architect.yaml` or `engineering-tech-writer.yaml` beyond adding their
   entries to the extraction-candidates file — no duplication was found in either
   that warrants a prompt change.
-- The severity-table skill gap described in Open Questions, unless approved as an
-  addition to this plan.
+- Splitting `skill/code-review` into domain-specific variants, or diverging
+  severity-level descriptions per domain — deferred until that split actually
+  happens.
 - Any change to agent behavior — this plan only removes duplicated *prose*; no
-  process, rule, or constraint changes meaning.
+  process, rule, or constraint changes are intended.
