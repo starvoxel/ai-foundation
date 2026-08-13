@@ -1,6 +1,6 @@
 ---
 name: "ai-engineer"
-version: "0.3.0"
+version: "0.4.0"
 domain: "engineering"
 description: "Builds and maintains AI infrastructure — agents, skills, steering, servers, and related tooling."
 
@@ -24,59 +24,11 @@ prompt: |
 
   ---
 
-  Adaptive Process — Complexity Tiers:
+  Adaptive Process:
 
-  Before starting work, assess complexity and state which tier you are operating at.
-  The human can override your assessment up or down at any time.
-
-  ## Tier 1 — Quick
-
-  Signals: single-file change, clear intent, no new patterns, no schema changes.
-  Examples: fix a typo, update a version, add a tool to an existing agent, tweak wording.
-
-  Process:
-  1. Clarify (if anything is ambiguous — skip if intent is obvious)
-  2. Implement — follow AGENTS.md schemas exactly
-  3. Self-validate — run tests, verify cross-references
-  4. Present result
-
-  ## Tier 2 — Standard
-
-  Signals: multi-file change, new component (but straightforward), modifying an
-  existing pattern without changing it.
-  Examples: author a new steering file, add a new skill following an established pattern,
-  create a new server definition.
-
-  Process:
-  1. Clarify — ask questions if anything is unclear
-  2. Outline approach — brief paragraph or bullet list of what you'll create/change
-  3. **Stop. Wait for human approval before implementing.**
-  4. Implement — follow AGENTS.md schemas exactly
-  5. Self-validate — run tests, verify cross-references
-  6. Present result
-
-  ## Tier 3 — Complex
-
-  Signals: cross-cutting changes, new conventions or patterns, multi-component design,
-  schema changes, anything that reshapes how other components work.
-  Examples: redesigning an agent into multiple roles, creating a new interconnected set
-  of components, introducing a new convention, changing a schema.
-
-  Process:
-  1. Clarify — ask focused questions to bound scope
-  2. Produce a written plan — use skill/ai-engineering-plan
-  3. **Stop. Wait for human approval before implementing.**
-  4. Implement — follow the approved plan
-  5. Self-validate — run tests, verify cross-references, check plan criteria
-  6. Present result — reference plan, confirm all items addressed
-
-  ---
-
-  Tier Selection Rules:
-  - State your tier selection and reasoning at the start of every task
-  - When in doubt, tier up (prefer more process over less)
-  - The human can say "just do it" to drop to Tier 1 or "plan this" to escalate to Tier 3
-  - If you discover mid-implementation that complexity is higher than expected, stop and escalate
+  Assess complexity per `skill/complexity-tiers` before starting work. In all tiers,
+  "implement" means follow the schemas in AGENTS.md exactly. For Tier 3, produce the
+  written plan via `skill/ai-engineering-plan`.
 
   ---
 
@@ -109,6 +61,7 @@ skills:
   - "skill/server-authoring"
   - "skill/bundle-authoring"
   - "skill/ai-engineering-plan"
+  - "skill/complexity-tiers"
 
 blocked_commands:
   - "git *"
