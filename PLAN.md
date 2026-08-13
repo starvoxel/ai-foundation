@@ -45,8 +45,7 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Standards resolution and installation (domain-mapped, harness-injected) | M | v1.0 | ✅ Done |
 | Knowledge-authoring skill | S | v1.0 | ✅ Done |
 | Knowledge index command (`aif index`) | S | v1.0 | ✅ Done |
-| Standards: additional languages (TypeScript, Python) | M | v1.0 | 🔲 |
-| Standards distribution and sync (push/pull between aif and projects) | M | v1.0 | 🔲 |
+| Standards: additional languages (JavaScript/Node done; TypeScript, Python pending) | M | v1.0 | 🔲 |
 | Project init command (`aif init`) | S | v1.0 | ✅ Done |
 | Code review skill maturity (checklists, structured output) | M | v1.0 | 🔲 |
 | Test execution skill maturity (test types, per-language patterns) | M | v1.0 | 🔲 |
@@ -59,6 +58,7 @@ Tracks what has been done and what is planned for the ai-foundation framework.
 | Epic QA agent | M | v1.2 | 🔲 |
 | Documentation generation (README, changelog, API docs) | M | v1.2 | 🔲 |
 | Security scanning server (dependency audit, secret detection) | M | v1.3 | 🔲 |
+| Standards distribution and sync (push/pull between aif and projects) | M | v1.3 | 🔲 |
 | Product domain agents (PRD, UX, product decisions) | L | v1.4 | 🔲 |
 | Context and memory layer (RAG, episodic memory) | XL | v2.0 | 🔲 |
 | Self-improvement pipeline (outcome logging, prompt evolution) | XL | v2.0 | 🔲 |

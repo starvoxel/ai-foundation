@@ -2,7 +2,7 @@
   "project_name": "ai-foundation",
   "repo_type": "framework",
   "standards": {
-    "engineering": [],
+    "engineering": ["javascript", "node"],
     "all": []
   },
   "paths": {
