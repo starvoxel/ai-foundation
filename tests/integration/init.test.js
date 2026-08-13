@@ -102,4 +102,26 @@ describe('integration: init command', () => {
     assert.equal(code, 1);
     assert.ok(output.some(l => l.includes('Invalid')));
   });
+
+  it('sets project_shortname and worktrees path when --shortname provided', async () => {
+    await quiet(() => runInit({ args: { name: 'my-app', shortname: 'myapp' }, positional: [] }));
+    const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
+    assert.equal(config.project_shortname, 'myapp');
+    assert.equal(config.paths.worktrees, '../worktrees/myapp');
+  });
+
+  it('falls back project_shortname to project_name when --shortname omitted', async () => {
+    await quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
+    const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
+    assert.equal(config.project_shortname, 'my-app');
+    assert.equal(config.paths.worktrees, '../worktrees/my-app');
+  });
+
+  it('rejects a project short name over 5 characters', async () => {
+    const { code, output } = await quiet(() =>
+      runInit({ args: { name: 'my-app', shortname: 'toolongname' }, positional: [] })
+    );
+    assert.equal(code, 1);
+    assert.ok(output.some(l => l.includes('Invalid project short name')));
+  });
 });

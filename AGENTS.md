@@ -125,7 +125,8 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `project_name` | string | Yes | Project identifier used in Plan IDs and file naming |
+| `project_name` | string | Yes | Project identifier used in file naming and human-readable metadata |
+| `project_shortname` | string | No | Short project identifier (max 5 characters) used in Epic IDs and worktree paths. Falls back to `project_name` if unset. |
 | `repo_type` | string | No | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply. |
 | `standards` | object | No | Map of domain → tags for tag-based standard matching. See below. |
 | `project_standards` | string | No | Path to project-specific standards override |
@@ -140,7 +141,7 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `paths.decisions` | string | No | Decision Records. Default: `knowledge/decisions` |
 | `paths.orchestration` | string | No | Orchestration state files. Default: `plans/orchestration` |
 | `paths.knowledge` | string | No | Knowledge directory. Default: `knowledge` |
-| `paths.worktrees` | string | No | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_name}` |
+| `paths.worktrees` | string | No | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}` |
 | `orchestration` | object | No | Orchestration behaviour configuration |
 | `orchestration.max_concurrent` | number | No | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4` |
 
@@ -168,6 +169,7 @@ A map of agent domain → array of tags for tag-based standard matching:
 
 If no config file exists, agents fall back to:
 - `project_name`: inferred from repository directory name
+- `project_shortname`: same as `project_name`
 - `standards`: none (agent must ask or search `standards/`)
 - `paths.plans`: `plans`
 - `paths.epics`: `plans/epics`
@@ -175,7 +177,7 @@ If no config file exists, agents fall back to:
 - `paths.decisions`: `knowledge/decisions`
 - `paths.orchestration`: `plans/orchestration`
 - `paths.knowledge`: `knowledge`
-- `paths.worktrees`: `../worktrees/{project_name}`
+- `paths.worktrees`: `../worktrees/{project_shortname}`
 
 ---
 

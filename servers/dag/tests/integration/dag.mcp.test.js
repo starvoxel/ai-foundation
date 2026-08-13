@@ -58,7 +58,7 @@ function createDagServer() {
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 
 const VALID_CHUNKS = {
-  epic_id: 'TEST-2026-08-01-001',
+  epic_id: 'TEST-001',
   chunks: [
     { id: '001', title: 'Data models', depends_on: [], agents: ['Software-Engineer'] },
     { id: '002', title: 'API service', depends_on: [], agents: ['Software-Engineer'] },

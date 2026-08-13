@@ -15,7 +15,7 @@ Does not contain implementation detail — that lives in Chunk Plans.
 ## Inputs
 
 - **Goal** — human request, PRD, or Decision Record describing what to build
-- **Project config** — `.aiconfig.json` at project root (for paths, project name, standards reference)
+- **Project config** — `.aiconfig.json` at project root (for paths, project name/shortname, standards reference)
 - **Project standards** — from `projects/{name}/project-standards.md` or path in `.aiconfig.json`
 - **Language standards** — from `standards/{stack}.md` (stack identified by `.aiconfig.json` or ask)
 - **Decision Records** — any relevant prior decisions (check before writing)
@@ -29,7 +29,17 @@ Does not contain implementation detail — that lives in Chunk Plans.
 Read all available context. If a Decision Record exists, the Epic must not contradict it.
 Identify ambiguities or conflicts to raise as open questions.
 
-### Step 2 — Write Epic Plan
+### Step 2 — Determine Epic ID
+
+Epic IDs follow the format `{ProjectShortName}-{###}` (e.g. `MYAPP-001`), an
+ever-incrementing, zero-padded 3-digit number — no date segment.
+
+1. Read `project_shortname` from `.aiconfig.json` (falls back to `project_name` if unset)
+2. Scan `{paths.epics}/` for existing epic files matching `{ProjectShortName}-*.epic.md`
+3. Take the highest existing `###` and increment by 1 (zero-padded to 3 digits)
+4. If no existing epics are found, start at `001`
+
+### Step 3 — Write Epic Plan
 
 Follow the template at `skills/epic-planning/reference/template.md`. Key sections:
 - Section 4 (Feature Description) is the main reviewable content — be thorough
@@ -39,11 +49,11 @@ Follow the template at `skills/epic-planning/reference/template.md`. Key section
 
 Set status to Draft.
 
-### Step 3 — Stop for Human Approval
+### Step 4 — Stop for Human Approval
 
 Do not decompose into chunks. Do not proceed until the human approves.
 
-### Step 4 — Decompose into Chunks
+### Step 5 — Decompose into Chunks
 
 After approval, produce the `chunks.json` file:
 1. Copy the template from `skills/epic-planning/assets/chunks.json`
@@ -67,7 +77,7 @@ parallelization notes) and a reference to the `chunks.json` file.
 ## Outputs
 
 - **Epic Plan** — markdown file following the template
-- **Location:** `{paths.epics}/{YYYY-MM-DD}_{###}_{ShortTitle}.epic.md` (from `.aiconfig.json`, default: `plans/epics/`)
+- **Location:** `{paths.epics}/{EpicID}.epic.md` (from `.aiconfig.json`, default: `plans/epics/`)
 - **Chunk Decomposition** — `chunks.json` file (produced after approval, validated by `dag-validate`)
 - **Location:** `{paths.chunks}/{EpicID}/chunks.json` (from `.aiconfig.json`, default: `plans/chunks/`)
 

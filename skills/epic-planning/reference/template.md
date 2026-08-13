@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Epic ID | {ProjectName}-{YYYY-MM-DD}-{###} |
+| Epic ID | {ProjectShortName}-{###} |
 | Project | {Project name} |
 | Status | Draft / Approved / In Progress / Done |
 | Author (Agent) | Tech-Lead |

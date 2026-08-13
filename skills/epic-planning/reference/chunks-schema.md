@@ -51,7 +51,7 @@ Resolved from `.aiconfig.json` at project root. Default: `plans/chunks/`.
 
 ```json
 {
-  "epic_id": "MYAPP-2026-08-04-001",
+  "epic_id": "MYAPP-001",
   "chunks": [
     {
       "id": "001",

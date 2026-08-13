@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs';
  * Parse and validate the structure of a chunks.json object.
  * Expected format:
  * {
- *   "epic_id": "PROJECT-2026-08-01-001",
+ *   "epic_id": "PROJECT-001",
  *   "chunks": [
  *     { "id": "001", "title": "Data layer", "depends_on": [], "agents": ["Software-Engineer"] },
  *     ...

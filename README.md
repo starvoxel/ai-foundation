@@ -77,7 +77,7 @@ aif snapshot
 aif index
 
 # Project scaffolding
-aif init --name my-app --language typescript --org acme
+aif init --name my-app --shortname myapp --language typescript --org acme
 aif init --interactive
 ```
 
@@ -103,6 +103,7 @@ Scaffold a new project with `aif init` or create the file manually. Key fields:
 ```json
 {
   "project_name": "my-app",
+  "project_shortname": "myapp",
   "repo_type": "project",
   "ai_identity": {
     "git_author_name": "AI Agent",
@@ -119,6 +120,10 @@ Scaffold a new project with `aif init` or create the file manually. Key fields:
 The `ai_identity` field enables agents to commit and push under a separate
 identity, keeping AI-authored work clearly distinct in git history and PRs.
 The token is read from the named env var at runtime — never stored in the file.
+
+`project_shortname` (max 5 characters) is used in Epic IDs (e.g. `MYAPP-001`)
+and worktree paths, keeping them short even when `project_name` is long. It
+falls back to `project_name` if omitted.
 
 See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 

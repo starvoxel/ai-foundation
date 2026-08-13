@@ -5,7 +5,13 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { validateProjectName, applyProjectName } from '../../lib/project-init.js';
+import {
+  validateProjectName,
+  validateProjectShortname,
+  applyProjectName,
+  applyProjectConfig,
+  buildAiConfig,
+} from '../../lib/project-init.js';
 
 // ── validateProjectName ──────────────────────────────────────────────────────
 
@@ -62,6 +68,51 @@ describe('unit: project-init/validateProjectName', () => {
   });
 });
 
+// ── validateProjectShortname ─────────────────────────────────────────────────
+
+describe('unit: project-init/validateProjectShortname', () => {
+  it('accepts a short name at the limit', () => {
+    assert.equal(validateProjectShortname('myapp').valid, true);
+  });
+
+  it('accepts a short name under the limit', () => {
+    assert.equal(validateProjectShortname('app').valid, true);
+  });
+
+  it('rejects empty string', () => {
+    const result = validateProjectShortname('');
+    assert.equal(result.valid, false);
+    assert.ok(result.error.includes('required'));
+  });
+
+  it('rejects null', () => {
+    assert.equal(validateProjectShortname(null).valid, false);
+  });
+
+  it('rejects names over 5 characters', () => {
+    const result = validateProjectShortname('myapp6');
+    assert.equal(result.valid, false);
+    assert.ok(result.error.includes('5 characters'));
+  });
+
+  it('rejects leading or trailing spaces', () => {
+    assert.equal(validateProjectShortname(' app').valid, false);
+    assert.equal(validateProjectShortname('app ').valid, false);
+  });
+
+  it('rejects invalid filesystem characters', () => {
+    const bad = ['a<b', 'a/b', 'a\\b'];
+    for (const name of bad) {
+      assert.equal(validateProjectShortname(name).valid, false, `"${name}" should be invalid`);
+    }
+  });
+
+  it('rejects names starting with dot or underscore', () => {
+    assert.equal(validateProjectShortname('.app').valid, false);
+    assert.equal(validateProjectShortname('_app').valid, false);
+  });
+});
+
 // ── applyProjectName ─────────────────────────────────────────────────────────
 
 describe('unit: project-init/applyProjectName', () => {
@@ -88,5 +139,49 @@ describe('unit: project-init/applyProjectName', () => {
 
   it('handles empty content', () => {
     assert.equal(applyProjectName('', 'test'), '');
+  });
+});
+
+// ── applyProjectConfig — {ProjectShortName} ──────────────────────────────────
+
+describe('unit: project-init/applyProjectConfig ProjectShortName substitution', () => {
+  it('replaces {ProjectShortName} with projectShortname when provided', () => {
+    const result = applyProjectConfig(
+      'Epic: {ProjectShortName}-001',
+      { projectName: 'my-app', projectShortname: 'myapp' }
+    );
+    assert.equal(result, 'Epic: myapp-001');
+  });
+
+  it('falls back to projectName when projectShortname is not provided', () => {
+    const result = applyProjectConfig(
+      'Epic: {ProjectShortName}-001',
+      { projectName: 'my-app' }
+    );
+    assert.equal(result, 'Epic: my-app-001');
+  });
+
+  it('leaves placeholder unresolved when neither value is provided', () => {
+    const result = applyProjectConfig('Epic: {ProjectShortName}-001', {});
+    assert.equal(result, 'Epic: {ProjectShortName}-001');
+  });
+});
+
+// ── buildAiConfig ─────────────────────────────────────────────────────────────
+
+describe('unit: project-init/buildAiConfig', () => {
+  it('sets project_shortname from projectShortname when provided', () => {
+    const config = JSON.parse(buildAiConfig({ projectName: 'my-app', projectShortname: 'myapp' }));
+    assert.equal(config.project_shortname, 'myapp');
+  });
+
+  it('falls back project_shortname to project_name when not provided', () => {
+    const config = JSON.parse(buildAiConfig({ projectName: 'my-app' }));
+    assert.equal(config.project_shortname, 'my-app');
+  });
+
+  it('sets paths.worktrees using the resolved shortname', () => {
+    const config = JSON.parse(buildAiConfig({ projectName: 'my-app', projectShortname: 'myapp' }));
+    assert.equal(config.paths.worktrees, '../worktrees/myapp');
   });
 });

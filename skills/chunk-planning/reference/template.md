@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Plan ID | {ProjectName}-{YYYY-MM-DD}-{###} |
+| Plan ID | {EpicID}-{ChunkNumber} |
 | Parent Epic | {Epic ID} or None |
 | Chunk | {e.g. 3 of 6} or None |
 | Depends On | {Chunk Plan IDs} or None |

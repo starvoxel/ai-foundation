@@ -14,10 +14,10 @@ parallel agents work in isolated directories without branch conflicts.
 
 ## Inputs
 
-- **`.aiconfig.json`** — for `paths.worktrees`, `project_name`, and `ai_identity`
+- **`.aiconfig.json`** — for `paths.worktrees`, `project_shortname` (falls back to `project_name`), and `ai_identity`
 - **Epic ID** — parent epic for directory grouping
 - **Chunk ID** — identifies the specific chunk
-- **Branch name** — the branch to create/checkout in the worktree (e.g. `EPIC-001/001-add-user-service`)
+- **Branch name** — the branch to create/checkout in the worktree (e.g. `MYAPP-001/001-add-user-service`)
 - **Short description** — used in the directory name
 
 ---
@@ -27,18 +27,18 @@ parallel agents work in isolated directories without branch conflicts.
 ### Step 1 — Resolve Worktree Path
 
 1. Read `.aiconfig.json` from the project root
-2. Read `paths.worktrees` — default: `../worktrees/{project_name}` (relative to repo root)
+2. Read `paths.worktrees` — default: `../worktrees/{project_shortname}` (relative to repo root; `project_shortname` falls back to `project_name` if unset)
 3. Construct the worktree directory:
    ```
    {worktrees_base}/{epic-id}/{chunk-id}-{short-description}
    ```
-4. If `{project_name}` appears in the configured path as a literal placeholder, substitute
-   with the actual `project_name` value from `.aiconfig.json`
+4. If `{project_shortname}` appears in the configured path as a literal placeholder, substitute
+   with the actual `project_shortname` value from `.aiconfig.json` (or `project_name` if unset)
 
 Example resolution:
-- Config: `paths.worktrees: "../worktrees/my-app"`
-- Epic: `EPIC-001`, Chunk: `001`, Description: `add-user-service`
-- Result: `../worktrees/my-app/EPIC-001/001-add-user-service`
+- Config: `paths.worktrees: "../worktrees/myapp"`
+- Epic: `MYAPP-001`, Chunk: `001`, Description: `add-user-service`
+- Result: `../worktrees/myapp/MYAPP-001/001-add-user-service`
 
 ### Step 2 — Create Worktree
 

@@ -1,5 +1,6 @@
 {
   "project_name": "{ProjectName}",
+  "project_shortname": "{ProjectShortName}",
   "repo_type": "project",
   "language": "{Language}",
   "ai_identity": {
@@ -19,7 +20,7 @@
     "decisions": "knowledge/decisions",
     "orchestration": "plans/orchestration",
     "knowledge": "knowledge",
-    "worktrees": "../worktrees/{ProjectName}"
+    "worktrees": "../worktrees/{ProjectShortName}"
   },
   "orchestration": {
     "max_concurrent": 4
