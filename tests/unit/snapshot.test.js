@@ -1,11 +1,73 @@
 /**
- * Unit tests for snapshot command logic.
+ * Unit tests for the pure snapshot subsystem logic (lib/snapshot/pure.js).
+ * I/O behavior (lib/snapshot/io.js) and CLI orchestration
+ * (lib/commands/snapshot.js) are covered by integration tests.
  */
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { diffSnapshot } from '../../lib/commands/snapshot.js';
+import { diffSnapshot, isRuntimeFile, isFreshnessCurrent, resolveExplicitTargets } from '../../lib/snapshot/pure.js';
+
+// ── isRuntimeFile ────────────────────────────────────────────────────────────
+
+describe('unit: snapshot/isRuntimeFile', () => {
+  it('excludes files under tests/', () => {
+    assert.equal(isRuntimeFile('tests/foo.test.js'), false);
+    assert.equal(isRuntimeFile('tests/helpers/fixture.js'), false);
+  });
+
+  it('excludes .test.js files outside tests/', () => {
+    assert.equal(isRuntimeFile('index.test.js'), false);
+  });
+
+  it('includes ordinary runtime files', () => {
+    assert.equal(isRuntimeFile('index.js'), true);
+    assert.equal(isRuntimeFile('lib/logic.js'), true);
+  });
+});
+
+// ── resolveExplicitTargets ───────────────────────────────────────────────────
+
+describe('unit: snapshot/resolveExplicitTargets', () => {
+  const kinds = ['bundle', 'server', 'hook'];
+
+  it('returns an empty target list when no kind args are present', () => {
+    const result = resolveExplicitTargets({}, kinds);
+    assert.deepEqual(result, { ok: true, targets: [] });
+  });
+
+  it('resolves a single explicit target', () => {
+    const result = resolveExplicitTargets({ bundle: 'engineering' }, kinds);
+    assert.deepEqual(result, { ok: true, targets: [{ kind: 'bundle', name: 'engineering' }] });
+  });
+
+  it('resolves multiple explicit targets of different kinds', () => {
+    const result = resolveExplicitTargets({ bundle: 'engineering', server: 'git' }, kinds);
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.targets, [
+      { kind: 'bundle', name: 'engineering' },
+      { kind: 'server', name: 'git' },
+    ]);
+  });
+
+  it('ignores args for kinds not in the recognized list', () => {
+    const result = resolveExplicitTargets({ bundle: 'engineering', unknown: 'x' }, kinds);
+    assert.deepEqual(result.targets, [{ kind: 'bundle', name: 'engineering' }]);
+  });
+
+  it('returns an error when a kind flag has no string value', () => {
+    const result = resolveExplicitTargets({ bundle: true }, kinds);
+    assert.equal(result.ok, false);
+    assert.match(result.error, /--bundle/);
+  });
+
+  it('returns an error for an empty string value', () => {
+    const result = resolveExplicitTargets({ server: '' }, kinds);
+    assert.equal(result.ok, false);
+    assert.match(result.error, /--server/);
+  });
+});
 
 // ── diffSnapshot ─────────────────────────────────────────────────────────────
 
@@ -121,5 +183,46 @@ describe('unit: snapshot/diffSnapshot', () => {
     assert.deepEqual(result.added, []);
     assert.deepEqual(result.removed, []);
     assert.deepEqual(result.changed, []);
+  });
+});
+
+// -- isFreshnessCurrent --------------------------------------------------------
+
+describe('unit: snapshot/isFreshnessCurrent', () => {
+  it('returns false when there are no stored source hashes', () => {
+    const snapshot = { sources: { 'agents/foo.yaml': 'sha256:aaa' } };
+    assert.equal(isFreshnessCurrent(undefined, snapshot), false);
+  });
+
+  it('returns false when there is no fresh snapshot', () => {
+    assert.equal(isFreshnessCurrent({ 'agents/foo.yaml': 'sha256:aaa' }, null), false);
+  });
+
+  it('returns false when the fresh snapshot has no sources field', () => {
+    assert.equal(isFreshnessCurrent({ 'agents/foo.yaml': 'sha256:aaa' }, {}), false);
+  });
+
+  it('returns true when stored hashes exactly match the fresh snapshot', () => {
+    const stored = { 'agents/foo.yaml': 'sha256:aaa' };
+    const snapshot = { sources: { 'agents/foo.yaml': 'sha256:aaa' } };
+    assert.equal(isFreshnessCurrent(stored, snapshot), true);
+  });
+
+  it('returns false when a hash differs', () => {
+    const stored = { 'agents/foo.yaml': 'sha256:old' };
+    const snapshot = { sources: { 'agents/foo.yaml': 'sha256:new' } };
+    assert.equal(isFreshnessCurrent(stored, snapshot), false);
+  });
+
+  it('returns false when the fresh snapshot has an added source', () => {
+    const stored = { 'agents/foo.yaml': 'sha256:aaa' };
+    const snapshot = { sources: { 'agents/foo.yaml': 'sha256:aaa', 'agents/bar.yaml': 'sha256:bbb' } };
+    assert.equal(isFreshnessCurrent(stored, snapshot), false);
+  });
+
+  it('returns false when the fresh snapshot has a removed source', () => {
+    const stored = { 'agents/foo.yaml': 'sha256:aaa', 'agents/bar.yaml': 'sha256:bbb' };
+    const snapshot = { sources: { 'agents/foo.yaml': 'sha256:aaa' } };
+    assert.equal(isFreshnessCurrent(stored, snapshot), false);
   });
 });
