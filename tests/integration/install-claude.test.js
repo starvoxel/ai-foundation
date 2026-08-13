@@ -19,6 +19,7 @@ describe('integration: install (claude-specific)', () => {
     repo = createTempRepo({
       agents: [
         { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test agent.', prompt: 'You are a test agent.', tools: ['read', 'grep', 'shell'], approved_tools: ['read'], skills: ['skill/test-skill'] },
+        { name: 'blocked-agent', version: '0.1.0', domain: 'eng', description: 'Agent with blocked commands.', prompt: 'You are a restricted agent.', tools: ['read', 'shell'], approved_tools: ['read'], blocked_commands: ['git *', 'gh *'] },
       ],
       skills: ['test-skill'],
       steering: { global: ['core.md'], eng: ['rules.md'] },
@@ -35,6 +36,7 @@ describe('integration: install (claude-specific)', () => {
     TARGETS.skills = join(tempClaude, 'skills');
     TARGETS.servers = join(tempClaude, 'servers');
     TARGETS.standards = join(tempClaude, 'standards');
+    TARGETS.scripts = join(tempClaude, 'scripts');
     TARGETS.mcpSettings = join(tempClaude, 'claude.json');
   });
 
@@ -88,5 +90,29 @@ describe('integration: install (claude-specific)', () => {
     const after = readManifest(repo);
     assert.equal(after['test-bundle_claude'], undefined);
     assert.ok(!existsSync(join(TARGETS.agents, 'test-agent.md')));
+  });
+
+  it('installs the shared block-command hook script', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'logic.js')));
+    assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
+  });
+
+  it('wires a PreToolUse hook for an agent with blocked_commands', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    const agentPath = join(TARGETS.agents, 'blocked-agent.md');
+    const content = readFileSync(agentPath, 'utf8');
+    assert.ok(content.includes('PreToolUse'));
+    assert.ok(content.includes('block-command'));
+    assert.ok(content.includes('git *'));
+  });
+
+  it('does not remove the shared hook script when a single bundle is uninstalled', () => {
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
   });
 });

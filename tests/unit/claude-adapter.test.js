@@ -28,6 +28,11 @@ describe('unit: claude adapter', () => {
     it('mcpSettings points to the global ~/.claude.json user-scope config', () => {
       assert.equal(TARGETS.mcpSettings, join(homedir(), '.claude.json'));
     });
+
+    it('includes a scripts target for shared hook scripts', () => {
+      const claudeBase = join(homedir(), '.claude');
+      assert.equal(TARGETS.scripts, join(claudeBase, 'scripts'));
+    });
   });
 
   describe('TOOL_MAP', () => {
@@ -98,25 +103,48 @@ describe('unit: claude adapter', () => {
       assert.ok(result.includes('tools: ""'));
     });
 
-    it('emits permissions deny rules for blocked_commands', () => {
+    it('emits a PreToolUse hook on Bash for blocked_commands', () => {
       const withBlocked = { ...agent, blocked_commands: ['git *', 'gh *'] };
       const result = transformAgent(withBlocked);
-      assert.ok(result.includes('Bash(git *)'));
-      assert.ok(result.includes('Bash(gh *)'));
-      assert.ok(result.includes('deny'));
+      const { frontmatter } = parseFrontmatter(result);
+
+      assert.ok(frontmatter.hooks);
+      assert.ok(Array.isArray(frontmatter.hooks.PreToolUse));
+      const entry = frontmatter.hooks.PreToolUse[0];
+      assert.equal(entry.matcher, 'Bash');
+      assert.equal(entry.hooks[0].type, 'command');
+      assert.ok(entry.hooks[0].command.includes('"git *"'));
+      assert.ok(entry.hooks[0].command.includes('"gh *"'));
+      assert.ok(entry.hooks[0].command.includes('block-command'));
     });
 
-    it('omits permissions when blocked_commands is absent', () => {
-      const result = transformAgent(agent);
+    it('invokes the absolute Node binary path, not a bare "node" command', () => {
+      const withBlocked = { ...agent, blocked_commands: ['git *'] };
+      const result = transformAgent(withBlocked);
+      const { frontmatter } = parseFrontmatter(result);
+      const command = frontmatter.hooks.PreToolUse[0].hooks[0].command;
+
+      // Must not rely on PATH resolution for "node" — must be the exact
+      // absolute execPath of the Node binary that ran the install.
+      assert.ok(command.includes(process.execPath));
+      assert.ok(!command.startsWith('node '));
+    });
+
+    it('does not emit permissions.deny (unsupported by Claude Code subagent frontmatter)', () => {
+      const withBlocked = { ...agent, blocked_commands: ['git *'] };
+      const result = transformAgent(withBlocked);
       assert.ok(!result.includes('permissions'));
-      assert.ok(!result.includes('deny'));
     });
 
-    it('omits permissions when blocked_commands is empty', () => {
+    it('omits hooks when blocked_commands is absent', () => {
+      const result = transformAgent(agent);
+      assert.ok(!result.includes('hooks'));
+    });
+
+    it('omits hooks when blocked_commands is empty', () => {
       const withEmpty = { ...agent, blocked_commands: [] };
       const result = transformAgent(withEmpty);
-      assert.ok(!result.includes('permissions'));
-      assert.ok(!result.includes('deny'));
+      assert.ok(!result.includes('hooks'));
     });
   });
 
