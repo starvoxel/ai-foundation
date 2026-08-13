@@ -33,6 +33,9 @@ describe('integration: install (claude-specific)', () => {
     TARGETS.agents = join(tempClaude, 'agents');
     TARGETS.rules = join(tempClaude, 'rules');
     TARGETS.skills = join(tempClaude, 'skills');
+    TARGETS.servers = join(tempClaude, 'servers');
+    TARGETS.standards = join(tempClaude, 'standards');
+    TARGETS.mcpSettings = join(tempClaude, 'claude.json');
   });
 
   afterEach(() => {

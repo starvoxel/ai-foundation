@@ -1,5 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 import {
   TOOL_MAP,
@@ -12,18 +14,19 @@ import {
 
 describe('unit: claude adapter', () => {
   describe('TARGETS', () => {
-    it('component paths are under .claude/', () => {
+    it('component paths are under the global ~/.claude/ directory', () => {
+      const claudeBase = join(homedir(), '.claude');
       const { mcpSettings, ...componentTargets } = TARGETS;
       for (const [key, value] of Object.entries(componentTargets)) {
         assert.ok(
-          value.includes('.claude'),
-          `TARGETS.${key} should be under .claude/, got ${value}`
+          value.startsWith(claudeBase),
+          `TARGETS.${key} should be under ${claudeBase}, got ${value}`
         );
       }
     });
 
-    it('mcpSettings points to .mcp.json at project root', () => {
-      assert.equal(TARGETS.mcpSettings, '.mcp.json');
+    it('mcpSettings points to the global ~/.claude.json user-scope config', () => {
+      assert.equal(TARGETS.mcpSettings, join(homedir(), '.claude.json'));
     });
   });
 
