@@ -1,6 +1,6 @@
 ---
 name: "chunk-orchestration"
-version: "0.1.0"
+version: "0.2.0"
 description: "Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates."
 ---
 
@@ -27,23 +27,27 @@ and advances waves until the epic is complete or fully blocked.
 ### Step 1 — Initialize
 
 1. Read `.aiconfig.json` from the project root to resolve artifact paths
-2. Read `chunks.json` for the epic (at `{paths.chunks}/{EpicID}/chunks.json`)
-3. Call `dag-compute-waves` to get the ordered wave structure
-4. Copy the template from `skills/chunk-orchestration/assets/orchestration-state.json`
-5. Populate the state file:
+2. Read the Epic Plan and confirm `Status: Approved` before proceeding. If the Epic
+   is not `Approved` (e.g. still `Draft` or `Deferred`), stop and report to the
+   human — do not read `chunks.json`. See `skill/plan-lifecycle` — only `Approved`
+   satisfies this gate.
+3. Read `chunks.json` for the epic (at `{paths.chunks}/{EpicID}/chunks.json`)
+4. Call `dag-compute-waves` to get the ordered wave structure
+5. Copy the template from `skills/chunk-orchestration/assets/orchestration-state.json`
+6. Populate the state file:
    - Set `epic_id` from chunks.json
    - Set `total_waves` from the wave computation result
    - Set `current_wave` to 0
    - Create a chunk state entry for each chunk (status: `Ready`, wave assignment from computation)
-6. Write the state file to `{paths.orchestration}/{EpicID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/orchestration/`)
-7. **Commit plans and orchestration state to main before proceeding:**
+7. Write the state file to `{paths.orchestration}/{EpicID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/orchestration/`)
+8. **Commit plans and orchestration state to main before proceeding:**
    - Verify all chunk plans and the epic plan are committed and pushed to main.
      If any are uncommitted, commit and push them now (directly to main — plans do not use branches).
    - Commit and push the orchestration state file to main.
    - This ensures all worktrees (branched from main) will have access to the plans.
-8. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
-9. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
-10. Log: `wave_started` for wave 0
+9. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
+10. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
+11. Log: `wave_started` for wave 0
 
 ### Step 2 — Dispatch Wave
 
@@ -63,7 +67,7 @@ across all chunk plans in the current wave:
 
 For each chunk in the current wave with status `Ready`:
 
-1. Verify the chunk plan exists and is approved
+1. Verify the chunk plan exists and its `Status` is `Approved` (see `skill/plan-lifecycle` — no other status, including `Deferred`, satisfies this check)
 2. **Create branch and worktree** (skill/worktree-management Steps 1–3):
    - Determine the branch name: `{epic-id}/{chunk-id}-{short-title}`
    - Resolve the worktree path from `paths.worktrees` config
@@ -248,6 +252,7 @@ After each chunk completion, check wave status:
 - **All chunks in a wave are blocked** — set overall status to `Blocked`, present all escalations to human, wait for unblock before continuing.
 - **Human unblocks a chunk mid-wave** — resume immediately if the chunk's wave is current. If it's a past wave, dispatch it now (it's overdue).
 - **Chunk plan not found or not approved** — mark chunk `Blocked` with reason "Chunk plan missing or not approved". Do not dispatch without an approved plan.
+- **Epic Plan not `Approved`** — stop at Step 1 before reading `chunks.json`; report to the human. Do not treat `Draft` or `Deferred` as sufficient.
 - **Agent subagent fails unexpectedly** — mark chunk `Blocked` with reason "Agent failure: {error}". Log and escalate. Do not retry automatically.
 - **Epic has only one chunk** — still follow the full pipeline (SE → TE → PE). No shortcuts.
 - **Chunk depends on a blocked chunk** — remains in `Ready` but cannot be dispatched. Will dispatch once the dependency is unblocked and completed.
