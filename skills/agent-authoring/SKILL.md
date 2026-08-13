@@ -1,6 +1,6 @@
 ---
 name: "agent-authoring"
-version: "0.1.0"
+version: "0.2.0"
 description: "Creates a well-formed agent definition with proper tool selection and prompt design."
 ---
 
@@ -74,6 +74,12 @@ The prompt is a direct instruction to the agent. It must include:
 
 Write it as if speaking to the agent. Use imperative mood.
 
+If the prompt contains a self-contained procedure or rule that is not specific
+to this agent's identity, check `docs/agent-prompt-extraction-candidates.md`
+(location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either
+it already covers this case, or add an entry recording why it wasn't extracted
+into a skill/steering rule now.
+
 ### Step 6 — Declare skills
 
 Only reference skills that exist in `skills/`. Format: `"skill/{name}"`.
@@ -109,3 +115,4 @@ Verify against the checklist:
 - **Skill doesn't exist yet** — create the skill first using `skill/skill-authoring`, then reference it.
 - **Unsure about domain** — check what steering directories exist in `steering/`. If none fit, the agent may need a new domain (which means creating corresponding steering files).
 - **Two agents overlap in responsibility** — clarify scope boundaries in both prompts. Each agent should have a distinct, non-overlapping job.
+- **Prompt contains a generic-sounding rule used by only one agent** — don't extract preemptively; record it in `docs/agent-prompt-extraction-candidates.md` instead and revisit when a second agent needs it.
