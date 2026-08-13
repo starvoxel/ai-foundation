@@ -1,6 +1,6 @@
 ---
 name: "ai-engineering-plan"
-version: "0.1.0"
+version: "0.2.0"
 description: "Produces a structured plan for complex AI component work that requires human approval before implementation."
 ---
 
@@ -52,16 +52,20 @@ Produce a plan following the schema in `reference/plan-schema.md`. The plan must
 - State what will be validated after implementation
 - Be concise — no padding, no boilerplate filler
 
-### Step 4 — Present for approval
+### Step 4 — Follow the Commit-Gate Procedure
 
-Present the plan to the human. Do not proceed until the human explicitly approves.
-If the human requests changes, revise and re-present.
+Follow `skill/plan-lifecycle`: save the plan to the repo (see Outputs) with
+`Status: Draft` and commit it before presenting to the human. Commit each revision
+round as its own commit. Do not begin implementation until the human's decision
+(`Approved` or `Deferred`) has been committed — chat approval alone does not satisfy
+the gate.
 
 ---
 
 ## Outputs
 
-- **Plan document** — structured per `reference/plan-schema.md`, presented inline (not saved as a file unless the human requests it)
+- **Plan document** — structured per `reference/plan-schema.md`
+- **Location:** `{paths.plans}/{short-title}-plan.md` (from `.aiconfig.json`; if `paths.plans` is unset, fall back to `docs/plans/`)
 
 ---
 
@@ -71,3 +75,4 @@ If the human requests changes, revise and re-present.
 - **Scope grows during investigation** — if investigation reveals the work is larger than expected, state that in the plan and ask whether to proceed or split.
 - **Depends on a decision not yet made** — surface it as an open question in the plan. Do not assume the answer.
 - **Plan would duplicate an existing Decision Record** — reference the DR instead of restating it. The plan covers implementation approach, not the "why" behind the decision.
+- **Human requests revisions after commit** — edit and commit again per `skill/plan-lifecycle`; never amend the prior commit.

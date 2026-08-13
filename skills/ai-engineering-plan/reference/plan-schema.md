@@ -1,11 +1,28 @@
 # AI Engineering Plan Schema
 
-A Tier 3 plan is a structured outline presented inline for human approval.
-It is concise and actionable — not a design document.
+A Tier 3 plan is a structured outline saved to the repo and committed for human
+approval. It is concise and actionable — not a design document.
 
 ---
 
 ## Required Sections
+
+### Metadata
+
+A header block, not a full table, since this plan type is lighter-weight than a
+Chunk/Epic Plan:
+
+```
+> Status: Draft
+> Created: {YYYY-MM-DD}
+> Approved by: Pending
+```
+
+Status values: `Draft / Approved / Done / Deferred` — see
+`skills/plan-lifecycle/reference/status-vocabulary.md` for the canonical vocabulary.
+Follow `skill/plan-lifecycle` for the commit-gate procedure: save with `Status: Draft`
+and commit before presenting, commit each revision, and commit the `Approved` (or
+`Deferred`) decision before implementation begins.
 
 ### Goal
 
