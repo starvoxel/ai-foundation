@@ -1,6 +1,6 @@
 ---
 name: "epic-planning"
-version: "0.1.0"
+version: "0.2.0"
 description: "Produces a structured Epic Plan describing a complete feature at a human-reviewable level."
 ---
 
@@ -47,11 +47,11 @@ Follow the template at `skills/epic-planning/reference/template.md`. Key section
 - Section 7 (Open Questions) captures anything needing human input
 - Section 8 (Chunk Decomposition) is left empty until after approval
 
-Set status to Draft.
+### Step 4 — Follow the Commit-Gate Procedure
 
-### Step 4 — Stop for Human Approval
-
-Do not decompose into chunks. Do not proceed until the human approves.
+Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, and
+present it for human approval. Do not decompose into chunks. Do not proceed until
+the human's decision (`Approved` or `Deferred`) is committed.
 
 ### Step 5 — Decompose into Chunks
 
