@@ -1,6 +1,6 @@
 # Agent Prompt Simplification — Implementation Plan
 
-> Status: Approved
+> Status: Done
 > Created: 2026-08-13
 > Approved by: Jeremy Smellie
 
@@ -198,3 +198,37 @@ revisited per-domain at that time — out of scope for now.
   happens.
 - Any change to agent behavior — this plan only removes duplicated *prose*; no
   process, rule, or constraint changes are intended.
+
+---
+
+## Completion Note
+
+Implemented in commits a6da212 through e39ca17 on main (2026-08-13). All ten
+approach steps delivered:
+
+1. Collapsed `principal-engineer.yaml` and `test-engineer.yaml` Process sections
+   to pointers at `skill/code-review` and `skill/test-execution`.
+2. Collapsed `tech-lead.yaml` Process to a pointer at `skill/epic-planning` and
+   `skill/chunk-planning`.
+3. Removed the duplicated Decision-Record-approval sentence from
+   `engineering-manager.yaml` and `tech-lead.yaml` (kept a `skill/plan-lifecycle`
+   pointer on tech-lead, where the rule is load-bearing; omitted on
+   engineering-manager, where it wasn't actually used by that agent's process).
+4. Extracted `ai-engineer.yaml`'s Tier 1/2/3 framework into new
+   `skill/complexity-tiers` (`ai-engineer.yaml` shrank from 115 to 69 lines).
+5. Removed the redundant "use ai-git" sentence from `software-engineer.yaml` and
+   `test-engineer.yaml`.
+6. Collapsed `engineering-manager.yaml`'s intra-file worktree/branch duplication,
+   keeping the emphatic Hard Rule version.
+7. Created `docs/agent-prompt-extraction-candidates.md`, seeded with the four
+   candidates identified during investigation.
+8. Wired a checkpoint into `skill/agent-authoring` (Step 5 + Edge Cases) so the
+   extraction-candidates file is checked/updated during future agent authoring.
+9. Moved the CRITICAL/HIGH/MEDIUM/LOW severity table from
+   `principal-engineer.yaml` into `skill/code-review` Step 5, per human direction.
+10. Version-bumped every modified/created file.
+
+Full test suite (unit + integration + validation): 409/409 passing. No Hard
+Rules were removed from any agent — only restated Process/prose duplication with
+skills, steering, or intra-file content.
+
