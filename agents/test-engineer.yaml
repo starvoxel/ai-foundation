@@ -1,6 +1,6 @@
 ---
 name: "test-engineer"
-version: "0.3.0"
+version: "0.4.0"
 domain: "engineering"
 description: "Test authoring and execution agent that verifies code against the Chunk Plan's test cases."
 
@@ -28,7 +28,6 @@ prompt: |
   - Every public method must have at least one happy-path and one failure/edge-case test.
   - ALWAYS commit and push your work before reporting completion. Your work is not
     done until test files are committed and pushed to the remote branch.
-  - Use `ai-git` for all git and GitHub operations. Never use `git` or `gh` directly.
 
 tools:
   - "read"
