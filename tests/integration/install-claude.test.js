@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
@@ -83,20 +83,25 @@ describe('integration: install (claude-specific)', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
 
     const manifest = readManifest(repo);
-    assert.ok(manifest['test-bundle_claude']);
+    assert.ok(manifest.bundles['test-bundle_claude']);
 
     quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
 
     const after = readManifest(repo);
-    assert.equal(after['test-bundle_claude'], undefined);
+    assert.equal(after.bundles['test-bundle_claude'], undefined);
     assert.ok(!existsSync(join(TARGETS.agents, 'test-agent.md')));
   });
 
-  it('installs the shared block-command hook script', () => {
+  it('installs the shared block-command hook script (bundle has a blocked_commands agent)', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
 
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'logic.js')));
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
+
+    const manifest = readManifest(repo);
+    const hookEntry = manifest.hooks['block-command_claude'];
+    assert.ok(hookEntry);
+    assert.deepEqual(hookEntry.installedBy, ['test-bundle']);
   });
 
   it('wires a PreToolUse hook for an agent with blocked_commands', () => {
@@ -109,10 +114,45 @@ describe('integration: install (claude-specific)', () => {
     assert.ok(content.includes('git *'));
   });
 
-  it('does not remove the shared hook script when a single bundle is uninstalled', () => {
+  it('removes the shared hook script when the last depending bundle is uninstalled', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
     quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
 
+    assert.ok(!existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
+
+    const manifest = readManifest(repo);
+    assert.equal(manifest.hooks['block-command_claude'], undefined);
+  });
+
+  it('keeps the shared hook script installed while another bundle still depends on it', () => {
+    // Second bundle, also with a blocked_commands agent, sharing the same
+    // hook resource as test-bundle.
+    const secondBundleDir = join(repo, 'bundles', 'other-bundle');
+    mkdirSync(secondBundleDir, { recursive: true });
+    writeFileSync(
+      join(secondBundleDir, 'bundle.yaml'),
+      'name: other-bundle\nversion: "1.0.0"\ndescription: Other bundle.\nagents:\n  - blocked-agent.yaml\n',
+      'utf8'
+    );
+
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() => runInstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    let manifest = readManifest(repo);
+    assert.deepEqual(manifest.hooks['block-command_claude'].installedBy.sort(), ['other-bundle', 'test-bundle']);
+
+    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    // Hook script stays installed — other-bundle still depends on it.
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
+    manifest = readManifest(repo);
+    assert.deepEqual(manifest.hooks['block-command_claude'].installedBy, ['other-bundle']);
+
+    quiet(() => runUninstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    // Now removed — no bundle depends on it anymore.
+    assert.ok(!existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
+    manifest = readManifest(repo);
+    assert.equal(manifest.hooks['block-command_claude'], undefined);
   });
 });

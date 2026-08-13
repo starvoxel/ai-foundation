@@ -133,7 +133,7 @@ describe('integration: install freshness', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
 
     const manifest = readManifest(repo);
-    const entry = manifest['test-bundle_kiro'];
+    const entry = manifest.bundles['test-bundle_kiro'];
     assert.ok(entry.sourceHashes);
     assert.ok(Object.keys(entry.sourceHashes).length > 0);
     assert.ok(Object.values(entry.sourceHashes).every(h => h.startsWith('sha256:')));
@@ -143,7 +143,7 @@ describe('integration: install freshness', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
 
     const manifest = readManifest(repo);
-    const entry = manifest['test-bundle_kiro'];
+    const entry = manifest.bundles['test-bundle_kiro'];
     assert.equal(entry.sourceHashes, undefined);
   });
 });

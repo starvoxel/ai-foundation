@@ -72,7 +72,7 @@ describe('integration: install command', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
 
     const manifest = readManifest(repo);
-    const entry = manifest['test-bundle_kiro'];
+    const entry = manifest.bundles['test-bundle_kiro'];
     assert.ok(entry);
     assert.equal(entry.version, '1.0.0');
     assert.ok(entry.files.length > 0);
@@ -138,6 +138,6 @@ describe('integration: uninstall command', () => {
     quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
 
     const manifest = readManifest(repo);
-    assert.equal(manifest['test-bundle_kiro'], undefined);
+    assert.equal(manifest.bundles['test-bundle_kiro'], undefined);
   });
 });
