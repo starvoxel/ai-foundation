@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-08-12T19:34:46.471Z",
+  "computed_at": "2026-08-13T01:22:39.549Z",
   "sources": {
     "agents/ai-engineer.yaml": "sha256:8fbceac1b06210419990d0bb7729857be3bae73190fb51b4f38c4987d10f0033",
     "agents/architect.yaml": "sha256:9d83593e8962a6e6129c4e858bd45585373cebb2326e24d35cdfe266cd7aed3c",
@@ -30,7 +30,7 @@
     "skills/bundle-authoring/SKILL.md": "sha256:76618aba5c83415aff68494199b7cb8b2c0c60cee503bb6f74b9490c10915699",
     "skills/ai-engineering-plan/reference/plan-schema.md": "sha256:507f5b5449ea10b5ef9a8c29f894d39328e5fb97dad8be34174416d63f4b6117",
     "skills/ai-engineering-plan/SKILL.md": "sha256:4b6c97117105b52a128f5312d7168fe20d34f0bc7bd50f070bc0b02696800df1",
-    "skills/decision-record/reference/template.md": "sha256:fb7ae44f260aba9a0e657b3961f116b46e2de6f8bdeda28971b3cc2adce607a6",
+    "skills/decision-record/reference/template.md": "sha256:0a9db9f99caa88db0ef88b90a8186df1ed206a446c7258f2ddc1eefc4de437c6",
     "skills/decision-record/SKILL.md": "sha256:e250db6657afdaa6ada6c2757a913c694b9e0372a8b67c54c5b90743447898fc",
     "skills/chunk-orchestration/assets/orchestration-state.json": "sha256:977b4403d04db5d56e1d66ee6ea99b245e5bb649ebd56a59299f19dc8493c118",
     "skills/chunk-orchestration/reference/state-schema.md": "sha256:6648ef8d9776b2dd90e30575a3decddce47641abf25757ab0f6907c43f7f31ff",
