@@ -1,6 +1,6 @@
 ---
 name: "decision-record"
-version: "0.1.0"
+version: "0.2.0"
 description: "Produces a structured Decision Record capturing options explored and the chosen approach."
 ---
 
@@ -37,10 +37,16 @@ Propose 2-4 genuinely distinct approaches. For each:
 State which option is recommended and why, grounded in the stated constraints.
 If genuinely too close to call, identify the one question that would break the tie.
 
-### Step 3 — Produce Decision Record
+### Step 3 — Write the Decision Record
 
 Write the record using the template at `skills/decision-record/reference/template.md`.
-Set status to Draft. The human confirms before it is finalized.
+
+### Step 4 — Follow the Commit-Gate Procedure
+
+Follow `skill/plan-lifecycle` to save the record with `Status: Draft`, commit it, and
+present it for human confirmation. The human confirms before it is finalized — do not
+treat the record as authoritative until the human's decision (`Approved`, `Deferred`,
+or later `Superseded`) is committed.
 
 ---
 
@@ -55,4 +61,4 @@ Set status to Draft. The human confirms before it is finalized.
 
 - **Human disagrees with recommendation** — update the Decision Record with their choice and rationale. The record captures what was decided, not what was recommended.
 - **No clear winner** — explicitly state the tie-breaking question. Do not force a recommendation without evidence.
-- **Decision deferred** — still produce the record with status "Deferred" and document why.
+- **Decision deferred** — still produce the record, set `Status: Deferred`, and document why. See `skill/plan-lifecycle` — a `Deferred` record is not approved and must not be referenced as if it were.

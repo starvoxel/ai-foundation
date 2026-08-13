@@ -6,9 +6,9 @@
 |---|---|
 | Decision ID | AIF-{###} |
 | Project | {Project name} |
-| Status | Draft / Confirmed / Superseded |
+| Status | Draft / Approved / Done / Deferred / Superseded |
 | Author (Agent) | Architect |
-| Confirmed By | {human name or "Pending"} |
+| Approved By | {human name or "Pending"} |
 | Created | {YYYY-MM-DD HH:mm} |
 | Referenced By | {Epic ID(s) that use this decision} |
 
