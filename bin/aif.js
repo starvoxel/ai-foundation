@@ -78,12 +78,14 @@ Commands:
   list        List available bundles, agents, skills, or servers
   validate    Check repo health (schema, refs, bundles)
   test        Run test suite (unit, integration, validation)
-  snapshot    Compute source hashes for bundles
+  snapshot    Compute source hashes for bundles, servers, and hook resources
   index       Generate knowledge/index.json for a project
   init        Scaffold a new project directory
 
 Options:
-  --bundle <name>    Bundle to install/uninstall
+  --bundle <name>    Bundle to install/uninstall/snapshot
+  --server <name>    Server to snapshot (snapshot command)
+  --hook <name>      Hook resource to snapshot (snapshot command)
   --harness <name>   Target harness (${HARNESSES.join(', ')})
   --update           Update all installed bundles that are stale
   --check            Verify snapshots without writing (snapshot command)
@@ -107,6 +109,8 @@ Examples:
   aif validate
   aif validate schema
   aif test unit
+  aif snapshot
+  aif snapshot --server git
   aif init --name my-app --language typescript --org acme
   aif init --interactive
 `.trim();
