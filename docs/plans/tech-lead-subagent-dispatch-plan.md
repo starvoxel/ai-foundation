@@ -1,8 +1,15 @@
 # AI Engineering Plan: Tech-Lead Approval-Gated Subagent Dispatch for AI-Track Plan Authorship
 
-> Status: Draft
+> Status: Deferred
 > Created: 2026-08-13
 > Approved by: Pending
+
+**Deferral note (2026-08-13):** Superseded by a reconsideration of AIF-005's chosen
+Option (dual-authorship). Human indicated preference for reopening AIF-005 toward
+something closer to its Option A (single Chunk Plan authorship regardless of track),
+with Tech-Lead able to both author and dispatch. Routed to Architect to formally
+reconsider AIF-005/AIF-010 before any agent/skill changes proceed. See follow-up
+conversation.
 
 ---
 
