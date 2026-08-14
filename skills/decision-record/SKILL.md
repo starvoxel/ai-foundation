@@ -53,7 +53,7 @@ or later `Superseded`) is committed.
 ## Outputs
 
 - **Decision Record** — markdown file following the template format
-- **Location:** `{paths.decisions}/{YYYY-MM-DD}_{###}_{ShortTitle}.decision.md` (from `.aiconfig.json`, default: `knowledge/decisions/`)
+- **Location:** `{paths.decisions}/{ProjectID}-{###}_{ShortTitle}.decision.md` (from `.aiconfig.json`, default: `knowledge/decisions/`; `{ProjectID}` matches the Decision ID prefix, e.g. `AIF`)
 
 ---
 
@@ -62,3 +62,5 @@ or later `Superseded`) is committed.
 - **Human disagrees with recommendation** — update the Decision Record with their choice and rationale. The record captures what was decided, not what was recommended.
 - **No clear winner** — explicitly state the tie-breaking question. Do not force a recommendation without evidence.
 - **Decision deferred** — still produce the record, set `Status: Deferred`, and document why. See `skill/plan-lifecycle` — a `Deferred` record is not approved and must not be referenced as if it were.
+- **Decision involves a schema, data shape, or architecture worth spelling out** — include the `## Design` section (between `Decision` and `Impact on Planning`). Omit it for simpler decisions with nothing concrete to document.
+- **Closing section** — use `## Resolved Items` if every open question raised during the decision was answered by the time the record was written. Use `## Open Items` if questions remain unresolved. A record may include either or, if genuinely warranted, both — but never neither.

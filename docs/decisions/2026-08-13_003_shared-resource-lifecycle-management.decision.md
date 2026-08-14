@@ -6,9 +6,9 @@
 |---|---|
 | Decision ID | AIF-003 |
 | Project | ai-foundation |
-| Status | Confirmed |
+| Status | Approved |
 | Author (Agent) | AI-Engineer |
-| Confirmed By | Jeremy |
+| Approved By | Jeremy |
 | Created | 2026-08-13 13:38 |
 | Referenced By | — |
 | Supersedes | — |

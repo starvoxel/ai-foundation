@@ -6,9 +6,9 @@
 |---|---|
 | Decision ID | AIF-002 |
 | Project | ai-foundation |
-| Status | Confirmed |
+| Status | Approved |
 | Author (Agent) | Architect |
-| Confirmed By | Jeremy |
+| Approved By | Jeremy |
 | Created | 2026-08-01 13:55 |
 | Referenced By | AIF-001 |
 | Supersedes | — |
