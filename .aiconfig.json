@@ -9,8 +9,8 @@
   "paths": {
     "plans": "docs/plans",
     "knowledge": "docs",
-    "epics": "epics",
-    "chunks": "chunks",
+    "epics": "docs/plans/epics",
+    "chunks": "docs/plans/chunks",
     "worktrees": "../worktrees/ai-foundation"
   },
   "orchestration": {
