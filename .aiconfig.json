@@ -1,5 +1,6 @@
 {
   "project_name": "ai-foundation",
+  "project_shortname": "AIF",
   "repo_type": "framework",
   "standards": {
     "engineering": ["javascript", "node"],
@@ -8,6 +9,8 @@
   "paths": {
     "plans": "docs/plans",
     "knowledge": "docs",
+    "epics": "epics",
+    "chunks": "chunks",
     "worktrees": "../worktrees/ai-foundation"
   },
   "orchestration": {
