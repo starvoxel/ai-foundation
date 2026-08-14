@@ -6,9 +6,9 @@
 |---|---|
 | Decision ID | AIF-010 |
 | Project | ai-foundation |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | Architect |
-| Approved By | Pending |
+| Approved By | Jeremy |
 | Created | 2026-08-13 |
 | Referenced By | — |
 | References | AIF-004, AIF-005 |
