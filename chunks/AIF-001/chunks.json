@@ -1,0 +1,23 @@
+{
+  "epic_id": "AIF-001",
+  "chunks": [
+    {
+      "id": "001",
+      "title": "chunk-orchestration: track-aware dispatch, pipeline, and out-of-domain edge case",
+      "depends_on": [],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "002",
+      "title": "chunk-planning: document AI-track exception (plan authorship and gating)",
+      "depends_on": [],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "003",
+      "title": "epic-planning: clarify Section 8/Step 5 guidance for AI-track chunk boundaries",
+      "depends_on": [],
+      "agents": ["AI-Engineer"]
+    }
+  ]
+}
