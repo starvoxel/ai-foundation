@@ -10,11 +10,11 @@
 | Depends On | None |
 | Can Parallel | 001, 002, 003, 004, 006, 007, 008, 009 (all other Wave 1 chunks) |
 | Project | ai-foundation |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
+| Reviewed By | Jeremy |
 | Created | 2026-08-14 |
-| Last Updated | 2026-08-14 |
+| Last Updated | 2026-08-17 (Approved by Jeremy) |
 | Standards | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverables are `skills/chunk-planning/reference/template.md` and `skills/epic-planning/reference/template.md` markdown content only |
 
 ---
@@ -222,3 +222,4 @@ This chunk has no executable code, so "tests" are documentation-validation check
 ## 14. Work Log
 
 [2026-08-14 00:00] [AI-Engineer] [Created] [AIF-002-005] [Self-planned Chunk 005 of Epic AIF-002 per Tech-Lead's decomposition (`chunks.json`). Read Epic Plan Sections 3/4/5/8 and AIF-META-001 (Design section Tier table) in full, plus both current template files (`skills/chunk-planning/reference/template.md`, `skills/epic-planning/reference/template.md`) and sibling Wave 1 chunk plan AIF-002-004 for precedent/style consistency. Assessed Tier 2 (Standard) per `skill/complexity-tiers`: multi-file change (two templates) modifying an existing pattern (adding documented guidance to established sections) without changing that pattern's core shape — not Tier 1 since it spans two files across two skills and required judgment on where each template's Tier C home should live (no existing "Key Design Decisions"-equivalent section in the Epic template); not Tier 3 since no schema change, no new convention beyond what AIF-META-001 already specifies, and no cross-cutting redesign is involved. Drafted full Chunk Plan following `skills/chunk-planning/reference/template.md`. Saving as Status: Draft per `skill/plan-lifecycle` before presenting for human approval. No implementation performed.]
+[2026-08-17 00:00] [Jeremy] [Approved] [AIF-002-005] [Reviewed and approved manually by Jeremy. Status set to `Approved`, `Reviewed By: Jeremy`.]
