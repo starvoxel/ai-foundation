@@ -14,14 +14,14 @@
 | Author (Agent) | AI-Engineer (self-planned) |
 | Reviewed By | Pending |
 | Created | 2026-08-17 |
-| Last Updated | 2026-08-17 |
+| Last Updated | 2026-08-16 (revised — added AIF-META-001 pointer edit and stale-reference sweep scope, per Epic Open Question 8 resolution) |
 | Standards | AGENTS.md declarative-component schemas — this chunk produces `docs/decisions/index.json`, a `docs/` data artifact, per AIF-004's boundary table. No code is written by this chunk; it runs a tool built in AIF-002-014. |
 
 ---
 
 ## 2. Goal
 
-Produce the first real `docs/decisions/index.json` for this repo by running `aif index -d` (built in AIF-002-014) against all 11 migrated Decision Records, verify `aif index -d --check` passes against the result, and commit the generated file.
+Produce the first real `docs/decisions/index.json` for this repo by running `aif index -d` (built in AIF-002-014) against all 11 migrated Decision Records, verify `aif index -d --check` passes against the result, and commit the generated file. **(Added, 2026-08-16, per Epic Open Question 8's resolution)** Also performs the two follow-on documentation edits that Epic AIF-002's Open Question 8 assigned here rather than to the individual migration chunks (009-013): (a) a single-line pointer edit to `AIF-META-001`, and (b) a narrow sweep for any other genuinely valid stale old-ID references in live documentation left unhandled by the migration chunks.
 
 > Requirement traceability: AIF-002 Epic Plan §3 ("One-time creation of
 > `docs/decisions/index.json`, backfilled from the 11 existing records...
@@ -41,6 +41,8 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
   - Every `path` resolves to a real file on disk.
 - Run `aif index -d --check` against the committed result and confirm it exits 0 (no drift immediately after generation).
 - Commit `docs/decisions/index.json` to the repo.
+- **(Added, 2026-08-16, per Epic Open Question 8's resolution)** Update `AIF-META-001` (`docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`) with a single-line pointer/reference edit: its "Migration of existing records" section should state that Epic AIF-002's Section 3 migration table is the authoritative, up-to-date source of truth for the old→new ID mapping, rather than leaving its own embedded copy (now stale/superseded) as an apparent second source of truth. This is a pointer edit only — do not delete, rewrite, or find-replace AIF-META-001's existing embedded table or its historical prose; the table remains valid as a point-in-time snapshot of the original decision, it is simply no longer the place to look for the current mapping.
+- **(Added, 2026-08-16, per Epic Open Question 8's resolution)** Sweep for and fix any other genuinely valid stale old-ID references in live documentation surfaced during migration (chunks 009-013) but not already handled by those chunks — real stale citations only (e.g. "AIF-005" appearing in running prose that should say "AIF-PROC-002"), never plain mentions of Epic AIF-002 itself by its own ID (Epic IDs are a separate, un-renumbered scheme per Epic §3's own note). Scope this narrowly: consult each of chunks 009-013's own grep-and-disposition tables (Section 5/6 of each) for hits they explicitly left unresolved or flagged as ambiguous, rather than re-running an unscoped repo-wide grep from first principles.
 - If verification surfaces a data problem in a migrated record (e.g. a `References` field pointing to an ID that doesn't exist, a Metadata table field that doesn't parse) — **stop and report**, per Section 6 (Error Handling); do not hand-edit the generated `index.json` to work around it, and do not silently fix the source record without flagging it, since that would be undocumented scope creep into a migration chunk's own territory.
 
 ### Out of Scope
@@ -49,6 +51,8 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
 - Adding a `Supersedes`/`Superseded By` field to any template or record — out of scope for chunk 014 (Risk 3 there) and equally out of scope here; this chunk accepts `supersedes`/`superseded_by` as empty arrays in the generated output, consistent with chunk 014's documented limitation.
 - Any `tests/validation/` change — validation of `index.json`'s structural integrity is `aif index -d --check` (chunk 014's own deliverable), not a separate `tests/validation/` addition (rev 6 correction, already reflected in the Epic Plan).
 - Wiring `aif index -d` into `skill/plan-lifecycle` as an ongoing required step — that is chunk 004's documentation concern; this chunk is a one-time backfill run, not the establishment of the ongoing convention.
+- **(Added, 2026-08-16)** Any full reformat, rewrite, or removal of `AIF-META-001`'s own embedded migration table or historical narrative — Open Question 8's resolution calls for a single pointer/reference edit only (see In Scope). `AIF-META-001` remains Approved and authoritative; this chunk does not reopen it for revision beyond that one pointer.
+- **(Added, 2026-08-16)** Old-ID references inside `docs/plans/` Epic/Chunk Plans (e.g. `docs/plans/epics/AIF-001.epic.md`, `docs/plans/tech-lead-subagent-dispatch-plan.md`) that are historical planning-time snapshots, not live cross-references — per the migration chunks' own disposition tables (see, e.g., AIF-002-009 §5/6), these are generally treated as historical artifacts, not rewritten. This chunk only fixes references those disposition tables identified as genuinely unresolved, not a fresh, unscoped audit of every `docs/plans/` file.
 
 ---
 
@@ -176,6 +180,8 @@ This chunk produces a data artifact via a tool already tested in chunk 014 — "
 - [ ] Any data problem discovered during verification was routed back to its owning migration chunk, not patched here
 - [ ] No HIGH or CRITICAL findings open in review
 - [ ] This Chunk Plan itself is committed with `Status: Draft` via `ai-git` before being presented for human approval, per `skill/plan-lifecycle`
+- [ ] **(Added, 2026-08-16)** `AIF-META-001` carries a single-line pointer to Epic AIF-002 Section 3 as the source of truth for the old→new ID mapping, with its existing embedded table/prose otherwise untouched
+- [ ] **(Added, 2026-08-16)** Any other genuinely valid stale old-ID references identified as unresolved in the migration chunks own disposition tables (009-013) are fixed, scoped narrowly per Section 3
 
 ---
 
@@ -192,3 +198,4 @@ This chunk produces a data artifact via a tool already tested in chunk 014 — "
 ## 14. Work Log
 
 [2026-08-17 00:00] [AI-Engineer] [Created] [AIF-002-015] [Self-planned per Tech-Lead's re-sequenced decomposition (`chunks.json`, rev 6 chunk-plan revisit). Read AIF-002 Epic Plan §3/§8 (rev 6), AIF-002-014's Chunk Plan (the tool this chunk depends on and runs), and the Epic's migration table (§3) for the 11 final IDs this chunk verifies against. Assessed Tier 1 (Simple) per `skill/complexity-tiers` — this chunk runs an already-built, already-tested tool and performs verification/commit, introducing no new logic, schema, or component of its own. Deliberately thin Components/Data Models sections reflect this. Sole Wave 3 chunk; depends on every migration chunk (009-013) and chunk 014. Documented explicit "stop and report, do not patch around" behavior for any data problem discovered during verification, since this chunk has no authority to silently fix another chunk's already-Approved output. `Status: Draft`, not yet presented for human review.]
+[2026-08-16] [AI-Engineer] [Revised] [AIF-002-015] [Applied the human's resolution (2026-08-16) of Epic Open Question 8: AIF-META-001 should be updated with a single-line pointer edit referencing Epic AIF-002 Section 3's migration table as the source of truth for the old→new ID mapping (rather than embedding its own separate, driftable copy), and any other genuinely valid stale old-ID references found in live documentation during migration (009-013) that were not already handled by those chunks should be fixed here, scoped narrowly to real stale citations only, never plain mentions of Epic AIF-002 by its own un-renumbered ID. Added both as new scope items to Section 3 (In Scope), corresponding Out-of-Scope clarifications (no full AIF-META-001 rewrite, no unscoped docs/plans/ audit), and two new Acceptance Criteria items (Section 12). This resolution also closes the identical underlying concern separately flagged as an unresolved risk by chunks AIF-002-009, -010, -011, and -013 (each noted AIF-META-001's embedded migration table as stale without editing it) — see Epic AIF-002 Work Log, 2026-08-16. Status remains Draft — this is a content revision to an already-Draft plan, not a Draft → Approved transition; the plan still requires full human review before implementation, and per its Section 4 Prerequisites still depends on chunks 009-014 landing first.]
