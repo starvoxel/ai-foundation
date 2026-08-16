@@ -10,11 +10,11 @@
 | Depends On | None |
 | Can Parallel | AIF-002-001, AIF-002-002, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-007, AIF-002-008, AIF-002-009 (Wave 1 siblings, per `docs/plans/chunks/AIF-002/chunks.json`) |
 | Project | ai-foundation |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
+| Reviewed By | Jeremy |
 | Created | 2026-08-14 |
-| Last Updated | 2026-08-14 |
+| Last Updated | 2026-08-17 (Approved by Jeremy) |
 | Standards | None apply — this chunk produces only declarative agent-config (`agents/engineering-manager.yaml`) and skill content (`skills/chunk-orchestration/SKILL.md` + `reference/state-schema.md`), governed by AGENTS.md schemas and `skill/agent-authoring`/`skill/skill-authoring`, not by the project's `javascript`/`node` engineering standards (no runtime code is produced) |
 
 ---
@@ -307,3 +307,4 @@ This chunk has no executable code, so "testing" here means structural/ cross-ref
 ## 14. Work Log
 
 [2026-08-14] [AI-Engineer] [Created] [AIF-002-006] [Self-planned Chunk 006 of Epic AIF-002 per AIF-PROC-002 (AI-track chunks self-planned by the assigned agent). Assessed Tier 2 (Standard) per `skill/complexity-tiers`: multi-file change (agent config + skill body + skill reference) modifying an existing, already-established pattern (Conflict Resolution Sub-Flow's shape for the new Decision Hand-off Sub-Flow; AIF-PROC-001/AIF-004's domain-split precedent for the charter expansion) — no new schema, no new chunk status value, no new state-object field. Read Epic AIF-002 Sections 3, 4, 5, 6, and 8 in full, `chunks.json`, the current `agents/engineering-manager.yaml` (v0.4.0), `skills/chunk-orchestration/SKILL.md` and `reference/state-schema.md`, AIF-004 (soon `AIF-PROC-001`) as the domain-split precedent, and AIF-META-001 (Approved) for the Process-domain ownership assignment, promotion threshold, and the explicit "no WebSearch/WebFetch" non-negotiable. Checked for `knowledge/index.json` and `docs/index.json` — neither exists in this repo yet, so no knowledge-consumption step applied. Checked `.aiconfig.json` standards tags (`javascript`, `node`, `all: []`) — none apply, since this chunk produces no runtime code; noted explicitly in Section 1. Confirmed `skills/decision-triage/` does not yet exist (Wave 1 sibling chunk AIF-002-001, not yet landed) — referenced by name only per the no-file-dependency pattern AIF-002-001 itself already established for forward references. Wrote full Chunk Plan per `skill/chunk-planning`'s template, matching AIF-002-001's established formatting conventions for consistency across the Epic's chunk set. Security section (8) explicitly states the no-WebSearch/WebFetch verification as a required acceptance item per this chunk's hard constraint. Saving as `Status: Draft` and committing per `skill/plan-lifecycle` Step 1 before presenting for human review — no implementation begins until `Status: Approved` is committed.]
+[2026-08-17 00:00] [Jeremy] [Approved] [AIF-002-006] [Reviewed and approved manually by Jeremy. Status set to `Approved`, `Reviewed By: Jeremy`.]
