@@ -6,9 +6,7 @@ description: "Creates a well-formed agent definition with proper tool selection 
 
 ## Purpose
 
-Creates a new agent in the `agents/` directory. An agent is a named persona with a
-defined role, prompt, tools, and skills. Agents have a specific job in the workflow
-and operate within their domain's steering rules.
+Creates a new agent in the `agents/` directory. An agent is a named persona with a defined role, prompt, tools, and skills. Agents have a specific job in the workflow and operate within their domain's steering rules.
 
 Use this skill when you need to define a new agent or restructure an existing one.
 
@@ -74,11 +72,7 @@ The prompt is a direct instruction to the agent. It must include:
 
 Write it as if speaking to the agent. Use imperative mood.
 
-If the prompt contains a self-contained procedure or rule that is not specific
-to this agent's identity, check `docs/agent-prompt-extraction-candidates.md`
-(location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either
-it already covers this case, or add an entry recording why it wasn't extracted
-into a skill/steering rule now.
+If the prompt contains a self-contained procedure or rule that is not specific to this agent's identity, check `docs/agent-prompt-extraction-candidates.md` (location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either it already covers this case, or add an entry recording why it wasn't extracted into a skill/steering rule now.
 
 ### Step 6 — Declare skills
 

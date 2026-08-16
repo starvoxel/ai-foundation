@@ -9,9 +9,7 @@
 
 ## Overview
 
-Replace all direct `git` and `gh` usage across agents with `ai-git`, and block agents
-from executing `git` or `gh` directly via harness-native command denial. This ensures
-all git operations use proper AI identity injection and token management automatically.
+Replace all direct `git` and `gh` usage across agents with `ai-git`, and block agents from executing `git` or `gh` directly via harness-native command denial. This ensures all git operations use proper AI identity injection and token management automatically.
 
 ---
 
@@ -42,8 +40,7 @@ blocked_commands:
 
 ### Steering Simplification
 
-The AI Identity sections in git workflow steering files are largely obsolete now that
-`ai-git` handles identity injection and authentication transparently. Rules collapse:
+The AI Identity sections in git workflow steering files are largely obsolete now that `ai-git` handles identity injection and authentication transparently. Rules collapse:
 
 - **Projects (was 4 rules → 2 rules):** Use `ai-git` + never echo tokens
 - **Framework (was 4 rules → 2 rules):** Use `ai-git` + never echo tokens
@@ -82,8 +79,7 @@ Update prompts in agents that reference git/gh directly:
 - **test-engineer:** Remove identity/auth hard rules, add "use `ai-git`" rule
 - **engineering-manager:** Replace `git worktree` → `ai-git worktree` references
 
-Agents with no git/gh prompt references (ai-engineer, architect, tech-lead,
-principal-engineer, engineering-tech-writer) get only the `blocked_commands` field.
+Agents with no git/gh prompt references (ai-engineer, architect, tech-lead, principal-engineer, engineering-tech-writer) get only the `blocked_commands` field.
 
 ### 3. Update harness adapters
 

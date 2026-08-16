@@ -152,5 +152,4 @@
 
 ## 14. Work Log
 
-{Auto-populated by agents. Format:}
-[{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{Plan ID}] [{Details}]
+{Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{Plan ID}] [{Details}]

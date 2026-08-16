@@ -47,8 +47,7 @@ Standards are matched to projects via tags declared in `.aiconfig.json`:
 }
 ```
 
-**Matching rule:** A standard is loaded if **ALL** of its `tags` are present in the
-project's tag list for the agent's domain (or `"all"`).
+**Matching rule:** A standard is loaded if **ALL** of its `tags` are present in the project's tag list for the agent's domain (or `"all"`).
 
 **Examples:**
 
@@ -59,9 +58,7 @@ project's tag list for the agent's domain (or `"all"`).
 | `["csharp", "avalonia"]` | `[csharp]` | ✓ All tags present |
 | `["csharp", "avalonia"]` | `[csharp, avalonia]` | ✓ All tags present |
 
-**Dependency resolution:** After matching, resolve `depends_on` chains. Load
-dependencies first (topological order). If a dependency is not already in the
-matched set, load it anyway — dependencies are unconditional.
+**Dependency resolution:** After matching, resolve `depends_on` chains. Load dependencies first (topological order). If a dependency is not already in the matched set, load it anyway — dependencies are unconditional.
 
 ## Naming Convention
 

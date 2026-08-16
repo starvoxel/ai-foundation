@@ -21,44 +21,27 @@
 
 ## 2. Goal
 
-Add an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`'s
-`paths` object, matching the existing precedent set by `paths.epics` and
-`paths.chunks`, so that `docs/decisions/` is a first-class configured path
-rather than an implicit convention.
+Add an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`'s `paths` object, matching the existing precedent set by `paths.epics` and `paths.chunks`, so that `docs/decisions/` is a first-class configured path rather than an implicit convention.
 
 ---
 
 ## 3. Scope
 
 ### In Scope
-- `.aiconfig.json` — add one key, `"decisions": "docs/decisions"`, to the
-  existing `paths` object.
+- `.aiconfig.json` — add one key, `"decisions": "docs/decisions"`, to the existing `paths` object.
 
 ### Out of Scope
-- Any change to other `paths.*` entries, `standards`, `orchestration`, or
-  `ai_identity` fields in `.aiconfig.json` — untouched.
-- Creating or migrating the `docs/decisions/{domain}/` subfolder structure
-  itself — that is Wave 1 chunk 009 (light-touch migration) and the domain
-  folders described in Epic Plan Section 3 ("Creation of the domain subfolders
-  under `docs/decisions/`").
-- Any skill or tooling change that reads `paths.decisions` — no skill in this
-  Epic currently requires reading it programmatically; this chunk only adds
-  the config entry itself, per the Epic Plan's exact scope description
-  ("Adding an explicit `paths.decisions: "docs/decisions"` entry to
-  `.aiconfig.json`").
-- `tests/validation/` changes — that is Wave 4 chunk 015, scoped to
-  `docs/decisions/index.json` validation, not `.aiconfig.json` schema
-  validation.
+- Any change to other `paths.*` entries, `standards`, `orchestration`, or `ai_identity` fields in `.aiconfig.json` — untouched.
+- Creating or migrating the `docs/decisions/{domain}/` subfolder structure itself — that is Wave 1 chunk 009 (light-touch migration) and the domain folders described in Epic Plan Section 3 ("Creation of the domain subfolders under `docs/decisions/`").
+- Any skill or tooling change that reads `paths.decisions` — no skill in this Epic currently requires reading it programmatically; this chunk only adds the config entry itself, per the Epic Plan's exact scope description ("Adding an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`").
+- `tests/validation/` changes — that is Wave 4 chunk 015, scoped to `docs/decisions/index.json` validation, not `.aiconfig.json` schema validation.
 
 ---
 
 ## 4. Prerequisites
 
-- [x] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`,
-      Status: Approved, Work Log entry 2026-08-14 [Approved])
-- [x] Open Question 3 resolved (human, 2026-08-14): "adds flexibility, matches
-      the precedent set for paths.epics/paths.chunks" — confirmed in Epic Plan
-      Section 3 and Work Log
+- [x] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`, Status: Approved, Work Log entry 2026-08-14 [Approved])
+- [x] Open Question 3 resolved (human, 2026-08-14): "adds flexibility, matches the precedent set for paths.epics/paths.chunks" — confirmed in Epic Plan Section 3 and Work Log
 - [x] Current `.aiconfig.json` read in full (repo root)
 - [x] No dependency chunks — this chunk has `depends_on: []` in `chunks.json`
 
@@ -72,33 +55,14 @@ rather than an implicit convention.
 
 ### Key Design Decisions
 
-1. **Decision**: Use the exact key/value `"decisions": "docs/decisions"`,
-   placed in the `paths` object after `"knowledge"` and before `"epics"` (or
-   any position within `paths` — ordering is cosmetic).
-   **Rationale**: Matches the human-confirmed scope statement verbatim
-   (Epic Plan Section 3, resolved Open Question 3) and the naming pattern
-   already used by `paths.epics: "docs/plans/epics"` and
-   `paths.chunks: "docs/plans/chunks"` — both point at a directory one level
-   more specific than a broader parent path, exactly as `paths.decisions`
-   does relative to `paths.knowledge: "docs"`.
+1. **Decision**: Use the exact key/value `"decisions": "docs/decisions"`, placed in the `paths` object after `"knowledge"` and before `"epics"` (or any position within `paths` — ordering is cosmetic).
+   **Rationale**: Matches the human-confirmed scope statement verbatim (Epic Plan Section 3, resolved Open Question 3) and the naming pattern already used by `paths.epics: "docs/plans/epics"` and `paths.chunks: "docs/plans/chunks"` — both point at a directory one level more specific than a broader parent path, exactly as `paths.decisions` does relative to `paths.knowledge: "docs"`.
 
-2. **Decision**: Do not add a corresponding change to any skill's `Inputs`
-   section to consume `paths.decisions` in this chunk.
-   **Rationale**: The Epic Plan's In Scope bullet for this chunk is narrowly
-   "adding an explicit entry," not "wiring skills to read it." Skills that
-   produce records under `docs/decisions/` (`decision-record`,
-   `decision-brief` — chunks 002/003) already hardcode the
-   `docs/decisions/{domain}/` path pattern per the Epic Plan's Data Flow
-   (Section 4, step 4). Adding config-consumption logic to those skills
-   without an explicit Epic Plan directive would be scope expansion beyond
-   what was confirmed; if a future chunk wants skills to read
-   `paths.decisions` instead of hardcoding the path, that is a separate,
-   explicitly scoped change.
+2. **Decision**: Do not add a corresponding change to any skill's `Inputs` section to consume `paths.decisions` in this chunk.
+   **Rationale**: The Epic Plan's In Scope bullet for this chunk is narrowly "adding an explicit entry," not "wiring skills to read it." Skills that produce records under `docs/decisions/` (`decision-record`, `decision-brief` — chunks 002/003) already hardcode the `docs/decisions/{domain}/` path pattern per the Epic Plan's Data Flow (Section 4, step 4). Adding config-consumption logic to those skills without an explicit Epic Plan directive would be scope expansion beyond what was confirmed; if a future chunk wants skills to read `paths.decisions` instead of hardcoding the path, that is a separate, explicitly scoped change.
 
 ### Patterns & Conventions Applied
-- Follows the existing flat key-value convention already used by every other
-  entry in `.aiconfig.json`'s `paths` object — no nesting, no new schema
-  shape introduced.
+- Follows the existing flat key-value convention already used by every other entry in `.aiconfig.json`'s `paths` object — no nesting, no new schema shape introduced.
 
 ---
 
@@ -107,8 +71,7 @@ rather than an implicit convention.
 ### .aiconfig.json paths.decisions — Config Entry
 
 **File**: `.aiconfig.json`
-**Purpose**: Register `docs/decisions/` as an explicit, named path so future
-tooling/skills can reference `paths.decisions` instead of a hardcoded literal.
+**Purpose**: Register `docs/decisions/` as an explicit, named path so future tooling/skills can reference `paths.decisions` instead of a hardcoded literal.
 
 **Public Interface**:
 Not applicable — static JSON config, no function signature. Resulting shape:
@@ -136,8 +99,7 @@ Not applicable — static JSON config, no function signature. Resulting shape:
 
 ### .aiconfig.json paths object (existing schema, one field added)
 
-**Purpose**: Declares project-relative paths used by planning skills to
-resolve default output locations.
+**Purpose**: Declares project-relative paths used by planning skills to resolve default output locations.
 
 | Field | Type | Required | Notes |
 |---|---|---|---|
@@ -149,21 +111,11 @@ resolve default output locations.
 
 > This section must never be empty.
 
-- [ ] No new attack surface — this chunk edits a single static JSON
-      configuration file already committed to the repo; it introduces no
-      code execution paths, no credential handling, and no network-facing
-      behavior (consistent with Epic Plan Section 6, first bullet).
-- [ ] No secrets or credentials in source content — the added value is a
-      relative filesystem path string (`"docs/decisions"`), containing no
-      environment-specific or credential-bearing data.
-- [ ] `.aiconfig.json` remains valid JSON after the edit and does not alter
-      `ai_identity` (`git_author_name`, `git_author_email`, `git_token_env`)
-      or `orchestration` fields — verified by diff review, since a malformed
-      edit to this shared config file could affect every agent/skill that
-      reads it, not just this chunk's deliverable.
-- [ ] Errors exposed to any consumer of this config contain no internal
-      system details — not applicable in practice for a static config value,
-      verified as N/A.
+- [ ] No new attack surface — this chunk edits a single static JSON configuration file already committed to the repo; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 6, first bullet).
+- [ ] No secrets or credentials in source content — the added value is a relative filesystem path string (`"docs/decisions"`), containing no environment-specific or credential-bearing data.
+- [ ] `.aiconfig.json` remains valid JSON after the edit and does not alter `ai_identity` (`git_author_name`, `git_author_email`, `git_token_env`)
+      or `orchestration` fields — verified by diff review, since a malformed edit to this shared config file could affect every agent/skill that reads it, not just this chunk's deliverable.
+- [ ] Errors exposed to any consumer of this config contain no internal system details — not applicable in practice for a static config value, verified as N/A.
 
 ---
 
@@ -171,13 +123,7 @@ resolve default output locations.
 
 > This section must never be empty.
 
-This chunk produces a static configuration value with no runtime component —
-`.aiconfig.json` is read by agents/skills at the start of a session, not
-executed as code, so there are no application log statements for this chunk
-to define. The table below documents the plan-level Work Log entries this
-chunk itself must produce, per `steering/engineering/core.md` Rule 2/Rule 9
-and `skill/plan-lifecycle` Steps 1-4 commit requirements — these are the only
-"logging" applicable to a config-only chunk.
+This chunk produces a static configuration value with no runtime component — `.aiconfig.json` is read by agents/skills at the start of a session, not executed as code, so there are no application log statements for this chunk to define. The table below documents the plan-level Work Log entries this chunk itself must produce, per `steering/engineering/core.md` Rule 2/Rule 9 and `skill/plan-lifecycle` Steps 1-4 commit requirements — these are the only "logging" applicable to a config-only chunk.
 
 | Event | Level (Work Log Action) | What is logged | What is NOT logged |
 |---|---|---|---|
@@ -189,8 +135,7 @@ and `skill/plan-lifecycle` Steps 1-4 commit requirements — these are the only
 
 ## 10. Testing Plan
 
-This chunk has no executable code, so "tests" are validation checks performed
-during self-validation (Section 12) rather than automated unit tests.
+This chunk has no executable code, so "tests" are validation checks performed during self-validation (Section 12) rather than automated unit tests.
 
 ### .aiconfig.json Config Tests
 
@@ -205,31 +150,22 @@ during self-validation (Section 12) rather than automated unit tests.
 
 ## 11. Documentation Requirements
 
-- [ ] Inline documentation on all public members — not applicable; JSON
-      config has no inline-doc convention in this repo (no other `paths.*`
-      entry carries a comment)
-- [ ] File headers on all new source files — not applicable; no new file
-      created, and `.aiconfig.json` carries no header convention today
-- [ ] README updated if user-facing — not applicable; `.aiconfig.json` is
-      not referenced by a README requiring an update for this addition
-- [ ] CHANGELOG entry written — deferred to the Epic-level decision (Epic
-      Plan Acceptance Criteria: "Epic-level CHANGELOG entry written (if this
-      repo maintains one — confirm at implementation time)"); this chunk does
-      not add its own CHANGELOG entry unilaterally
+- [ ] Inline documentation on all public members — not applicable; JSON config has no inline-doc convention in this repo (no other `paths.*` entry carries a comment)
+- [ ] File headers on all new source files — not applicable; no new file created, and `.aiconfig.json` carries no header convention today
+- [ ] README updated if user-facing — not applicable; `.aiconfig.json` is not referenced by a README requiring an update for this addition
+- [ ] CHANGELOG entry written — deferred to the Epic-level decision (Epic Plan Acceptance Criteria: "Epic-level CHANGELOG entry written (if this repo maintains one — confirm at implementation time)"); this chunk does not add its own CHANGELOG entry unilaterally
 
 ---
 
 ## 12. Acceptance Criteria
 
-- [ ] `.aiconfig.json` has an explicit `paths.decisions: "docs/decisions"`
-      entry, matching the Epic Plan Acceptance Criteria item verbatim
+- [ ] `.aiconfig.json` has an explicit `paths.decisions: "docs/decisions"` entry, matching the Epic Plan Acceptance Criteria item verbatim
 - [ ] `.aiconfig.json` remains valid JSON with no other field changed
 - [ ] Security checklist (Section 8) fully satisfied
 - [ ] Logging/Work-Log checklist (Section 9) fully satisfied
 - [ ] Documentation checklist (Section 11) fully satisfied
 - [ ] Review approved with no CRITICAL or HIGH findings
-- [ ] This Chunk Plan itself is committed with `Status: Draft` via `ai-git`
-      before being presented for human approval, per `skill/plan-lifecycle`
+- [ ] This Chunk Plan itself is committed with `Status: Draft` via `ai-git` before being presented for human approval, per `skill/plan-lifecycle`
 
 ---
 

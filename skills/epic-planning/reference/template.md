@@ -89,8 +89,7 @@ Dependency graph: [`chunks.json`](./chunks.json)
 
 Summary: {N} chunks across {M} waves. {Brief description of parallelization.}
 
-The `chunks.json` file is the machine-parseable source of truth for the dependency
-graph. It must pass `dag-validate` before the epic is considered decomposed.
+The `chunks.json` file is the machine-parseable source of truth for the dependency graph. It must pass `dag-validate` before the epic is considered decomposed.
 
 Start from the template at `skills/epic-planning/assets/chunks.json`.
 See `skills/epic-planning/reference/chunks-schema.md` for the file format.
@@ -112,5 +111,4 @@ Parallelization notes:
 
 ## 10. Work Log
 
-{Auto-populated by agents. Format:}
-[{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]
+{Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]

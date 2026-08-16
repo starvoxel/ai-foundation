@@ -2,8 +2,7 @@
 
 > **This file is for human reference only. Agents must not load this file.**
 
-Agent definitions live here as `.yaml` files. Each defines a named persona with a role,
-prompt, tools, and skills.
+Agent definitions live here as `.yaml` files. Each defines a named persona with a role, prompt, tools, and skills.
 
 ## Adding a new agent
 

@@ -113,24 +113,10 @@ Third revision. Original scope was a single steering-wording change. First revis
 
 ## Completion Note
 
-Implemented in commits 6de27f1 through a0a636d on main (2026-08-13). All planned
-components delivered: `skill/plan-lifecycle` created; `core.md` Rules 1/8/9 added;
-both git-workflow steering files updated with the commit-gate reference and
-granularity guidance; `chunk-planning`, `epic-planning`, `decision-record`, and
-`ai-engineering-plan` skills updated to the shared vocabulary and commit-gate
-reference; `chunk-orchestration` gained the Epic-approval check; `engineering-manager.yaml`
-updated for the Confirmed to Approved rename and the Epic-approval check.
+Implemented in commits 6de27f1 through a0a636d on main (2026-08-13). All planned components delivered: `skill/plan-lifecycle` created; `core.md` Rules 1/8/9 added; both git-workflow steering files updated with the commit-gate reference and granularity guidance; `chunk-planning`, `epic-planning`, `decision-record`, and `ai-engineering-plan` skills updated to the shared vocabulary and commit-gate reference; `chunk-orchestration` gained the Epic-approval check; `engineering-manager.yaml` updated for the Confirmed to Approved rename and the Epic-approval check.
 
-Discovery during validation (not in original Components Affected, fixed as a direct
-consequence of the approved DR rename, not new scope): `agents/tech-lead.yaml` and
-`agents/architect.yaml` also referenced the old `Confirmed`/`Confirmed By` wording
-and were updated to `Approved`/`Approved By` for consistency.
+Discovery during validation (not in original Components Affected, fixed as a direct consequence of the approved DR rename, not new scope): `agents/tech-lead.yaml` and `agents/architect.yaml` also referenced the old `Confirmed`/`Confirmed By` wording and were updated to `Approved`/`Approved By` for consistency.
 
-Confirmed out of scope and left untouched: `docs/decisions/*.decision.md` (existing
-records, grandfathered per plan), and `docs/knowledge-file-format.md` plus its
-associated tests (`tests/unit/knowledge.test.js`, `tests/unit/base.test.js`,
-`tests/integration/knowledge-index.test.js`) — a separate knowledge-index subsystem
-that independently uses `Confirmed` as an example status value, unrelated to the
-Decision Record skill/template this plan changed.
+Confirmed out of scope and left untouched: `docs/decisions/*.decision.md` (existing records, grandfathered per plan), and `docs/knowledge-file-format.md` plus its associated tests (`tests/unit/knowledge.test.js`, `tests/unit/base.test.js`, `tests/integration/knowledge-index.test.js`) — a separate knowledge-index subsystem that independently uses `Confirmed` as an example status value, unrelated to the Decision Record skill/template this plan changed.
 
 Full test suite: 489/489 passing.

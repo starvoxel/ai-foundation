@@ -23,13 +23,9 @@ When beginning a task in a project that has a `knowledge/` directory:
    - Match entries where `tags` overlap with the components or concepts you are working on
 3. Load the matching knowledge files before proceeding
 
-If no `knowledge/index.json` exists, scan `knowledge/` directory listings to discover
-relevant files by name. Prefer loading the index when available — it is faster and
-provides descriptions for relevance assessment without reading full files.
+If no `knowledge/index.json` exists, scan `knowledge/` directory listings to discover relevant files by name. Prefer loading the index when available — it is faster and provides descriptions for relevance assessment without reading full files.
 
-**Do not begin implementation without first checking for relevant knowledge.**
-Failing to load available knowledge leads to rework, contradicted decisions,
-and code that does not fit the existing architecture.
+**Do not begin implementation without first checking for relevant knowledge.** Failing to load available knowledge leads to rework, contradicted decisions, and code that does not fit the existing architecture.
 
 ### What to Load
 
@@ -42,17 +38,13 @@ and code that does not fit the existing architecture.
 ### When Knowledge Conflicts with Standards
 
 Standards are prescriptive rules. Knowledge is descriptive reference.
-If knowledge describes a pattern that conflicts with the active standards file,
-follow the standards. Raise the conflict as a finding — do not silently ignore either source.
+If knowledge describes a pattern that conflicts with the active standards file, follow the standards. Raise the conflict as a finding — do not silently ignore either source.
 
 ---
 
 ## Rationale
 
-Agents produce worse output when they ignore available context. Without knowledge
-consumption, agents reinvent settled decisions, miss constraints, contradict prior
-architecture choices, and produce code that must be reworked. The index enables
-efficient discovery without loading every file into context.
+Agents produce worse output when they ignore available context. Without knowledge consumption, agents reinvent settled decisions, miss constraints, contradict prior architecture choices, and produce code that must be reworked. The index enables efficient discovery without loading every file into context.
 
 ## Exceptions
 

@@ -2,8 +2,7 @@
 
 > **This file is for human reference only. Agents must not load this file.**
 
-Skills are reusable procedures that agents invoke. Each skill is a self-contained
-folder with a procedure definition and optional supporting material.
+Skills are reusable procedures that agents invoke. Each skill is a self-contained folder with a procedure definition and optional supporting material.
 
 ## Structure
 

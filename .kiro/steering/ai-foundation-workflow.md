@@ -4,8 +4,7 @@ inclusion: always
 
 ## Scope
 
-All agents working in the `ai-foundation` repository. These rules extend
-the generic `git-workflow-framework` steering.
+All agents working in the `ai-foundation` repository. These rules extend the generic `git-workflow-framework` steering.
 
 ---
 

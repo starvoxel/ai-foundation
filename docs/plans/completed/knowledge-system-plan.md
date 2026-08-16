@@ -8,9 +8,7 @@
 
 ## Overview
 
-Add a knowledge layer and standards resolution system to ai-foundation that gives
-agents structured, discoverable reference material and domain-appropriate standards
-for the projects they work on.
+Add a knowledge layer and standards resolution system to ai-foundation that gives agents structured, discoverable reference material and domain-appropriate standards for the projects they work on.
 
 ---
 

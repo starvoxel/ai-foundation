@@ -6,9 +6,7 @@ description: "Produces a Chunk Plan with enough detail for an agent to implement
 
 ## Purpose
 
-Decomposes one piece of an approved Epic into a fully specified Chunk Plan. Contains
-everything an implementing agent needs: components, interfaces, security requirements,
-logging requirements, test cases, and acceptance criteria.
+Decomposes one piece of an approved Epic into a fully specified Chunk Plan. Contains everything an implementing agent needs: components, interfaces, security requirements, logging requirements, test cases, and acceptance criteria.
 
 ---
 
@@ -25,8 +23,7 @@ logging requirements, test cases, and acceptance criteria.
 
 ### Step 1 — Determine Scope from Epic
 
-Read the Epic's Section 8 to understand this chunk's boundaries, dependencies,
-and parallelization constraints.
+Read the Epic's Section 8 to understand this chunk's boundaries, dependencies, and parallelization constraints.
 
 ### Step 2 — Write Chunk Plan
 
@@ -44,9 +41,7 @@ Key rules:
 
 ### Step 3 — Follow the Commit-Gate Procedure
 
-Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, and
-present it for human approval. Do not begin implementation. Do not proceed until
-the human's decision (`Approved` or `Deferred`) is committed.
+Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, and present it for human approval. Do not begin implementation. Do not proceed until the human's decision (`Approved` or `Deferred`) is committed.
 
 ---
 

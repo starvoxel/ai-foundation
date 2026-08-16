@@ -2,8 +2,7 @@
 
 > **This file is for human reference only. Agents must not load this file.**
 
-Server definitions describe tool providers that agents can connect to. Each server
-is a folder containing a YAML definition and an integration test.
+Server definitions describe tool providers that agents can connect to. Each server is a folder containing a YAML definition and an integration test.
 
 ## Structure
 

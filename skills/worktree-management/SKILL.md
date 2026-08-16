@@ -6,9 +6,7 @@ description: "Manages git worktree lifecycle for parallel agent isolation — cr
 
 ## Purpose
 
-Provides the Engineering Manager with a structured procedure for creating, configuring,
-and cleaning up git worktrees. Each dispatched chunk gets its own worktree so that
-parallel agents work in isolated directories without branch conflicts.
+Provides the Engineering Manager with a structured procedure for creating, configuring, and cleaning up git worktrees. Each dispatched chunk gets its own worktree so that parallel agents work in isolated directories without branch conflicts.
 
 ---
 
@@ -32,8 +30,7 @@ parallel agents work in isolated directories without branch conflicts.
    ```
    {worktrees_base}/{epic-id}/{chunk-id}-{short-description}
    ```
-4. If `{project_shortname}` appears in the configured path as a literal placeholder, substitute
-   with the actual `project_shortname` value from `.aiconfig.json` (or `project_name` if unset)
+4. If `{project_shortname}` appears in the configured path as a literal placeholder, substitute with the actual `project_shortname` value from `.aiconfig.json` (or `project_name` if unset)
 
 Example resolution:
 - Config: `paths.worktrees: "../worktrees/myapp"`
@@ -89,8 +86,7 @@ Called after the human confirms the PR is merged:
    ai-git branch -d <branch-name>
    ```
    Use `-d` (not `-D`) so git refuses if the branch is not fully merged.
-5. Clean up empty parent directories (e.g. if all chunks in an epic are torn down,
-   remove the empty epic directory)
+5. Clean up empty parent directories (e.g. if all chunks in an epic are torn down, remove the empty epic directory)
 
 ### Step 5 — Validate Existing Worktrees (Startup Check)
 

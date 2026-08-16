@@ -74,27 +74,20 @@ Structure defined and validated. Agents, skills, steering, and tests exist as pl
 Everything is portable and harness-agnostic.
 
 ### v1.0 — MVP
-Agents load in a harness with steering applied. Install/deploy works with bundle
-discovery, MCP server support, and snapshot-based freshness detection. The planning
-flow works end-to-end on a real project. Knowledge system gives agents project context.
-Standards cover common languages. Minimum needed to start using this for actual
-development across multiple projects.
+Agents load in a harness with steering applied. Install/deploy works with bundle discovery, MCP server support, and snapshot-based freshness detection. The planning flow works end-to-end on a real project. Knowledge system gives agents project context.
+Standards cover common languages. Minimum needed to start using this for actual development across multiple projects.
 
 ### v1.1 — Observability
-Track what happened (Work Log), what's in progress (task tracking), catch
-regressions automatically (CI/CD), and resume after interruptions.
+Track what happened (Work Log), what's in progress (task tracking), catch regressions automatically (CI/CD), and resume after interruptions.
 
 ### v1.2 — Quality Gates
-Automated plan review, epic-level QA agents, and documentation generation reduce
-the burden on human reviewers and keep docs current.
+Automated plan review, epic-level QA agents, and documentation generation reduce the burden on human reviewers and keep docs current.
 
 ### v1.3 — Tooling
-MCP servers give agents specialized capabilities: security scanning, code analysis,
-and domain-specific operations beyond what the harness provides natively.
+MCP servers give agents specialized capabilities: security scanning, code analysis, and domain-specific operations beyond what the harness provides natively.
 
 ### v1.4 — Product Domain
 Expand beyond engineering into product requirements, UX, and design feedback.
 
 ### v2.0 — Self-Improving
-The system learns from outcomes, evolves prompts based on results, and builds
-institutional memory across projects.
+The system learns from outcomes, evolves prompts based on results, and builds institutional memory across projects.

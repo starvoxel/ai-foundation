@@ -50,8 +50,7 @@ Never use block-scoped namespaces.
 ### `.editorconfig`
 
 Style rules in this standard are enforced via `.editorconfig` in each project.
-See `aif init` for the project template. If no `.editorconfig` exists, the agent
-should ask whether to generate one.
+See `aif init` for the project template. If no `.editorconfig` exists, the agent should ask whether to generate one.
 
 ---
 
@@ -93,8 +92,7 @@ var names = new List<string>();
 var counts = new Dictionary<string, int>();
 ```
 
-When the right-hand side is a method call or expression (not a constructor), the
-explicit type on the left provides readability:
+When the right-hand side is a method call or expression (not a constructor), the explicit type on the left provides readability:
 
 ```csharp
 // Correct — type visible at a glance
@@ -141,8 +139,7 @@ public decimal CalculateTotal()
 
 ### Primary Constructors
 
-Do not use primary constructors. Always use traditional constructors with explicit
-`private readonly` fields:
+Do not use primary constructors. Always use traditional constructors with explicit `private readonly` fields:
 
 ```csharp
 // Correct
@@ -164,8 +161,7 @@ public class UserService(ILogger<UserService> logger, IUserRepository repo) { }
 
 ### Pattern Matching
 
-Use pattern matching broadly, including `switch` expressions, type patterns, and
-null checks:
+Use pattern matching broadly, including `switch` expressions, type patterns, and null checks:
 
 ```csharp
 // Type checks
@@ -182,8 +178,7 @@ string label = status switch
 };
 ```
 
-**Cap property pattern nesting at one level.** If a pattern reaches into nested
-objects, break it into named conditions:
+**Cap property pattern nesting at one level.** If a pattern reaches into nested objects, break it into named conditions:
 
 ```csharp
 // Good — one level of property pattern
@@ -199,8 +194,7 @@ if (order is { Total: > 100 } && isNzCustomer)
 
 ### Collection Expressions
 
-Use collection expressions (`[]`) for simple initialisation with literals and
-simple variables:
+Use collection expressions (`[]`) for simple initialisation with literals and simple variables:
 
 ```csharp
 // Good — simple cases
@@ -267,8 +261,7 @@ if (settingKey == "MaxRetries") { }
 
 ### General Rules
 
-- Always return `Task` or `Task<T>`. Never use `async void` except in framework-mandated
-  event handler signatures.
+- Always return `Task` or `Task<T>`. Never use `async void` except in framework-mandated event handler signatures.
 - Always use `Task<T>`. Use `ValueTask<T>` only as a profiled optimisation exception.
 - Do not use `ConfigureAwait`. It is unnecessary in .NET 8+ application code.
 - Accept `CancellationToken` on all I/O-bound async methods.
@@ -306,8 +299,7 @@ throw new InvalidOperationException("Connection pool exhausted");
 
 ### Custom Exceptions
 
-- Prefer built-in exceptions (`InvalidOperationException`, `ArgumentException`,
-  `ArgumentNullException`, `NotSupportedException`) wherever they fit
+- Prefer built-in exceptions (`InvalidOperationException`, `ArgumentException`, `ArgumentNullException`, `NotSupportedException`) wherever they fit
 - Create custom exceptions only when callers need to catch a specific domain failure by type
 - Custom exceptions inherit from `Exception` and follow the `{Domain}Exception` naming pattern
 
@@ -348,8 +340,7 @@ await ProcessResultAsync();
 
 ### `IDisposable` and `IAsyncDisposable`
 
-- Implement `IAsyncDisposable` on classes that hold async resources (DB connections,
-  HTTP clients, streams used with async I/O)
+- Implement `IAsyncDisposable` on classes that hold async resources (DB connections, HTTP clients, streams used with async I/O)
 - Pair with `IDisposable` when synchronous disposal is feasible
 - Do not force `IDisposable` if the class genuinely has no synchronous disposal path
 - Always use `await using` for `IAsyncDisposable` types
@@ -360,13 +351,11 @@ await ProcessResultAsync();
 
 ### Method Syntax Only
 
-Always use method syntax (`.Where()`, `.Select()`, `.OrderBy()`). Do not use
-query syntax (`from x in y select z`).
+Always use method syntax (`.Where()`, `.Select()`, `.OrderBy()`). Do not use query syntax (`from x in y select z`).
 
 ### Chain Length
 
-Cap LINQ chains at approximately 5 operations. Beyond that, break into named
-intermediate variables:
+Cap LINQ chains at approximately 5 operations. Beyond that, break into named intermediate variables:
 
 ```csharp
 // Good — under 5
@@ -431,8 +420,7 @@ Services/Auth/TokenService.cs → MyApp.Services.Auth.TokenService
 Models/User.cs               → MyApp.Models.User
 ```
 
-No exceptions. If a namespace has only one class, that is a signal to merge it up —
-not to break the mapping.
+No exceptions. If a namespace has only one class, that is a signal to merge it up — not to break the mapping.
 
 ---
 
@@ -446,8 +434,7 @@ not to break the mapping.
 | Scoped     | Per-request/per-operation state (DB contexts, unit of work)       |
 | Transient  | Lightweight, no shared state, cheap to construct                  |
 
-**Lifetime rule:** A service may only depend on services with an equal or longer
-lifetime. Transient can depend on anything. Scoped can depend on Scoped or Singleton.
+**Lifetime rule:** A service may only depend on services with an equal or longer lifetime. Transient can depend on anything. Scoped can depend on Scoped or Singleton.
 Singleton can only depend on Singleton.
 
 ### Registration Pattern
@@ -620,8 +607,7 @@ These apply to every C# plan's security checklist:
 
 Framework: `Microsoft.Extensions.Logging` with structured logging.
 
-For smaller projects where MEL is not yet configured, `Debug.WriteLine` is acceptable during
-development but must follow the same data-safety rules.
+For smaller projects where MEL is not yet configured, `Debug.WriteLine` is acceptable during development but must follow the same data-safety rules.
 
 ### Log Format
 

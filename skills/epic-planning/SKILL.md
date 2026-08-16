@@ -6,8 +6,7 @@ description: "Produces a structured Epic Plan describing a complete feature at a
 
 ## Purpose
 
-Translates a goal (human request, PRD, or Decision Record) into a structured Epic Plan
-that describes a full feature at a level a developer can review and give feedback on.
+Translates a goal (human request, PRD, or Decision Record) into a structured Epic Plan that describes a full feature at a level a developer can review and give feedback on.
 Does not contain implementation detail — that lives in Chunk Plans.
 
 ---
@@ -31,8 +30,7 @@ Identify ambiguities or conflicts to raise as open questions.
 
 ### Step 2 — Determine Epic ID
 
-Epic IDs follow the format `{ProjectShortName}-{###}` (e.g. `MYAPP-001`), an
-ever-incrementing, zero-padded 3-digit number — no date segment.
+Epic IDs follow the format `{ProjectShortName}-{###}` (e.g. `MYAPP-001`), an ever-incrementing, zero-padded 3-digit number — no date segment.
 
 1. Read `project_shortname` from `.aiconfig.json` (falls back to `project_name` if unset)
 2. Scan `{paths.epics}/` for existing epic files matching `{ProjectShortName}-*.epic.md`
@@ -49,9 +47,7 @@ Follow the template at `skills/epic-planning/reference/template.md`. Key section
 
 ### Step 4 — Follow the Commit-Gate Procedure
 
-Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, and
-present it for human approval. Do not decompose into chunks. Do not proceed until
-the human's decision (`Approved` or `Deferred`) is committed.
+Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, and present it for human approval. Do not decompose into chunks. Do not proceed until the human's decision (`Approved` or `Deferred`) is committed.
 
 ### Step 5 — Decompose into Chunks
 
@@ -69,8 +65,7 @@ If `dag-validate` fails:
 - Retry up to 3 times
 - If still invalid after 3 attempts, stop and escalate to the human with the validation errors
 
-Once valid, update Section 8 of the epic plan with a summary (chunk count, wave count,
-parallelization notes) and a reference to the `chunks.json` file.
+Once valid, update Section 8 of the epic plan with a summary (chunk count, wave count, parallelization notes) and a reference to the `chunks.json` file.
 
 ---
 

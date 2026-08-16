@@ -6,12 +6,9 @@ description: "Creates a well-formed, self-contained skill with proper folder str
 
 ## Purpose
 
-Creates a new skill in the `skills/` directory. A skill is a reusable, self-contained
-procedure — it defines inputs, steps, and outputs. Skills have no identity, no domain,
-and no hard rules. An agent invokes a skill when a task requires that procedure.
+Creates a new skill in the `skills/` directory. A skill is a reusable, self-contained procedure — it defines inputs, steps, and outputs. Skills have no identity, no domain, and no hard rules. An agent invokes a skill when a task requires that procedure.
 
-Use this skill when you need to author a new skill from scratch or restructure an
-existing one to meet the framework's requirements.
+Use this skill when you need to author a new skill from scratch or restructure an existing one to meet the framework's requirements.
 
 ---
 
@@ -89,9 +86,7 @@ Assets are **used in production of output**, not read for understanding.
 
 ### Step 6 — Add scripts for deterministic work
 
-**Every operation that is deterministic and repeatable MUST be a script, not
-prose instructions for the agent.** The agent invokes scripts via the `shell`
-tool. AI reasoning is expensive and unreliable for mechanical tasks.
+**Every operation that is deterministic and repeatable MUST be a script, not prose instructions for the agent.** The agent invokes scripts via the `shell` tool. AI reasoning is expensive and unreliable for mechanical tasks.
 
 Scripts go in `scripts/`. Examples:
 - Schema validation (`scripts/validate.js`)
@@ -99,9 +94,7 @@ Scripts go in `scripts/`. Examples:
 - Cross-reference checks (`scripts/check-refs.js`)
 - Format transforms (`scripts/transform.js`)
 
-**Rule:** If a step can be expressed as "run this command and check the exit
-code," it MUST be a script. Do not ask an agent to manually verify something
-a script can verify deterministically.
+**Rule:** If a step can be expressed as "run this command and check the exit code," it MUST be a script. Do not ask an agent to manually verify something a script can verify deterministically.
 
 ### Step 7 — Self-validate
 

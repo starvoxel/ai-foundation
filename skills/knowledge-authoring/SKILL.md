@@ -6,12 +6,9 @@ description: "Creates a well-formed knowledge entry with proper frontmatter and 
 
 ## Purpose
 
-Creates a new knowledge entry in a project's `knowledge/` directory. Knowledge entries
-provide reference material that agents load when working on related tasks — API schemas,
-architecture docs, business rules, and confirmed decisions.
+Creates a new knowledge entry in a project's `knowledge/` directory. Knowledge entries provide reference material that agents load when working on related tasks — API schemas, architecture docs, business rules, and confirmed decisions.
 
-Use this skill when capturing information that agents will need repeatedly across
-multiple tasks or sessions.
+Use this skill when capturing information that agents will need repeatedly across multiple tasks or sessions.
 
 ---
 

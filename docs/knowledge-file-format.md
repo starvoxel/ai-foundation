@@ -1,17 +1,14 @@
 # Knowledge File Format
 
-Knowledge files are structured markdown documents with YAML frontmatter that
-provide reference material to agents working on a project.
+Knowledge files are structured markdown documents with YAML frontmatter that provide reference material to agents working on a project.
 
 ---
 
 ## Location
 
-Knowledge files live in the project's knowledge directory (default: `knowledge/`),
-configurable via `.aiconfig.json` `paths.knowledge`.
+Knowledge files live in the project's knowledge directory (default: `knowledge/`), configurable via `.aiconfig.json` `paths.knowledge`.
 
-Decision Records are a special type of knowledge file stored at
-`{paths.knowledge}/decisions/` (default: `knowledge/decisions/`).
+Decision Records are a special type of knowledge file stored at `{paths.knowledge}/decisions/` (default: `knowledge/decisions/`).
 
 ---
 
@@ -58,8 +55,7 @@ description: "Complete REST API schema with request/response formats."
 
 ## Body
 
-The body is standard markdown. No restrictions on structure — use whatever format
-communicates the information clearly. Prefer concise, scannable content over prose.
+The body is standard markdown. No restrictions on structure — use whatever format communicates the information clearly. Prefer concise, scannable content over prose.
 
 ---
 

@@ -7,8 +7,7 @@ description: "Produces a Review Report with severity-classified findings for com
 ## Purpose
 
 Reviews source code against its Chunk Plan, language standards, and project standards.
-Produces a structured report that either approves the code or returns it with
-actionable findings for correction.
+Produces a structured report that either approves the code or returns it with actionable findings for correction.
 
 ---
 
@@ -25,18 +24,15 @@ actionable findings for correction.
 
 ### Step 1 — Review Completeness
 
-Verify every component in the plan's component list exists. Missing components are
-CRITICAL findings before any code quality review begins.
+Verify every component in the plan's component list exists. Missing components are CRITICAL findings before any code quality review begins.
 
 ### Step 2 — Review Security and Logging
 
-Go through security and logging requirements line by line. Each unmet requirement
-is a finding classified HIGH or CRITICAL.
+Go through security and logging requirements line by line. Each unmet requirement is a finding classified HIGH or CRITICAL.
 
 ### Step 3 — Review Standards Compliance
 
-Check naming conventions, file headers, doc comments, async patterns, error handling,
-and any other rules in the active standards files.
+Check naming conventions, file headers, doc comments, async patterns, error handling, and any other rules in the active standards files.
 
 ### Step 4 — Review Logic and Correctness
 

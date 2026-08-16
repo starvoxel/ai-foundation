@@ -6,14 +6,9 @@ description: "Assesses task complexity and scales process rigor accordingly, fro
 
 ## Purpose
 
-Provides a shared framework for scaling process to the size of the work: small,
-clear changes move fast with minimal ceremony, while cross-cutting or ambiguous
-work gets a written plan and explicit human approval before implementation. This
-avoids two failure modes — over-processing trivial changes, and under-processing
-changes that quietly reshape how other components work.
+Provides a shared framework for scaling process to the size of the work: small, clear changes move fast with minimal ceremony, while cross-cutting or ambiguous work gets a written plan and explicit human approval before implementation. This avoids two failure modes — over-processing trivial changes, and under-processing changes that quietly reshape how other components work.
 
-Use this skill whenever an agent needs to decide how much process a task warrants
-before starting work.
+Use this skill whenever an agent needs to decide how much process a task warrants before starting work.
 
 ---
 
@@ -29,14 +24,12 @@ before starting work.
 
 ### Step 1 — Assess complexity and state the tier
 
-Before starting work, assess which tier applies and state it explicitly, with brief
-reasoning. The human can override the assessment up or down at any time.
+Before starting work, assess which tier applies and state it explicitly, with brief reasoning. The human can override the assessment up or down at any time.
 
 ### Step 2 — Tier 1 (Quick)
 
 **Signals:** single-file change, clear intent, no new patterns, no schema changes.
-**Examples:** fix a typo, update a version, add a tool to an existing agent, tweak
-wording.
+**Examples:** fix a typo, update a version, add a tool to an existing agent, tweak wording.
 
 **Process:**
 1. Clarify (if anything is ambiguous — skip if intent is obvious)
@@ -46,10 +39,8 @@ wording.
 
 ### Step 3 — Tier 2 (Standard)
 
-**Signals:** multi-file change, new component (but straightforward), modifying an
-existing pattern without changing it.
-**Examples:** author a new steering file, add a new skill following an established
-pattern, create a new server definition.
+**Signals:** multi-file change, new component (but straightforward), modifying an existing pattern without changing it.
+**Examples:** author a new steering file, add a new skill following an established pattern, create a new server definition.
 
 **Process:**
 1. Clarify — ask questions if anything is unclear
@@ -61,10 +52,8 @@ pattern, create a new server definition.
 
 ### Step 4 — Tier 3 (Complex)
 
-**Signals:** cross-cutting changes, new conventions or patterns, multi-component
-design, schema changes, anything that reshapes how other components work.
-**Examples:** redesigning a component into multiple roles, creating a new
-interconnected set of components, introducing a new convention, changing a schema.
+**Signals:** cross-cutting changes, new conventions or patterns, multi-component design, schema changes, anything that reshapes how other components work.
+**Examples:** redesigning a component into multiple roles, creating a new interconnected set of components, introducing a new convention, changing a schema.
 
 **Process:**
 1. Clarify — ask focused questions to bound scope
@@ -78,8 +67,7 @@ interconnected set of components, introducing a new convention, changing a schem
 
 - State the tier and reasoning at the start of every task
 - When in doubt, tier up (prefer more process over less)
-- If mid-task complexity turns out higher than assessed, stop and escalate to the
-  next tier rather than continuing under the original assessment
+- If mid-task complexity turns out higher than assessed, stop and escalate to the next tier rather than continuing under the original assessment
 
 ---
 

@@ -6,9 +6,7 @@ description: "Produces a structured Decision Record capturing options explored a
 
 ## Purpose
 
-Captures a technical decision with full context: the problem, constraints, options
-explored, trade-offs, and the chosen approach with rationale. Creates a durable
-record that planning agents reference and humans review.
+Captures a technical decision with full context: the problem, constraints, options explored, trade-offs, and the chosen approach with rationale. Creates a durable record that planning agents reference and humans review.
 
 ---
 
@@ -43,10 +41,7 @@ Write the record using the template at `skills/decision-record/reference/templat
 
 ### Step 4 — Follow the Commit-Gate Procedure
 
-Follow `skill/plan-lifecycle` to save the record with `Status: Draft`, commit it, and
-present it for human confirmation. The human confirms before it is finalized — do not
-treat the record as authoritative until the human's decision (`Approved`, `Deferred`,
-or later `Superseded`) is committed.
+Follow `skill/plan-lifecycle` to save the record with `Status: Draft`, commit it, and present it for human confirmation. The human confirms before it is finalized — do not treat the record as authoritative until the human's decision (`Approved`, `Deferred`, or later `Superseded`) is committed.
 
 ---
 

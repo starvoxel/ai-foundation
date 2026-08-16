@@ -74,8 +74,7 @@ A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
 **Lives in:** `skills/{name}/` | **Format:** `SKILL.md` + `reference/`, `assets/`, `scripts/`  | **Authoring:** `skill/skill-authoring`
 
-Front-matter: `name`, `version`, `description`
-Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
+Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
 ### Steering
 
@@ -83,8 +82,7 @@ Always-on rules. Unconditional within scope.
 
 **Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
 
-Front-matter: `name`, `version`, `description`, optional `file_patterns`
-Scopes: `global/` (all agents) or `{domain}/` (domain agents). Agent-specific rules go in the agent's `prompt`.
+Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents) or `{domain}/` (domain agents). Agent-specific rules go in the agent's `prompt`.
 
 ### Standards / Knowledge
 
@@ -105,9 +103,7 @@ Fields: `name`, `version`, `protocol`, `transport`, `description`, `tools`
 
 ### `.aiconfig.json`
 
-Every project that uses ai-foundation agents should have a `.aiconfig.json` file at
-the repository root. This file provides project-specific configuration that agents
-read before performing any path-dependent operation.
+Every project that uses ai-foundation agents should have a `.aiconfig.json` file at the repository root. This file provides project-specific configuration that agents read before performing any path-dependent operation.
 
 **Location:** Project repository root (where agents run)
 
@@ -115,9 +111,7 @@ read before performing any path-dependent operation.
 1. Read `.aiconfig.json` from the current working directory
 2. If not found, fall back to default conventions (see below)
 
-**Agents MUST check for `.aiconfig.json` before assuming any paths.** If the file
-exists, its values override all defaults. If it does not exist, agents use the
-default conventions documented in each skill.
+**Agents MUST check for `.aiconfig.json` before assuming any paths.** If the file exists, its values override all defaults. If it does not exist, agents use the default conventions documented in each skill.
 
 See `projects/_template/.aiconfig.json` for the schema and default values.
 

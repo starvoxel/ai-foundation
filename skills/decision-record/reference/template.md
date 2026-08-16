@@ -52,8 +52,7 @@ What was a preference but not a hard requirement:
 **Chosen approach**: {Option name}
 
 **Rationale**:
-{Two to four sentences explaining why this option was chosen over the others,
-grounded in the constraints listed above.}
+{Two to four sentences explaining why this option was chosen over the others, grounded in the constraints listed above.}
 
 **Trade-offs accepted**:
 - {What you are giving up}
@@ -63,8 +62,7 @@ grounded in the constraints listed above.}
 
 ## Design
 
-{Optional — include when there is a concrete schema, data shape, or architecture
-worth documenting (e.g. a manifest format, a translation table, a component list).
+{Optional — include when there is a concrete schema, data shape, or architecture worth documenting (e.g. a manifest format, a translation table, a component list).
 Omit this section entirely for simpler decisions with nothing concrete to spell out.}
 
 ### {Subsection Name}
@@ -84,9 +82,7 @@ What Tech-Lead must know when writing the Epic that references this decision:
 
 ## Resolved Items / Open Items
 
-{Use `## Resolved Items` if every question raised during the decision was answered
-by the time this record was written. Use `## Open Items` if questions remain
-unresolved. Include either — or, if genuinely warranted, both — but never neither.}
+{Use `## Resolved Items` if every question raised during the decision was answered by the time this record was written. Use `## Open Items` if questions remain unresolved. Include either — or, if genuinely warranted, both — but never neither.}
 
 ### Resolved Items
 

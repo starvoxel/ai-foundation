@@ -6,9 +6,7 @@ description: "Creates a server definition with tool documentation, implementatio
 
 ## Purpose
 
-Creates a new server definition in `servers/`. A server exposes tools that agents can
-call via a protocol (MCP, HTTP, etc.). The definition describes what tools exist, their
-inputs/outputs, and how to connect.
+Creates a new server definition in `servers/`. A server exposes tools that agents can call via a protocol (MCP, HTTP, etc.). The definition describes what tools exist, their inputs/outputs, and how to connect.
 
 Use this skill when adding a new tool server to the framework.
 
@@ -100,8 +98,7 @@ The server's `package.json` declares dependencies needed for standalone installa
 }
 ```
 
-Only include dependencies that are needed at runtime. Dev/test dependencies live in
-the monorepo root `package.json`, not here.
+Only include dependencies that are needed at runtime. Dev/test dependencies live in the monorepo root `package.json`, not here.
 
 ### Step 6 — Write tests
 
@@ -123,8 +120,7 @@ Tests are organized into `tests/unit/` and `tests/integration/`:
 - Connect a test client
 - Verify tool listing and invocation end-to-end via the MCP protocol
 
-Use `node:test` with `describe/it` structure. Group tests under descriptive
-prefixes: `describe('unit: ...')`, `describe('integration: ...')`, `describe('mcp: ...')`.
+Use `node:test` with `describe/it` structure. Group tests under descriptive prefixes: `describe('unit: ...')`, `describe('integration: ...')`, `describe('mcp: ...')`.
 
 ### Step 7 — Self-validate
 
@@ -146,8 +142,7 @@ prefixes: `describe('unit: ...')`, `describe('integration: ...')`, `describe('mc
 
 ## Protocol: MCP
 
-When `protocol: "mcp"` in the YAML definition, the server must implement the
-Model Context Protocol using `@modelcontextprotocol/sdk`.
+When `protocol: "mcp"` in the YAML definition, the server must implement the Model Context Protocol using `@modelcontextprotocol/sdk`.
 
 ### MCP entry point (`index.js`)
 
@@ -198,8 +193,7 @@ main().catch((error) => {
 }
 ```
 
-Pin the SDK version. Zod is provided as a peer dependency of the SDK — do not
-list it separately unless you need a specific version.
+Pin the SDK version. Zod is provided as a peer dependency of the SDK — do not list it separately unless you need a specific version.
 
 ### MCP protocol tests
 

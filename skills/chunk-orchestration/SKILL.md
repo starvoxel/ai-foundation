@@ -6,10 +6,7 @@ description: "Orchestrates parallel chunk plan execution across engineering agen
 
 ## Purpose
 
-Manages the end-to-end execution of an epic's chunk plans. Computes execution waves
-from the dependency graph, dispatches chunks to engineering agents as subagents,
-monitors the per-chunk pipeline (SE → TE → PE), handles review loops, detects blocks,
-and advances waves until the epic is complete or fully blocked.
+Manages the end-to-end execution of an epic's chunk plans. Computes execution waves from the dependency graph, dispatches chunks to engineering agents as subagents, monitors the per-chunk pipeline (SE → TE → PE), handles review loops, detects blocks, and advances waves until the epic is complete or fully blocked.
 
 ---
 
@@ -27,10 +24,7 @@ and advances waves until the epic is complete or fully blocked.
 ### Step 1 — Initialize
 
 1. Read `.aiconfig.json` from the project root to resolve artifact paths
-2. Read the Epic Plan and confirm `Status: Approved` before proceeding. If the Epic
-   is not `Approved` (e.g. still `Draft` or `Deferred`), stop and report to the
-   human — do not read `chunks.json`. See `skill/plan-lifecycle` — only `Approved`
-   satisfies this gate.
+2. Read the Epic Plan and confirm `Status: Approved` before proceeding. If the Epic is not `Approved` (e.g. still `Draft` or `Deferred`), stop and report to the human — do not read `chunks.json`. See `skill/plan-lifecycle` — only `Approved` satisfies this gate.
 3. Read `chunks.json` for the epic (at `{paths.chunks}/{EpicID}/chunks.json`)
 4. Call `dag-compute-waves` to get the ordered wave structure
 5. Copy the template from `skills/chunk-orchestration/assets/orchestration-state.json`
@@ -51,13 +45,11 @@ and advances waves until the epic is complete or fully blocked.
 
 ### Step 2 — Dispatch Wave
 
-**⚠️ PREREQUISITE GATE: Every chunk MUST have a dedicated branch and worktree created
-BEFORE any subagent is dispatched. No exceptions. No fallback to main directory.**
+**⚠️ PREREQUISITE GATE: Every chunk MUST have a dedicated branch and worktree created BEFORE any subagent is dispatched. No exceptions. No fallback to main directory.**
 
 **File Overlap Detection (warning only):**
 
-Before dispatching any chunks in the wave, compare `files_modified` or `components_affected`
-across all chunk plans in the current wave:
+Before dispatching any chunks in the wave, compare `files_modified` or `components_affected` across all chunk plans in the current wave:
 1. Read each chunk plan for the wave and extract the list of files/components it modifies
 2. Compare across all chunks in the wave for overlapping file paths
 3. If overlap is found:
@@ -143,9 +135,7 @@ When the human confirms merge, run worktree teardown (skill/worktree-management 
 
 A chunk may be blocked for reasons beyond review loops:
 
-**Out-of-domain work detected:**
-If a chunk plan references components, skills, or work outside the engineering domain
-(e.g., AI component authoring, infrastructure provisioning), mark it as:
+**Out-of-domain work detected:** If a chunk plan references components, skills, or work outside the engineering domain (e.g., AI component authoring, infrastructure provisioning), mark it as:
 - Status: `Blocked`
 - `blocked_reason`: description of what's needed (e.g., "Requires new skill to be authored by AI Engineer")
 - Log: `chunk_blocked`
@@ -218,10 +208,8 @@ After each chunk completion, check wave status:
           - If rebase succeeds cleanly: log `wave_rebase` with chunk ID, proceed normally
           - If rebase conflicts: enter the Conflict Resolution Sub-Flow (Step 4) for that chunk.
             The chunk cannot be dispatched until conflict is resolved.
-       3. For new chunks (no worktree yet): no action needed — they will branch from the
-          current main when their worktree is created in Step 2, so they naturally get the latest code.
-     - Set all chunks in the new wave whose dependencies are `Done` to `Ready`
-       (except any currently in `Conflict` from the rebase above)
+       3. For new chunks (no worktree yet): no action needed — they will branch from the current main when their worktree is created in Step 2, so they naturally get the latest code.
+     - Set all chunks in the new wave whose dependencies are `Done` to `Ready` (except any currently in `Conflict` from the rebase above)
      - Log: `wave_started`
      - Go to Step 2 (dispatch new wave)
    - If no more waves remain:

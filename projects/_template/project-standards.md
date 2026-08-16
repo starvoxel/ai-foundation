@@ -19,9 +19,7 @@ It is composed on top of the universal schema and the language standards file.
 | Created            | {YYYY-MM-DD}                                                 |
 
 **Module ID** is the language-specific package or module identifier for this project.
-Examples: npm scope (`@org/package`), Go module (`github.com/org/repo`),
-Rust crate name, Python package name, .NET root namespace (`Company.Project`),
-Java group ID (`com.company.project`).
+Examples: npm scope (`@org/package`), Go module (`github.com/org/repo`), Rust crate name, Python package name, .NET root namespace (`Company.Project`), Java group ID (`com.company.project`).
 
 Standards for this project are configured in `.aiconfig.json` under the `standards` field.
 
@@ -79,8 +77,7 @@ These add to the universal and language-level security rules — they do not rep
 
 ## Project-Specific Testing Rules
 
-Any additions to the base testing standards — e.g. required integration test scenarios,
-specific data fixtures, or environment setup requirements.
+Any additions to the base testing standards — e.g. required integration test scenarios, specific data fixtures, or environment setup requirements.
 
 ---
 
@@ -93,8 +90,7 @@ Use the decision-record skill to create them.
 
 ## Out of Bounds
 
-Explicit list of things that must never appear in this project's plans or code,
-regardless of what any agent reasons.
+Explicit list of things that must never appear in this project's plans or code, regardless of what any agent reasons.
 
 - {e.g. No external network calls without explicit plan approval}
 - {e.g. No third-party analytics or telemetry}

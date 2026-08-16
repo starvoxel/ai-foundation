@@ -6,9 +6,7 @@ description: "Creates a well-formed steering file with enforced rules, rationale
 
 ## Purpose
 
-Creates a new steering file in `steering/`. Steering files define always-on rules
-that apply unconditionally to agents within a scope. They are not procedures — they
-enforce constraints, not steps.
+Creates a new steering file in `steering/`. Steering files define always-on rules that apply unconditionally to agents within a scope. They are not procedures — they enforce constraints, not steps.
 
 Use this skill when adding new behavioural rules for agents in a global or domain scope.
 

@@ -6,9 +6,7 @@ description: "Creates a bundle definition that specifies what components to inst
 
 ## Purpose
 
-Creates a new bundle in `bundles/`. A bundle defines what components (agents, skills,
-steering, servers) get installed to a target harness. Bundles can auto-discover by
-domain, explicitly list components, or both.
+Creates a new bundle in `bundles/`. A bundle defines what components (agents, skills, steering, servers) get installed to a target harness. Bundles can auto-discover by domain, explicitly list components, or both.
 
 Use this skill when adding a new installable configuration for a harness.
 

@@ -94,16 +94,12 @@ file_patterns: []          # When: [] = always | ["glob", ...] = conditional
 
 ### Agent/Role Scoping — Removed
 
-The `applies_to` field was initially included to let agents skip irrelevant steering
-based on frontmatter alone. It was removed because:
+The `applies_to` field was initially included to let agents skip irrelevant steering based on frontmatter alone. It was removed because:
 
 1. No harness supports agent-role scoping natively — all load entire files or nothing
 2. Frontmatter vs body makes no difference to context consumption (whole file loads)
-3. Agent-scoped steering is better handled by bundle composition (install different
-   bundles for different agents) or by putting agent-specific rules in the agent's
-   `prompt` field where they belong
-4. The Scope section in the body already documents who the steering is for (as prose
-   for human/agent comprehension), which is sufficient
+3. Agent-scoped steering is better handled by bundle composition (install different bundles for different agents) or by putting agent-specific rules in the agent's `prompt` field where they belong
+4. The Scope section in the body already documents who the steering is for (as prose for human/agent comprehension), which is sufficient
 
 ---
 
@@ -134,34 +130,21 @@ based on frontmatter alone. It was removed because:
 
 ### Kiro `fileMatch` is unreliable (as of Aug 2026)
 
-Kiro's `inclusion: "fileMatch"` is documented to conditionally load steering files
-when working with files matching a pattern. However:
+Kiro's `inclusion: "fileMatch"` is documented to conditionally load steering files when working with files matching a pattern. However:
 
-1. **The glob pattern field is undocumented.** Kiro's official CLI docs only describe
-   `inclusion: "fileMatch"` as a mode that "excludes from automatic loading" — they
-   don't document how to specify *which* file patterns trigger it. Community usage
-   suggests a `fileMatchPattern` frontmatter field, but this isn't in official docs.
+1. **The glob pattern field is undocumented.** Kiro's official CLI docs only describe `inclusion: "fileMatch"` as a mode that "excludes from automatic loading" — they don't document how to specify *which* file patterns trigger it. Community usage suggests a `fileMatchPattern` frontmatter field, but this isn't in official docs.
 
 2. **It doesn't work reliably.** GitHub issue [kirodotdev/Kiro#6171](https://github.com/kirodotdev/Kiro/issues/6171)
-   (March 2026, closed as duplicate) reports that `fileMatch` steering files are
-   never injected into context regardless of matching files. The issue was reported
-   for both global (`~/.kiro/steering/`) and workspace-level files.
+   (March 2026, closed as duplicate) reports that `fileMatch` steering files are never injected into context regardless of matching files. The issue was reported for both global (`~/.kiro/steering/`) and workspace-level files.
 
-3. **The intended behaviour** (per a Medium article by an AWS consultant): the file
-   loads only when Kiro reads a file matching the glob pattern. This matches how
-   Copilot `applyTo` and Claude Code `paths` work — but it's not functional today.
+3. **The intended behaviour** (per a Medium article by an AWS consultant): the file loads only when Kiro reads a file matching the glob pattern. This matches how Copilot `applyTo` and Claude Code `paths` work — but it's not functional today.
 
 **Impact on our adapter:**
 
 - For `file_patterns: []` → emit no `inclusion` field or `inclusion: "always"`. This works.
-- For `file_patterns: ["glob"]` → the Kiro adapter should emit `inclusion: "fileMatch"`
-  with the pattern, but this may not actually trigger conditional loading in current
-  Kiro versions. As a fallback, the adapter could:
+- For `file_patterns: ["glob"]` → the Kiro adapter should emit `inclusion: "fileMatch"` with the pattern, but this may not actually trigger conditional loading in current Kiro versions. As a fallback, the adapter could:
   - Emit `inclusion: "always"` (load unconditionally, accept the context cost)
   - Skip installing the file entirely (safe but loses the content)
   - Emit `fileMatch` optimistically and let it work when Kiro fixes the feature
 
-**Recommendation:** Emit `fileMatch` with the pattern. If Kiro fixes the feature,
-it works automatically. If not, the file simply won't load — which is acceptable
-since conditional steering is an optimization, not a correctness requirement. Files
-with critical rules should use `file_patterns: []` (always load) regardless.
+**Recommendation:** Emit `fileMatch` with the pattern. If Kiro fixes the feature, it works automatically. If not, the file simply won't load — which is acceptable since conditional steering is an optimization, not a correctness requirement. Files with critical rules should use `file_patterns: []` (always load) regardless.

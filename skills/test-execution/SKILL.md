@@ -7,8 +7,7 @@ description: "Writes and executes automated tests, producing a Test Results Repo
 ## Purpose
 
 Writes and executes automated tests from the Chunk Plan's Testing Plan section.
-Produces a structured report showing pass/fail/blocked status per test case with
-failure analysis. Applies the testable-by-design principle from `steering/engineering/core.md`.
+Produces a structured report showing pass/fail/blocked status per test case with failure analysis. Applies the testable-by-design principle from `steering/engineering/core.md`.
 
 ---
 
@@ -43,26 +42,18 @@ tests/
 ```
 
 Category definitions:
-- **Unit** — zero side effects. No filesystem reads/writes, no network, no child
-  processes. Input is data, output is data.
-- **Integration** — exercises real I/O (temp directories, actual file writes,
-  subprocess invocation). Uses shared fixtures for setup/teardown.
-- **Validation** — verifies the real repository or environment is well-formed
-  (schema checks, cross-reference integrity). Runs against actual project files.
+- **Unit** — zero side effects. No filesystem reads/writes, no network, no child processes. Input is data, output is data.
+- **Integration** — exercises real I/O (temp directories, actual file writes, subprocess invocation). Uses shared fixtures for setup/teardown.
+- **Validation** — verifies the real repository or environment is well-formed (schema checks, cross-reference integrity). Runs against actual project files.
 
-If shared fixtures already exist in `tests/helpers/`, use them. If new shared
-setup is needed, add it there — not inline in test files. Fixtures should be
-composable: callers pass options, helpers handle mechanics.
+If shared fixtures already exist in `tests/helpers/`, use them. If new shared setup is needed, add it there — not inline in test files. Fixtures should be composable: callers pass options, helpers handle mechanics.
 
 ### Step 3 — Design for Unit Testability
 
-Before writing tests, assess whether the source code exposes pure functions
-that can be tested in isolation:
+Before writing tests, assess whether the source code exposes pure functions that can be tested in isolation:
 
 - If yes: write unit tests in `tests/unit/` with plain data inputs
-- If the module mixes logic with I/O: recommend refactoring to the implementation
-  agent (extract pure functions, compose with thin I/O layer). Write integration
-  tests for the current shape, note the refactoring opportunity as a finding.
+- If the module mixes logic with I/O: recommend refactoring to the implementation agent (extract pure functions, compose with thin I/O layer). Write integration tests for the current shape, note the refactoring opportunity as a finding.
 - Integration tests go in `tests/integration/`
 
 ### Step 4 — Write Test Cases

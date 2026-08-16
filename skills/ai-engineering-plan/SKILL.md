@@ -7,12 +7,9 @@ description: "Produces a structured plan for complex AI component work that requ
 ## Purpose
 
 Produces a lightweight but structured plan for Tier 3 (complex) AI engineering work.
-This is not a full Epic Plan or Decision Record — it is scoped to AI component changes
-that are cross-cutting, introduce new patterns, or reshape how multiple components
-interact.
+This is not a full Epic Plan or Decision Record — it is scoped to AI component changes that are cross-cutting, introduce new patterns, or reshape how multiple components interact.
 
-Use this skill when the ai-engineer agent assesses work at Tier 3 complexity and needs
-to produce a plan for human approval before implementation begins.
+Use this skill when the ai-engineer agent assesses work at Tier 3 complexity and needs to produce a plan for human approval before implementation begins.
 
 ---
 
@@ -54,11 +51,7 @@ Produce a plan following the schema in `reference/plan-schema.md`. The plan must
 
 ### Step 4 — Follow the Commit-Gate Procedure
 
-Follow `skill/plan-lifecycle`: save the plan to the repo (see Outputs) with
-`Status: Draft` and commit it before presenting to the human. Commit each revision
-round as its own commit. Do not begin implementation until the human's decision
-(`Approved` or `Deferred`) has been committed — chat approval alone does not satisfy
-the gate.
+Follow `skill/plan-lifecycle`: save the plan to the repo (see Outputs) with `Status: Draft` and commit it before presenting to the human. Commit each revision round as its own commit. Do not begin implementation until the human's decision (`Approved` or `Deferred`) has been committed — chat approval alone does not satisfy the gate.
 
 ---
 

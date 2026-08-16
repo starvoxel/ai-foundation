@@ -1,8 +1,7 @@
 # Orchestration State Schema
 
 The engineering-manager maintains an orchestration state file throughout execution.
-This is the single source of truth for chunk pipeline status, wave progression,
-escalations, and the coordination work log.
+This is the single source of truth for chunk pipeline status, wave progression, escalations, and the coordination work log.
 
 Start from the template at `skills/chunk-orchestration/assets/orchestration-state.json`.
 

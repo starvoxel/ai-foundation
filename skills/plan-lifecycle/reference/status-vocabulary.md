@@ -1,9 +1,6 @@
 # Status Vocabulary
 
-Single source of truth for the `Status` field values used by every human-approval-gated
-artifact. Producing skills (chunk-planning, epic-planning, decision-record,
-ai-engineering-plan) reference this table in their templates rather than defining
-their own status list.
+Single source of truth for the `Status` field values used by every human-approval-gated artifact. Producing skills (chunk-planning, epic-planning, decision-record, ai-engineering-plan) reference this table in their templates rather than defining their own status list.
 
 ## Core statuses (all artifact types)
 
@@ -14,11 +11,7 @@ their own status list.
 | `Done` | The work the artifact describes has been completed. | N/A — informational only |
 | `Deferred` | Human explicitly chose to postpone a decision on this artifact, rather than approve or reject it. | No |
 
-`In Progress` is deliberately not a status value. Whether an artifact's work is
-actively underway is answered by the orchestration state file
-(`paths.orchestration`), not by the plan's own status field — keeping "is this being
-worked on right now" in exactly one place avoids two sources of truth drifting out
-of sync.
+`In Progress` is deliberately not a status value. Whether an artifact's work is actively underway is answered by the orchestration state file (`paths.orchestration`), not by the plan's own status field — keeping "is this being worked on right now" in exactly one place avoids two sources of truth drifting out of sync.
 
 ## Per-artifact-type extensions
 
@@ -34,14 +27,10 @@ of sync.
 - `Draft` → `Draft` (revision, new commit each time)
 - `Draft` → `Approved` (human confirms; commit the transition)
 - `Draft` → `Deferred` (human postpones; commit the transition)
-- `Deferred` → `Draft` (revisited later) or `Deferred` → `Approved` (approved directly
-  from a deferred state)
+- `Deferred` → `Draft` (revisited later) or `Deferred` → `Approved` (approved directly from a deferred state)
 - `Approved` → `Done` (described work completes)
-- `Approved` → `Superseded` (Decision Records only, when a later decision replaces
-  this one)
+- `Approved` → `Superseded` (Decision Records only, when a later decision replaces this one)
 
 ## Checking whether dependent work may proceed
 
-Always check for `Status: Approved` specifically. Do not write special-case logic
-for `Deferred`, `Draft`, or any other non-`Approved` value — their absence from
-`Approved` is sufficient on its own to block dependent work.
+Always check for `Status: Approved` specifically. Do not write special-case logic for `Deferred`, `Draft`, or any other non-`Approved` value — their absence from `Approved` is sufficient on its own to block dependent work.
