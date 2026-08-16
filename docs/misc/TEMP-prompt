@@ -1,0 +1,14 @@
+▎ Resume orchestration of Epic AIF-002 ("Decision-Record Tiering and Domain Ownership") in the ai-foundation repo (D:\Programming\StarVoxel\ai-foundation, repo_type: framework — plans commit directly to main, no branches for planning artifacts).
+▎
+▎ State:
+▎ - Epic Plan (docs/plans/epics/AIF-002.epic.md): Approved. chunks.json (15 chunks, 4 waves, dag-validated): docs/plans/chunks/AIF-002/chunks.json.
+▎ - Orchestration state initialized: docs/plans/orchestration/AIF-002/orchestration-state.json (waves: [001–009], [010–013], [014], [015]; all 15 chunks currently Ready with empty branch/worktree — none dispatched for implementation yet).
+▎ - All 9 Wave 1 chunk plans (001–009) are Draft and committed at docs/plans/chunks/AIF-002/{id}_*.plan.md. None are Approved yet. No implementation, branches, or worktrees exist anywhere in this epic.
+▎ - Waves 2–4 (chunks 010–015) have not been planned yet — chunks 010–013 depend on chunk 002's finalized template shape, so their planning was deliberately deferred until 002 is reviewed/approved (to avoid building against an unstable contract).
+▎
+▎ First thing to do: Present all 9 Wave 1 Draft plans to the human for review per skill/plan-lifecycle, and get explicit Approved/Deferred decisions before any dispatch. Flag these three open items that came up during self-planning:
+▎ 1. Chunk 002 (decision-record Tier A scoping) added a References metadata field to the template alongside Referenced By — goes beyond the Epic's literal wording; author judged it necessary for the index-update step but flagged it transparently. Needs a decision.
+▎ 2. Chunks 002 and 003 (decision-brief) independently converged on the same Metadata field set (Decision ID, Project, Tier, Domain, Status, Author (AReferencedBy, References) despite no dependency edgagreementlicitconfirmation they'll stay in sync before implement
+▎ 3. Chunk 007 (knowledge-authoring) found two stale pre-AIF-Meral scope(an Edge Cases bullet and a Step 6 checklist        parenthetknowledge-file model) — flagged as Risk 1, needs a  call: extck asseparate follow-up.                                 4. Chunk nd that docs/decisions/meta-process/AIF-META-001_*.decision.md   contains ion tableusing the old IDs, and defaulted to not touching it (treatingwrittentable) — flagged as Open Question 1 in its plan, needs con
+▎
+▎ Once planskill/chunk-orchestration Step 2 — create a      dedicatedpproved chunk (never skip this gate), dispatch AI-Engineer to  implementpal-Engineerto review (AI-track pipeline: AI-Engineer → PE → Done, no 02 isApproved, dispatch self-planning for chunks 010–013 (and eveneld backpending its stable contract.
