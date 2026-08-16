@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-002 |
-| Parent Epic | AIF-002 |
-| Chunk | 2 of 15 |
-| Depends On | None |
-| Can Parallel | AIF-002-001, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-006, AIF-002-007, AIF-002-008, AIF-002-009 |
-| Project | ai-foundation |
-| Status | Draft |
-| Author (Agent) | AI-Engineer (revised by Tech-Lead per AIF-002 rev 6) |
-| Reviewed By | Pending |
-| Created | 2026-08-14 21:40 |
-| Last Updated | 2026-08-17 (revised for AIF-002 rev 6 — index-update step removed, `Tags` field added) |
-| Standards | AGENTS.md declarative-component schemas (no code standards apply — this chunk touches only `skills/` markdown) |
+| Field          | Value                                                                                                            |
+| -------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-002                                                                                                      |
+| Parent Epic    | AIF-002                                                                                                          |
+| Chunk          | 2 of 15                                                                                                          |
+| Depends On     | None                                                                                                             |
+| Can Parallel   | AIF-002-001, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-006, AIF-002-007, AIF-002-008, AIF-002-009           |
+| Project        | ai-foundation                                                                                                    |
+| Status         | Approved                                                                                                         |
+| Author (Agent) | AI-Engineer (revised by Tech-Lead per AIF-002 rev 6)                                                             |
+| Reviewed By    | Jeremy                                                                                                           |
+| Created        | 2026-08-14 21:40                                                                                                 |
+| Last Updated   | 2026-08-17 (revised for AIF-002 rev 6 — index-update step removed,`Tags` field added)                         |
+| Standards      | AGENTS.md declarative-component schemas (no code standards apply — this chunk touches only`skills/` markdown) |
 
 ---
 
@@ -34,6 +34,7 @@ Scope `skills/decision-record/` explicitly to Tier A ("Researched") decisions, a
 ## 3. Scope
 
 ### In Scope
+
 - `skills/decision-record/SKILL.md`:
   - Update `description` front-matter and Purpose section to state this skill is scoped explicitly to **Tier A** decisions, invoked by `skill/decision-triage` (or directly, by an agent that already knows it needs Tier A).
   - Add a new Step ("Confirm Tier A and Determine Domain") before option generation, that (a) confirms Tier A applies (redirecting to `skill/decision-triage` if the invoking agent has not already triaged), and (b) determines the Domain per AIF-META-001's Domain ownership table, loading the matching guidance stub from the new `reference/domain-guidance.md`.
@@ -48,6 +49,7 @@ Scope `skills/decision-record/` explicitly to Tier A ("Researched") decisions, a
 - Self-validation: `npm test` (existing validation suite has no skill-schema checks today, so this chunk's own review is the primary gate — see Section 10); manual verification that every internal reference (`SKILL.md` → `reference/template.md`, `SKILL.md` → `reference/domain-guidance.md`) resolves.
 
 ### Out of Scope
+
 - Creating, backfilling, or generating `docs/decisions/index.json` itself, or any `aif index -d` CLI/tooling code — that is chunk 014 (tool) and chunk 015 (backfill run), neither of which this chunk depends on or blocks (rev 6: `decision-record` has no runtime relationship to `index.json` generation beyond keeping its own metadata table accurate).
 - Adding `paths.decisions` to `.aiconfig.json` (chunk 008, parallel Wave 1 chunk — this chunk documents the fallback default independently and does not block on 008 landing first).
 - `skills/decision-triage/` itself (chunk 001, parallel Wave 1 chunk) — this chunk only documents that `decision-record` expects to be invoked by it (or directly by an agent that already knows it needs Tier A); it does not define triage's own dispatch logic.
@@ -60,9 +62,9 @@ Scope `skills/decision-record/` explicitly to Tier A ("Researched") decisions, a
 
 ## 4. Prerequisites
 
-- [x] AIF-002 Epic Plan `Status: Approved` (verified — rev 6, `docs/plans/epics/AIF-002.epic.md` §1)
-- [x] AIF-META-001 Decision Record `Status: Approved` (verified — provides the Tier/Domain model, Domain ownership table, and ID/storage scheme this chunk implements)
-- [x] Current `skills/decision-record/SKILL.md` and `skills/decision-record/reference/template.md` read and understood
+- [X] AIF-002 Epic Plan `Status: Approved` (verified — rev 6, `docs/plans/epics/AIF-002.epic.md` §1)
+- [X] AIF-META-001 Decision Record `Status: Approved` (verified — provides the Tier/Domain model, Domain ownership table, and ID/storage scheme this chunk implements)
+- [X] Current `skills/decision-record/SKILL.md` and `skills/decision-record/reference/template.md` read and understood
 - [ ] None of this chunk's file changes are blocked on any other Wave 1 chunk landing first (all Wave 1 chunks touch disjoint files except 006, which does not overlap this chunk)
 
 ---
@@ -70,6 +72,7 @@ Scope `skills/decision-record/` explicitly to Tier A ("Researched") decisions, a
 ## 5. Architecture & Design
 
 ### Project Structure Changes
+
 - `skills/decision-record/SKILL.md` ← MODIFIED
 - `skills/decision-record/reference/template.md` ← MODIFIED
 - `skills/decision-record/reference/domain-guidance.md` ← NEW
@@ -78,22 +81,19 @@ Scope `skills/decision-record/` explicitly to Tier A ("Researched") decisions, a
 
 1. **Decision**: Metadata table field order is `Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags`.
    **Rationale**: The first nine fields already exist as a real, human-approved precedent in `AIF-META-001`'s own Metadata table (see `docs/decisions/meta-process/AIF-META-001_...decision.md` lines 3-16). Reusing it verbatim — rather than inventing a new order — gives Wave 2 migration chunks (010–013) a contract that is already proven against a real record. `Tags` is appended as the tenth field (rev 6, Epic §3/Open Question 6) — placed last since it's the newest field and its position doesn't collide with anything AIF-META-001 already established.
-
 2. **Decision**: Add a `References` field to the template, not just `Tier`/`Domain` as the Epic bullet names explicitly.
    **Rationale**: The Epic's own migration-treatment text (§3: "updating every `Referenced By`/`References` field to the new ID scheme") and AIF-META-001's own record (which carries both fields) both already assume `References` exists as a template field — the current template only has `Referenced By`.
    `aif index -d` (chunk 014) needs both `references` and `referenced_by` populated in `index.json` — `referenced_by` it computes itself by inversion, but `references` (outbound citations) can only come from what the record's own author writes, since no crawler can infer "this record cites that one" without the author saying so. This is treated as necessary infrastructure the index-generation tool depends on, not an independent scope expansion, since the Epic text already presumes the field's existence. Flagged here for transparency rather than silently added.
-
 3. **Decision**: Domain metadata field value is the lowercase domain-folder name (`architecture`, `process`, `planning`, `ai-component`, `quality`, `testing`, `meta-process`), not the capitalized domain label or the 3-4 letter Domain Code.
    **Rationale**: Matches `AIF-META-001`'s own `Domain` field value (`meta-process`) and the `index.json` schema's `"domain"` field example (`"process"`) exactly. The Domain Code (`ARCH`, `PROC`, etc.) appears only inside the Decision ID string, not as a separate metadata row — one value per concept, no duplicate encoding.
-
 4. **Decision**: Per-domain `Design`/`Impact on Planning` guidance lives in a new standalone reference file (`reference/domain-guidance.md`), not inlined into `template.md` or duplicated per-domain template variants.
    **Rationale**: `template.md` remains a single universal skeleton (per AIF-META-001 Design: "`Design` and `Impact on Planning` content is shaped by domain-specific guidance... rather than a forked template"). A standalone reference file keeps the template itself short and lets `SKILL.md` Step 1 point any domain-owning agent at the matching stub without maintaining 7 near-duplicate template files.
-
 5. **Decision (rev 6, 2026-08-17 — supersedes the original chunk's Key Design Decision 5)**: This skill has **no index-update step**. `docs/decisions/index.json` is generated, not hand-edited — `aif index -d` (chunk 014) crawls every Tier A/B record's metadata table and (re)builds the whole index, computing `referenced_by`/`superseded_by` by inversion across the corpus.
    **Rationale**: AIF-002 Epic Plan rev 5/6 corrected the original design after review found that most index fields are mechanically derivable from a record's own metadata table and file path, and that hand-maintaining `referenced_by` is actually *less* reliable than computing it by inversion, since no single record's author can see the whole cross-reference graph. This chunk's only remaining obligation toward the index is indirect: keep the metadata table (Section 6/7) accurate and complete, since `aif index -d` depends on it as its sole source of truth. This chunk does not need to know anything about `aif index -d`'s implementation, sequencing relative to chunk 014/015, or CLI mechanics — that is chunk 014's and 015's concern entirely, decoupled from this skill's own documentation.
    **Removed as a result**: the "Update the Decision Index" Step, the index-entry line in `Outputs`, and the index-missing/malformed `Edge Case` from the original chunk draft — see Section 3 and the Work Log.
 
 ### Patterns & Conventions Applied
+
 - AGENTS.md declarative-component schema for skills (`SKILL.md` front-matter + Purpose/Inputs/Steps/Outputs/Edge Cases structure) — unchanged, only content within existing sections is edited/added.
 - `skill/plan-lifecycle` commit-gate procedure, referenced (not modified) by `decision-record`'s existing Step 4 (renumbered, unchanged in substance).
 
@@ -109,11 +109,13 @@ Scope `skills/decision-record/` explicitly to Tier A ("Researched") decisions, a
 **Content changes**:
 
 Front-matter `description` becomes:
+
 ```
 "Produces a structured Tier A ('Researched') Decision Record capturing options explored and the chosen approach. Invoked by skill/decision-triage, or directly by an agent that already knows it needs Tier A."
 ```
 
 Purpose section gains an explicit opening statement:
+
 ```
 This skill is scoped to Tier A ("Researched") decisions only — see
 AIF-META-001's Tier definitions. Tier B ("Structural") decisions use
@@ -134,6 +136,7 @@ Steps become (renumbered; new step marked NEW; original Step 6 "Update the Decis
 - **Step 5 — Follow the Commit-Gate Procedure** (was Step 4, unchanged in substance): `skill/plan-lifecycle`, `Status: Draft` → human confirmation → `Approved`/`Deferred`.
 
 `Outputs` section becomes:
+
 ```
 - **Decision Record** — markdown file following the template format
 - **Location:** `{paths.decisions}/{domain-folder}/{ID}_{ShortTitle}.decision.md`
@@ -149,6 +152,7 @@ Steps become (renumbered; new step marked NEW; original Step 6 "Update the Decis
 ```
 
 `Edge Cases` gains:
+
 ```
 - **Decision doesn't clearly belong to exactly one domain** — select the
   closest matching domain per Step 1 and note the ambiguity in `Impact on
@@ -157,6 +161,7 @@ Steps become (renumbered; new step marked NEW; original Step 6 "Update the Decis
 ```
 
 **Dependencies**:
+
 - `skills/decision-record/reference/template.md` — for the record skeleton
 - `skills/decision-record/reference/domain-guidance.md` (NEW, this chunk) — for per-domain `Design`/`Impact on Planning` guidance
 - `skill/plan-lifecycle` — for the commit-gate procedure (unchanged reference)
@@ -190,6 +195,7 @@ Steps become (renumbered; new step marked NEW; original Step 6 "Update the Decis
 No other section of `template.md` changes (Problem Statement, Constraints & Requirements, Options Explored, Decision, Design, Impact on Planning, Resolved/Open Items all remain structurally as-is — only the Metadata table changes).
 
 **Key Behaviour**:
+
 - `Tier` is always literally `A` in this template (Tier B/C never reach this file — enforced by which skill is invoked, not by validation here).
 - `Domain` value must be one of the 7 lowercase domain-folder names; no free-text domain names.
 - `Decision ID` and `Domain` must agree — the Domain Code embedded in the ID (`ARCH`, `PROC`, `PLAN`, `AIC`, `QA`, `TEST`, `META`) must correspond to the `Domain` field's folder name.
@@ -285,19 +291,19 @@ authoring workflow (as AIF-META-001 itself does).
 
 **Purpose**: The exact field set and order every Tier A record's Metadata table must follow — the contract Wave 2 migration chunks (010–013) build against, and `aif index -d` (chunk 014) parses.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| Decision ID | string | Yes | `{ProjectID}-{DomainCode}-{###}`, e.g. `AIF-ARCH-004` |
-| Project | string | Yes | Project name, e.g. `ai-foundation` |
-| Tier | string | Yes | Always `A` for records produced by this skill |
-| Domain | string | Yes | One of `architecture`, `process`, `planning`, `ai-component`, `quality`, `testing`, `meta-process` |
-| Status | string | Yes | One of `Draft`, `Approved`, `Done`, `Deferred`, `Superseded` (per `skill/plan-lifecycle` status vocabulary) |
-| Author (Agent) | string | Yes | Domain owner agent name (see `reference/domain-guidance.md`) |
-| Approved By | string | Yes | Human name or `Pending` |
-| Created | datetime string | Yes | `YYYY-MM-DD HH:mm` |
-| Referenced By | string | Yes | Decision ID(s) that cite this record, or `—` |
-| References | string | Yes | Decision ID(s) this record cites, or `—` |
-| Tags | string | No | Comma-separated free-text tags, or `—`. New in rev 6 (Open Question 6). |
+| Field          | Type            | Required | Notes                                                                                                                  |
+| -------------- | --------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Decision ID    | string          | Yes      | `{ProjectID}-{DomainCode}-{###}`, e.g. `AIF-ARCH-004`                                                              |
+| Project        | string          | Yes      | Project name, e.g.`ai-foundation`                                                                                    |
+| Tier           | string          | Yes      | Always`A` for records produced by this skill                                                                         |
+| Domain         | string          | Yes      | One of`architecture`, `process`, `planning`, `ai-component`, `quality`, `testing`, `meta-process`        |
+| Status         | string          | Yes      | One of`Draft`, `Approved`, `Done`, `Deferred`, `Superseded` (per `skill/plan-lifecycle` status vocabulary) |
+| Author (Agent) | string          | Yes      | Domain owner agent name (see`reference/domain-guidance.md`)                                                          |
+| Approved By    | string          | Yes      | Human name or`Pending`                                                                                               |
+| Created        | datetime string | Yes      | `YYYY-MM-DD HH:mm`                                                                                                   |
+| Referenced By  | string          | Yes      | Decision ID(s) that cite this record, or`—`                                                                         |
+| References     | string          | Yes      | Decision ID(s) this record cites, or`—`                                                                             |
+| Tags           | string          | No       | Comma-separated free-text tags, or`—`. New in rev 6 (Open Question 6).                                              |
 
 ---
 
@@ -320,11 +326,11 @@ authoring workflow (as AIF-META-001 itself does).
 This chunk produces only static documentation/reference artifacts consumed by agents at plan/record-authoring time — it introduces no runtime software component, so there is no application log stream to define events for.
 Logging requirements applicable here are the ones already mandated by `skill/plan-lifecycle`'s Work Log convention:
 
-| Event | Level (Work Log equivalent) | What is logged | What is NOT logged |
-|---|---|---|---|
-| Chunk Plan Draft committed | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Created`/`Revised`, Plan ID, one-line summary | No file contents duplicated into the log entry |
-| Chunk Plan revised (if any) | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Revised`, Plan ID, what changed and why | — |
-| Chunk Plan Approved/Deferred | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Approved`/`Deferred`, Plan ID, approver name | — |
+| Event                        | Level (Work Log equivalent)      | What is logged                                                              | What is NOT logged                             |
+| ---------------------------- | -------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------- |
+| Chunk Plan Draft committed   | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Created`/`Revised`, Plan ID, one-line summary | No file contents duplicated into the log entry |
+| Chunk Plan revised (if any)  | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Revised`, Plan ID, what changed and why         | —                                             |
+| Chunk Plan Approved/Deferred | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Approved`/`Deferred`, Plan ID, approver name  | —                                             |
 
 ---
 
@@ -334,14 +340,14 @@ This chunk has no executable code — "testing" here means self-validation of th
 
 ### `skills/decision-record/` Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| DR-T01 | `SKILL.md` front-matter still parses as valid YAML after edits | Manual/self-validate | Front-matter block parses cleanly; no broken YAML syntax |
-| DR-T02 | Every internal reference in `SKILL.md` resolves to a real file | Manual/self-validate | `reference/template.md` and `reference/domain-guidance.md` both exist at the paths `SKILL.md` cites |
-| DR-T03 | `template.md`'s Metadata table matches the Section 6/7 contract exactly (field names, order, including `Tags`) | Manual/self-validate | Diff against Section 7's Data Model table shows no discrepancy |
-| DR-T04 | `domain-guidance.md` covers all 7 domains with matching Domain Code/Folder/Owner values as AIF-META-001's Domain ownership table | Manual/self-validate | Side-by-side comparison against AIF-META-001 lines 236-245 shows no discrepancy |
-| DR-T05 | `npm test` (repo-wide validation suite) still passes after these changes | Automated | Exit code 0, no new failures introduced |
-| DR-T06 (rev 6, new) | `SKILL.md` contains no "Update the Decision Index" step and no index-update Output/Edge-Case content | Manual/self-validate | Grep for "index.json" in `SKILL.md` returns only the informational Outputs note pointing to `aif index -d`, no step/edge-case instructing this skill to write to it |
+| Test ID             | Description                                                                                                                        | Type                 | Pass Criteria                                                                                                                                                          |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DR-T01              | `SKILL.md` front-matter still parses as valid YAML after edits                                                                   | Manual/self-validate | Front-matter block parses cleanly; no broken YAML syntax                                                                                                               |
+| DR-T02              | Every internal reference in`SKILL.md` resolves to a real file                                                                    | Manual/self-validate | `reference/template.md` and `reference/domain-guidance.md` both exist at the paths `SKILL.md` cites                                                              |
+| DR-T03              | `template.md`'s Metadata table matches the Section 6/7 contract exactly (field names, order, including `Tags`)                 | Manual/self-validate | Diff against Section 7's Data Model table shows no discrepancy                                                                                                         |
+| DR-T04              | `domain-guidance.md` covers all 7 domains with matching Domain Code/Folder/Owner values as AIF-META-001's Domain ownership table | Manual/self-validate | Side-by-side comparison against AIF-META-001 lines 236-245 shows no discrepancy                                                                                        |
+| DR-T05              | `npm test` (repo-wide validation suite) still passes after these changes                                                         | Automated            | Exit code 0, no new failures introduced                                                                                                                                |
+| DR-T06 (rev 6, new) | `SKILL.md` contains no "Update the Decision Index" step and no index-update Output/Edge-Case content                             | Manual/self-validate | Grep for "index.json" in`SKILL.md` returns only the informational Outputs note pointing to `aif index -d`, no step/edge-case instructing this skill to write to it |
 
 ---
 
@@ -370,11 +376,11 @@ This chunk has no executable code — "testing" here means self-validation of th
 
 ## 13. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | Adding a `References` field to the template beyond the Epic bullet's explicit `Tier`/`Domain` wording could be read as scope expansion (Rule 4). | M | Documented explicitly as Key Design Decision 2 (Section 5) with rationale tracing directly to the Epic's own migration-treatment text, AIF-META-001's own record, and `aif index -d`'s dependency on outbound `references` data; flagged transparently rather than silently added. If the human disagrees, this is a one-field, low-cost revert before implementation. |
-| 2 | Wave 2 migration chunks (010, 011, 012, 013) and chunk 014 (`aif index -d`) depend on this chunk's exact field layout; if this plan's contract changes during revision, those chunks would need to account for whichever shape lands here. | M | This plan states the exact field names/order in two places (Section 6 component spec and Section 7 Data Model table) precisely so it is unambiguous once Approved; downstream chunk authors read this Approved plan (or the resulting `template.md`) directly rather than re-deriving the shape. |
-| 3 | This chunk does not add automated schema validation for `skills/decision-record/`'s own structure (no such check exists for any skill in `tests/validation/` today). | L | Out of scope per Section 3; not a regression introduced by this chunk. If the human wants skill-schema validation added, that is a separate, cross-cutting piece of work affecting every skill, not specific to this chunk. |
+| # | Risk / Question                                                                                                                                                                                                                              | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                |
+| - | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | Adding a`References` field to the template beyond the Epic bullet's explicit `Tier`/`Domain` wording could be read as scope expansion (Rule 4).                                                                                        | M      | Documented explicitly as Key Design Decision 2 (Section 5) with rationale tracing directly to the Epic's own migration-treatment text, AIF-META-001's own record, and`aif index -d`'s dependency on outbound `references` data; flagged transparently rather than silently added. If the human disagrees, this is a one-field, low-cost revert before implementation. |
+| 2 | Wave 2 migration chunks (010, 011, 012, 013) and chunk 014 (`aif index -d`) depend on this chunk's exact field layout; if this plan's contract changes during revision, those chunks would need to account for whichever shape lands here. | M      | This plan states the exact field names/order in two places (Section 6 component spec and Section 7 Data Model table) precisely so it is unambiguous once Approved; downstream chunk authors read this Approved plan (or the resulting`template.md`) directly rather than re-deriving the shape.                                                                         |
+| 3 | This chunk does not add automated schema validation for`skills/decision-record/`'s own structure (no such check exists for any skill in `tests/validation/` today).                                                                      | L      | Out of scope per Section 3; not a regression introduced by this chunk. If the human wants skill-schema validation added, that is a separate, cross-cutting piece of work affecting every skill, not specific to this chunk.                                                                                                                                               |
 
 ---
 
