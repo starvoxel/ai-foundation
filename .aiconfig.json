@@ -14,7 +14,7 @@
     "worktrees": "../worktrees/ai-foundation"
   },
   "orchestration": {
-    "max_concurrent": 4
+    "max_concurrent": 10
   },
   "ai_identity": {
     "git_author_name": "Starvoxel AI Agent",
