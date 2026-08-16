@@ -5,91 +5,138 @@
       "id": "001",
       "title": "skill/decision-triage: new entry-point skill (Tier/Domain triage + dispatch)",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "002",
-      "title": "skill/decision-record: scope to Tier A, add Tier/Domain metadata, index-update step, per-domain guidance stubs",
+      "title": "skill/decision-record: scope to Tier A, add Tier/Domain/Tags metadata (rev 6: no index-update step)",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "003",
-      "title": "skill/decision-brief: new Tier B skill (slim template, lighter gate)",
+      "title": "skill/decision-brief: new Tier B skill (slim template, lighter gate, rev 6: no index-update step)",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "004",
       "title": "skill/plan-lifecycle: document Tier B abbreviated gate and Tier C non-gate",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "005",
       "title": "skill/chunk-planning + skill/epic-planning: document Tier C inline-recording convention",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "006",
       "title": "agents/engineering-manager.yaml + skill/chunk-orchestration: Process-domain decision authoring, Decision Hand-off Sub-Flow, state-schema log actions",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "007",
       "title": "skill/knowledge-authoring: update Step 2 decision-type guidance for domain-scoped knowledge/index.json rule",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "008",
       "title": ".aiconfig.json: add explicit paths.decisions entry",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "009",
       "title": "Migrate AIF-001, AIF-002, AIF-003 (Architecture, light touch: rename + old-model warning)",
       "depends_on": [],
-      "agents": ["AI-Engineer"]
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "010",
       "title": "Migrate AIF-006 (Draft, Process, full reformat, standalone)",
-      "depends_on": ["002"],
-      "agents": ["AI-Engineer"]
+      "depends_on": [
+        "002"
+      ],
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "011",
       "title": "Migrate AIF-008 (Draft, reclassified Architecture, full reformat, standalone)",
-      "depends_on": ["002"],
-      "agents": ["AI-Engineer"]
+      "depends_on": [
+        "002"
+      ],
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "012",
       "title": "Migrate AIF-004, AIF-005, AIF-007, AIF-009, AIF-010 (interlinked Process cluster, full reformat, Draft-to-re-Approve round trip for the four currently Approved)",
-      "depends_on": ["002"],
-      "agents": ["AI-Engineer"]
+      "depends_on": [
+        "002"
+      ],
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "013",
       "title": "Migrate AIF-011 (Approved, Planning, full reformat, Draft-to-re-Approve round trip, standalone)",
-      "depends_on": ["002"],
-      "agents": ["AI-Engineer"]
+      "depends_on": [
+        "002"
+      ],
+      "agents": [
+        "AI-Engineer"
+      ]
     },
     {
       "id": "014",
-      "title": "Create docs/decisions/index.json, backfilled from all 11 migrated records",
-      "depends_on": ["009", "010", "011", "012", "013"],
-      "agents": ["AI-Engineer"]
+      "title": "Implement aif index -k/-d CLI split + lib/decisions.js + unit/integration tests (rev 6, formerly tests/validation extension)",
+      "depends_on": [
+        "002"
+      ],
+      "agents": [
+        "Software-Engineer"
+      ]
     },
     {
       "id": "015",
-      "title": "Extend tests/validation/ to check docs/decisions/index.json bidirectionality and path resolution",
-      "depends_on": ["014"],
-      "agents": ["AI-Engineer"]
+      "title": "Backfill docs/decisions/index.json by running aif index -d against all 11 migrated records; verify aif index -d --check passes",
+      "depends_on": [
+        "009",
+        "010",
+        "011",
+        "012",
+        "013",
+        "014"
+      ],
+      "agents": [
+        "AI-Engineer"
+      ]
     }
   ]
 }
