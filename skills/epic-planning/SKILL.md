@@ -40,10 +40,11 @@ Epic IDs follow the format `{ProjectShortName}-{###}` (e.g. `MYAPP-001`), an eve
 ### Step 3 — Write Epic Plan
 
 Follow the template at `skills/epic-planning/reference/template.md`. Key sections:
-- Section 4 (Feature Description) is the main reviewable content — be thorough
-- Section 5 (Architecture Overview) stays high-level — no method signatures
-- Section 7 (Open Questions) captures anything needing human input
-- Section 8 (Chunk Decomposition) is left empty until after approval
+- Section 3 (Quick Summary) comes right after the Goal — keep its open-item count in sync whenever Section 8 changes
+- Section 5 (Feature Description) is the main reviewable content — be thorough
+- Section 6 (Architecture Overview) stays high-level — no method signatures
+- Section 8 (Risks & Open Questions) captures risks and anything needing human input, merged into one table
+- Section 9 (Chunk Decomposition) is left empty until after approval
 
 ### Step 4 — Follow the Commit-Gate Procedure
 
@@ -65,7 +66,7 @@ If `dag-validate` fails:
 - Retry up to 3 times
 - If still invalid after 3 attempts, stop and escalate to the human with the validation errors
 
-Once valid, update Section 8 of the epic plan with a summary (chunk count, wave count, parallelization notes) and a reference to the `chunks.json` file.
+Once valid, update Section 9 of the epic plan with a summary (chunk count, wave count, parallelization notes) and a reference to the `chunks.json` file.
 
 ---
 

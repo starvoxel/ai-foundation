@@ -26,7 +26,13 @@
 
 ---
 
-## 3. Scope
+## 3. Quick Summary
+
+**Open Items:** {N} open ({H} High / {M} Medium / {L} Low) — see Section 8
+
+---
+
+## 4. Scope
 
 ### In Scope
 - {High-level feature or capability included}
@@ -36,7 +42,7 @@
 
 ---
 
-## 4. Feature Description
+## 5. Feature Description
 
 ### User-Facing Behaviour
 {What the user sees and does. Walk through the experience.}
@@ -55,7 +61,7 @@
 
 ---
 
-## 5. Architecture Overview
+## 6. Architecture Overview
 
 ### New Components
 | Component | Type | Responsibility |
@@ -70,20 +76,20 @@
 
 ---
 
-## 6. Security Considerations
+## 7. Security Considerations
 - {Concern and which chunks will address it}
 
 ---
 
-## 7. Open Questions
+## 8. Risks & Open Questions
 
-| # | Question | Priority | Source | Raised By | Resolved |
-|---|---|---|---|---|---|
-| 1 | {Question} | H/M/L | {PRD/Design/Arch} | {Agent/Human} | No |
+| # | Risk / Question | Type | Impact | Source | Raised By | Resolved |
+|---|---|---|---|---|---|---|
+| 1 | {Describe} | Risk/Question | H/M/L | {PRD/Design/Arch} | {Agent/Human} | No |
 
 ---
 
-## 8. Chunk Decomposition
+## 9. Chunk Decomposition
 
 Dependency graph: [`chunks.json`](./chunks.json)
 
@@ -99,16 +105,16 @@ Parallelization notes:
 
 ---
 
-## 9. Acceptance Criteria
+## 10. Acceptance Criteria
 
 - [ ] All chunks complete and signed off
-- [ ] Feature works end-to-end as described in Section 4
+- [ ] Feature works end-to-end as described in Section 5
 - [ ] No HIGH or CRITICAL findings open in any chunk review
 - [ ] Epic-level CHANGELOG entry written
 - [ ] {Epic-specific criteria}
 
 ---
 
-## 10. Work Log
+## 11. Work Log
 
 {Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]
