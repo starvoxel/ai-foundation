@@ -145,7 +145,7 @@ Steps become (renumbered; new step marked NEW; original Step 6 "Update the Decis
   `planning/`, `ai-component/`, `quality/`, `testing/`, `meta-process/`; `{ID}`
   is `{ProjectID}-{DomainCode}-{###}`, e.g. `AIF-ARCH-004`, `AIF-PROC-002`,
   counter scoped per `(project, domain)` pair)
-- **Note:** `docs/decisions/index.json` is not produced by this skill. It is a
+- **Note:** `{paths.decisions}/index.json` is not produced by this skill. It is a
   generated artifact, rebuilt by running `aif index -d` (see AIF-002-014),
   which reads every record's Metadata table directly — this skill's only
   obligation toward the index is keeping that table accurate.

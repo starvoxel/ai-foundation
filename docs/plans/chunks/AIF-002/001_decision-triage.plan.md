@@ -40,7 +40,7 @@ Author `skills/decision-triage/` as the single entry point every agent uses when
 - Documenting the Tier C inline convention inside `skill/chunk-planning`/ `skill/epic-planning` templates (chunk AIF-002-005).
 - Implementing `skill/chunk-orchestration`'s Decision Hand-off Sub-Flow or the `agents/engineering-manager.yaml` charter/Hard Rule expansion that consumes this chunk's hand-off signal (chunk AIF-002-006). This chunk defines the signal shape only; it does not implement the orchestration-side consumer.
 - Any tooling-level enforcement that blocks an agent outside a domain's ownership from authoring a Tier A/B decision — per Epic AIF-002 Section 4 Error States, this is a documented convention, not a hard gate, and no enforcement mechanism is specified anywhere in this Epic.
-- `docs/decisions/index.json` creation/backfill (chunk AIF-002-014) and its validation tooling (chunk AIF-002-015) — `decision-triage` never touches the index itself; only `decision-record`/`decision-brief` do.
+- `{paths.decisions}/index.json` creation/backfill (chunk AIF-002-014) and its validation tooling (chunk AIF-002-015) — `decision-triage` never touches the index itself; only `decision-record`/`decision-brief` do.
 
 ---
 
@@ -109,7 +109,7 @@ No `assets/` or `scripts/` subfolder — nothing in this skill is copied into an
 
 **Key Behaviour**:
 
-- Never writes a decision artifact and never touches `docs/decisions/index.json` itself — those are the dispatched skill's responsibility.
+- Never writes a decision artifact and never touches `{paths.decisions}/index.json` itself — those are the dispatched skill's responsibility.
 - Runs identically whether invoked interactively by a single agent or as part of an orchestrated chunk — the difference is only in how the hand-off signal (Step
   4) gets surfaced onward (see Edge Cases).
 
