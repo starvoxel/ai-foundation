@@ -96,7 +96,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
   > most don't. Before writing a decision in this section, run it through
   > `skill/decision-triage`'s promotion threshold. If it doesn't rise to Tier A
   > (`skill/decision-record`) or Tier B (`skill/decision-brief`), it stays here as
-  > a Tier C entry: no standalone file, no `docs/decisions/index.json` update, no
+  > a Tier C entry: no standalone file, no `{paths.decisions}/index.json` update, no
   > separate approval gate — it rides this Chunk Plan's own `skill/plan-lifecycle`
   > cycle. Use the convention: `Decision: {what was decided}. **Why:** {rationale}.`
   > If a later, unrelated plan needs to cite this decision independently, it
@@ -122,7 +122,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
   > **Tier C decisions.** Decisions made during epic planning or revision that
   > don't rise to Tier A/B per `skill/decision-triage`'s promotion threshold are
   > recorded inline in a Work Log entry, not as a standalone Decision Record — no
-  > separate file, no `docs/decisions/index.json` update, no separate approval
+  > separate file, no `{paths.decisions}/index.json` update, no separate approval
   > gate. Fold the convention into the entry's `[Details]`:
   > `Decision: {what was decided}. **Why:** {rationale}.` This rides the Epic
   > Plan's own `skill/plan-lifecycle` cycle. Promote to Tier B/A later (via
@@ -141,7 +141,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
 
 ## 7. Data Models
 
-Not applicable — this chunk produces markdown documentation only, no data schemas or structured artifacts. `docs/decisions/index.json`'s schema is owned by chunk 014, unaffected by this chunk (Tier C decisions never touch it).
+Not applicable — this chunk produces markdown documentation only, no data schemas or structured artifacts. `{paths.decisions}/index.json`'s schema is owned by chunk 014, unaffected by this chunk (Tier C decisions never touch it).
 
 ---
 
@@ -150,7 +150,7 @@ Not applicable — this chunk produces markdown documentation only, no data sche
 > This section must never be empty.
 
 - [ ] No new attack surface — this chunk edits only markdown documentation inside `skills/chunk-planning/reference/` and `skills/epic-planning/reference/`; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 6, first bullet).
-- [ ] No secrets or credentials in added content — the guidance text references only public skill names (`skill/decision-triage`, `skill/decision-record`, `skill/decision-brief`, `skill/plan-lifecycle`) and public artifact paths (`docs/decisions/index.json`), nothing environment- or credential-specific.
+- [ ] No secrets or credentials in added content — the guidance text references only public skill names (`skill/decision-triage`, `skill/decision-record`, `skill/decision-brief`, `skill/plan-lifecycle`) and public artifact paths (`{paths.decisions}/index.json`), nothing environment- or credential-specific.
 - [ ] The guidance must not overstate mechanics not yet built by this chunk's Wave 1 siblings — it must describe `skill/decision-triage` as a documented convention/entry point an agent consults, consistent with how the Epic Plan and AIF-META-001 describe it, and must not claim the promotion threshold is enforced by tooling this Epic does not build (per Epic Plan Section 4 "Error States": domain/tier misrouting is "not blocked at a tooling level ... a documented convention, not a hard gate").
 - [ ] Errors exposed to a future reader contain no internal system details beyond what is already documented elsewhere in this repo — not applicable in practice for a docs-only addition, verified as N/A.
 
