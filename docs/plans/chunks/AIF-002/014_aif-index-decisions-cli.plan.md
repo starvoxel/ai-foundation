@@ -21,7 +21,7 @@
 
 ## 2. Goal
 
-Generalize the existing `aif index` CLI command (`lib/commands/index.js`) into two explicit modes — `-k`/`--knowledge` (existing `knowledge/index.json` behavior, unchanged, remains the default) and `-d`/`--decision` (new) — where `-d` crawls `docs/decisions/**/*.decision.md`, parses each record's Metadata table, and generates/refreshes `docs/decisions/index.json`, computing `referenced_by`/`superseded_by` by inversion across the whole corpus. `-d --check` diffs the committed index against a fresh crawl for drift detection. Pure parsing/inversion/diff logic lives in a new `lib/decisions.js`, mirroring the existing `lib/snapshot/{pure,io}.js` split.
+Generalize the existing `aif index` CLI command (`lib/commands/index.js`) into two explicit modes — `-k`/`--knowledge` (existing `knowledge/index.json` behavior, unchanged, remains the default) and `-d`/`--decision` (new) — where `-d` resolves the decisions directory from `.aiconfig.json`'s `paths.decisions` (falling back to `docs/decisions/` if unset, exactly as `-k` already resolves `paths.knowledge`), crawls `**/*.decision.md` under it, parses each record's Metadata table, and generates/refreshes `index.json` in that same directory, computing `referenced_by`/`superseded_by` by inversion across the whole corpus. `-d --check` diffs the committed index against a fresh crawl for drift detection. Pure parsing/inversion/diff logic lives in a new `lib/decisions.js`, mirroring the existing `lib/snapshot/{pure,io}.js` split.
 
 > Requirement traceability: AIF-002 Epic Plan §3 ("Extend the existing `aif
 > index` CLI command...") and §5 (Architecture Overview, `lib/commands/index.js`
@@ -34,16 +34,19 @@ Generalize the existing `aif index` CLI command (`lib/commands/index.js`) into t
 ### In Scope
 - `lib/commands/index.js` — generalize the existing single-mode command:
   - Add `-k`/`--knowledge` and `-d`/`--decision` flag parsing. No flag behaves exactly as `-k` today (backward compatible — existing callers of bare `aif index` are unaffected).
-  - `-d`/`--decision` branch: calls into the new `lib/decisions.js` to crawl, parse, and generate `docs/decisions/index.json`.
+  - `-d`/`--decision` branch: calls into the new `lib/decisions.js` to crawl, parse, and generate `{paths.decisions}/index.json`, where `{paths.decisions}` is resolved from `.aiconfig.json` exactly as `-k` already resolves `paths.knowledge` (see the new `resolveDecisionsPath` function below — mirrors the existing `resolveKnowledgePath`, including its fallback default when the config key is unset).
   - `-d --check` (composable with `-d`): calls the diff function instead of writing; exits non-zero and prints a human-readable diff summary if the committed index doesn't match a fresh crawl.
   - Existing `-k`/default branch (knowledge index) is untouched in behavior — only the flag-dispatch wrapper around it changes.
+
+**(Design gap found and closed, 2026-08-17 revision):** The original draft of this chunk described `-d` as crawling a hardcoded `docs/decisions/**` and writing a hardcoded `docs/decisions/index.json`, with no mention of reading `.aiconfig.json`'s `paths.decisions` key at runtime — unlike `-k`, which already resolves `paths.knowledge` dynamically via `resolveKnowledgePath(repoRoot)` (see `lib/commands/index.js` today). Chunk AIF-002-008 exists specifically to introduce a dedicated `paths.decisions` config key; a CLI that ignores it and always looks in `docs/decisions/` regardless of what a project's `.aiconfig.json` says would defeat the entire point of that config key for any project whose decisions don't live at the literal path `docs/decisions/`. This revision adds `resolveDecisionsPath` (mirroring `resolveKnowledgePath` exactly, including the same fallback-default behavior when the key is unset) and updates every other spec in this chunk that previously assumed a hardcoded `docs/decisions/` path.
 - **New file** `lib/decisions.js` — pure logic (no direct file I/O in the exported functions consumed by tests) plus a thin io-facing layer, mirroring `lib/snapshot/{pure,io}.js`'s split:
   - Parse a `.decision.md` file's Metadata table into a structured object (`Decision ID`, `Tier`, `Domain`, `Status`, `Author (Agent)`, `Approved By`, `Created`, `Referenced By`, `References`, `Tags`).
   - Given the full set of parsed records, compute each record's `referenced_by` (inverse of every other record's `References`) and `superseded_by` (inverse of every other record's `Supersedes`, where present — see Section 13, Risk 3, for the `Supersedes` field gap).
   - Split `Tags` on commas into a trimmed array; treat `"—"`/empty as no tags.
   - Build the full `index.json` structure (`{ generated_at, entries: [...] }`, matching the shape convention already used by `buildKnowledgeIndex` in `lib/commands/index.js` for `knowledge/index.json`).
   - Diff a freshly-built index against a previously-read one (structural equality on `entries`, ignoring `generated_at`) for `--check` mode.
-- I/O wiring in `lib/commands/index.js` (or a small io-layer inside `lib/decisions.js`, per the `lib/snapshot/{pure,io}.js` precedent): recursively collect `docs/decisions/**/*.decision.md` (excluding `docs/decisions/index.json` itself and any non-`.decision.md` file), read each, parse via `lib/decisions.js`, write `docs/decisions/index.json`.
+- **New function** `resolveDecisionsPath(repoRoot)` in `lib/commands/index.js`, mirroring the existing `resolveKnowledgePath(repoRoot)` exactly: reads `.aiconfig.json`'s `paths.decisions` key if present (`join(projectRoot, config.paths.decisions)`), falling back to `join(projectRoot, 'docs/decisions')` if unset — same shape, same fallback-default pattern, not a new convention.
+- I/O wiring in `lib/commands/index.js` (or a small io-layer inside `lib/decisions.js`, per the `lib/snapshot/{pure,io}.js` precedent): resolve the decisions directory via `resolveDecisionsPath(repoRoot)`, recursively collect `**/*.decision.md` under it (excluding `index.json` itself and any non-`.decision.md` file), read each, parse via `lib/decisions.js`, write `index.json` into that same resolved directory.
 - New tests: `tests/unit/decisions.test.js` (pure parsing/inversion/diff logic — synthetic in-memory fixtures, no real disk I/O) and `tests/integration/decisions-index.test.js` (end-to-end `aif index -d` run against a temp directory of fixture `.decision.md` files, mirroring `tests/integration/knowledge-index.test.js`'s structure).
 - `npm test` passes with these additions.
 
@@ -118,26 +121,36 @@ Generalize the existing `aif index` CLI command (`lib/commands/index.js`) into t
  * @returns {number} exit code
  */
 export function runIndex(parsed, repoRoot)
+
+/**
+ * Read .aiconfig.json from a directory and return the decisions path.
+ * Mirrors resolveKnowledgePath exactly: reads paths.decisions if present,
+ * falls back to '<projectRoot>/docs/decisions' if unset or .aiconfig.json
+ * is missing/unparseable.
+ * @param {string} projectRoot
+ * @returns {string} Absolute path to the decisions directory
+ */
+export function resolveDecisionsPath(projectRoot)
 ```
-Signature unchanged from today. Internally: if `parsed.args.d || parsed.args.decision`, delegate to a new `runDecisionIndex(parsed, repoRoot)`; else (default, or explicit `-k`/`--knowledge`) run the existing knowledge-index logic unchanged (renamed internally if needed for clarity, e.g. `runKnowledgeIndex`, but the exported `runIndex` entry point signature does not change).
+Signature of `runIndex` unchanged from today. Internally: if `parsed.args.d || parsed.args.decision`, delegate to a new `runDecisionIndex(parsed, repoRoot)`; else (default, or explicit `-k`/`--knowledge`) run the existing knowledge-index logic unchanged (renamed internally if needed for clarity, e.g. `runKnowledgeIndex`, but the exported `runIndex` entry point signature does not change). `runDecisionIndex` calls `resolveDecisionsPath(repoRoot)` first, exactly as the existing knowledge-index path calls `resolveKnowledgePath(repoRoot)` today — this is not new design, it is applying the same existing pattern to the new mode.
 
 **Key Behaviour**:
 - No flag → knowledge-index behavior (backward compatible).
 - `-k`/`--knowledge` → knowledge-index behavior (explicit, same as default).
-- `-d`/`--decision` → decision-index generation; writes `docs/decisions/index.json`.
+- `-d`/`--decision` → decision-index generation; resolves the decisions directory via `resolveDecisionsPath(repoRoot)` (reads `.aiconfig.json`'s `paths.decisions`, defaulting to `docs/decisions/` if unset — same default this repo's own `paths.decisions` value already happens to match, per chunk AIF-002-008), then writes `index.json` into that resolved directory.
 - `-d --check` → decision-index validation; does not write; exit code 1 and a diff summary to `stderr` if stale, exit 0 with a confirmation message if current.
 - `-k -d` together (or `--check` with `-k`) → not a supported combination; print a usage error to `stderr` and exit 1 rather than silently picking one (avoids ambiguous behavior).
 
 **Dependencies**:
 - `lib/decisions.js` (this chunk, new) — for decision-index parsing/generation/diff
-- Existing knowledge-index helpers already in this file — unchanged
+- Existing knowledge-index helpers already in this file, including the `resolveKnowledgePath` pattern this chunk's `resolveDecisionsPath` mirrors — unchanged
 
 ---
 
 ### `lib/decisions.js` — pure parsing, inversion, diff, plus thin io helpers
 
 **File**: `lib/decisions.js`
-**Purpose**: All decision-record-metadata-table parsing and index-building logic for `docs/decisions/index.json`, split into pure functions (unit-testable without disk I/O) and thin io wrappers (mirroring `lib/snapshot/{pure,io}.js`).
+**Purpose**: All decision-record-metadata-table parsing and index-building logic for the decisions index (`{paths.decisions}/index.json`, resolved by `resolveDecisionsPath` in `lib/commands/index.js`), split into pure functions (unit-testable without disk I/O) and thin io wrappers (mirroring `lib/snapshot/{pure,io}.js`).
 
 **Public Interface**:
 ```js
@@ -187,7 +200,7 @@ export function buildDecisionIndexForDir(decisionsDir)
 - `parseDecisionRecord`: extracts the Metadata table's `Decision ID`, `Tier`, `Domain`, `Status`, `Author (Agent)`, `Approved By`, `Created`, `Referenced By`, `References`, `Tags` (per chunk 002's finalized field set — Prerequisites). Missing any of `Decision ID`/`Tier`/`Domain`/`Status` (the fields `index.json`'s schema requires per AIF-META-001's Design section) returns `{ error }`, not a partial record. `Tags`, `References` are optional (absent/`—` → empty).
 - `buildDecisionIndex`: for each record, `references` = parsed `References` field (already a list from `parseDecisionRecord`); `referenced_by` = every other record whose `references` includes this record's `id`; `supersedes`/`superseded_by` = empty arrays for this chunk (Section 13, Risk 3 — no `Supersedes` field exists in the current template to invert from; this is a documented, not silent, gap). `title` is read from the record's `# Decision Record: {Short Title}` / `# Decision Brief: {Short Title}` H1 heading. `path` is the `relPath` passed through unchanged.
 - `diffDecisionIndex`: structural comparison of `entries` (order-independent, by `id`), ignoring `generated_at`. Returns a human-readable one-line-per-difference summary for `--check` mode's error output.
-- **Edge case, empty `docs/decisions/` (no records found)**: `buildDecisionIndexForDir` returns `{ generated_at, entries: [] }` — a valid, empty index, not an error. (Relevant before any migration chunk lands, and for any fresh project installing this framework's decision skills with no records authored yet.)
+- **Edge case, empty resolved decisions directory (no records found)**: `buildDecisionIndexForDir` returns `{ generated_at, entries: [] }` — a valid, empty index, not an error. (Relevant before any migration chunk lands, and for any fresh project installing this framework's decision skills with no records authored yet.)
 - **Edge case, malformed Metadata table** (Key Design Decision 4): `buildDecisionIndexForDir` throws an `Error` naming the specific file and the missing/malformed field; the CLI layer (`lib/commands/index.js`) catches this, prints to `stderr`, and returns a non-zero exit code — never a partial write.
 
 **Dependencies**:
@@ -212,7 +225,7 @@ export function buildDecisionIndexForDir(decisionsDir)
 | `references` | string[] | No | Parsed from `References`, empty if `—`/absent |
 | `tags` | string[] | No | Parsed from `Tags`, empty if `—`/absent |
 
-### `docs/decisions/index.json` entry (output shape)
+### Decisions index entry — `{paths.decisions}/index.json` (output shape)
 
 **Purpose**: One entry per record, per AIF-META-001's Design section schema — see that record for the authoritative field list. This chunk populates every field except `supersedes`/`superseded_by`, which are emitted as empty arrays pending Section 13 Risk 3's resolution.
 
@@ -236,7 +249,7 @@ export function buildDecisionIndexForDir(decisionsDir)
 
 > This section must never be empty.
 
-- [ ] All external inputs validated before use — every path under `docs/decisions/` is joined via `node:path`'s `join`, never string concatenation; file content is read as UTF-8 text and only parsed as a markdown table (no `eval`, no dynamic `require`/`import` of file content).
+- [ ] All external inputs validated before use — every path under the resolved decisions directory (from `resolveDecisionsPath`) is joined via `node:path`'s `join`, never string concatenation; file content is read as UTF-8 text and only parsed as a markdown table (no `eval`, no dynamic `require`/`import` of file content).
 - [ ] No secrets or credentials in source code or logs — this chunk reads/writes only decision-record markdown and `index.json`; no credential-shaped content is introduced or handled.
 - [ ] Errors exposed to users contain no internal system details beyond the offending file's relative path and the specific missing/malformed field — no stack traces or absolute filesystem paths leaked to `stdout`/`stderr` in the normal error path (per `javascript_node.md`'s error-handling conventions).
 - [ ] File paths built with `node:path` (`join`/`resolve`) — never string concatenation (per `javascript_node.md` Security Requirements).
@@ -254,7 +267,7 @@ Per `javascript_node.md`: "CLI tools and scripts: `console.log`/`console.error` 
 
 | Event | Level | What is logged | What is NOT logged |
 |---|---|---|---|
-| `aif index -d` completes successfully | `console.log` (info-equivalent) | Entry count, output path (`✓ Decision index generated: N entries → docs/decisions/index.json`, matching the existing knowledge-index success message shape) | File contents |
+| `aif index -d` completes successfully | `console.log` (info-equivalent) | Entry count, the actual resolved output path (`✓ Decision index generated: N entries → {resolved-path}/index.json`, matching the existing knowledge-index success message shape — the path printed is whatever `resolveDecisionsPath` resolved, not a hardcoded literal) | File contents |
 | `aif index -d` finds no `.decision.md` files | `console.log` (info-equivalent) | A message stating none were found and the index was still written (empty), or the directory doesn't exist yet | — |
 | `aif index -d` hits a malformed record | `console.error` (error-equivalent) | The offending file's relative path and the specific missing/malformed field name | Full file contents, stack trace |
 | `aif index -d --check` finds drift | `console.error` (error-equivalent) | The diff summary from `diffDecisionIndex` (which entries are added/removed/changed) | Full entry contents beyond what's needed to identify the drifted entry |
@@ -283,12 +296,13 @@ Per `javascript_node.md`: "CLI tools and scripts: `console.log`/`console.error` 
 
 | Test ID | Description | Type | Pass Criteria |
 |---|---|---|---|
-| DEC-IT01 | `aif index -d` against a temp dir of 2-3 fixture `.decision.md` files writes a correct `docs/decisions/index.json` | Integration | File written, entries match fixtures, `referenced_by` correctly inverted |
+| DEC-IT01 | `aif index -d` against a temp project directory with `.aiconfig.json`'s `paths.decisions` pointing at a fixture directory of 2-3 `.decision.md` files writes a correct `index.json` at that resolved location | Integration | File written at the resolved (non-default) path, entries match fixtures, `referenced_by` correctly inverted |
 | DEC-IT02 | `aif index` with no flags is unaffected — still generates `knowledge/index.json` exactly as before this chunk | Integration | Regression check against existing `tests/integration/knowledge-index.test.js` behavior — this chunk introduces no regressions |
 | DEC-IT03 | `aif index -d --check` against a freshly-generated, unmodified index exits 0 | Integration | Exit code 0 |
 | DEC-IT04 | `aif index -d --check` against a deliberately staled index (one fixture file changed after generation) exits non-zero with a diff summary on `stderr` | Integration | Exit code 1, summary printed |
 | DEC-IT05 | `aif index -d` against a directory with a malformed fixture file exits non-zero, names the offending file, and does not write a partial `index.json` | Integration | Exit code 1, error message names the file, `index.json` either untouched or absent, never partially written |
 | DEC-IT06 | `aif index -k -d` (both flags) exits non-zero with a usage error | Integration | Exit code 1, clear usage message |
+| DEC-IT07 (added, 2026-08-17 revision) | `resolveDecisionsPath` with no `paths.decisions` key in `.aiconfig.json` (or no `.aiconfig.json` at all) falls back to `docs/decisions/` under the project root, exactly mirroring `resolveKnowledgePath`'s fallback behavior for `paths.knowledge` | Integration | Resolved path equals `join(projectRoot, 'docs/decisions')` |
 
 ---
 
@@ -305,7 +319,8 @@ Per `javascript_node.md`: "CLI tools and scripts: `console.log`/`console.error` 
 
 - [ ] `aif index` with no flags behaves identically to today (knowledge-index, unchanged) — zero regression
 - [ ] `aif index -k`/`--knowledge` explicitly selects the same, unchanged knowledge-index behavior
-- [ ] `aif index -d`/`--decision` generates `docs/decisions/index.json` from a directory of `.decision.md` files, with correct `referenced_by` computed by inversion
+- [ ] `aif index -d`/`--decision` resolves the decisions directory via `resolveDecisionsPath(repoRoot)` (reading `.aiconfig.json`'s `paths.decisions`, falling back to `docs/decisions/` if unset — mirroring `resolveKnowledgePath` exactly) and generates `index.json` in that resolved directory from its `.decision.md` files, with correct `referenced_by` computed by inversion
+- [ ] `resolveDecisionsPath` correctly reads a configured non-default `paths.decisions` value (Test DEC-IT01) and correctly falls back to `docs/decisions/` when unset (Test DEC-IT07) — verified for both cases, not assumed from the default alone
 - [ ] `aif index -d --check` correctly detects drift (non-zero exit + diff summary) and correctly confirms freshness (zero exit)
 - [ ] Malformed records cause a loud, non-zero-exit failure naming the offending file — never a silent skip or partial write
 - [ ] `lib/decisions.js`'s exported pure functions (`parseDecisionRecord`, `buildDecisionIndex`, `diffDecisionIndex`) perform no direct file I/O
@@ -334,3 +349,4 @@ Per `javascript_node.md`: "CLI tools and scripts: `console.log`/`console.error` 
 ## 14. Work Log
 
 [2026-08-17 00:00] [Tech-Lead] [Created] [AIF-002-014] [Drafted directly by Tech-Lead (not self-planned by Software-Engineer) while revisiting AIF-002's chunk plans following Epic rev 6 approval, since AI-Engineer had originally been assigned this chunk before the human flagged that it's real application code, not a declarative AI component. Checked AIF-004 ("AI-Engineer/Software-Engineer Boundary", Approved) — confirmed `lib/`/`tests/unit/`/`tests/integration/` changes belong to Software-Engineer's pipeline (Tech-Lead Epic/Chunk Plan → Software-Engineer implementation → Principal-Engineer review, `javascript`/`node` standards), not AI-Engineer's self-planning pattern. Drafted this Chunk Plan directly to keep the revisit moving, mirroring the existing `lib/commands/index.js` (knowledge-index) and `lib/snapshot/{pure,io}.js` structural precedents. Flagged as Risk 2: whether this Tech-Lead-authored plan should instead be handed to Software-Engineer to review/re-plan before implementation, consistent with how AI-Engineer self-plans its own chunks rather than receiving Tech-Lead-authored ones. Flagged as Risk 3: `supersedes`/`superseded_by` cannot currently be populated from source, since neither chunk 002 nor 003's Metadata table has a `Supersedes` field — documented as a known schema/template gap, not silently worked around. Depends on AIF-002-002 (Approved, not just Draft) before implementation begins. `Status: Draft`, not yet presented for human review.]
+[2026-08-17 00:00] [Engineering-Manager] [Revised] [AIF-002-014] [Found and closed a real design gap during a repo-wide sweep for hardcoded `docs/decisions/` paths that should instead honor the `paths.decisions` config key (same class of issue as AIF-002-007's fix, but here it was a runtime-behavior gap, not just wording): the original draft never described `-d` reading `.aiconfig.json`'s `paths.decisions` at runtime, unlike `-k`, which already resolves `paths.knowledge` via the existing `resolveKnowledgePath`. Added a new `resolveDecisionsPath(repoRoot)` function to `lib/commands/index.js`'s Public Interface, mirroring `resolveKnowledgePath` exactly (same fallback-default behavior when the key is unset). Updated Section 2 (Goal), Section 3 (Scope), Section 6 (`lib/commands/index.js`/`lib/decisions.js` Components), Section 8 (Security), Section 9 (Logging), Section 10 (Testing — added DEC-IT07 for the fallback-default path, revised DEC-IT01 to test a configured non-default path), and Section 12 (Acceptance Criteria) to reflect config-driven resolution throughout, rather than a hardcoded literal. No change to the pure-function signatures already specified for `lib/decisions.js` (`decisionsDir` was already documented as a parameter, consistent with the pure/io split) — only the caller-side resolution logic was missing. Still `Status: Draft`, not yet presented for human review.]
