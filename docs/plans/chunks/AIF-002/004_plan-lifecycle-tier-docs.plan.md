@@ -21,7 +21,7 @@
 
 ## 2. Goal
 
-Extend `skills/plan-lifecycle/` to document two decision-record-specific gate variants introduced by AIF-META-001's Tier model — the Tier B abbreviated gate (Draft → one human confirmation → Approved, no expected multi-round revision cycle) and the Tier C non-gate (no standalone artifact, no `plan-lifecycle` cycle at all; the decision rides its parent plan's own gate) — and reference the `docs/decisions/index.json` update requirement for Tier A/B, without altering `plan-lifecycle`'s core Draft → Approved mechanics.
+Extend `skills/plan-lifecycle/` to document two decision-record-specific gate variants introduced by AIF-META-001's Tier model — the Tier B abbreviated gate (Draft → one human confirmation → Approved, no expected multi-round revision cycle) and the Tier C non-gate (no standalone artifact, no `plan-lifecycle` cycle at all; the decision rides its parent plan's own gate) — and reference the `{paths.decisions}/index.json` update requirement for Tier A/B, without altering `plan-lifecycle`'s core Draft → Approved mechanics.
 
 ---
 
@@ -32,7 +32,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 - `skills/plan-lifecycle/SKILL.md` — add documentation of the Tier B abbreviated gate and the Tier C non-gate as an additive subsection/clarification, without changing Steps 1-5's core mechanics for Chunk Plans, Epic Plans, or Tier A Decision Records (Tier A already follows the existing full cycle unchanged).
 - `skills/plan-lifecycle/reference/commit-gate-procedure.md` — add a decision-record tier-variant reference: Tier A follows the existing documented sequence unchanged; Tier B is a shortened variant (Draft → confirm → Approved, no expected revision loop); Tier C is explicitly out of scope for this procedure (no sequence applies).
 - `skills/plan-lifecycle/reference/status-vocabulary.md` — add a note clarifying that the Tier B variant uses the same `Draft`/`Approved`/`Deferred`/`Done`/ `Superseded` status values and transitions already documented (no new status values are introduced by Tier B or Tier C).
-- Reference (not own) the `docs/decisions/index.json` update requirement for Tier A and Tier B Decision Records — documented as a required output step that belongs to the producing skill (`skill/decision-record`, `skill/decision-brief` — chunks 002/003 of this Epic), not duplicated as `plan-lifecycle`'s own responsibility.
+- Reference (not own) the `{paths.decisions}/index.json` update requirement for Tier A and Tier B Decision Records — documented as a required output step that belongs to the producing skill (`skill/decision-record`, `skill/decision-brief` — chunks 002/003 of this Epic), not duplicated as `plan-lifecycle`'s own responsibility.
 - Cross-reference AIF-META-001 (Decision ID) as the source of the Tier definitions, so a future reader can trace why the variant exists.
 
 ### Out of Scope
@@ -40,7 +40,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 - Any change to `plan-lifecycle`'s core Draft → Approved mechanics, Steps 1-5, or the status vocabulary's core statuses/transitions — explicitly out of scope per the Epic Plan (Section 3, Out of Scope) and per AIF-META-001's own "Not required by this decision" note.
 - Authoring `skill/decision-triage`, `skill/decision-record`'s Tier A scoping, or `skill/decision-brief` themselves — those are chunks 001, 002, and 003 respectively, dispatched in parallel with this chunk. This chunk only documents the gate shape those skills will invoke; it does not define or modify those skills' own Steps/Outputs.
 - Modifying `skills/chunk-planning/reference/template.md` or `skills/epic-planning/reference/template.md` for the Tier C inline-recording convention — that is chunk 005.
-- Any validation tooling for `docs/decisions/index.json` — that is chunk 015.
+- Any validation tooling for `{paths.decisions}/index.json` — that is chunk 015.
 
 ---
 
@@ -67,7 +67,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 1. **Decision**: Document the Tier B/C variants as additive subsections placed after the existing Steps/procedure, rather than rewriting Steps 1-5 or the existing sequence diagram in place.
    **Rationale**: The Epic Plan and AIF-META-001 both explicitly require that core Draft → Approved mechanics are unchanged. Keeping the variant documentation additive (a clearly labeled "Decision Record Tier Variants" section) makes the diff auditable as "new content describing which artifacts use which cycle" rather than "changed mechanics," satisfying that constraint structurally, not just by intent.
 2. **Decision**: `plan-lifecycle` documents *that* the index-update step exists and is required for Tier A/B, but does not itself own or duplicate that step's procedure.
-   **Rationale**: `docs/decisions/index.json` is produced/updated by `skill/decision-record` and `skill/decision-brief` (chunks 002/003), in the same commit as the record itself, per AIF-META-001's Design section. Making `plan-lifecycle` the second source of truth for that step would create drift risk between two skills describing the same mechanic. `plan-lifecycle` references it so a reader following the gate procedure doesn't miss it, without becoming its owner.
+   **Rationale**: `{paths.decisions}/index.json` is produced/updated by `skill/decision-record` and `skill/decision-brief` (chunks 002/003), in the same commit as the record itself, per AIF-META-001's Design section. Making `plan-lifecycle` the second source of truth for that step would create drift risk between two skills describing the same mechanic. `plan-lifecycle` references it so a reader following the gate procedure doesn't miss it, without becoming its owner.
 3. **Decision**: Tier C is documented as an explicit *non-gate*, not merely omitted.
    **Rationale**: AIF-META-001's Design section states Tier C "rides its parent plan's own `plan-lifecycle` gate — nothing separate." If `plan-lifecycle` simply doesn't mention Tier C, a future reader (or `skill/decision-triage`)
    might assume Tier C decisions need *some* minimal cycle here. An explicit statement — "Tier C decisions never invoke this skill directly; they are governed entirely by whichever plan recorded them" — forecloses that ambiguity.
@@ -90,7 +90,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 - `Inputs` — extend the "Artifact type" bullet to note that for Decision Records, the artifact's `Tier` field (from `skill/decision-triage`) determines which gate variant applies.
 - New subsection after Step 4, e.g. "### Decision Record Tier Variants" — states the three variants (A full cycle / B abbreviated one-shot / C rides the parent plan, no cycle here) at the `plan-lifecycle` level, with a link/reference to AIF-META-001's Design section Tier table as the source of truth for the underlying rigor definitions (this skill does not re-define what Tier A/B/C *mean* — only how the gate procedure differs once a tier is already chosen).
-  Explicitly states: "Tier C decisions are never presented to this skill as a standalone artifact — they do not have a `Status` field of their own; consult the governing plan's own status instead." Explicitly references: "Tier A and Tier B Decision Records must update `docs/decisions/index.json` in the same commit that produces or updates the record — see `skill/decision-record`/`skill/decision-brief` for that step's procedure; this skill's commit-gate applies in addition to, not instead of, that requirement."
+  Explicitly states: "Tier C decisions are never presented to this skill as a standalone artifact — they do not have a `Status` field of their own; consult the governing plan's own status instead." Explicitly references: "Tier A and Tier B Decision Records must update `{paths.decisions}/index.json` in the same commit that produces or updates the record — see `skill/decision-record`/`skill/decision-brief` for that step's procedure; this skill's commit-gate applies in addition to, not instead of, that requirement."
 - `Edge Cases` — add one new edge case: "Decision Record with Tier B — the abbreviated gate applies (see Decision Record Tier Variants above): commit Draft, present for one round of human confirmation, commit Approved. A multi-round revision cycle is not expected but is not prohibited if the human requests changes — if it happens, follow Steps 2-3 exactly as for Tier A."
 
 **Key Behaviour**:
@@ -121,12 +121,12 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
        (If the human requests changes instead, follow the full Draft → revision
        → Approved sequence above — Tier B does not prohibit revision, it just
        does not expect it.)
-    4. Update docs/decisions/index.json in the same commit as step 1 and step 3
+    4. Update {paths.decisions}/index.json in the same commit as step 1 and step 3
        (see skill/decision-record / skill/decision-brief for the index-update
        procedure itself)
     ```
-  - Tier C: "No sequence applies. The decision is recorded inline in the governing plan (Chunk Plan/Epic Plan) and is fully covered by that plan's own Draft → Approved sequence above. `docs/decisions/index.json` is never touched for a Tier C decision."
-- Add one bullet to the existing `## Rules` list: "For Decision Records, the `docs/decisions/index.json` update (Tier A/B only) happens in the same commit as the Draft and Approved steps respectively — see Decision Record Tier Variants below. This does not add a new commit to the sequence; it is content within the existing Draft/Approved commits."
+  - Tier C: "No sequence applies. The decision is recorded inline in the governing plan (Chunk Plan/Epic Plan) and is fully covered by that plan's own Draft → Approved sequence above. `{paths.decisions}/index.json` is never touched for a Tier C decision."
+- Add one bullet to the existing `## Rules` list: "For Decision Records, the `{paths.decisions}/index.json` update (Tier A/B only) happens in the same commit as the Draft and Approved steps respectively — see Decision Record Tier Variants below. This does not add a new commit to the sequence; it is content within the existing Draft/Approved commits."
 
 **Key Behaviour**:
 
@@ -167,7 +167,7 @@ Not applicable — this chunk produces markdown documentation only, no data sche
 > This section must never be empty.
 
 - [ ] No new attack surface — this chunk edits only markdown documentation inside `skills/plan-lifecycle/`; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 6, first bullet).
-- [ ] No secrets or credentials in source content — the added text references only public artifact paths (`docs/decisions/index.json`) and skill/decision names, nothing environment- or credential-specific.
+- [ ] No secrets or credentials in source content — the added text references only public artifact paths (`{paths.decisions}/index.json`) and skill/decision names, nothing environment- or credential-specific.
 - [ ] The Tier B abbreviated gate must not be documented in a way that weakens the approval requirement — the abbreviated gate still requires an explicit committed `Approved` status; "abbreviated" refers only to the expected number of revision rounds, never to skipping human confirmation itself.
   This is a direct carry-forward of AIF-META-001's non-negotiable constraint ("must not weaken `skill/plan-lifecycle`'s human-approval gate for any decision, regardless of tier or domain") and of Epic Plan Section 6.
 - [ ] Errors/ambiguity exposed to future readers contain no internal system details beyond what is already documented elsewhere in this repo (not applicable in practice for a docs-only change, verified as N/A).
@@ -218,7 +218,7 @@ This chunk has no executable code, so "tests" are documentation-validation check
 ## 12. Acceptance Criteria
 
 - [ ] `skills/plan-lifecycle/SKILL.md` documents the Tier B abbreviated gate (Draft → one human confirmation → Approved, no expected multi-round revision cycle) and the Tier C non-gate (no standalone artifact, rides the parent plan's own gate)
-- [ ] `skills/plan-lifecycle/reference/commit-gate-procedure.md` documents the Tier A/B/C sequence variants, including the `docs/decisions/index.json` update requirement for Tier A/B (referenced, not duplicated/owned)
+- [ ] `skills/plan-lifecycle/reference/commit-gate-procedure.md` documents the Tier A/B/C sequence variants, including the `{paths.decisions}/index.json` update requirement for Tier A/B (referenced, not duplicated/owned)
 - [ ] `skills/plan-lifecycle/reference/status-vocabulary.md` clarifies that no new `Status` values are introduced by Tier B/C
 - [ ] No wording change to `plan-lifecycle`'s existing core Draft → Approved mechanics (Steps 1-5, the existing sequence diagram, the existing status table/transitions) — verified via diff review (Test 004-T01, 004-T04)
 - [ ] All new content cross-references AIF-META-001 as the source of the Tier definitions rather than re-deriving them
