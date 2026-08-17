@@ -25,7 +25,25 @@
 
 ---
 
-## 3. Scope
+## 3. Quick Summary
+
+**Open Items:** {N} open ({H} High / {M} Medium / {L} Low) — see Section 14
+
+---
+
+## 4. Acceptance Criteria
+
+- [ ] All components in Section 8 exist and build cleanly
+- [ ] All tests in Section 11 pass
+- [ ] Security checklist (Section 9) fully satisfied
+- [ ] Logging checklist (Section 10) fully satisfied
+- [ ] Documentation checklist (Section 12) fully satisfied
+- [ ] Review approved with no CRITICAL or HIGH findings
+- [ ] {Plan-specific criteria}
+
+---
+
+## 5. Scope
 
 ### In Scope
 - {Exactly what will be built in this chunk}
@@ -35,7 +53,7 @@
 
 ---
 
-## 4. Prerequisites
+## 6. Prerequisites
 
 - [ ] {Prior chunk complete — link if applicable}
 - [ ] {Dependencies available}
@@ -43,7 +61,7 @@
 
 ---
 
-## 5. Architecture & Design
+## 7. Architecture & Design
 
 ### Project Structure Changes
 {New files/folders. Mark with ← NEW or ← MODIFIED.}
@@ -57,7 +75,7 @@
 
 ---
 
-## 6. Components
+## 8. Components
 
 ### {ComponentName} — {Role}
 
@@ -77,7 +95,7 @@
 
 ---
 
-## 7. Data Models
+## 9. Data Models
 
 ### {ModelName}
 
@@ -89,7 +107,7 @@
 
 ---
 
-## 8. Security Requirements
+## 10. Security Requirements
 
 > This section must never be empty.
 
@@ -100,7 +118,7 @@
 
 ---
 
-## 9. Logging Requirements
+## 11. Logging Requirements
 
 > This section must never be empty.
 
@@ -110,7 +128,7 @@
 
 ---
 
-## 10. Testing Plan
+## 12. Testing Plan
 
 ### {ComponentName} Tests
 
@@ -121,7 +139,7 @@
 
 ---
 
-## 11. Documentation Requirements
+## 13. Documentation Requirements
 
 - [ ] Inline documentation on all public members
 - [ ] File headers on all new source files
@@ -130,26 +148,14 @@
 
 ---
 
-## 12. Acceptance Criteria
+## 14. Risks & Open Questions
 
-- [ ] All components in Section 6 exist and build cleanly
-- [ ] All tests in Section 10 pass
-- [ ] Security checklist (Section 8) fully satisfied
-- [ ] Logging checklist (Section 9) fully satisfied
-- [ ] Documentation checklist (Section 11) fully satisfied
-- [ ] Review approved with no CRITICAL or HIGH findings
-- [ ] {Plan-specific criteria}
+| # | Risk / Question | Type | Impact | Mitigation |
+|---|---|---|---|---|
+| 1 | {Describe} | Risk/Question | H/M/L | {Mitigation or decision needed} |
 
 ---
 
-## 13. Risks & Open Questions
-
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | {Describe} | H/M/L | {Mitigation or decision needed} |
-
----
-
-## 14. Work Log
+## 15. Work Log
 
 {Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{Plan ID}] [{Details}]

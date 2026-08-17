@@ -12,7 +12,7 @@ Decomposes one piece of an approved Epic into a fully specified Chunk Plan. Cont
 
 ## Inputs
 
-- **Approved Epic Plan** — parent epic with Section 8 chunk decomposition filled in
+- **Approved Epic Plan** — parent epic with Section 9 chunk decomposition filled in
 - **Language standards** — from `standards/{stack}.md`
 - **Project standards** — from `projects/{name}/project-standards.md`
 - **Dependency chunks** — any chunks this one depends on (for interface contracts)
@@ -23,7 +23,7 @@ Decomposes one piece of an approved Epic into a fully specified Chunk Plan. Cont
 
 ### Step 1 — Determine Scope from Epic
 
-Read the Epic's Section 8 to understand this chunk's boundaries, dependencies, and parallelization constraints.
+Read the Epic's Section 9 to understand this chunk's boundaries, dependencies, and parallelization constraints.
 
 ### Step 2 — Write Chunk Plan
 
@@ -35,8 +35,9 @@ Standards composition order (later overrides earlier):
 3. Project standards
 
 Key rules:
-- Section 8 (Security) and Section 9 (Logging) must never be empty
-- Section 6 (Components) must be detailed enough to implement without questions
+- Section 10 (Security) and Section 11 (Logging) must never be empty
+- Section 8 (Components) must be detailed enough to implement without questions
+- Section 4 (Acceptance Criteria) and Section 3 (Quick Summary) come right after the Goal — keep Section 3's open-item count in sync whenever Section 14 (Risks & Open Questions) changes
 - Write interfaces/contracts before considering implementation
 
 ### Step 3 — Follow the Commit-Gate Procedure
@@ -56,4 +57,4 @@ Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, 
 
 - **Discovers work not in the Epic** — stop and raise as an open question on the parent Epic. Do not expand scope.
 - **Dependency chunk not complete** — write the plan assuming the dependency's documented interfaces. Note the assumption.
-- **Security/logging requirements unclear** — raise as a risk in Section 13. Never leave Sections 8-9 empty.
+- **Security/logging requirements unclear** — raise as a risk in Section 14. Never leave Sections 10-11 empty.
