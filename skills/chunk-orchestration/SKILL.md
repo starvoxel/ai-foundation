@@ -177,6 +177,35 @@ Triggered by: human reports conflict during PR review, OR wave-boundary rebase f
    - Log: `chunk_unblocked`
    - Pipeline restarts from SE (full SE → TE → PE)
 
+**Decision hand-off — Decision Hand-off Sub-Flow:** (Authored under AIF-002-006)
+
+Triggered by: a dispatched subagent reports, via `skill/decision-triage`, that
+continuing requires a Tier A/B decision outside its own domain, or requires
+human approval before it can proceed.
+
+1. Update chunk status to `Blocked` with a structured `blocked_reason`
+   (domain, tier, owning agent — from the `decision-triage` hand-off signal).
+   Log: `decision_handoff_detected` with the domain, tier, and owning agent.
+2. If Engineering-Manager itself owns the domain (Process), author the
+   decision directly via `decision-triage` -> `decision-record`/
+   `decision-brief`. Otherwise, dispatch the owning agent as a subagent to
+   author it the same way. Log: `decision_authored` once the Draft decision is
+   committed.
+3. Present the Draft decision to the human alongside the existing
+   blocked-chunk escalation. The decision's own `skill/plan-lifecycle` gate —
+   not orchestration state — governs whether it becomes `Approved` or
+   `Deferred`. Do not track a parallel approval state in the orchestration
+   file.
+4. Once the decision reaches `Approved`: reuse the existing generic "when
+   human unblocks" behavior (see above) unchanged — chunk status `Blocked` ->
+   `Ready`, `blocked_reason` cleared, escalation `resolved` set to true. Log:
+   `chunk_unblocked` and `decision_handoff_resolved`. No new resume mechanic —
+   the chunk's full pipeline (SE -> TE -> PE) redispatches from `Ready` exactly
+   as any other unblock does.
+5. If the decision is `Deferred` instead: the chunk remains `Blocked`.
+   `Deferred` never satisfies the gate (per `skill/plan-lifecycle`) — do not
+   clear `blocked_reason` or advance the chunk.
+
 **Blocked chunks and wave progression:**
 - A blocked chunk does NOT prevent other chunks in the wave from completing
 - A blocked chunk DOES prevent any chunk that depends on it from dispatching
