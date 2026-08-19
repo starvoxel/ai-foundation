@@ -2,23 +2,23 @@
   "epic_id": "AIF-002",
   "status": "In Progress",
   "current_wave": 0,
-  "total_waves": 4,
+  "total_waves": 3,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "005", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "006", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "007", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "008", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "009", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Implementing", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Implementing", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Implementing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "005", "wave": 0, "status": "Implementing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "006", "wave": 0, "status": "Implementing", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "007", "wave": 0, "status": "Implementing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "008", "wave": 0, "status": "Implementing", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "009", "wave": 0, "status": "Implementing", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "010", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "011", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "012", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "013", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "014", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "015", "wave": 3, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "014", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
+    { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
   "log": [
@@ -27,7 +27,14 @@
       "agent": "Engineering-Manager",
       "action": "wave_started",
       "chunk_id": null,
-      "details": "Orchestration initialized for AIF-002. dag-compute-waves (servers/dag/logic.js) confirmed 4 waves: [001-009], [010-013], [014], [015], matching Epic Plan Section 8. Wave 0 started."
+      "details": "Orchestration initialized for AIF-002. Initial dag-compute-waves run recorded 4 waves; superseded by the rev 6 chunk-plan revisit (2026-08-17), which re-sequenced chunks 014/015 and re-validated to 3 waves. No chunk had been dispatched under the stale 4-wave state."
+    },
+    {
+      "timestamp": "2026-08-18T00:00:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Reconciled orchestration state against actual repo contents before resuming dispatch: verified no Wave 1 chunk (001-009) has been implemented yet (skills/decision-triage and skills/decision-brief do not exist; skills/decision-record has no AIF-002-002 implementation commit; .aiconfig.json has no paths.decisions key) despite all chunk plans being Approved. Corrected total_waves from stale 4 to 3 (per AIF-002 Epic Plan Section 9 rev 6 / chunks.json) and corrected chunk 014's agent assignment from AI-Engineer to Software-Engineer (per AIF-004 boundary decision, applied during the rev 6 chunk-plan revisit but not previously reflected in this state file). Per Decision Record AIF-005 (Approved) 'AI-Track Chunk Orchestration Dispatch', chunks with agents:[\"AI-Engineer\"] are dispatched to AI-Engineer (self-plans/self-implements/self-validates per skill/complexity-tiers, already satisfied here since all Wave 1 plans are pre-approved) with Test-Engineer skipped and Principal-Engineer as the sole review gate; chunk 014 (Software-Engineer) follows the standard SE -> TE -> PE pipeline. Wave 1 (9 chunks: 001-009) confirmed all Ready with dependencies satisfied (none). Created branch + worktree for each of the 9 Wave 1 chunks per skill/worktree-management; ran `npm ci` in each worktree. Dispatching AI-Engineer subagents for all 9 chunks now (within orchestration.max_concurrent = 10)."
     }
   ]
 }
