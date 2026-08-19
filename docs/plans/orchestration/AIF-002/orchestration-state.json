@@ -8,7 +8,7 @@
     { "id": "002", "wave": 0, "status": "Reviewing", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "005", "wave": 0, "status": "Implementing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "005", "wave": 0, "status": "Reviewing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 0, "status": "Implementing", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 0, "status": "Reviewing", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -77,6 +77,13 @@
       "action": "chunk_status_changed",
       "chunk_id": "004",
       "details": "AI-Engineer completed implementation: skills/plan-lifecycle/SKILL.md, reference/commit-gate-procedure.md, reference/status-vocabulary.md updated with Tier B/C variant documentation. Self-validation: all plan Section 12 tests passed. Commits 6cb81de, b58970a, 284e91c, pushed to origin/AIF-002/004-plan-lifecycle-tier-docs. Status -> Reviewing. Third independent confirmation of the ai-git push -u arg-reordering bug and its token-echo side effect (see chunk 002/008 entries). Holding all new dispatch (PE reviews, PR creation) pending human reply on token rotation."
+    },
+    {
+      "timestamp": "2026-08-18T00:25:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "005",
+      "details": "AI-Engineer completed implementation: skills/chunk-planning/reference/template.md and skills/epic-planning/reference/template.md updated with Tier C inline-recording guidance. Self-validation: all plan Section 12 tests passed, npm test 489/489. Commits on branch AIF-002/005-tier-c-inline-convention, pushed to origin (worked around the same ai-git push -u bug by omitting -u entirely -- ai-git push origin <branch> -- no token-echo reported this time). Status -> Reviewing. Holding PE dispatch pending human reply on token rotation."
     }
   ]
 }
