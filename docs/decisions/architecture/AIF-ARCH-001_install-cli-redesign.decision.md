@@ -4,13 +4,17 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-001 |
+| Decision ID | AIF-ARCH-001 |
 | Project | ai-foundation |
 | Status | Approved |
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-07-31 21:08 |
-| Referenced By | AIF-002 |
+| Referenced By | AIF-ARCH-002 |
+
+> **Note:** This decision predates the AIF-META-001 Tier × Domain model (approved
+> 2026-08-14) and has not been reformatted to the current template. Its content
+> and Approved status remain valid as historical record.
 
 ---
 
