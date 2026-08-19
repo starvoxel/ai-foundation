@@ -4,13 +4,17 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | {ProjectID}-{###} |
+| Decision ID | {ProjectID}-{DomainCode}-{###} |
 | Project | {Project name} |
+| Tier | A |
+| Domain | {architecture / process / planning / ai-component / quality / testing / meta-process} |
 | Status | Draft / Approved / Done / Deferred / Superseded |
-| Author (Agent) | Architect |
+| Author (Agent) | {Domain owner agent — see reference/domain-guidance.md} |
 | Approved By | {human name or "Pending"} |
 | Created | {YYYY-MM-DD HH:mm} |
-| Referenced By | {Epic ID(s) that use this decision} |
+| Referenced By | {Decision ID(s) that cite this record, or "—"} |
+| References | {Decision ID(s) this record cites, or "—"} |
+| Tags | {comma-separated free-text tags for discovery, or "—"} |
 
 ---
 
