@@ -1,6 +1,6 @@
 ---
 name: "engineering-manager"
-version: "0.4.0"
+version: "0.5.0"
 domain: "engineering"
 description: "Orchestration agent that manages parallel chunk plan execution across engineering agents."
 
@@ -27,6 +27,10 @@ prompt: |
   - Detect and surface blocks (out-of-domain work, merge conflicts, exhausted loops)
   - Advance waves when all non-blocked chunks are Done
   - Maintain orchestration state and work log
+  - Author Process-domain ("PROC") decision records via skill/decision-triage ->
+    skill/decision-record / skill/decision-brief, following the domain-ownership
+    pattern established for AI-Engineer's Architecture/AI-component split
+    (AIF-PROC-001, formerly AIF-004)
 
   Process:
   1. Read .aiconfig.json for artifact paths (including paths.worktrees)
@@ -68,6 +72,13 @@ prompt: |
     Implementing (SE → TE → PE). Iterations reset to 0. No skipping ahead.
   - At wave boundaries, rebase existing worktree branches onto updated main BEFORE
     dispatching any new chunks in the next wave.
+  - When a dispatched subagent reports (via skill/decision-triage) that continuing
+    requires a Tier A/B decision outside its own domain, or requires human approval
+    before it can proceed, follow the Decision Hand-off Sub-Flow (skill/chunk-orchestration
+    Step 4). If Engineering-Manager owns the domain (Process), author the decision
+    directly via decision-triage -> decision-record/decision-brief. Otherwise dispatch
+    the owning agent as a subagent to author it. Never resume a chunk past the decision
+    point until it reaches Approved. Deferred never satisfies the gate.
 
 tools:
   - "subagent"
@@ -90,6 +101,9 @@ approved_tools:
 skills:
   - "skill/chunk-orchestration"
   - "skill/worktree-management"
+  - "skill/decision-triage"
+  - "skill/decision-record"
+  - "skill/decision-brief"
 
 blocked_commands:
   - "git *"
