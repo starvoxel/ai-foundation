@@ -4,12 +4,12 @@
   "current_wave": 0,
   "total_waves": 3,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Reviewing", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "002", "wave": 0, "status": "Reviewing", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Reviewing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "006", "wave": 0, "status": "Implementing", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "006", "wave": 0, "status": "Reviewing", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 0, "status": "Reviewing", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "009", "wave": 0, "status": "Implementing", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -84,6 +84,20 @@
       "action": "chunk_status_changed",
       "chunk_id": "005",
       "details": "AI-Engineer completed implementation: skills/chunk-planning/reference/template.md and skills/epic-planning/reference/template.md updated with Tier C inline-recording guidance. Self-validation: all plan Section 12 tests passed, npm test 489/489. Commits on branch AIF-002/005-tier-c-inline-convention, pushed to origin (worked around the same ai-git push -u bug by omitting -u entirely -- ai-git push origin <branch> -- no token-echo reported this time). Status -> Reviewing. Holding PE dispatch pending human reply on token rotation."
+    },
+    {
+      "timestamp": "2026-08-18T00:30:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "001",
+      "details": "AI-Engineer completed implementation: new skills/decision-triage/ (SKILL.md, reference/tier-and-domain.md, reference/handoff-signal.md). Self-validation: npm test 489/489, plan Section 12 tests DT-T01-T07 walked manually, skill-authoring Step 7 checklist satisfied. Commit 42172d4, pushed to origin/AIF-002/001-decision-triage. Status -> Reviewing. FOURTH independent confirmation of the ai-git push -u bug/token-echo issue (chunks 001, 002, 004, 008) -- this instance additionally PERSISTED the token-embedded URL into the worktree's local .git/config (via --set-upstream workaround), not just stdout; AI-Engineer self-remediated by resetting the tracking remote and confirmed no token strings remain in this worktree's git config. Human has been asked (chat) whether to rotate AI_GIT_TOKEN and is currently evaluating; continuing to hold all new dispatch (PE reviews, PR creation) until a decision is given."
+    },
+    {
+      "timestamp": "2026-08-18T00:35:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "006",
+      "details": "AI-Engineer completed implementation: agents/engineering-manager.yaml (v0.5.0, PROC decision authoring + Decision Hand-off Sub-Flow hard rule), skills/chunk-orchestration/SKILL.md (Decision Hand-off Sub-Flow), skills/chunk-orchestration/reference/state-schema.md (3 new log actions). Confirmed AIF-005's AI-track dispatch/pipeline branching was intentionally NOT added (out of this chunk's scope). Self-validation: all plan Section 12 tests (EM-T01-06, CO-T01-06) passed. Commits 9d36d66, 237f264, b19e760, pushed to origin/AIF-002/006-em-decision-handoff via a non-URL-embedded-token workaround (push without -u, then fetch + branch --set-upstream-to) -- no token echo reported this time. Status -> Reviewing. Holding PE dispatch pending human reply on token rotation. All 9 Wave 1 chunks now implemented; only 009 still outstanding from original dispatch."
     }
   ]
 }
