@@ -70,6 +70,16 @@
 1. **Decision**: {What}
    **Rationale**: {Why}
 
+> **Tier C decisions.** Not every decision needs a standalone Decision Record —
+> most don't. Before writing a decision in this section, run it through
+> `skill/decision-triage`'s promotion threshold. If it doesn't rise to Tier A
+> (`skill/decision-record`) or Tier B (`skill/decision-brief`), it stays here as
+> a Tier C entry: no standalone file, no `{paths.decisions}/index.json` update, no
+> separate approval gate — it rides this Chunk Plan's own `skill/plan-lifecycle`
+> cycle. Use the convention: `Decision: {what was decided}. **Why:** {rationale}.`
+> If a later, unrelated plan needs to cite this decision independently, it
+> should be promoted via `skill/decision-triage`, not silently re-explained.
+
 ### Patterns & Conventions Applied
 {Which standards patterns are being used.}
 
