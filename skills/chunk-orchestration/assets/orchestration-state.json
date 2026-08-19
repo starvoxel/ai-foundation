@@ -10,6 +10,8 @@
       "status": "Ready",
       "branch": "",
       "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
       "iterations": 0,
       "blocked_reason": null,
       "agents": ["Software-Engineer"]

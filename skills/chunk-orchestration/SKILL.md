@@ -107,10 +107,11 @@ As each subagent completes, advance the chunk through its pipeline:
    - Same branch and worktree path
    - Instruction: "Create a pull request from this branch to main via `gh pr create`"
    - SE creates the PR and reports the URL
-3. Record the PR URL in the chunk state
+3. Record the PR number and URL in the chunk's `pr_number` and `pr_url` fields
 4. Log: `chunk_status_changed`
-5. Check if a queued chunk can now be dispatched (free slot)
-6. Check if the wave is complete (Step 5)
+5. Log: `pr_created` with PR number and URL details
+6. Check if a queued chunk can now be dispatched (free slot)
+7. Check if the wave is complete (Step 5)
 
 Note: The worktree remains active until the human confirms the PR is merged.
 When the human confirms merge, run worktree teardown (skill/worktree-management Step 4):

@@ -40,6 +40,8 @@ Resolved from `.aiconfig.json` at project root. Default: `plans/orchestration/`.
 | `status` | string | Yes | Current status (see transitions below) |
 | `branch` | string | Yes | Branch name, empty string if not yet started |
 | `worktree_path` | string | Yes | Worktree directory path, empty string if not yet created |
+| `pr_number` | number\|null | Yes | GitHub PR number once created, null before then |
+| `pr_url` | string\|null | Yes | GitHub PR URL once created, null before then |
 | `iterations` | number | Yes | Review loop count (0–5) |
 | `blocked_reason` | string\|null | Yes | Null when not blocked, reason string when blocked |
 | `agents` | string[] | Yes | Assigned agent roles |
@@ -103,6 +105,7 @@ Blocked → Ready (when human unblocks)
 | `wave_completed` | All chunks in a wave are Done |
 | `chunk_dispatched` | Chunk assigned to an agent |
 | `chunk_status_changed` | Chunk transitioned to a new status |
+| `pr_created` | PR created for a Done chunk; `pr_number`/`pr_url` recorded in chunk state |
 | `review_loop` | Chunk returned from review for correction |
 | `escalation_raised` | Issue escalated to human |
 | `escalation_resolved` | Human resolved a prior escalation |
