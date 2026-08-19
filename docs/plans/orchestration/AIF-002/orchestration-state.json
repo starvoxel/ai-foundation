@@ -231,6 +231,20 @@
       "action": "review_completed",
       "chunk_id": "004",
       "details": "Re-review verdict: APPROVED. Confirmed all 3 [Implemented] Work Log entries present, correctly attributed, referencing AIF-002-004; no scope creep in the fix commit; prior HIGH finding resolved, no new findings. Status -> Done. Dispatching AI-Engineer to create PR. ALL 9 WAVE 1 CHUNKS NOW DONE."
+    },
+    {
+      "timestamp": "2026-08-18T01:20:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "002",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/7. No push needed. Body flags the chunk-003-review's informational note about decision-record/SKILL.md's Outputs line for human attention. Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-18T01:21:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "005",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/6. No push needed. Awaiting human merge."
     }
   ]
 }
