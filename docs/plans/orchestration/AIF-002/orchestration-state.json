@@ -5,13 +5,13 @@
   "total_waves": 3,
   "chunks": [
     { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Implementing", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Implementing", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "Implementing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Reviewing", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Implementing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 0, "status": "Implementing", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "008", "wave": 0, "status": "Implementing", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "008", "wave": 0, "status": "Reviewing", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "009", "wave": 0, "status": "Implementing", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "010", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "011", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -42,6 +42,41 @@
       "action": "chunk_status_changed",
       "chunk_id": "007",
       "details": "AI-Engineer completed implementation: skills/knowledge-authoring/SKILL.md updated per plan Section 10. Self-validation: npm test 489/489 passing. Committed c9f028c, pushed to origin/AIF-002/007-knowledge-authoring-update. Test-Engineer skipped per AIF-005. Status -> Reviewing; dispatching Principal-Engineer."
+    },
+    {
+      "timestamp": "2026-08-18T00:10:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "008",
+      "details": "AI-Engineer completed implementation: .aiconfig.json paths.decisions:'docs/decisions' added. Self-validation: all plan Section 12 tests passed, npm test 489/489. Committed 08b6710, pushed to origin/AIF-002/008-aiconfig-paths-decisions. Test-Engineer skipped per AIF-005. Status -> Reviewing; dispatching Principal-Engineer. DISCOVERY (not in scope, not fixed): AI-Engineer reports `ai-git push -u origin <branch>` mishandles arg reordering in lib/ai-git.js's injectAuthUrl (auth URL inserted at wrong position when -u immediately follows push), causing a git error; workaround `ai-git push origin <branch> -u` succeeded. Flagged for human visibility -- this is lib/ runtime code (Software-Engineer domain per AIF-PROC-001), not fixed by AI-Engineer per Rule 4. Not blocking current dispatch since a workaround exists; other in-flight agents may hit the same issue."
+    },
+    {
+      "timestamp": "2026-08-18T00:15:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "002",
+      "details": "AI-Engineer completed implementation: skills/decision-record/reference/template.md (11-field Metadata table), new skills/decision-record/reference/domain-guidance.md, skills/decision-record/SKILL.md Tier A scoping. Self-validation: npm test 489/489. Commits f855c41, 6db9daa, 258d1c1, pushed to origin/AIF-002/002-decision-record-tier-a. Status -> Reviewing. HIGH-SEVERITY DISCOVERY: AI-Engineer confirmed the ai-git push -u argument-reordering bug (see chunk 008 log entry) also caused the authenticated push URL, including the raw AI_GIT_TOKEN value, to be echoed to stdout during the workaround push. Escalated directly to human (chat) rather than proceeding silently, per global-core Rule 3 (security requirements never optional). Human asked whether to pause further dispatch pending token rotation; awaiting reply before dispatching any new agents (PE reviews included) as of this log entry. Recording completed work in state but holding new dispatch."
+    },
+    {
+      "timestamp": "2026-08-18T00:16:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "003",
+      "details": "AI-Engineer completed implementation: new skills/decision-brief/SKILL.md and reference/template.md (Tier B, field set cross-checked against chunk 002's approved plan). Self-validation: npm test 489/489. Commits f306d28, 04abddd, pushed to origin/AIF-002/003-decision-brief. Status -> Reviewing. Holding PE dispatch pending human reply on the AI_GIT_TOKEN exposure question raised at chunk 002's completion."
+    },
+    {
+      "timestamp": "2026-08-18T00:20:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "007",
+      "details": "Verdict: APPROVED. All acceptance criteria (Section 6) verified against actual file content of skills/knowledge-authoring/SKILL.md; cross-checked accuracy against AIF-META-001's Domain table directly. No CRITICAL/HIGH/MEDIUM/LOW findings. Reviewer flagged a toolset limitation (no git/Bash access to independently confirm commit c9f028c / npm test claim) -- recommended EM sanity-check the commit before marking Done. Holding the Done transition and PR-creation re-dispatch pending human reply on the AI_GIT_TOKEN exposure question (chunk 002 log entry) -- both are new dispatch actions."
+    },
+    {
+      "timestamp": "2026-08-18T00:21:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "004",
+      "details": "AI-Engineer completed implementation: skills/plan-lifecycle/SKILL.md, reference/commit-gate-procedure.md, reference/status-vocabulary.md updated with Tier B/C variant documentation. Self-validation: all plan Section 12 tests passed. Commits 6cb81de, b58970a, 284e91c, pushed to origin/AIF-002/004-plan-lifecycle-tier-docs. Status -> Reviewing. Third independent confirmation of the ai-git push -u arg-reordering bug and its token-echo side effect (see chunk 002/008 entries). Holding all new dispatch (PE reviews, PR creation) pending human reply on token rotation."
     }
   ]
 }
