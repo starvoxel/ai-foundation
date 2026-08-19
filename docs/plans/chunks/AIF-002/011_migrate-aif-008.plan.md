@@ -29,7 +29,28 @@ Migrate the existing AIF-008 ("Standards Sync Mechanism") decision record — cu
 
 ---
 
-## 3. Scope
+## 3. Quick Summary
+
+**Open Items:** 3 open (0 High / 1 Medium / 2 Low) — see Section 14
+
+---
+
+## 4. Acceptance Criteria
+
+- [ ] File renamed to `docs/decisions/architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md`
+- [ ] Metadata table rewritten to the AIF-002-002 Tier A contract: `Decision ID`, `Tier: A`, `Domain: architecture` correct; `Referenced By`/`References` correct and bidirectionally sound; `Tags` populated
+- [ ] Both inline prose ID citations (`AIF-007`, `AIF-004`) renamed to their new IDs (`AIF-PROC-004`, `AIF-PROC-001`)
+- [ ] `Status: Draft`, `Approved By`, and all body content otherwise unchanged (no `Draft`→`Approved` round-trip performed — none required, record was already `Draft`)
+- [ ] `docs/plans/epics/AIF-001.epic.md` line 45 updated to reference `AIF-ARCH-004`
+- [ ] All tests in Section 12 pass (manual/structural verification)
+- [ ] Security checklist (Section 10) fully satisfied
+- [ ] Logging checklist (Section 11) — Work Log and commit-message requirements — fully satisfied
+- [ ] Review approved with no CRITICAL or HIGH findings
+- [ ] This Chunk Plan reaches `Status: Approved` (per `skill/plan-lifecycle`) before any rename/edit is performed (Rule 1)
+
+---
+
+## 5. Scope
 
 ### In Scope
 - Create `docs/decisions/architecture/` folder if it does not already exist (it may already exist from chunk 009 or 010 landing first — Wave 2 chunks are parallel, so this chunk creates it if it isn't there yet; no conflict either way since folder creation is idempotent).
@@ -45,7 +66,7 @@ Migrate the existing AIF-008 ("Standards Sync Mechanism") decision record — cu
 - Update two inline prose ID citations inside the record body (mechanical ID-string rename only, not a change to which records are cited):
   - Problem Statement, first sentence: `AIF-007 settled *who* implements...` → `AIF-PROC-004 settled *who* implements...`
   - Decision → Rationale: `...rather than reusing what AIF-004/ skill/plan-lifecycle already established.` → `...rather than reusing what AIF-PROC-001/ skill/plan-lifecycle already established.`
-- Update the one confirmed live-documentation cross-reference found outside `docs/decisions/`: `docs/plans/epics/AIF-001.epic.md` line 45, Out-of-Scope bullet: `AIF-007/AIF-008 (standards-sync ownership/mechanism)` → `AIF-007/AIF-ARCH-004 (standards-sync ownership/mechanism)`. Only the `AIF-008` portion is renamed here — `AIF-007` remains its old ID pending chunk 012, which owns that migration; a temporarily mixed-scheme reference is an expected transitional state across parallel Wave 2 chunks, not a defect (see Section 5, Key Design Decision 3).
+- Update the one confirmed live-documentation cross-reference found outside `docs/decisions/`: `docs/plans/epics/AIF-001.epic.md` line 45, Out-of-Scope bullet: `AIF-007/AIF-008 (standards-sync ownership/mechanism)` → `AIF-007/AIF-ARCH-004 (standards-sync ownership/mechanism)`. Only the `AIF-008` portion is renamed here — `AIF-007` remains its old ID pending chunk 012, which owns that migration; a temporarily mixed-scheme reference is an expected transitional state across parallel Wave 2 chunks, not a defect (see Section 7, Key Design Decision 3).
 - All other body content (Problem Statement's remaining text, Constraints & Requirements, Options Explored, Decision's Chosen approach/Trade-offs, Design, Impact on Planning, Resolved Items) remains byte-for-byte unchanged — the current template's non-Metadata section structure is unmodified by AIF-002-002 (confirmed: "No other section of `template.md` changes"), and AIF-008's existing Design/Impact on Planning content already matches the Architecture domain-guidance shape (`reference/domain-guidance.md`: "Schemas, component boundaries, system-structure diagrams" / "What Tech-Lead must know when decomposing an Epic...") — no rewrite needed to "materially improve" it per the Migration Treatment definition's optional clause.
 
 ### Out of Scope
@@ -58,17 +79,17 @@ Migrate the existing AIF-008 ("Standards Sync Mechanism") decision record — cu
 
 ---
 
-## 4. Prerequisites
+## 6. Prerequisites
 
 - [x] Epic AIF-002 is `Approved` (rev 6) and decomposed (`chunks.json`, Wave 2, chunk 011 depends only on 002)
-- [x] AIF-002-002 (`skill/decision-record` Tier A scoping) reaches `Status: Approved` — verified (`docs/plans/chunks/AIF-002/002_decision-record-tier-a.plan.md`, `Status: Approved`), providing the finalized Metadata field order and the Architecture domain-guidance stub this chunk reformats against. Note: AIF-002-002's *implementation* (the actual edit to `skills/decision-record/reference/template.md`) may not have landed yet when this chunk is implemented — per `skill/chunk-planning`'s Edge Case guidance ("Dependency chunk not complete — write the plan assuming the dependency's documented interfaces"), this plan is written against AIF-002-002's Approved Plan contract (Section 6/7 there), not against the live file state.
+- [x] AIF-002-002 (`skill/decision-record` Tier A scoping) reaches `Status: Approved` — verified (`docs/plans/chunks/AIF-002/002_decision-record-tier-a.plan.md`, `Status: Approved`), providing the finalized Metadata field order and the Architecture domain-guidance stub this chunk reformats against. Note: AIF-002-002's *implementation* (the actual edit to `skills/decision-record/reference/template.md`) may not have landed yet when this chunk is implemented — per `skill/chunk-planning`'s Edge Case guidance ("Dependency chunk not complete — write the plan assuming the dependency's documented interfaces"), this plan is written against AIF-002-002's Approved Plan contract (Section 8/7 there), not against the live file state.
 - [x] The source file exists and was read in full during planning: `docs/decisions/AIF-008_standards-sync-mechanism.decision.md`
-- [x] Repo-wide grep for `AIF-008` performed and every hit classified (see Section 6 disposition table)
+- [x] Repo-wide grep for `AIF-008` performed and every hit classified (see Section 8 disposition table)
 - [ ] This Chunk Plan reaches `Status: Approved` (per `skill/plan-lifecycle`) before any rename/edit is performed
 
 ---
 
-## 5. Architecture & Design
+## 7. Architecture & Design
 
 ### Project Structure Changes
 
@@ -79,7 +100,7 @@ docs/decisions/
 ├── AIF-004_ai-engineer-framework-code-boundary.decision.md           (unchanged — chunk 012)
 ├── ... (AIF-005, 006, 007, 009, 010, 011, unchanged — chunks 010/012/013)
 └── meta-process/
-    └── AIF-META-001_...decision.md                                   (unchanged — see Section 3, Out of Scope)
+    └── AIF-META-001_...decision.md                                   (unchanged — see Section 5, Out of Scope)
 
 docs/plans/epics/
 └── AIF-001.epic.md                                                   ← MODIFIED (one prose ID mention)
@@ -102,13 +123,13 @@ docs/plans/epics/
 ### Patterns & Conventions Applied
 
 - Migration Treatment definition from Epic AIF-002 §3 ("Full reformat"), applied per its exact wording: rewrite to the current template shape, add `Tier: A` and the resolved `Domain`, no `Draft`→`Approved` round-trip (record is already `Draft`).
-- AIF-002-002's (Approved) Metadata field order and Architecture `reference/domain-guidance.md` stub, per Section 4's dependency-contract note.
+- AIF-002-002's (Approved) Metadata field order and Architecture `reference/domain-guidance.md` stub, per Section 6's dependency-contract note.
 - `git mv` / atomic-commit pattern established by AIF-002-009 (Key Design Decisions 1–2), reused here for the full-reformat case.
 - `skill/plan-lifecycle` commit-gate procedure governs this Chunk Plan itself before implementation begins.
 
 ---
 
-## 6. Components
+## 8. Components
 
 ### Decision Record: AIF-ARCH-004 (renamed and reformatted from AIF-008) — Standards Sync Mechanism
 
@@ -170,35 +191,35 @@ docs/plans/epics/
 | File | Hit type | Action |
 |---|---|---|
 | `docs/decisions/AIF-008_standards-sync-mechanism.decision.md` | Decision record itself | Rename + reformat (this chunk) |
-| `docs/decisions/AIF-007_standards-sync-ownership.decision.md` (3 prose mentions + `Referenced By` field) | Cross-reference from a sibling record outside this chunk's migration target | **Not edited** — chunk AIF-002-012's scope (see Section 3, Out of Scope) |
+| `docs/decisions/AIF-007_standards-sync-ownership.decision.md` (3 prose mentions + `Referenced By` field) | Cross-reference from a sibling record outside this chunk's migration target | **Not edited** — chunk AIF-002-012's scope (see Section 5, Out of Scope) |
 | `docs/decisions/meta-process/AIF-META-001_...decision.md` (embedded, superseded migration table) | Approved Decision Record's own body, outside this chunk's specific migration target | **Not edited** — same class of ambiguity as AIF-002-009's Open Question 1, already open at Epic level, not re-raised here |
-| `docs/plans/epics/AIF-002.epic.md` (migration table, Section 8 summary, Work Log) | This Epic's own authoritative planning record, documents pre-migration state by design | Not rewritten — Epic explicitly notes its own Section 3 table is not rewritten by the migration it describes |
+| `docs/plans/epics/AIF-002.epic.md` (migration table, Section 10 summary, Work Log) | This Epic's own authoritative planning record, documents pre-migration state by design | Not rewritten — Epic explicitly notes its own Section 5 table is not rewritten by the migration it describes |
 | `docs/plans/chunks/AIF-002/chunks.json` (chunk 011's own title text quoting "AIF-008") | This chunk's own authoritative decomposition record | Not rewritten — same rationale as AIF-002-009's disposition table row for its own chunk title text |
 | `docs/plans/chunks/AIF-002/015_backfill-decisions-index.plan.md` (Prerequisites: "AIF-002-011 ... (AIF-008 migrated)") | Descriptive text about this chunk's own dependency, not a decision-record content reference | No action — informational cross-chunk reference, not an ID this chunk's migration renames |
 | `docs/plans/epics/AIF-001.epic.md` line 45 | Live-documentation prose reference to the decision record, in a different Epic's Out-of-Scope section | Update (this chunk) — see component above |
 
 ---
 
-## 7. Data Models
+## 9. Data Models
 
 Not applicable — this chunk is a content/filename migration of an existing Markdown document; no new data model is introduced.
 
 ---
 
-## 8. Security Requirements
+## 10. Security Requirements
 
 > This section must never be empty.
 
-- [ ] Referential integrity is preserved: the `References: AIF-PROC-004` field (renamed from `AIF-007`) and the record's `Referenced By: —` remain internally consistent after the edit — this is the Epic §6 non-negotiable ("Migration work must preserve referential integrity of existing `Referenced By`/`References` fields... a broken cross-reference during migration is a data-integrity defect, not merely cosmetic"). Verified by the disposition table (Section 6): no other record's `References` field cites AIF-008/AIF-ARCH-004, so `Referenced By: —` is correct both before and after.
+- [ ] Referential integrity is preserved: the `References: AIF-PROC-004` field (renamed from `AIF-007`) and the record's `Referenced By: —` remain internally consistent after the edit — this is the Epic §6 non-negotiable ("Migration work must preserve referential integrity of existing `Referenced By`/`References` fields... a broken cross-reference during migration is a data-integrity defect, not merely cosmetic"). Verified by the disposition table (Section 8): no other record's `References` field cites AIF-008/AIF-ARCH-004, so `Referenced By: —` is correct both before and after.
 - [ ] The record's outbound `References` field (`AIF-PROC-004`) must resolve to a real, eventually-existing record once chunk AIF-002-012 lands. Since `AIF-PROC-004` is not the file's current name at the time this chunk runs, this is a forward reference by design (fully determined by the Epic's migration table, per Key Design Decision 1) — not a broken link, but flagged so a future `aif index -d --check` run (chunk 014/015) is expected to validate it only once all of Wave 2 has landed, not immediately after this chunk alone.
 - [ ] No content beyond the Metadata table, the two prose ID-string renames, and the `AIF-001.epic.md` cross-reference is altered — `Status: Draft`, `Approved By: Pending`, and every Design/Impact-on-Planning/Options-Explored/Resolved-Items detail (including the mechanism's own security-relevant design content — e.g. "must not require network access, hosted PR automation, or cross-repo git credentials," "must detect and refuse silent overwrites") must remain byte-for-byte unchanged, so this migration does not silently alter a security-relevant architectural decision while relabeling it.
 - [ ] No secrets or credentials are introduced or exposed by this migration (verified by inspection — none present in the source file; the record's own subject matter — sync mechanism design — explicitly rules out cross-repo git credentials as a v1 requirement, and this migration does not touch that content).
 - [ ] Git history is preserved via `git mv` (through `ai-git`) rather than delete+recreate, so the rename is traceable and does not appear as a content deletion in blame/history.
-- [ ] This chunk does not touch `docs/decisions/AIF-007_standards-sync-ownership.decision.md` or any other Wave 2 sibling chunk's target file — verified via the disposition table (Section 6) and Key Design Decision 3, guarding against accidental cross-chunk scope bleed during parallel Wave 2 execution.
+- [ ] This chunk does not touch `docs/decisions/AIF-007_standards-sync-ownership.decision.md` or any other Wave 2 sibling chunk's target file — verified via the disposition table (Section 8) and Key Design Decision 3, guarding against accidental cross-chunk scope bleed during parallel Wave 2 execution.
 
 ---
 
-## 9. Logging Requirements
+## 11. Logging Requirements
 
 > This section must never be empty.
 
@@ -206,55 +227,40 @@ This chunk produces static Markdown content changes with no runtime/application 
 
 | Event | Level | What is logged | What is NOT logged |
 |---|---|---|---|
-| Chunk Plan committed (`Status: Draft`) | Work Log entry (this file, Section 14) | Plan ID, action (`Created`), summary of scope | No content of the decision record itself |
-| Chunk Plan `Approved`/`Deferred` | Work Log entry (this file, Section 14) | Plan ID, action, reviewer name/decision | N/A |
+| Chunk Plan committed (`Status: Draft`) | Work Log entry (this file, Section 15) | Plan ID, action (`Created`), summary of scope | No content of the decision record itself |
+| Chunk Plan `Approved`/`Deferred` | Work Log entry (this file, Section 15) | Plan ID, action, reviewer name/decision | N/A |
 | File rename + Metadata/prose edit committed (implementation phase, not this planning chunk) | Git commit message | Plan ID (`AIF-002-011`), old ID → new ID, file(s) touched | No secrets (none present) |
-| Epic-level Work Log entry noting chunk completion (Epic AIF-002 Section 10, by whichever agent closes the chunk) | Work Log entry | Chunk ID, file migrated, disposition-table summary | N/A |
+| Epic-level Work Log entry noting chunk completion (Epic AIF-002 Section 11, by whichever agent closes the chunk) | Work Log entry | Chunk ID, file migrated, disposition-table summary | N/A |
 
 ---
 
-## 10. Testing Plan
+## 12. Testing Plan
 
 This chunk has no executable test suite (Markdown content only). Verification is manual/structural, performed as part of Self-Validation before the chunk is marked `Done`:
 
 | Test ID | Description | Type | Pass Criteria |
 |---|---|---|---|
 | M011-T01 | The renamed file exists at its new path and the old path no longer exists | Structural (`git status`) | `docs/decisions/architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md` present; `docs/decisions/AIF-008_standards-sync-mechanism.decision.md` absent |
-| M011-T02 | Metadata table matches the Section 6 target exactly, in field order | Structural (manual diff) | 11 fields, exact order: Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags |
+| M011-T02 | Metadata table matches the Section 8 target exactly, in field order | Structural (manual diff) | 11 fields, exact order: Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags |
 | M011-T03 | `Decision ID` = `AIF-ARCH-004`; `Tier` = `A`; `Domain` = `architecture` | Structural (manual check) | Exact match |
 | M011-T04 | `References` = `AIF-PROC-004`; `Referenced By` = `—` | Structural (manual check) | Exact match |
 | M011-T05 | Both inline prose ID citations updated (`AIF-007`→`AIF-PROC-004`, `AIF-004`→`AIF-PROC-001`) | Structural (grep for literal `AIF-007`/`AIF-004` in the new file) | Zero remaining hits of the old ID strings anywhere in the file |
 | M011-T06 | `Status`, `Approved By`, `Author (Agent)`, `Created`, and all body sections (Constraints & Requirements through Resolved Items) unchanged from the pre-migration file | Structural (`git diff` review) | Diff shows only the Metadata-table rewrite and the two prose ID renames |
-| M011-T07 | `docs/plans/epics/AIF-001.epic.md` line 45 updated: `AIF-008` → `AIF-ARCH-004`, `AIF-007` unchanged | Structural (manual diff) | Exact match to Section 6's "New text" |
-| M011-T08 | Repo-wide grep for the literal string `AIF-008` after implementation shows no remaining decision-record cross-references outside the disposition table's "no action" rows (AIF-007's own file, AIF-META-001, this Epic's/chunk's own planning artifacts) | Structural (grep re-run post-implementation) | Only expected rows from Section 6's disposition table remain |
+| M011-T07 | `docs/plans/epics/AIF-001.epic.md` line 45 updated: `AIF-008` → `AIF-ARCH-004`, `AIF-007` unchanged | Structural (manual diff) | Exact match to Section 8's "New text" |
+| M011-T08 | Repo-wide grep for the literal string `AIF-008` after implementation shows no remaining decision-record cross-references outside the disposition table's "no action" rows (AIF-007's own file, AIF-META-001, this Epic's/chunk's own planning artifacts) | Structural (grep re-run post-implementation) | Only expected rows from Section 8's disposition table remain |
 
 ---
 
-## 11. Documentation Requirements
+## 13. Documentation Requirements
 
 - [ ] No inline code documentation applicable (Markdown content, not source code)
-- [ ] No file headers applicable in the source-code sense; the record's own Metadata table serves this role and is updated per Section 6
-- [ ] No README update required — no README references this decision record by old ID (confirmed by the repo-wide grep, Section 6 disposition table)
+- [ ] No file headers applicable in the source-code sense; the record's own Metadata table serves this role and is updated per Section 8
+- [ ] No README update required — no README references this decision record by old ID (confirmed by the repo-wide grep, Section 8 disposition table)
 - [ ] CHANGELOG entry: deferred to Epic-level closeout, consistent with sibling chunk AIF-002-009's precedent (no CHANGELOG entry from an individual migration chunk)
 
 ---
 
-## 12. Acceptance Criteria
-
-- [ ] File renamed to `docs/decisions/architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md`
-- [ ] Metadata table rewritten to the AIF-002-002 Tier A contract: `Decision ID`, `Tier: A`, `Domain: architecture` correct; `Referenced By`/`References` correct and bidirectionally sound; `Tags` populated
-- [ ] Both inline prose ID citations (`AIF-007`, `AIF-004`) renamed to their new IDs (`AIF-PROC-004`, `AIF-PROC-001`)
-- [ ] `Status: Draft`, `Approved By`, and all body content otherwise unchanged (no `Draft`→`Approved` round-trip performed — none required, record was already `Draft`)
-- [ ] `docs/plans/epics/AIF-001.epic.md` line 45 updated to reference `AIF-ARCH-004`
-- [ ] All tests in Section 10 pass (manual/structural verification)
-- [ ] Security checklist (Section 8) fully satisfied
-- [ ] Logging checklist (Section 9) — Work Log and commit-message requirements — fully satisfied
-- [ ] Review approved with no CRITICAL or HIGH findings
-- [ ] This Chunk Plan reaches `Status: Approved` (per `skill/plan-lifecycle`) before any rename/edit is performed (Rule 1)
-
----
-
-## 13. Risks & Open Questions
+## 14. Risks & Open Questions
 
 | # | Risk / Question | Impact | Mitigation |
 |---|---|---|---|
@@ -265,6 +271,7 @@ This chunk has no executable test suite (Markdown content only). Verification is
 
 ---
 
-## 14. Work Log
+## 15. Work Log
 
-[2026-08-17 00:00] [AI-Engineer] [Created] [AIF-002-011] [Drafted Chunk Plan for the full-reformat migration of AIF-008 ("Standards Sync Mechanism") to AIF-ARCH-004 under `docs/decisions/architecture/`, per Epic AIF-002 §3's "Full reformat (already Draft)" treatment for the Architecture-reclassified record. Read the Epic Plan in full (rev 6, Approved), `chunks.json`, the Approved AIF-002-002 Chunk Plan (finalized Tier A Metadata field order and Architecture domain-guidance stub — dependency contract, since AIF-002-002's implementation may not have landed yet per `skill/chunk-planning`'s Edge Case guidance), the current AIF-008 source record, `skill/chunk-planning`/`reference/template.md`, and `skill/complexity-tiers`. No `knowledge/index.json` exists in this repo yet, so no knowledge-consumption step applied (per global knowledge-consumption steering's stated exception). Assessed complexity as Tier 2 (Standard) per `skill/complexity-tiers` — multi-file rename + full Metadata reformat, following an already-fully-specified Epic pattern (Migration Treatment definitions) and the AIF-002-009 sibling chunk's established rename/edit/disposition-table pattern, not inventing a new one. Performed a repo-wide grep for `AIF-008`, read and classified all 7 hits (disposition table, Section 6): found one genuine live-documentation prose reference needing update (`docs/plans/epics/AIF-001.epic.md` line 45), one cross-chunk boundary correctly left to AIF-002-012 (AIF-007's own file), and one already-open Epic-level ambiguity not re-raised (AIF-META-001's embedded table, covered by AIF-002-009's Open Question 1). Also found and renamed a second inline prose citation this chunk's own scope surfaced (`AIF-004` → `AIF-PROC-001` inside AIF-008's Decision/Rationale text) — a mechanical ID-string rename within the record being migrated, not new scope; not raised as a discovery per global Rule 4's exception for trivial, zero-architectural-impact corrections in a file already being touched. No implementation performed — plan committed as Draft per `skill/plan-lifecycle` Step 1, awaiting human review.]
+[2026-08-17 00:00] [AI-Engineer] [Created] [AIF-002-011] [Drafted Chunk Plan for the full-reformat migration of AIF-008 ("Standards Sync Mechanism") to AIF-ARCH-004 under `docs/decisions/architecture/`, per Epic AIF-002 §3's "Full reformat (already Draft)" treatment for the Architecture-reclassified record. Read the Epic Plan in full (rev 6, Approved), `chunks.json`, the Approved AIF-002-002 Chunk Plan (finalized Tier A Metadata field order and Architecture domain-guidance stub — dependency contract, since AIF-002-002's implementation may not have landed yet per `skill/chunk-planning`'s Edge Case guidance), the current AIF-008 source record, `skill/chunk-planning`/`reference/template.md`, and `skill/complexity-tiers`. No `knowledge/index.json` exists in this repo yet, so no knowledge-consumption step applied (per global knowledge-consumption steering's stated exception). Assessed complexity as Tier 2 (Standard) per `skill/complexity-tiers` — multi-file rename + full Metadata reformat, following an already-fully-specified Epic pattern (Migration Treatment definitions) and the AIF-002-009 sibling chunk's established rename/edit/disposition-table pattern, not inventing a new one. Performed a repo-wide grep for `AIF-008`, read and classified all 7 hits (disposition table, Section 8): found one genuine live-documentation prose reference needing update (`docs/plans/epics/AIF-001.epic.md` line 45), one cross-chunk boundary correctly left to AIF-002-012 (AIF-007's own file), and one already-open Epic-level ambiguity not re-raised (AIF-META-001's embedded table, covered by AIF-002-009's Open Question 1). Also found and renamed a second inline prose citation this chunk's own scope surfaced (`AIF-004` → `AIF-PROC-001` inside AIF-008's Decision/Rationale text) — a mechanical ID-string rename within the record being migrated, not new scope; not raised as a discovery per global Rule 4's exception for trivial, zero-architectural-impact corrections in a file already being touched. No implementation performed — plan committed as Draft per `skill/plan-lifecycle` Step 1, awaiting human review.]
+[2026-08-18] [AI-Engineer] [Revised] [AIF-002-011] [Migrated this Chunk Plan to the reordered template structure approved for skill/chunk-planning: Quick Summary (new Section 3, open-item count derived from the existing Risks & Open Questions table) and Acceptance Criteria (moved from Section 12 to Section 4) now sit immediately after the Goal; all other sections renumbered accordingly (mapping: 3->5, 4->6, 5->7, 6->8, 7->9, 8->10, 9->11, 10->12, 11->13, 13->14, 14->15). Every inline "Section N" cross-reference in this file, including references into the AIF-002 Epic Plan's own renumbered sections, was remapped to match. No wording, decisions, criteria, or risk content was changed - purely structural, per human direction (no active work on these plans at the time of migration).]

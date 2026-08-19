@@ -25,7 +25,28 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 ---
 
-## 3. Scope
+## 3. Quick Summary
+
+**Open Items:** 2 open (0 High / 0 Medium / 2 Low) — see Section 14
+
+---
+
+## 4. Acceptance Criteria
+
+- [ ] `skills/plan-lifecycle/SKILL.md` documents the Tier B abbreviated gate (Draft → one human confirmation → Approved, no expected multi-round revision cycle) and the Tier C non-gate (no standalone artifact, rides the parent plan's own gate)
+- [ ] `skills/plan-lifecycle/reference/commit-gate-procedure.md` documents the Tier A/B/C sequence variants, including the `{paths.decisions}/index.json` update requirement for Tier A/B (referenced, not duplicated/owned)
+- [ ] `skills/plan-lifecycle/reference/status-vocabulary.md` clarifies that no new `Status` values are introduced by Tier B/C
+- [ ] No wording change to `plan-lifecycle`'s existing core Draft → Approved mechanics (Steps 1-5, the existing sequence diagram, the existing status table/transitions) — verified via diff review (Test 004-T01, 004-T04)
+- [ ] All new content cross-references AIF-META-001 as the source of the Tier definitions rather than re-deriving them
+- [ ] Security checklist (Section 10) fully satisfied
+- [ ] Logging/Work-Log checklist (Section 11) fully satisfied
+- [ ] Documentation checklist (Section 13) fully satisfied
+- [ ] Review approved with no CRITICAL or HIGH findings
+- [ ] This Chunk Plan itself is committed with `Status: Draft` via `ai-git` before being presented for human approval, per `skill/plan-lifecycle` (the very procedure this chunk documents — using its CURRENT, pre-chunk wording, since this chunk's own proposed changes are not yet approved)
+
+---
+
+## 5. Scope
 
 ### In Scope
 
@@ -37,14 +58,14 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 ### Out of Scope
 
-- Any change to `plan-lifecycle`'s core Draft → Approved mechanics, Steps 1-5, or the status vocabulary's core statuses/transitions — explicitly out of scope per the Epic Plan (Section 3, Out of Scope) and per AIF-META-001's own "Not required by this decision" note.
+- Any change to `plan-lifecycle`'s core Draft → Approved mechanics, Steps 1-5, or the status vocabulary's core statuses/transitions — explicitly out of scope per the Epic Plan (Section 5, Out of Scope) and per AIF-META-001's own "Not required by this decision" note.
 - Authoring `skill/decision-triage`, `skill/decision-record`'s Tier A scoping, or `skill/decision-brief` themselves — those are chunks 001, 002, and 003 respectively, dispatched in parallel with this chunk. This chunk only documents the gate shape those skills will invoke; it does not define or modify those skills' own Steps/Outputs.
 - Modifying `skills/chunk-planning/reference/template.md` or `skills/epic-planning/reference/template.md` for the Tier C inline-recording convention — that is chunk 005.
 - Any validation tooling for `{paths.decisions}/index.json` — that is chunk 015.
 
 ---
 
-## 4. Prerequisites
+## 6. Prerequisites
 
 - [X] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`, Status: Approved, Work Log entry 2026-08-14 [Approved])
 - [X] AIF-META-001 Decision Record is `Approved` (verified: `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`, Status: Approved)
@@ -53,7 +74,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 ---
 
-## 5. Architecture & Design
+## 7. Architecture & Design
 
 ### Project Structure Changes
 
@@ -79,7 +100,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 ---
 
-## 6. Components
+## 8. Components
 
 ### plan-lifecycle SKILL.md — Tier Variant Documentation
 
@@ -156,25 +177,25 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 ---
 
-## 7. Data Models
+## 9. Data Models
 
 Not applicable — this chunk produces markdown documentation only, no data schemas or structured artifacts.
 
 ---
 
-## 8. Security Requirements
+## 10. Security Requirements
 
 > This section must never be empty.
 
-- [ ] No new attack surface — this chunk edits only markdown documentation inside `skills/plan-lifecycle/`; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 6, first bullet).
+- [ ] No new attack surface — this chunk edits only markdown documentation inside `skills/plan-lifecycle/`; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 8, first bullet).
 - [ ] No secrets or credentials in source content — the added text references only public artifact paths (`{paths.decisions}/index.json`) and skill/decision names, nothing environment- or credential-specific.
 - [ ] The Tier B abbreviated gate must not be documented in a way that weakens the approval requirement — the abbreviated gate still requires an explicit committed `Approved` status; "abbreviated" refers only to the expected number of revision rounds, never to skipping human confirmation itself.
-  This is a direct carry-forward of AIF-META-001's non-negotiable constraint ("must not weaken `skill/plan-lifecycle`'s human-approval gate for any decision, regardless of tier or domain") and of Epic Plan Section 6.
+  This is a direct carry-forward of AIF-META-001's non-negotiable constraint ("must not weaken `skill/plan-lifecycle`'s human-approval gate for any decision, regardless of tier or domain") and of Epic Plan Section 8.
 - [ ] Errors/ambiguity exposed to future readers contain no internal system details beyond what is already documented elsewhere in this repo (not applicable in practice for a docs-only change, verified as N/A).
 
 ---
 
-## 9. Logging Requirements
+## 11. Logging Requirements
 
 > This section must never be empty.
 
@@ -185,13 +206,13 @@ The table below documents the plan-level Work Log entries this chunk itself must
 | ---------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------- |
 | Plan drafted                                   | `[Created]`                                                  | Plan ID, agent, tier assessed, summary of scope          | No content of unrelated chunks/plans                      |
 | Plan approved/deferred                         | `[Approved]`/`[Deferred]`                                  | Human decision, approver name if approved                | Nothing beyond the decision itself                        |
-| Implementation commits (future, post-approval) | `[Implemented]` (per commit, one per Component in Section 6) | Files touched, brief description referencing AIF-002-004 | No secrets; N/A here since no secrets exist in this chunk |
+| Implementation commits (future, post-approval) | `[Implemented]` (per commit, one per Component in Section 8) | Files touched, brief description referencing AIF-002-004 | No secrets; N/A here since no secrets exist in this chunk |
 
 ---
 
-## 10. Testing Plan
+## 12. Testing Plan
 
-This chunk has no executable code, so "tests" are documentation-validation checks performed during self-validation (Section 12) rather than automated unit tests.
+This chunk has no executable code, so "tests" are documentation-validation checks performed during self-validation (Section 4) rather than automated unit tests.
 
 ### plan-lifecycle Documentation Tests
 
@@ -206,7 +227,7 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ---
 
-## 11. Documentation Requirements
+## 13. Documentation Requirements
 
 - [ ] Inline documentation on all new subsections (clear headers, no orphaned prose) — applies to markdown structure since there is no code
 - [ ] File headers — not applicable; `skills/plan-lifecycle/*.md` files use YAML front-matter (SKILL.md only) / no header convention for `reference/` files, consistent with existing files in this skill; no new header convention introduced
@@ -215,22 +236,7 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ---
 
-## 12. Acceptance Criteria
-
-- [ ] `skills/plan-lifecycle/SKILL.md` documents the Tier B abbreviated gate (Draft → one human confirmation → Approved, no expected multi-round revision cycle) and the Tier C non-gate (no standalone artifact, rides the parent plan's own gate)
-- [ ] `skills/plan-lifecycle/reference/commit-gate-procedure.md` documents the Tier A/B/C sequence variants, including the `{paths.decisions}/index.json` update requirement for Tier A/B (referenced, not duplicated/owned)
-- [ ] `skills/plan-lifecycle/reference/status-vocabulary.md` clarifies that no new `Status` values are introduced by Tier B/C
-- [ ] No wording change to `plan-lifecycle`'s existing core Draft → Approved mechanics (Steps 1-5, the existing sequence diagram, the existing status table/transitions) — verified via diff review (Test 004-T01, 004-T04)
-- [ ] All new content cross-references AIF-META-001 as the source of the Tier definitions rather than re-deriving them
-- [ ] Security checklist (Section 8) fully satisfied
-- [ ] Logging/Work-Log checklist (Section 9) fully satisfied
-- [ ] Documentation checklist (Section 11) fully satisfied
-- [ ] Review approved with no CRITICAL or HIGH findings
-- [ ] This Chunk Plan itself is committed with `Status: Draft` via `ai-git` before being presented for human approval, per `skill/plan-lifecycle` (the very procedure this chunk documents — using its CURRENT, pre-chunk wording, since this chunk's own proposed changes are not yet approved)
-
----
-
-## 13. Risks & Open Questions
+## 14. Risks & Open Questions
 
 | # | Risk / Question                                                                                                                                                                                                                                                      | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | - | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -239,7 +245,8 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ---
 
-## 14. Work Log
+## 15. Work Log
 
-[2026-08-14 00:00] [AI-Engineer] [Created] [AIF-002-004] [Self-planned Chunk 004 of Epic AIF-002 per Tech-Lead's decomposition (`chunks.json`). Read Epic Plan Sections 3/4/5/8 and AIF-META-001 in full. Assessed Tier 2 (Standard) per `skill/complexity-tiers`: multi-file change (SKILL.md + 2 reference files) within a shared, widely-depended-upon skill, documenting a new pattern (tier-differentiated gate) without altering existing mechanics — not a Tier 1 single-file tweak, and not Tier 3 since no schema change or cross-cutting redesign is involved. Drafted full Chunk Plan following `skills/chunk-planning/reference/template.md`. Saving as Status: Draft per `skill/plan-lifecycle` (current, unmodified procedure) before presenting for human approval. No implementation performed.]
+[2026-08-14 00:00] [AI-Engineer] [Created] [AIF-002-004] [Self-planned Chunk 004 of Epic AIF-002 per Tech-Lead's decomposition (`chunks.json`). Read Epic Plan Sections 5/4/5/8 and AIF-META-001 in full. Assessed Tier 2 (Standard) per `skill/complexity-tiers`: multi-file change (SKILL.md + 2 reference files) within a shared, widely-depended-upon skill, documenting a new pattern (tier-differentiated gate) without altering existing mechanics — not a Tier 1 single-file tweak, and not Tier 3 since no schema change or cross-cutting redesign is involved. Drafted full Chunk Plan following `skills/chunk-planning/reference/template.md`. Saving as Status: Draft per `skill/plan-lifecycle` (current, unmodified procedure) before presenting for human approval. No implementation performed.]
 [2026-08-16 11:18] [Jeremy] [Approved] [AIF-002-004] [Reviewed and approved manually by Jeremy. Status set to `Approved`, `Reviewed By: Jeremy`, committed as part of "Approved AIF-002 chunk plan 01 to 04" (commit `bbd6a1e`). This Work Log entry added retroactively by Engineering-Manager on 2026-08-17 to close a traceability gap — the original approval commit updated the Metadata table but did not append a corresponding Work Log entry, per engineering steering Rule 3 (logging requirements are never optional).]
+[2026-08-18] [AI-Engineer] [Revised] [AIF-002-004] [Migrated this Chunk Plan to the reordered template structure approved for skill/chunk-planning: Quick Summary (new Section 3, open-item count derived from the existing Risks & Open Questions table) and Acceptance Criteria (moved from Section 12 to Section 4) now sit immediately after the Goal; all other sections renumbered accordingly (mapping: 3->5, 4->6, 5->7, 6->8, 7->9, 8->10, 9->11, 10->12, 11->13, 13->14, 14->15). Every inline "Section N" cross-reference in this file, including references into the AIF-002 Epic Plan's own renumbered sections, was remapped to match. No wording, decisions, criteria, or risk content was changed - purely structural, per human direction (no active work on these plans at the time of migration).]
