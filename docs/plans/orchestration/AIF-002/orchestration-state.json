@@ -7,12 +7,12 @@
     { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 0, "status": "Done", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 0, "status": "Done", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "009", "wave": 0, "status": "Reviewing", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "009", "wave": 0, "status": "Done", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "010", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "011", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "012", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -217,6 +217,20 @@
       "action": "review_loop",
       "chunk_id": "004",
       "details": "Fix applied for HIGH finding: appended 3 [Implemented] Work Log entries (one per commit) to Section 15. Commit eeba909, pushed. Status -> Reviewing. Dispatching Principal-Engineer re-review."
+    },
+    {
+      "timestamp": "2026-08-18T01:15:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "009",
+      "details": "Verdict: APPROVED. Verified all 3 migrated records' Decision ID/Referenced By/warning-note correctness, cli-plan.md link, clean rename (old paths absent), scope containment (AIF-META-001/AIF-011 untouched). Independently grepped and found one MEDIUM non-blocking finding: AIF-ARCH-001 line 202 (Resolved Items table) still contains a stale prose reference to old ID 'AIF-002' (should read AIF-ARCH-002) -- a plan-scoping gap (line-level prose wasn't in the file-level disposition table), not an implementation deviation. Non-blocking per plan's own AC (blocks only on CRITICAL/HIGH); recommended as a trivial fast-follow text fix. Status -> Done. Dispatching AI-Engineer to create PR, will include the MEDIUM finding in the PR body for human visibility."
+    },
+    {
+      "timestamp": "2026-08-18T01:16:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "004",
+      "details": "Re-review verdict: APPROVED. Confirmed all 3 [Implemented] Work Log entries present, correctly attributed, referencing AIF-002-004; no scope creep in the fix commit; prior HIGH finding resolved, no new findings. Status -> Done. Dispatching AI-Engineer to create PR. ALL 9 WAVE 1 CHUNKS NOW DONE."
     }
   ]
 }
