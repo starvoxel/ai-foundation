@@ -7,8 +7,8 @@
     { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "005", "wave": 0, "status": "Reviewing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Implementing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 0, "status": "Done", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 0, "status": "Done", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -154,6 +154,41 @@
       "action": "wave_started",
       "chunk_id": null,
       "details": "Dispatching AI-Engineer to create PRs for chunks 001, 003, 006 (all PE-approved, no CRITICAL/HIGH findings). Chunk 008's PR-creation dispatch also queued. Chunk 009's PE review dispatched separately. Chunks 004, 005 still awaiting PE review verdicts."
+    },
+    {
+      "timestamp": "2026-08-18T00:55:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "005",
+      "details": "Verdict: APPROVED. Confirmed additive-only diffs in both template files, wording matches AIF-META-001's Tier C row verbatim, skill/decision-triage referenced without restating its threshold logic, no scope creep. One LOW informational note (plan's own Section 5 references a stale 'Section 12' for epic-planning's Work Log, which is actually Section 11 after an earlier unrelated renumbering; AI-Engineer correctly targeted the real section and flagged it). Status -> Done. Dispatching AI-Engineer to create PR."
+    },
+    {
+      "timestamp": "2026-08-18T00:56:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "004",
+      "details": "Verdict: NEEDS_CHANGES. Content quality/additivity/accuracy all verified sound. One HIGH finding: Chunk Plan Section 15 Work Log is missing the required [Implemented] entries for the three implementation commits (6cb81de, b58970a, 284e91c), violating the plan's own Section 11 Logging Requirements and engineering-core Rule 3/9. Iterations -> 1. Status -> Implementing. Re-dispatching AI-Engineer with the finding to add the missing Work Log entries."
+    },
+    {
+      "timestamp": "2026-08-18T01:00:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "007",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/1. No push needed (already up to date). Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-18T01:01:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "001",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/2. No push needed (already up to date). Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-18T01:02:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "003",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/3. No push needed (already up to date). Awaiting human merge."
     }
   ]
 }
