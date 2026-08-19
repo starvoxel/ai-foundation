@@ -11,6 +11,7 @@
     "knowledge": "docs",
     "epics": "docs/plans/epics",
     "chunks": "docs/plans/chunks",
+    "decisions": "docs/decisions",
     "worktrees": "../worktrees/ai-foundation"
   },
   "orchestration": {
