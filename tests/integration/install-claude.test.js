@@ -72,11 +72,23 @@ describe('integration: install (claude-specific)', () => {
     assert.ok(existsSync(join(TARGETS.rules, 'eng-rules.md')));
   });
 
-  it('installs skills as .md files in .claude/skills/', () => {
+  it('installs skills as SKILL.md in a per-skill directory under .claude/skills/', () => {
     quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
 
-    const skillPath = join(TARGETS.skills, 'test-skill.md');
+    const skillPath = join(TARGETS.skills, 'test-skill', 'SKILL.md');
     assert.ok(existsSync(skillPath));
+  });
+
+  it('copies bundled skill subdirectories (reference/, assets/) alongside SKILL.md', () => {
+    const refDir = join(repo, 'skills', 'test-skill', 'reference');
+    mkdirSync(refDir, { recursive: true });
+    writeFileSync(join(refDir, 'notes.md'), '# notes\n', 'utf8');
+
+    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+
+    const refPath = join(TARGETS.skills, 'test-skill', 'reference', 'notes.md');
+    assert.ok(existsSync(refPath));
+    assert.equal(readFileSync(refPath, 'utf8'), '# notes\n');
   });
 
   it('records manifest and uninstall works', () => {
