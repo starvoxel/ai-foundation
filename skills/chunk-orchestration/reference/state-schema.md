@@ -97,6 +97,8 @@ Blocked → Ready (when human unblocks)
 
 ### Log actions
 
+<!-- decision_handoff_detected, decision_authored, decision_handoff_resolved rows below: Authored under AIF-002-006 -->
+
 | Action | Description |
 |---|---|
 | `wave_started` | A new wave began dispatching |
@@ -108,6 +110,9 @@ Blocked → Ready (when human unblocks)
 | `escalation_resolved` | Human resolved a prior escalation |
 | `chunk_blocked` | Chunk marked as blocked |
 | `chunk_unblocked` | Chunk unblocked and returned to Ready |
+| `decision_handoff_detected` | A dispatched subagent's `decision-triage` hand-off (cross-domain or approval-gated Tier A/B decision) was detected and the chunk was marked `Blocked` |
+| `decision_authored` | A Draft decision record (Tier A) or brief (Tier B) was authored and committed in response to a decision hand-off — either directly by Engineering-Manager (Process domain) or by the dispatched owning agent |
+| `decision_handoff_resolved` | The hand-off decision reached `Approved` and the chunk was unblocked via the existing generic unblock mechanic |
 | `conflict_detected` | Merge conflict detected on a chunk branch |
 | `conflict_resolved` | SE successfully resolved the merge conflict |
 | `conflict_escalated` | Conflict could not be auto-resolved, escalated to human |
