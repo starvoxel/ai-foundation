@@ -4,15 +4,15 @@
   "current_wave": 0,
   "total_waves": 3,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Reviewing", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Reviewing", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Reviewing", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "006", "wave": 0, "status": "Reviewing", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "006", "wave": 0, "status": "Done", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "008", "wave": 0, "status": "Reviewing", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "009", "wave": 0, "status": "Implementing", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "008", "wave": 0, "status": "Done", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "009", "wave": 0, "status": "Reviewing", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "010", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "011", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "012", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -98,6 +98,62 @@
       "action": "chunk_status_changed",
       "chunk_id": "006",
       "details": "AI-Engineer completed implementation: agents/engineering-manager.yaml (v0.5.0, PROC decision authoring + Decision Hand-off Sub-Flow hard rule), skills/chunk-orchestration/SKILL.md (Decision Hand-off Sub-Flow), skills/chunk-orchestration/reference/state-schema.md (3 new log actions). Confirmed AIF-005's AI-track dispatch/pipeline branching was intentionally NOT added (out of this chunk's scope). Self-validation: all plan Section 12 tests (EM-T01-06, CO-T01-06) passed. Commits 9d36d66, 237f264, b19e760, pushed to origin/AIF-002/006-em-decision-handoff via a non-URL-embedded-token workaround (push without -u, then fetch + branch --set-upstream-to) -- no token echo reported this time. Status -> Reviewing. Holding PE dispatch pending human reply on token rotation. All 9 Wave 1 chunks now implemented; only 009 still outstanding from original dispatch."
+    },
+    {
+      "timestamp": "2026-08-18T00:40:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Human confirmed AI_GIT_TOKEN rotated. Resuming dispatch: sent Principal-Engineer review for chunks 001, 002, 003, 004, 005, 006, 008; sent AI-Engineer to create the PR for chunk 007 (already PE-approved). Advised PR-creation agent to avoid the ai-git push -u pattern that caused the original token echo."
+    },
+    {
+      "timestamp": "2026-08-18T00:45:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "009",
+      "details": "AI-Engineer completed implementation: renamed (git mv, history preserved) AIF-001/002/003 (old decision-record IDs) to docs/decisions/architecture/AIF-ARCH-00{1,2,3}_*.decision.md, updated Decision ID/Referenced By/old-model warning per plan, updated docs/plans/cli-plan.md link. Self-validation: M009-T01-T07 passed, security checklist satisfied. Commits caefe25, d09af27, c6d375a, 848cd26, e74d7d2, pushed to origin/AIF-002/009-migrate-aif-001-003. Status -> Reviewing. Open item left unresolved per plan default: whether to edit AIF-META-001's embedded migration table (out of this chunk's scope, deferred to human/Tech-Lead). Dispatching Principal-Engineer review."
+    },
+    {
+      "timestamp": "2026-08-18T00:46:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "002",
+      "details": "Verdict: APPROVED. Confirmed 11-field Metadata table exact order match, domain-guidance.md matches AIF-META-001's Domain ownership table for all 7 domains with no mismatches, SKILL.md's index-update step fully removed (only 2 informational index.json mentions remain), no scope creep. No CRITICAL/HIGH/MEDIUM/LOW findings. Status -> Done. Dispatching AI-Engineer to create PR."
+    },
+    {
+      "timestamp": "2026-08-18T00:47:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "008",
+      "details": "Verdict: APPROVED. Confirmed single-line diff (paths.decisions:'docs/decisions' only), correct position, ai_identity/orchestration blocks untouched, docs/decisions/ exists with 12 real files. No findings. Status -> Done. Dispatching AI-Engineer to create PR."
+    },
+    {
+      "timestamp": "2026-08-18T00:48:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "006",
+      "details": "Verdict: APPROVED. All Acceptance Criteria met; tools/approved_tools/blocked_commands confirmed unchanged (no web_search/web_fetch added); Decision Hand-off Sub-Flow matches Epic Section 4's five sub-steps 1:1; exactly 3 new log actions added and correctly wired; AIF-005 AI-track dispatch/pipeline branching confirmed absent (correctly out of scope). No findings. Status -> Done."
+    },
+    {
+      "timestamp": "2026-08-18T00:49:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "003",
+      "details": "Verdict: APPROVED. Metadata field set matches chunk 002 exactly (only Tier differs), slim template confirmed (no Options-Explored, no index-update), skill-authoring conventions followed, no scope creep. One LOW finding (unchecked plan checkboxes despite Work Log recording verification -- non-blocking). One informational cross-chunk note: chunk 002's decision-record/SKILL.md Outputs line still uses the pre-AIF-META-001 path format (missing domain-folder/DomainCode segments) -- flagged for visibility, not a defect in chunk 003, and chunk 002 was already PE-approved before this note arrived. Status -> Done. Will verify the chunk-002 discrepancy separately before chunk 015's backfill runs against it."
+    },
+    {
+      "timestamp": "2026-08-18T00:50:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "001",
+      "details": "Verdict: APPROVED. All Acceptance Criteria met, promotion threshold verbatim-correct, no artifact-writing confirmed, hand-off signal fields correct, exactly the 3 planned files exist. Two LOW findings (Domain-table Meta-process row paraphrased instead of verbatim; Tier-C row parenthetical dropped) -- non-blocking per plan's own AC (blocks only on CRITICAL/HIGH). Status -> Done."
+    },
+    {
+      "timestamp": "2026-08-18T00:51:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Dispatching AI-Engineer to create PRs for chunks 001, 003, 006 (all PE-approved, no CRITICAL/HIGH findings). Chunk 008's PR-creation dispatch also queued. Chunk 009's PE review dispatched separately. Chunks 004, 005 still awaiting PE review verdicts."
     }
   ]
 }
