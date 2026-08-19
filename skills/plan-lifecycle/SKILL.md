@@ -15,7 +15,7 @@ Use this skill whenever a skill produces an artifact with a `Status` field that 
 ## Inputs
 
 - **Artifact file path** — where the plan/record lives (per the producing skill's `Outputs` section and the project's `.aiconfig.json` `paths.*` configuration)
-- **Artifact type** — Chunk Plan, Epic Plan, Decision Record, or Tier 3 plan (determines which status values from `reference/status-vocabulary.md` are valid)
+- **Artifact type** — Chunk Plan, Epic Plan, Decision Record, or Tier 3 plan (determines which status values from `reference/status-vocabulary.md` are valid). For Decision Records specifically, the artifact's `Tier` field (assigned by `skill/decision-triage`) determines which gate variant applies — see "Decision Record Tier Variants" below.
 - **Current lifecycle stage** — first draft, a revision round, or a final human decision
 
 ---
@@ -50,6 +50,18 @@ When the work the artifact describes is finished (implementation merged, decisio
 
 ---
 
+### Decision Record Tier Variants
+
+*(AIF-002-004)* AIF-META-001 (Decision ID) introduced three rigor Tiers for Decision Records — A (Researched), B (Structural), C (Embedded). This skill does not redefine what those Tiers mean; see AIF-META-001's Design section Tier table (`docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`) for the source of truth. What follows is how the commit-gate procedure above differs once a Tier has already been assigned (by `skill/decision-triage`):
+
+- **Tier A** — no change. A Tier A Decision Record follows Steps 1-5 above exactly as already documented, the same as a Chunk Plan or Epic Plan.
+- **Tier B** — abbreviated gate: Draft (Step 1) → present for review (Step 2) → one round of human confirmation → Approved (Step 4), with no expected multi-round revision cycle. This does not remove Step 3 (revision) — if the human requests a change, follow Step 3 exactly as for Tier A. "Abbreviated" describes the *expected* number of rounds, not a relaxation of the approval requirement itself: Step 4's committed `Approved` status is still mandatory before dependent work may proceed.
+- **Tier C** — not a gate at all. A Tier C decision is never presented to this skill as a standalone artifact — it has no `Status` field of its own. It is recorded inline in the governing plan (per `skill/chunk-planning`/`skill/epic-planning`) and is fully covered by that plan's own Draft → Approved cycle; consult the governing plan's status, not a separate one.
+
+Tier A and Tier B Decision Records must also update `{paths.decisions}/index.json` as part of producing or updating the record — see `skill/decision-record`/`skill/decision-brief` for that step's own procedure. This skill's commit-gate applies in addition to, not instead of, that requirement; `plan-lifecycle` does not own or duplicate the index-update step itself.
+
+---
+
 ## Outputs
 
 - A committed artifact whose `Status` field accurately reflects `Draft`, `Approved`, `Done`, `Deferred`, or (Decision Records only) `Superseded` at all times — see `reference/status-vocabulary.md`.
@@ -64,3 +76,4 @@ When the work the artifact describes is finished (implementation merged, decisio
 - **Checking whether a specific piece of dependent work may proceed** — check only for `Status: Approved` on the governing artifact. Do not add special-case handling for `Deferred`, `Draft`, or any other non-`Approved` value — the absence of `Approved` is sufficient by itself to block dependent work.
 - **Repo has no `paths.plans` (or equivalent) configured in `.aiconfig.json`** — fall back to `docs/plans/` for Tier 3 plans; Chunk/Epic Plans and Decision Records use their own skills' documented path defaults.
 - **Framework repo (direct commits to main)** — the commit gate still applies. There is no branch/PR step, but the Draft and Approved commits must still exist as separate, real commits on `main` before implementation commits follow.
+- **Decision Record with Tier B** — the abbreviated gate applies (see Decision Record Tier Variants above): commit Draft, present for one round of human confirmation, commit Approved. A multi-round revision cycle is not expected but is not prohibited if the human requests changes — if it happens, follow Steps 2-3 exactly as for Tier A.
