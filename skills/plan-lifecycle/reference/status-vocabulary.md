@@ -22,6 +22,8 @@ Single source of truth for the `Status` field values used by every human-approva
 | Tier 3 `ai-engineering-plan` | `Draft`, `Approved`, `Done`, `Deferred` | No extension needed |
 | Decision Record | `Draft`, `Approved`, `Done`, `Deferred`, `Superseded` | `Superseded`: a later decision replaced this one. This is a terminal outcome reached after the record was `Approved`, not a choice made at initial review. |
 
+*(AIF-002-004)* Tier does not add new `Status` values. A Tier B Decision Record uses the same `Draft`/`Approved`/`Done`/`Deferred`/`Superseded` values as Tier A — only the *procedure* for reaching `Approved` differs (see `skill/plan-lifecycle`/`reference/commit-gate-procedure.md`, Decision Record Tier Variants). Tier C decisions have no `Status` field of their own — they are governed by their parent plan's status.
+
 ## Transitions
 
 - `Draft` → `Draft` (revision, new commit each time)
