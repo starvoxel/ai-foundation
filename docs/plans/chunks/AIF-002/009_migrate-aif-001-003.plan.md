@@ -10,9 +10,9 @@
 | Depends On | None |
 | Can Parallel | AIF-002-001, AIF-002-002, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-006, AIF-002-007, AIF-002-008 (Wave 1 siblings, per `docs/plans/chunks/AIF-002/chunks.json`) |
 | Project | ai-foundation |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
+| Reviewed By | Jeremy Smellie |
 | Created | 2026-08-14 21:51 |
 | Last Updated | 2026-08-14 21:51 |
 | Standards | ai-foundation declarative-component schemas (AGENTS.md); no code standards apply — this chunk's deliverables are entirely `docs/decisions/` content, per AIF-PROC-001 |
@@ -301,3 +301,4 @@ This chunk has no executable test suite (Markdown content only). Verification is
 
 [2026-08-14 21:51] [AI-Engineer] [Created] [AIF-002-009] [Drafted Chunk Plan for the light-touch migration of AIF-001, AIF-002, AIF-003 to AIF-ARCH-001/002/003 under `docs/decisions/architecture/`, per Epic AIF-002 Section 4's "Rename + warning (light)" treatment. Assessed complexity as Tier 2 (multi-file rename + cross-reference update, following an already-fully-specified Epic pattern, no new conventions invented) per `skill/complexity-tiers`. Performed a repo-wide grep for `AIF-001`/`AIF-002`/`AIF-003`, read and classified all 20 hits (disposition table in Section 8): found one genuine live-documentation cross-reference outside `docs/decisions/` needing update (`docs/plans/cli-plan.md`, a stale link to AIF-001), and one ambiguous case raised as Open Question 1 rather than silently resolved (AIF-META-001's own embedded, now-superseded migration table). All other hits confirmed to be unrelated Epic-ID (`AIF-001`/`AIF-002` as Epic IDs, a separate numbering scheme) self-references requiring no action. No implementation performed — plan committed as Draft per `skill/plan-lifecycle` Step 1, awaiting human review.]
 [2026-08-18] [AI-Engineer] [Revised] [AIF-002-009] [Migrated this Chunk Plan to the reordered template structure approved for skill/chunk-planning: Quick Summary (new Section 3, open-item count derived from the existing Risks & Open Questions table) and Acceptance Criteria (moved from Section 12 to Section 4) now sit immediately after the Goal; all other sections renumbered accordingly (mapping: 3->5, 4->6, 5->7, 6->8, 7->9, 8->10, 9->11, 10->12, 11->13, 13->14, 14->15). Every inline "Section N" cross-reference in this file, including references into the AIF-002 Epic Plan's own renumbered sections, was remapped to match. No wording, decisions, criteria, or risk content was changed - purely structural, per human direction (no active work on these plans at the time of migration).]
+[2026-08-18] [Engineering-Manager] [Approved] [AIF-002-009] [Human (Jeremy Smellie) explicitly confirmed in chat that chunks AIF-002-007 through AIF-002-015 are approved. Per skill/plan-lifecycle and engineering-core Rule 8, recorded that decision as a committed status change: `Status` updated from `Draft` to `Approved`, `Reviewed By` updated from `Pending` to `Jeremy Smellie`. No plan content changed. Committed as its own commit, separate from the prior revision history.]
