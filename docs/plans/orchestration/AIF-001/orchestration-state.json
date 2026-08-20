@@ -4,9 +4,9 @@
   "current_wave": 0,
   "total_waves": 1,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Reviewing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"], "pending_scope_addition": "Human directed (2026-08-19): make Conflict Resolution Sub-Flow (Step 4) and generic Edge Cases section track-aware. To be dispatched after the currently in-flight PE review of the pre-addition diff completes, to avoid racing a commit against the reviewer." },
-    { "id": "002", "wave": 0, "status": "Reviewing", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
   "log": [
@@ -79,6 +79,27 @@
       "action": "chunk_status_changed",
       "chunk_id": "001",
       "details": "Human (Jeremy) directed: fix Epic Section 8 Row 6 (Conflict Resolution Sub-Flow + generic Edge Cases track-awareness) within chunk 001, scope explicitly reopened - not deferred. Row 6 marked Resolved: Yes. Recorded as pending_scope_addition on chunk 001's state entry; will dispatch AI-Engineer for the addition once the in-flight PE review (dispatched moments earlier against the pre-addition diff) reports back, then re-dispatch PE for a fresh review of the combined diff. Not racing a new commit against the reviewer currently reading this worktree."
+    },
+    {
+      "timestamp": "2026-08-19T00:45:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "003",
+      "details": "Verdict: APPROVED. Verified commit 656309d diff scope (only skills/epic-planning/SKILL.md, version 0.2.0->0.3.0), content correctly implements Section 5 (software-track unchanged, AI-track scope-summary-only, plan-lifecycle gate not weakened), Tier 1 determination reasonable, no knowledge/ dir confirmed to exist (not fabricated). No CRITICAL/HIGH/MEDIUM findings. One LOW finding: bundles/engineering/snapshot.json's recorded hash for skills/epic-planning/SKILL.md is now stale (pre-change 0.2.0 hash) since aif snapshot wasn't regenerated - PE agrees this is correctly NOT done per-chunk (would create a multi-writer conflict across the 3 parallel AIF-001 chunks touching the same shared bundle file) and should happen once as a post-merge/integration step after all 3 chunks land. Status -> Done. Dispatching AI-Engineer to create PR."
+    },
+    {
+      "timestamp": "2026-08-19T00:50:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "002",
+      "details": "Verdict: APPROVED. Verified commit bfa57ec via reflog (no shell access in review session), confirmed only skills/chunk-planning/SKILL.md touched (0.2.0->0.3.0), content correctly implements Section 5 scope, no contradiction with AIF-005/AIF-010, Tier 1 reasonable. One MEDIUM finding: no inline Plan ID annotation (e.g. HTML comment) in the modified file, breaking with sibling-skill convention observed in AIF-002 chunks - per engineering-core.md Rule 2 enforcement text this is a MEDIUM finding, non-blocking (consistent with prior AIF-002 precedent of MEDIUM/LOW findings not blocking approval). One LOW note: reviewer had no shell access to re-run npm test, corroborated plausibility via other evidence instead. Status -> Done. Dispatching AI-Engineer to create PR; PR description to note the missing-Plan-ID-annotation MEDIUM finding as a suggested fast-follow."
+    },
+    {
+      "timestamp": "2026-08-19T00:50:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "001",
+      "details": "Verdict: APPROVED (on the pre-addition diff, commit 633d958). Confirmed all claims: commit/branch/version bump accurate, Step 2/3/4 changes correctly implement Section 5, TE skipped only for AI-track, PE never skipped, approval gate not weakened, additional APPROVED/NEEDS_CHANGES re-dispatch fix judged in-scope (not creep) since it lives inside Step 3. Confirmed Conflict Resolution Sub-Flow and generic Edge Cases were correctly left untouched and properly raised as Epic Section 8 Row 6 rather than silently fixed or silently left inconsistent without documentation. 3 LOW findings, none blocking (stale 'SE->TE->PE' edge-case bullet already tracked via Row 6; Tier 1 vs Tier 2 borderline call; reviewer lacked shell access to re-run npm test). Per human direction (see prior log entry), Row 6 is now being folded into this chunk before Done: reopening chunk 001 to Implementing to add the Conflict Resolution Sub-Flow + generic Edge Cases track-aware fix, then will re-dispatch Principal-Engineer for a fresh review of the combined diff. This is a human-directed scope addition, not a NEEDS_CHANGES review-loop iteration - iterations counter left at 0."
     },
     {
       "timestamp": "2026-08-19T00:30:00Z",
