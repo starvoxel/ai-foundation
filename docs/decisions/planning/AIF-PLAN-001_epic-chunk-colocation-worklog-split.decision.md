@@ -8,7 +8,7 @@
 | Project | ai-foundation |
 | Tier | A |
 | Domain | planning |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-08-13 |
