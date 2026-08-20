@@ -4,22 +4,25 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-006 |
+| Decision ID | AIF-PROC-003 |
 | Project | ai-foundation |
+| Tier | A |
+| Domain | process |
 | Status | Draft |
 | Author (Agent) | Architect |
 | Approved By | Pending |
 | Created | 2026-08-13 |
 | Referenced By | — |
-| References | AIF-005, AIF-009 |
+| References | AIF-PROC-002, AIF-PROC-005 |
+| Tags | worktrees, orchestration, parallel-dispatch, chunk-isolation, git |
 
 ---
 
 ## Problem Statement
 
-AIF-005 confirmed that AI-track and software-track chunks both dispatch through Engineering-Manager, and AIF-009 confirmed that any Engineering-Manager-orchestrated chunk (either track) branches, regardless of `repo_type`. For wave-based parallel dispatch (`orchestration.max_concurrent`) to actually work, multiple agents must be able to implement, test, and review different chunks of the same Epic at the same time without stepping on each other's working directory or branch state.
+AIF-PROC-002 confirmed that AI-track and software-track chunks both dispatch through Engineering-Manager, and AIF-PROC-005 confirmed that any Engineering-Manager-orchestrated chunk (either track) branches, regardless of `repo_type`. For wave-based parallel dispatch (`orchestration.max_concurrent`) to actually work, multiple agents must be able to implement, test, and review different chunks of the same Epic at the same time without stepping on each other's working directory or branch state.
 
-`skill/worktree-management` and Engineering-Manager's hard rules already specify git worktrees as the mechanism for this, but no Decision Record has ever evaluated that choice against alternatives — it was built directly into the skill without being ratified. This record closes that gap explicitly, now that AIF-004/AIF-005/AIF-009 make concurrent orchestrated work (including real CLI code chunks) a live path rather than a theoretical one.
+`skill/worktree-management` and Engineering-Manager's hard rules already specify git worktrees as the mechanism for this, but no Decision Record has ever evaluated that choice against alternatives — it was built directly into the skill without being ratified. This record closes that gap explicitly, now that AIF-004/AIF-PROC-002/AIF-PROC-005 make concurrent orchestrated work (including real CLI code chunks) a live path rather than a theoretical one.
 
 ---
 
