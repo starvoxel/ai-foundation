@@ -62,7 +62,10 @@ Follow `skill/plan-lifecycle` to save the record with `Status: Draft`, commit it
 
 - **Decision Record** — markdown file following the template format
 - **Location:** `{paths.decisions}/{domain-folder}/{ID}_{ShortTitle}.decision.md`
-  (`paths.decisions` from `.aiconfig.json`, default `knowledge/decisions/` if unset;
+  (`paths.decisions` from `.aiconfig.json`; if unset, derived as
+  `{resolved paths.knowledge}/decisions` — i.e. `knowledge/decisions/` only in
+  the nested case where `paths.knowledge` is also unset, per AIF-002-014's
+  `resolveDecisionsPath`, not a flat default;
   `{domain-folder}` is the lowercase Domain value — `architecture/`, `process/`,
   `planning/`, `ai-component/`, `quality/`, `testing/`, `meta-process/`; `{ID}`
   is `{ProjectID}-{DomainCode}-{###}`, e.g. `AIF-ARCH-004`, `AIF-PROC-002`,
