@@ -4,20 +4,23 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-008 |
+| Decision ID | AIF-ARCH-004 |
 | Project | ai-foundation |
+| Tier | A |
+| Domain | architecture |
 | Status | Draft |
 | Author (Agent) | Architect |
 | Approved By | Pending |
 | Created | 2026-08-13 |
 | Referenced By | — |
-| References | AIF-007 |
+| References | AIF-PROC-004 |
+| Tags | standards-sync, cli, filesystem-sync, config-schema, conflict-detection |
 
 ---
 
 ## Problem Statement
 
-AIF-007 settled *who* implements the standards push/pull/sync feature from `PLAN.md` (v1.3) — split between Software-Engineer (CLI mechanism) and AI-Engineer (schema/docs) — but explicitly deferred *how the mechanism works*, flagging it as a required follow-up given the risk of a tool that can write into a repo other than the one it's currently running in. This record resolves that design.
+AIF-PROC-004 settled *who* implements the standards push/pull/sync feature from `PLAN.md` (v1.3) — split between Software-Engineer (CLI mechanism) and AI-Engineer (schema/docs) — but explicitly deferred *how the mechanism works*, flagging it as a required follow-up given the risk of a tool that can write into a repo other than the one it's currently running in. This record resolves that design.
 
 Confirmed context (human input, this session):
 - `ai-foundation` will always be cloned locally alongside project repos, for the foreseeable future — no artifactory, no requirement to support a machine that only has the project repo checked out. Team growth is handled by every member cloning `ai-foundation` locally, not by a hosted package registry.
@@ -68,7 +71,7 @@ What was a preference but not a hard requirement:
 
 **Chosen approach**: Option A — local filesystem sync between a project repo and a locally-cloned `ai-foundation`, with no automated git commit on either side.
 
-**Rationale**: Every constraint in this record points at Option A: the sibling-clone assumption is confirmed indefinitely, network/PR automation solves a problem that doesn't currently exist, and keeping commit authority exactly where it already lives avoids inventing new governance rather than reusing what AIF-004/ `skill/plan-lifecycle` already established. The only real cost — a human needs to notice and commit the resulting working-tree change — is a UX concern (clear CLI output), not an architectural one.
+**Rationale**: Every constraint in this record points at Option A: the sibling-clone assumption is confirmed indefinitely, network/PR automation solves a problem that doesn't currently exist, and keeping commit authority exactly where it already lives avoids inventing new governance rather than reusing what AIF-PROC-001/ `skill/plan-lifecycle` already established. The only real cost — a human needs to notice and commit the resulting working-tree change — is a UX concern (clear CLI output), not an architectural one.
 
 **Trade-offs accepted**:
 - If the sibling-clone assumption is ever invalidated (artifactory, CI-driven sync, contributors without a local `ai-foundation` clone), this mechanism needs a v2 extension along the lines of Option B. Not a blocker now; flagged for future revisit if that happens.
