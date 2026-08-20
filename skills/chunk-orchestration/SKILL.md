@@ -1,6 +1,6 @@
 ---
 name: "chunk-orchestration"
-version: "0.3.0"
+version: "0.4.0"
 description: "Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates."
 ---
 
@@ -170,20 +170,20 @@ Triggered by: human reports conflict during PR review, OR wave-boundary rebase f
 
 1. Update chunk status to `Conflict`
 2. Log: `conflict_detected` with branch name, conflicting files (if known), and trigger source
-3. Dispatch Software-Engineer subagent to the chunk's worktree with instructions:
+3. Dispatch the chunk's implementing agent (Software-Engineer for software-track chunks, AI-Engineer for AI-track chunks — same agent that implemented the chunk in Step 2) to the chunk's worktree with instructions:
    - Fetch latest main: `git fetch origin main`
    - Rebase onto main: `git rebase origin/main`
    - Resolve any conflicts that arise
-   - Run build/lint to verify the resolution compiles and passes basic checks
+   - Run build/lint (software track) or self-validation tests (AI track, per AI-Engineer's hard rule) to verify the resolution compiles/passes basic checks
    - Commit the resolution and push the branch (force-push is acceptable here — it's a feature branch with only agent commits)
    - Report success or failure
-4. **If SE reports success:**
+4. **If the agent reports success:**
    - Update chunk status to `Implementing`
    - Reset `iterations` to 0
    - Log: `conflict_resolved` with details of which files were resolved
-   - Re-dispatch SE to verify/complete implementation in context of the new base
-   - The full pipeline restarts: SE → TE → PE
-5. **If SE reports inability to resolve** (complex conflict, semantic ambiguity, or build failures after resolution):
+   - Re-dispatch the same agent to verify/complete implementation in context of the new base
+   - The full pipeline restarts, per the chunk's track (software: SE → TE → PE; AI: AI-Engineer implements + self-validates → PE)
+5. **If the agent reports inability to resolve** (complex conflict, semantic ambiguity, or build/validation failures after resolution):
    - Mark chunk as `Blocked`
    - `blocked_reason`: "Merge conflict requires human resolution on branch {branch}: {conflicting files}"
    - Log: `conflict_escalated`
@@ -197,7 +197,7 @@ Triggered by: human reports conflict during PR review, OR wave-boundary rebase f
    - Reset `iterations` to 0
    - Set escalation `resolved` to true
    - Log: `chunk_unblocked`
-   - Pipeline restarts from SE (full SE → TE → PE)
+   - Pipeline restarts from the chunk's implementing agent, per the chunk's track (full pipeline: software SE → TE → PE; AI: AI-Engineer implements + self-validates → PE)
 
 **Decision hand-off — Decision Hand-off Sub-Flow:** (Authored under AIF-002-006)
 
@@ -293,13 +293,13 @@ After each chunk completion, check wave status:
 - **Chunk plan not found or not approved** — mark chunk `Blocked` with reason "Chunk plan missing or not approved". Do not dispatch without an approved plan.
 - **Epic Plan not `Approved`** — stop at Step 1 before reading `chunks.json`; report to the human. Do not treat `Draft` or `Deferred` as sufficient.
 - **Agent subagent fails unexpectedly** — mark chunk `Blocked` with reason "Agent failure: {error}". Log and escalate. Do not retry automatically.
-- **Epic has only one chunk** — still follow the full pipeline (SE → TE → PE). No shortcuts.
+- **Epic has only one chunk** — still follow the full pipeline for that chunk's track (software: SE → TE → PE; AI: AI-Engineer implements + self-validates → PE). No shortcuts.
 - **Chunk depends on a blocked chunk** — remains in `Ready` but cannot be dispatched. Will dispatch once the dependency is unblocked and completed.
 - **Human requests early termination** — set overall status to `Blocked`, log the reason, stop dispatching. State file preserves progress for later resumption.
 - **Worktree creation fails** — mark chunk as `Blocked` with reason from worktree-management. Do not dispatch. Common causes: path conflict, disk space, branch already checked out in another worktree.
 - **Agent needs to resume in existing worktree** — when a blocked chunk is unblocked and re-dispatched, the worktree may already exist. Worktree-management Step 2 handles this (detects existing valid worktree and reuses it).
 - **Merge conflict during PR review** — human reports the conflict. EM enters the Conflict Resolution Sub-Flow (Step 4). The chunk goes from `Done` → `Conflict` → `Implementing` (pipeline restarts). The existing PR should be updated by the force-push after resolution.
 - **Wave-boundary rebase conflicts on multiple chunks** — each conflicting chunk enters the sub-flow independently. Non-conflicting chunks in the wave proceed normally with dispatch.
-- **Conflict resolution introduces test failures** — handled naturally because the pipeline restarts from SE. TE will catch the failures in the Testing phase.
-- **Human resolves conflict but doesn't push** — SE is re-dispatched and will detect the branch state. If the rebase is incomplete or uncommitted, SE completes it. Instruct the human to commit and push their resolution before reporting "unblocked."
+- **Conflict resolution introduces test failures** — handled naturally because the pipeline restarts from the chunk's implementing agent. For software-track chunks, TE will catch the failures in the Testing phase; for AI-track chunks, AI-Engineer's own self-validation will catch them before PE review.
+- **Human resolves conflict but doesn't push** — the chunk's implementing agent (SE or AI-Engineer, per track) is re-dispatched and will detect the branch state. If the rebase is incomplete or uncommitted, the agent completes it. Instruct the human to commit and push their resolution before reporting "unblocked."
 - **Overlap warning false positive** — two chunks touch the same file but different sections. No action needed; the warning is informational. Actual conflicts are handled reactively if they occur at merge time.
