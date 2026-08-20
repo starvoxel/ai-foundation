@@ -1,12 +1,12 @@
 ---
 name: "chunk-orchestration"
-version: "0.2.0"
+version: "0.3.0"
 description: "Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates."
 ---
 
 ## Purpose
 
-Manages the end-to-end execution of an epic's chunk plans. Computes execution waves from the dependency graph, dispatches chunks to engineering agents as subagents, monitors the per-chunk pipeline (SE → TE → PE), handles review loops, detects blocks, and advances waves until the epic is complete or fully blocked.
+Manages the end-to-end execution of an epic's chunk plans. Computes execution waves from the dependency graph, dispatches chunks to engineering agents as subagents, monitors the per-chunk pipeline (track-aware — see Step 3), handles review loops, detects blocks, and advances waves until the epic is complete or fully blocked.
 
 ---
 
@@ -59,8 +59,15 @@ Before dispatching any chunks in the wave, compare `files_modified` or `componen
 
 For each chunk in the current wave with status `Ready`:
 
-1. Verify the chunk plan exists and its `Status` is `Approved` (see `skill/plan-lifecycle` — no other status, including `Deferred`, satisfies this check)
-2. **Create branch and worktree** (skill/worktree-management Steps 1–3):
+1. Read the chunk's `agents` field from `chunks.json` to determine its track. The `agents` field is the sole dispatch/pipeline signal — no other field or heuristic determines track:
+   - `["Software-Engineer"]` → software track
+   - `["AI-Engineer"]` → AI track
+   - Missing, empty, or containing an unrecognized agent role → do not dispatch. Mark chunk `Blocked` with reason "Unrecognized or missing agent assignment for chunk {id}", log `chunk_blocked`, add an escalation entry, and continue with other chunks in the wave. Do not guess a default track.
+   - More than one entry in `agents` → out of scope for this skill version. Do not dispatch; mark `Blocked` with reason "Multi-agent `agents` array not supported for chunk {id} — split the chunk instead" and escalate.
+2. Verify the chunk's plan is gated appropriately for its track (see `skill/plan-lifecycle` — no status other than `Approved`, including `Deferred`, satisfies this check):
+   - Software track: the Chunk Plan (per `skill/chunk-planning`) exists and its `Status` is `Approved`.
+   - AI track: AI-Engineer's own plan artifact is gated — either a Tier-1/2 "no written plan required" determination (per `skill/complexity-tiers`) or, for Tier 3, a written plan (per `skill/ai-engineering-plan`) with `Status: Approved`. This gate is never weakened relative to the software track — do not dispatch an AI-track chunk without it.
+3. **Create branch and worktree** (skill/worktree-management Steps 1–3):
    - Determine the branch name: `{epic-id}/{chunk-id}-{short-title}`
    - Resolve the worktree path from `paths.worktrees` config
    - Create the worktree on a new branch from `main`:
@@ -71,13 +78,17 @@ For each chunk in the current wave with status `Ready`:
    - Confirm the worktree exists and is on the correct branch
    - Record `worktree_path` and `branch` in the chunk state
    - **If worktree creation fails → mark chunk as `Blocked`, do NOT dispatch**
-3. **Only after worktree is confirmed**, dispatch a Software-Engineer subagent with:
-   - The chunk plan path
+4. **Only after worktree is confirmed**, dispatch the track's implementing subagent with:
+   - The chunk plan path (software track) or plan/tier-determination reference (AI track)
    - The branch name
    - **The worktree path as the agent's working directory** (the agent works HERE, not in the main repo)
    - Instruction to implement per the plan
-4. Update chunk status to `Implementing`
-5. Log: `chunk_dispatched` with agent, branch, and worktree path details
+
+   Software track: dispatch a Software-Engineer subagent — unchanged from today.
+
+   AI track: dispatch an AI-Engineer subagent, with the explicit instruction to self-validate (run its own validation tests per its hard rule "Always run tests before declaring work complete") before reporting complete. AI-Engineer's self-validation replaces the Test-Engineer step in the AI-track pipeline (see Step 3).
+5. Update chunk status to `Implementing`
+6. Log: `chunk_dispatched` with agent, branch, and worktree path details
 
 Constraints:
 - Maximum concurrent subagents is read from `orchestration.max_concurrent` (default: 4)
@@ -87,7 +98,9 @@ Constraints:
 
 ### Step 3 — Monitor Pipeline
 
-As each subagent completes, advance the chunk through its pipeline:
+As each subagent completes, advance the chunk through its pipeline. The pipeline shape is determined by the chunk's `agents` field (track), read in Step 2 — Test-Engineer is skipped for AI-track chunks only; Principal-Engineer review is never skipped for either track.
+
+**Software track (`agents: ["Software-Engineer"]`) — SE → TE → PE, unchanged:**
 
 **After Software-Engineer completes:**
 1. Verify SE reported that changes are committed and pushed to the chunk's branch
@@ -101,12 +114,20 @@ As each subagent completes, advance the chunk through its pipeline:
 3. Dispatch Principal-Engineer subagent for the same branch, chunk plan, and worktree path
 4. Log: `chunk_status_changed`
 
-**After Principal-Engineer completes — APPROVED:**
+**AI track (`agents: ["AI-Engineer"]`) — AI-Engineer implements + self-validates → PE, Test-Engineer skipped:**
+
+**After AI-Engineer completes:**
+1. Verify AI-Engineer reported that changes are committed and pushed to the chunk's branch, and that it self-validated (ran its own validation tests) before reporting complete
+2. Update chunk status directly to `Reviewing` (skip `Testing` — Test-Engineer is not dispatched for AI-track chunks)
+3. Dispatch Principal-Engineer subagent for the same branch, chunk plan, and worktree path
+4. Log: `chunk_status_changed`
+
+**After Principal-Engineer completes — APPROVED (both tracks):**
 1. Update chunk status to `Done`
-2. Re-dispatch Software-Engineer subagent with instruction to create a PR:
+2. Re-dispatch the chunk's implementing agent (Software-Engineer for software-track, AI-Engineer for AI-track — same agent that implemented the chunk in Step 2) with instruction to create a PR:
    - Same branch and worktree path
    - Instruction: "Create a pull request from this branch to main via `gh pr create`"
-   - SE creates the PR and reports the URL
+   - The agent creates the PR and reports the URL
 3. Record the PR number and URL in the chunk's `pr_number` and `pr_url` fields
 4. Log: `chunk_status_changed`
 5. Log: `pr_created` with PR number and URL details
@@ -120,11 +141,11 @@ When the human confirms merge, run worktree teardown (skill/worktree-management 
 - Clear `worktree_path` in chunk state
 - Log: `worktree_removed`
 
-**After Principal-Engineer completes — NEEDS_CHANGES:**
+**After Principal-Engineer completes — NEEDS_CHANGES (both tracks):**
 1. Increment chunk `iterations`
 2. If `iterations` < 5:
    - Update chunk status to `Implementing`
-   - Dispatch Software-Engineer subagent with the review findings
+   - Dispatch the chunk's implementing agent (Software-Engineer for software-track, AI-Engineer for AI-track) with the review findings. For AI-track chunks, include the same self-validation instruction as the original dispatch.
    - Log: `review_loop` with iteration count
 3. If `iterations` >= 5:
    - Mark chunk as `Blocked` with reason: "Review loop exhausted (5 iterations)"
@@ -136,7 +157,7 @@ When the human confirms merge, run worktree teardown (skill/worktree-management 
 
 A chunk may be blocked for reasons beyond review loops:
 
-**Out-of-domain work detected:** If a chunk plan references components, skills, or work outside the engineering domain (e.g., AI component authoring, infrastructure provisioning), mark it as:
+**Out-of-domain work detected:** AI component authoring (declarative skills, agents, steering, server definitions) is in-domain — it dispatches to AI-Engineer via the AI track (Step 2/3), not this edge case. If a chunk plan references components, skills, or work genuinely outside both the software and AI tracks (e.g., infrastructure provisioning unrelated to either track), mark it as:
 - Status: `Blocked`
 - `blocked_reason`: description of what's needed (e.g., "Requires new skill to be authored by AI Engineer")
 - Log: `chunk_blocked`
