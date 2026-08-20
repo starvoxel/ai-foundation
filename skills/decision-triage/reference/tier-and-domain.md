@@ -28,7 +28,7 @@ Tier C is the default for any decision made during planning or implementation:
 | Architecture | `ARCH` | Architect | Schemas, component boundaries, system-structure diagrams | Yes — scope `all` or close to it |
 | Process/orchestration | `PROC` | Engineering-Manager *(charter expansion)* | Dispatch/pipeline flow changes, orchestration-state effects | No — implemented effect lives in `chunk-orchestration`/`worktree-management`/git-workflow steering directly |
 | Planning-artifact conventions | `PLAN` | Tech-Lead | Chunk/Epic Plan shape, worklog structure, plan-lifecycle mechanics | No — implemented effect lives in the relevant plan template |
-| AI-component/declarative-system | `AIC` | AI-Engineer *(existing precedent, AIF-004)* | Agent/skill/steering/schema impact | Yes — scoped to AI-Engineer + adjacent authoring skills |
+| AI-component/declarative-system | `AIC` | AI-Engineer *(existing precedent, AIF-PROC-001)* | Agent/skill/steering/schema impact | Yes — scoped to AI-Engineer + adjacent authoring skills |
 | Quality-gate/review-process | `QA` | Principal-Engineer | Review-criteria and severity-gate changes | No — implemented effect lives in the review skill/template |
 | Test-strategy | `TEST` | Test-Engineer | Test-execution/coverage-strategy changes | No — implemented effect lives in the test-execution skill |
 | *(none — intentional)* | — | Software-Engineer | — | Tech-Lead's Epic/Chunk process already covers Software-Engineer's decision needs |
