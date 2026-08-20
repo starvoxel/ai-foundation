@@ -50,7 +50,7 @@ If genuinely too close to call, identify the one question that would break the t
 
 ### Step 4 — Write the Decision Record
 
-Write the record using the template at `skills/decision-record/reference/template.md`, applying the domain guidance loaded in Step 1 to the `Design`/`Impact on Planning` sections. Ensure the Metadata table (including `Tier`, `Domain`, `References`, and `Tags` if applicable) is complete and accurate — this is the sole source `aif index -d` (AIF-002-014) reads when it later builds `docs/decisions/index.json`.
+Write the record using the template at `skills/decision-record/reference/template.md`, applying the domain guidance loaded in Step 1 to the `Design`/`Impact on Planning` sections. Ensure the Metadata table (including `Tier`, `Domain`, `References`, and `Tags` if applicable) is complete and accurate — this is the sole source `aif index -d` (AIF-002-014) reads when it later builds `{paths.decisions}/index.json`. `References`/`Referenced By` may cite either another Decision ID or an Epic ID (e.g. for implementation-tracking, linking this decision to the Epic that implements it) — see `reference/template.md` for the two ID shapes.
 
 ### Step 5 — Follow the Commit-Gate Procedure
 

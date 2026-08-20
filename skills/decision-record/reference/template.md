@@ -12,9 +12,11 @@
 | Author (Agent) | {Domain owner agent — see reference/domain-guidance.md} |
 | Approved By | {human name or "Pending"} |
 | Created | {YYYY-MM-DD HH:mm} |
-| Referenced By | {Decision ID(s) that cite this record, or "—"} |
-| References | {Decision ID(s) this record cites, or "—"} |
+| Referenced By | {Decision ID(s) and/or Epic ID(s) that cite this record, or "—"} |
+| References | {Decision ID(s) and/or Epic ID(s) this record cites, or "—"} |
 | Tags | {comma-separated free-text tags for discovery, or "—"} |
+
+`Referenced By`/`References` may cite either a Decision ID (`{ProjectID}-{DomainCode}-{###}`, e.g. `AIF-ARCH-004`) — another decision that relates to this one — or an Epic ID (`{ProjectID}-{###}`, e.g. `AIF-002`) — the Epic that implements, depends on, or is otherwise governed by this decision, for implementation-tracking purposes. A comma-separated list may mix both kinds; the two ID shapes are distinguishable by the presence (Decision) or absence (Epic) of the Domain Code segment.
 
 ---
 
