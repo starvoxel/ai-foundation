@@ -4,8 +4,8 @@
   "current_wave": 0,
   "total_waves": 1,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Implementing", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Reviewing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Reviewing", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
@@ -44,6 +44,34 @@
       "action": "chunk_status_changed",
       "chunk_id": "003",
       "details": "AI-Engineer completed implementation: skills/epic-planning/SKILL.md Step 5 item 5 expanded to branch guidance by track (software-track unchanged, Tech-Lead authors Chunk Plan; AI-track needs only scope summary + depends_on, plan authored by AI-Engineer per skill/complexity-tiers / skill/ai-engineering-plan, gated by skill/plan-lifecycle). Version bumped 0.2.0 -> 0.3.0. Complexity tier determination: Tier 1 (no knowledge/ directory exists in this repo, skipped per exception; no separate written chunk plan required or produced, consistent with AIF-005/AIF-010). Self-validation: npm test 490/490 passing, 0 skipped. Commit 656309d, pushed to origin/AIF-001/003-epic-planning-ai-track. No discoveries/open questions raised. Status -> Reviewing; dispatching Principal-Engineer."
+    },
+    {
+      "timestamp": "2026-08-19T00:20:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_dispatched",
+      "chunk_id": "003",
+      "details": "Dispatched Principal-Engineer to independently verify chunk 003's diff, tier determination, and self-validation claim against Epic Section 5/10 and AIF-005/AIF-010, in worktree ../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track."
+    },
+    {
+      "timestamp": "2026-08-19T00:25:00Z",
+      "agent": "AI-Engineer",
+      "action": "chunk_status_changed",
+      "chunk_id": "002",
+      "details": "AI-Engineer completed implementation: skills/chunk-planning/SKILL.md - added Scope line to Purpose (software-track only), new 'AI-Track Chunks' section (AI-Engineer self-plans via skill/complexity-tiers Tier 1/2 no-plan or Tier 3 skill/ai-engineering-plan, same plan-lifecycle gate, same standard chunk-plan path), split Outputs by track, new Edge Case for AI-Engineer discovering a misjudged chunk boundary (raise to parent Epic per AIF-010). Version bumped 0.2.0 -> 0.3.0. Complexity tier determination: Tier 1 (single-file clarification, no new schema/pattern, source of truth already Approved). Self-validation: npm test 490/490 passing. Commit bfa57ec (\"AIF-001-002: document AI-track chunk plan authorship in chunk-planning\", Plan ID in message), pushed to origin/AIF-001/002-chunk-planning-ai-track without -u. No discoveries/open questions raised; confirmed scope contained to skills/chunk-planning/SKILL.md only. Status -> Reviewing; dispatching Principal-Engineer."
+    },
+    {
+      "timestamp": "2026-08-19T00:25:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_dispatched",
+      "chunk_id": "002",
+      "details": "Dispatched Principal-Engineer to independently verify chunk 002's diff, tier determination, and self-validation claim against Epic Section 5/10 and AIF-005/AIF-010, in worktree ../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track."
+    },
+    {
+      "timestamp": "2026-08-19T00:30:00Z",
+      "agent": "AI-Engineer",
+      "action": "chunk_status_changed",
+      "chunk_id": "001",
+      "details": "AI-Engineer completed implementation: skills/chunk-orchestration/SKILL.md - Step 2 track-determination via agents field (Software-Engineer/AI-Engineer branches, missing/empty/unrecognized -> Blocked+escalate, multi-agent -> Blocked+escalate per Section 8 Risk 1), Step 3 split into Software track (SE->TE->PE unchanged) and AI track (AI-Engineer implements+self-validates -> PE directly, TE skipped) including fixing the APPROVED/NEEDS_CHANGES re-dispatch sub-steps to use the track's implementing agent instead of hardcoded SE, Step 4 out-of-domain edge case rewritten (AI component authoring now in-domain, routes via Step 2/3). Version bumped 0.2.0 -> 0.3.0. Complexity tier: Tier 1. Self-validation: npm test 490/490, run twice. Commit 633d958, pushed to origin/AIF-001/001-chunk-orchestration-track-aware. DISCOVERY raised per Rule 4 (not implemented): Conflict Resolution Sub-Flow (Step 4) and the generic Edge Cases section still hardcode 'Software-Engineer'/'SE' language regardless of track. Logged as new Epic Section 8 Risk/Question row 6; does not block review of this chunk's committed (in-scope) diff. Status -> Reviewing; dispatching Principal-Engineer. Surfacing row 6 to human for scope direction in parallel with review."
     }
   ]
 }
