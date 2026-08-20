@@ -4,7 +4,7 @@
   "current_wave": 0,
   "total_waves": 1,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Reviewing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": 10, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/10", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": 11, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/11", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
@@ -114,6 +114,13 @@
       "action": "pr_created",
       "chunk_id": "003",
       "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/11 (\"AIF-001-003: clarify epic-planning AI-track chunk guidance\"). Body notes PE's non-blocking LOW finding (stale bundles/engineering/snapshot.json hash) and the follow-up action (run aif snapshot --bundle engineering once all 3 AIF-001 chunks merge). Local branch tracking ref was missing despite the commit already being on origin; fixed via git branch --set-upstream-to (no code/plan changes). Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-19T01:10:00Z",
+      "agent": "AI-Engineer",
+      "action": "chunk_status_changed",
+      "chunk_id": "001",
+      "details": "Row 6 addition complete: Conflict Resolution Sub-Flow (Step 4) now dispatches the chunk's actual implementing agent (SE for software-track, AI-Engineer for AI-track) instead of hardcoded SE, with build/lint vs self-validation branching and track-generic downstream language. Generic Edge Cases section's 3 track-assuming bullets ('Epic has only one chunk', 'Conflict resolution introduces test failures', 'Human resolves conflict but doesn't push') updated to describe both tracks. Version bumped 0.3.0 -> 0.4.0. Self-validation: npm test 490/490. Commit 95abbf7 (\"AIF-001-001: make Conflict Resolution Sub-Flow and Edge Cases track-aware\"), stacked on 633d958, pushed to origin/AIF-001/001-chunk-orchestration-track-aware. Confirmed only skills/chunk-orchestration/SKILL.md touched. Status -> Reviewing; dispatching Principal-Engineer for a fresh review of the combined diff (633d958 + 95abbf7) before Done."
     },
     {
       "timestamp": "2026-08-19T00:30:00Z",
