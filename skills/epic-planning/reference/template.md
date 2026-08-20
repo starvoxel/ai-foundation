@@ -118,3 +118,13 @@ Parallelization notes:
 ## 11. Work Log
 
 {Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]
+
+> **Tier C decisions.** Decisions made during epic planning or revision that
+> don't rise to Tier A/B per `skill/decision-triage`'s promotion threshold are
+> recorded inline in a Work Log entry, not as a standalone Decision Record — no
+> separate file, no `{paths.decisions}/index.json` update, no separate approval
+> gate. Fold the convention into the entry's `[Details]`:
+> `Decision: {what was decided}. **Why:** {rationale}.` This rides the Epic
+> Plan's own `skill/plan-lifecycle` cycle. Promote to Tier B/A later (via
+> `skill/decision-triage`) only if a second, unrelated plan needs to cite the
+> decision independently.
