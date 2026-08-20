@@ -1,24 +1,24 @@
 {
   "epic_id": "AIF-002",
   "status": "In Progress",
-  "current_wave": 0,
+  "current_wave": 1,
   "total_waves": 3,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-002/001-decision-triage", "worktree_path": "../worktrees/ai-foundation/AIF-002/001-decision-triage", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-002/003-decision-brief", "worktree_path": "../worktrees/ai-foundation/AIF-002/003-decision-brief", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "../worktrees/ai-foundation/AIF-002/004-plan-lifecycle-tier-docs", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "../worktrees/ai-foundation/AIF-002/005-tier-c-inline-convention", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "006", "wave": 0, "status": "Done", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "../worktrees/ai-foundation/AIF-002/006-em-decision-handoff", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "007", "wave": 0, "status": "Reviewing", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "../worktrees/ai-foundation/AIF-002/007-knowledge-authoring-update", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "008", "wave": 0, "status": "Done", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "../worktrees/ai-foundation/AIF-002/008-aiconfig-paths-decisions", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "009", "wave": 0, "status": "Done", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "../worktrees/ai-foundation/AIF-002/009-migrate-aif-001-003", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "010", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "011", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "012", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "013", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "014", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
-    { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-002/001-decision-triage", "worktree_path": "", "pr_number": 2, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/2", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-002/002-decision-record-tier-a", "worktree_path": "", "pr_number": 7, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/7", "iterations": 2, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-002/003-decision-brief", "worktree_path": "", "pr_number": 3, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/3", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-002/004-plan-lifecycle-tier-docs", "worktree_path": "", "pr_number": 9, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/9", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-002/005-tier-c-inline-convention", "worktree_path": "", "pr_number": 6, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/6", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "006", "wave": 0, "status": "Done", "branch": "AIF-002/006-em-decision-handoff", "worktree_path": "", "pr_number": 5, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/5", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "007", "wave": 0, "status": "Done", "branch": "AIF-002/007-knowledge-authoring-update", "worktree_path": "", "pr_number": 1, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/1", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "008", "wave": 0, "status": "Done", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "", "pr_number": 4, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/4", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "009", "wave": 0, "status": "Done", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "", "pr_number": 8, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/8", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "010", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "011", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "012", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "013", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "014", "wave": 1, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
+    { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
   "log": [
@@ -259,6 +259,48 @@
       "action": "pr_created",
       "chunk_id": "004",
       "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/9. No new push (commit eeba909 was already on origin; local tracking ref was stale and corrected via set-upstream-to + fetch, no -u push used). ALL 9 WAVE 1 PRs NOW OPEN (#1-#9). Awaiting human review/merge before Wave 2."
+    },
+    {
+      "timestamp": "2026-08-19T16:00:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "002",
+      "details": "Human left 3 review comments on PR #7 after initial PE approval: (1) template.md References/Referenced By scoped to Decision IDs only, dropping prior epic-linking support -- fixed by restoring Epic ID support alongside Decision IDs. (2) SKILL.md Step 4 hardcoded docs/decisions/index.json instead of {paths.decisions} -- fixed. (3) SKILL.md Outputs section stated a hardcoded docs/decisions/ fallback default -- required two follow-up rounds to get right: first pass wrongly substituted a different hardcoded literal (knowledge/decisions/), corrected on review against AIF-002-014's approved resolveDecisionsPath design to state the fallback as derived from {paths.knowledge}'s resolved value, not a flat literal. Commits c346ea4, ec464fa, fe611bb, all pushed to the existing branch/PR (no new PR). iterations recorded as 2 for this post-approval review round. Also corrected a stale state-file discrepancy: this chunk's status had never been advanced past Reviewing/Done bookkeeping for PR-review purposes despite PE approval -- reconciled here."
+    },
+    {
+      "timestamp": "2026-08-19T16:30:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "007",
+      "details": "Reconciled stale status: PE approved chunk 007 at 2026-08-18T00:20:00Z and PR #1 was created and merged, but this chunk's top-level status field was never advanced from Reviewing to Done. Corrected to Done."
+    },
+    {
+      "timestamp": "2026-08-19T16:31:00Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "chunk_id": null,
+      "details": "Backfilled pr_number/pr_url fields (added to schema by tooling commit af8e42a) for all 9 Wave 0 chunks from `ai-git gh-pr-list --state all`: 007->#1, 001->#2, 003->#3, 008->#4, 006->#5, 005->#6, 002->#7, 009->#8, 004->#9."
+    },
+    {
+      "timestamp": "2026-08-19T16:32:00Z",
+      "agent": "Engineering-Manager",
+      "action": "worktree_removed",
+      "chunk_id": "002",
+      "details": "Human confirmed all 9 Wave 0 PRs merged (verified via ai-git gh-pr-list --state merged). Removed the only Wave 0 worktree present on this machine (../worktrees/ai-foundation/AIF-002/002-decision-record-tier-a, recreated earlier this session to address PR review comments) via ai-git worktree remove, then deleted the fully-merged branch AIF-002/002-decision-record-tier-a via ai-git branch -d. Chunks 001, 003-009 had no local worktrees on this machine (never created here, or already absent) -- nothing to physically tear down for those; worktree_path cleared to \"\" for all 9 as a bookkeeping match."
+    },
+    {
+      "timestamp": "2026-08-19T16:33:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_completed",
+      "chunk_id": null,
+      "details": "Wave 0 (9 chunks: 001-009) confirmed all Done, all PRs merged. current_wave -> 1."
+    },
+    {
+      "timestamp": "2026-08-19T16:34:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Wave-boundary rebase: ran ai-git fetch origin against main. No Wave 1 chunk (010-014) has an existing worktree on this machine, so no rebase was needed (new worktrees will branch from current main, already up to date). Confirmed all 5 Wave 1 chunk plans (010, 011, 012, 013, 014) are Status: Approved. Confirmed dependency (chunk 002) is Done for all 5. Dispatching branch+worktree creation and AI-Engineer/Software-Engineer subagents for all 5 Wave 1 chunks now (within orchestration.max_concurrent = 10)."
     }
   ]
 }
