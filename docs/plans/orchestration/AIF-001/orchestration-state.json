@@ -5,8 +5,8 @@
   "total_waves": 1,
   "chunks": [
     { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": 10, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/10", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": 11, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/11", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
   "log": [
@@ -100,6 +100,20 @@
       "action": "review_completed",
       "chunk_id": "001",
       "details": "Verdict: APPROVED (on the pre-addition diff, commit 633d958). Confirmed all claims: commit/branch/version bump accurate, Step 2/3/4 changes correctly implement Section 5, TE skipped only for AI-track, PE never skipped, approval gate not weakened, additional APPROVED/NEEDS_CHANGES re-dispatch fix judged in-scope (not creep) since it lives inside Step 3. Confirmed Conflict Resolution Sub-Flow and generic Edge Cases were correctly left untouched and properly raised as Epic Section 8 Row 6 rather than silently fixed or silently left inconsistent without documentation. 3 LOW findings, none blocking (stale 'SE->TE->PE' edge-case bullet already tracked via Row 6; Tier 1 vs Tier 2 borderline call; reviewer lacked shell access to re-run npm test). Per human direction (see prior log entry), Row 6 is now being folded into this chunk before Done: reopening chunk 001 to Implementing to add the Conflict Resolution Sub-Flow + generic Edge Cases track-aware fix, then will re-dispatch Principal-Engineer for a fresh review of the combined diff. This is a human-directed scope addition, not a NEEDS_CHANGES review-loop iteration - iterations counter left at 0."
+    },
+    {
+      "timestamp": "2026-08-19T01:00:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "002",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/10 (\"AIF-001-002: document AI-track chunk plan authorship\"). Body notes PE's non-blocking MEDIUM finding (missing inline Plan ID annotation) as a suggested fast-follow. Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-19T01:02:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "003",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/11 (\"AIF-001-003: clarify epic-planning AI-track chunk guidance\"). Body notes PE's non-blocking LOW finding (stale bundles/engineering/snapshot.json hash) and the follow-up action (run aif snapshot --bundle engineering once all 3 AIF-001 chunks merge). Local branch tracking ref was missing despite the commit already being on origin; fixed via git branch --set-upstream-to (no code/plan changes). Awaiting human merge."
     },
     {
       "timestamp": "2026-08-19T00:30:00Z",
