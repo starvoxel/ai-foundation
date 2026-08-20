@@ -1,6 +1,6 @@
 ---
 name: "epic-planning"
-version: "0.2.0"
+version: "0.3.0"
 description: "Produces a structured Epic Plan describing a complete feature at a human-reviewable level."
 ---
 
@@ -57,7 +57,9 @@ After approval, produce the `chunks.json` file:
 2. Set `epic_id` to this epic's ID
 3. Identify natural boundaries (data layer, service layer, UI, tests, docs)
 4. Define each chunk with explicit `depends_on` references
-5. Assign appropriate agent(s) to each chunk
+5. Assign appropriate agent(s) to each chunk. A chunk's `agents` field determines its track and how much detail this skill needs to capture for it here:
+   - **Software-track chunk** (`agents: ["Software-Engineer"]`) — unchanged. Tech-Lead still authors a detailed Chunk Plan for this chunk (via `skill/chunk-planning`) before it is dispatched.
+   - **AI-track chunk** (`agents: ["AI-Engineer"]`) — this skill only needs a scope summary (what the chunk covers, e.g. as `title` in `chunks.json`) and its `depends_on` entry. Do not produce a detailed software-style Chunk-Plan breakdown for it here. AI-Engineer authors its own detailed plan for the chunk (Tier 1/2: no written plan required; Tier 3: `skill/ai-engineering-plan`), gated by `skill/plan-lifecycle` the same as any other plan, per AIF-005/AIF-010.
 6. Run `dag-validate` against the file
 
 If `dag-validate` fails:
