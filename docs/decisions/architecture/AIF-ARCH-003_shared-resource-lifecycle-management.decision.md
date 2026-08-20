@@ -4,7 +4,7 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-003 |
+| Decision ID | AIF-ARCH-003 |
 | Project | ai-foundation |
 | Status | Approved |
 | Author (Agent) | AI-Engineer |
@@ -12,6 +12,10 @@
 | Created | 2026-08-13 13:38 |
 | Referenced By | — |
 | Supersedes | — |
+
+> **Note:** This decision predates the AIF-META-001 Tier × Domain model (approved
+> 2026-08-14) and has not been reformatted to the current template. Its content
+> and Approved status remain valid as historical record.
 
 ---
 

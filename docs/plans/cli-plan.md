@@ -1,6 +1,6 @@
 # CLI Implementation Plan
 
-Tracks the phased implementation of the `aif` CLI as defined in [AIF-001](decisions/2026-07-31_001_install-cli-redesign.decision.md).
+Tracks the phased implementation of the `aif` CLI as defined in [AIF-ARCH-001](../decisions/architecture/AIF-ARCH-001_install-cli-redesign.decision.md).
 
 ## Progress
 
