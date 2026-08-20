@@ -4,9 +4,9 @@
   "current_wave": 0,
   "total_waves": 1,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Implementing", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Implementing", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
   "log": [
@@ -16,6 +16,27 @@
       "action": "wave_started",
       "chunk_id": null,
       "details": "Orchestration initialized for AIF-001. Epic Plan confirmed Status: Approved. chunks.json (docs/plans/chunks/AIF-001/chunks.json) contains 3 independent AI-track chunks (agents: [\"AI-Engineer\"]), no depends_on edges. dag-compute-waves: 1 wave [001, 002, 003] (matches Epic Section 9's own recorded result). All 3 chunks touch distinct skill files (chunk-orchestration/SKILL.md, chunk-planning/SKILL.md, epic-planning/SKILL.md respectively) - no file overlap. Per AIF-005 (Approved, Option B dual-authorship), each AI-track chunk does not require a Tech-Lead Chunk Plan - AI-Engineer self-plans via skill/complexity-tiers (Tier 1/2: no written plan; Tier 3: skill/ai-engineering-plan), gated by skill/plan-lifecycle, then self-validates before Principal-Engineer review (Test-Engineer skipped for AI-track). Epic Section 8 Risk 5 (reopening AIF-005 toward Option A) marked Resolved: Yes on explicit human (Jeremy) direction 2026-08-19 - confirmed resolved elsewhere and AI-Engineer ownership of this Epic's work is acceptable; no superseding Decision Record found in docs/decisions/ at this time, proceeding per human's explicit direction under this Epic's own approval gate. All Section 8 items now resolved, satisfying Acceptance Criterion 8. Dispatching all 3 Wave 0 chunks to AI-Engineer in parallel (within orchestration.max_concurrent)."
+    },
+    {
+      "timestamp": "2026-08-19T00:05:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_dispatched",
+      "chunk_id": "001",
+      "details": "Committed and pushed epic-plan/orchestration-state to origin/main (commit ccb0103, after rebasing onto remote main which had moved). Created branch AIF-001/001-chunk-orchestration-track-aware and worktree ../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware from main via ai-git worktree add; npm ci succeeded (94 packages). Dispatching AI-Engineer subagent, working directory = worktree path, scope = Epic Section 5 items for chunk-orchestration (Step 2 track-aware dispatch, Step 3 track-aware pipeline, Step 4 out-of-domain edge case rewrite). Instructed to self-plan per skill/complexity-tiers (write + get plan committed as Approved if Tier 3) before implementing, self-validate (run test-execution) before reporting done, and to raise any discovered out-of-scope work back to this Epic rather than silently expanding scope."
+    },
+    {
+      "timestamp": "2026-08-19T00:05:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_dispatched",
+      "chunk_id": "002",
+      "details": "Created branch AIF-001/002-chunk-planning-ai-track and worktree ../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track from main; npm ci succeeded (94 packages). Dispatching AI-Engineer subagent, working directory = worktree path, scope = Epic Section 5 chunk-planning changes (document AI-track exception: who authors the plan, which skill governs it, gating). Same self-plan/self-validate/raise-discoveries instructions as chunk 001."
+    },
+    {
+      "timestamp": "2026-08-19T00:05:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_dispatched",
+      "chunk_id": "003",
+      "details": "Created branch AIF-001/003-epic-planning-ai-track and worktree ../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track from main; npm ci succeeded (94 packages). Dispatching AI-Engineer subagent, working directory = worktree path, scope = Epic Section 5 epic-planning changes (clarify Section 9/Step 5 guidance for AI-track chunk boundaries). Same self-plan/self-validate/raise-discoveries instructions as chunk 001."
     }
   ]
 }
