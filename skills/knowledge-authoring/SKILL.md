@@ -39,11 +39,13 @@ Knowledge is the right place when:
 
 | Type | Use when... |
 |---|---|
-| `decision` | Recording a technical decision with options and rationale (use decision-record skill instead) |
+| `decision` | Recording a technical decision — use `skill/decision-triage` as the entry point instead. Once triaged, the decision is added to `knowledge/index.json` only if its Domain is Architecture or AI-component; all other domains (Process, Planning, Quality, Testing, Meta-process) are never added here — they remain traceable via `{paths.decisions}/index.json` instead. |
 | `reference` | General reference: patterns, conventions, prior art, onboarding context |
 | `architecture` | System structure: components, relationships, data flow, deployment |
 | `api` | Endpoint docs, schemas, request/response formats, auth patterns |
 | `business-rule` | Domain logic, validation rules, business constraints, compliance requirements |
+
+Architecture and AI-component decisions are added to `knowledge/index.json` because they lack a single canonical implementing artifact (a skill, template, or steering file) that already captures the decision's effect — the knowledge entry is that artifact. Decisions in every other domain already have such an artifact, so a second, driftable knowledge copy isn't needed. Per AIF-META-001 (Decision Record).
 
 ### Step 3 — Write the knowledge file
 
@@ -85,7 +87,7 @@ Tags enable agents to find relevant knowledge by topic. Use:
 
 ### Step 6 — Self-validate
 
-- [ ] File is in `{paths.knowledge}/` (or `{paths.knowledge}/decisions/` for decisions)
+- [ ] File is in `{paths.knowledge}/`
 - [ ] Frontmatter has all required fields: `name`, `type`, `tags`, `description`
 - [ ] `name` is kebab-case and matches the filename (without `.md`)
 - [ ] `type` is one of: `decision`, `reference`, `architecture`, `api`, `business-rule`
@@ -109,4 +111,4 @@ Tags enable agents to find relevant knowledge by topic. Use:
 - **Content is too large for context** — split into multiple focused knowledge files rather than one large one. Use tags to keep them discoverable together.
 - **Content overlaps with standards** — if it's prescriptive ("you must do X"), it belongs in standards. If it's descriptive ("here's how X works"), it's knowledge.
 - **Content will change frequently** — consider whether it belongs in knowledge at all. Rapidly changing information may be better served by having the agent read the source directly.
-- **Decision Record** — use the `decision-record` skill instead. It produces a knowledge file with the correct decision format and template.
+- **Decision Record** — use `skill/decision-triage` instead, which determines Tier/Domain and dispatches to `skill/decision-record` (Tier A) or `skill/decision-brief` (Tier B) as needed. A decision record is not a knowledge file — see Step 2 for when (Architecture/AI-component domain) it is additionally added to `knowledge/index.json`.
