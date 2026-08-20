@@ -4,7 +4,7 @@
   "current_wave": 0,
   "total_waves": 1,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": 12, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/12", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": 10, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/10", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": 11, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/11", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
@@ -128,6 +128,13 @@
       "action": "review_completed",
       "chunk_id": "001",
       "details": "Verdict: APPROVED (both commits). Row 6 scope matched exactly. One LOW finding (Decision Hand-off Sub-Flow, owned by AIF-002-006, still hardcodes SE->TE->PE - out of this chunk's scope, follow-up recommended against AIF-002). No CRITICAL/HIGH/MEDIUM findings. Status -> Done. Dispatching AI-Engineer to create PR."
+    },
+    {
+      "timestamp": "2026-08-19T01:25:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "001",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/12. All 3 Wave 0 chunks now Done with open PRs (#12, #10, #11). Awaiting human merge to complete Wave 0 / Epic AIF-001."
     },
     {
       "timestamp": "2026-08-19T00:30:00Z",
