@@ -1,12 +1,12 @@
 {
   "epic_id": "AIF-001",
-  "status": "In Progress",
+  "status": "Complete",
   "current_wave": 0,
   "total_waves": 1,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "../worktrees/ai-foundation/AIF-001/001-chunk-orchestration-track-aware", "pr_number": 12, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/12", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/002-chunk-planning-ai-track", "pr_number": 10, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/10", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "../worktrees/ai-foundation/AIF-001/003-epic-planning-ai-track", "pr_number": 11, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/11", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-001/001-chunk-orchestration-track-aware", "worktree_path": "", "pr_number": 12, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/12", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "002", "wave": 0, "status": "Done", "branch": "AIF-001/002-chunk-planning-ai-track", "worktree_path": "", "pr_number": 10, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/10", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-001/003-epic-planning-ai-track", "worktree_path": "", "pr_number": 11, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/11", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [],
   "log": [
@@ -135,6 +135,13 @@
       "action": "pr_created",
       "chunk_id": "001",
       "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/12. All 3 Wave 0 chunks now Done with open PRs (#12, #10, #11). Awaiting human merge to complete Wave 0 / Epic AIF-001."
+    },
+    {
+      "timestamp": "2026-08-19T01:30:00Z",
+      "agent": "Engineering-Manager",
+      "action": "orchestration_complete",
+      "chunk_id": null,
+      "details": "Human confirmed all 3 PRs (#10, #11, #12) merged to main. Worktrees removed, branches deleted. Epic AIF-001 complete: 3/3 chunks Done, 0 blocked, 1 review re-pass (chunk 001, human-directed scope addition, not a NEEDS_CHANGES loop). Follow-ups noted for separate handling: (1) run aif snapshot --bundle engineering to refresh bundles/engineering/snapshot.json; (2) small track-awareness fix to chunk-orchestration's Decision Hand-off Sub-Flow, tracked against AIF-002 not this epic."
     },
     {
       "timestamp": "2026-08-19T00:30:00Z",
