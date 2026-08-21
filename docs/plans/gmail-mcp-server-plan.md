@@ -8,7 +8,7 @@
 
 ## Goal
 
-Add a `gmail` MCP server exposing the common Gmail operations (search/read/organize/send), package it into a new `generic` install bundle, and enforce — via a new steering rule — that no email may ever be sent, drafted-and-sent, or replied-to without an explicit, per-action human approval question asked and answered in the affirmative. No assumed consent, ever.
+Add a `gmail` MCP server exposing the common Gmail operations (search/read/organize/label/send), with the server handling its own OAuth token acquisition end-to-end, package it into a new `generic` install bundle, and enforce — via a new steering rule — that no irreversible action (sending an email in any form, or permanently deleting a message/draft/label) may happen without an explicit, per-action human approval question asked and answered in the affirmative. No assumed consent, ever.
 
 ---
 
@@ -19,37 +19,41 @@ Add a `gmail` MCP server exposing the common Gmail operations (search/read/organ
 | `servers/gmail/gmail.yaml` | Create | Server definition, tool catalog |
 | `servers/gmail/index.js` | Create | MCP protocol entry point (thin wrapper) |
 | `servers/gmail/logic.js` | Create | Pure logic (MIME building, query building, response shaping) + I/O functions (Gmail API calls via `googleapis`) |
-| `servers/gmail/auth.js` | Create | OAuth2 token loading/refreshing helper, isolated from tool logic |
+| `servers/gmail/auth.js` | Create | OAuth2 token store: loads a locally persisted token, auto-refreshes it, rewrites it on refresh. Isolated from tool logic. |
+| `servers/gmail/scripts/authorize.js` | Create | One-time interactive CLI the human runs locally: performs the full OAuth loopback consent flow and writes the resulting token to local storage. This is the "server stores everything it needs itself" piece. |
 | `servers/gmail/package.json` | Create | Runtime deps: `googleapis`, `@modelcontextprotocol/sdk` |
-| `servers/gmail/tests/unit/gmail.test.js` | Create | Pure logic tests (MIME construction, query building) |
-| `servers/gmail/tests/integration/gmail.test.js` | Create | I/O-layer tests against a mocked/fake Gmail API client |
+| `servers/gmail/tests/unit/gmail.test.js` | Create | Pure logic tests (MIME construction, query building, token-expiry decision logic) |
+| `servers/gmail/tests/integration/gmail.test.js` | Create | I/O-layer tests against a mocked/fake Gmail API client and a fake token store |
 | `servers/gmail/tests/integration/gmail.mcp.test.js` | Create | MCP protocol tests (tool listing + invocation) |
-| `servers/gmail/README.md` | Create | One-time OAuth setup instructions (not loaded by agents per AGENTS.md loading rules, but needed for a human to obtain credentials) |
-| `steering/generic/gmail-send-approval.md` | Create | New steering rule: explicit human approval required before any send-type action |
-| `bundles/generic/bundle.yaml` | Create | New bundle, explicit lists: `servers: ["gmail"]`, `steering: ["steering/generic/gmail-send-approval.md"]` |
+| `servers/gmail/README.md` | Create | Setup instructions: how to register a Google Cloud OAuth app (unavoidable external prerequisite) and then run `authorize.js` once |
+| `steering/generic/gmail-irreversible-action-approval.md` | Create | New steering rule: explicit human approval required before any send or permanent-delete action |
+| `bundles/generic/bundle.yaml` | Create | New bundle, explicit lists: `servers: ["gmail"]`, `steering: ["steering/generic/gmail-irreversible-action-approval.md"]` |
 | `tests/validation/*.test.js` | Check only | Confirm existing repo-wide validation tests (schema/cross-ref checks) pass against the new files — no new validation test file planned unless investigation shows a gap |
 
 ---
 
 ## Approach
 
-1. **Define the tool catalog in `gmail.yaml`.** Tools, split into read-only and send-type (the latter gated by the new steering rule):
+1. **Define the tool catalog in `gmail.yaml`.** Tools, split into read-only, safe-mutating, and gated (irreversible — see step 5):
    - Read-only: `gmail_list_messages` (query/label/pagination), `gmail_get_message` (full content + headers by id), `gmail_get_attachment`, `gmail_list_labels`, `gmail_list_drafts`, `gmail_get_draft`
-   - Mutating, non-send: `gmail_modify_labels` (add/remove labels — covers archive, mark read/unread, star), `gmail_trash_message`, `gmail_create_draft`, `gmail_delete_draft`
-   - Send-type (steering-gated, see step 5): `gmail_send_message`, `gmail_send_draft`, `gmail_reply_message`
-   Every send-type tool's `description` field explicitly states "Requires prior human approval per steering — never call without it" so the rule is visible at the tool-definition layer, not just in steering text.
+   - Safe-mutating (reversible, ungated): `gmail_modify_labels` (add/remove labels on a message — covers archive, mark read/unread, star), `gmail_trash_message` (moves to Trash, recoverable for 30 days — distinct from permanent delete), `gmail_create_draft`, `gmail_create_label`
+   - Gated — irreversible (steering-gated, see step 5): `gmail_send_message`, `gmail_send_draft`, `gmail_reply_message`, `gmail_delete_message` (permanent delete, bypasses Trash), `gmail_delete_draft` (permanent), `gmail_delete_label` (permanent, and removes the label from every message it's applied to)
+   Every gated tool's `description` field explicitly states "Irreversible action — requires prior explicit human approval per steering; never call without it" so the rule is visible at the tool-definition layer, not just in steering text.
 
-2. **Design OAuth2 handling in `auth.js`.** Google's OAuth2 flow needs one-time human setup (obtaining a refresh token via consent screen) that cannot happen inside an agent session. Approach: a documented one-time manual step (human runs a small local script or Google's OAuth playground) to obtain a refresh token, which is then supplied to the server via environment variables (`GMAIL_CLIENT_ID`, `GMAIL_CLIENT_SECRET`, `GMAIL_REFRESH_TOKEN`) — no token file written to the repo or committed anywhere. `auth.js` exchanges the refresh token for short-lived access tokens at runtime via `googleapis`' `google.auth.OAuth2`. This keeps all credential material out of git entirely. Document the one-time setup in `servers/gmail/README.md`.
+2. **Design OAuth2 handling so the server is self-sufficient after one-time setup.** Google requires a registered OAuth app (Client ID/Secret) — this one external prerequisite (a few minutes in Google Cloud Console) cannot be automated away and will be documented in `README.md`. Everything after that is automated by us:
+   - `scripts/authorize.js`: a one-time interactive script the human runs locally. It starts a short-lived local loopback HTTP listener, opens the Google consent screen in the browser, receives the auth code on the loopback redirect, exchanges it for a refresh token via `googleapis`, and writes `{ client_id, client_secret, refresh_token }` to a local token file (default `~/.aif/gmail-token.json`, override via `GMAIL_TOKEN_PATH`). This file is never written into the repo and is git-ignored by virtue of living outside the repo entirely by default.
+   - `auth.js`: at server runtime, reads the token file, exchanges the refresh token for short-lived access tokens via `google.auth.OAuth2`, and transparently persists any rotated refresh token back to the same file. If the token file is missing, tool calls fail with a clear error directing the human to run `authorize.js`.
+   - Net effect: after the one Google Cloud Console step + one `node scripts/authorize.js` run, the server needs no further human involvement to authenticate — matching "have the server store everything it needs itself."
 
-3. **Split `logic.js` per Rule 6 (design for testability).** Pure functions: building a MIME `RFC 2822` message from `{to, cc, bcc, subject, body, inReplyTo}`, building Gmail search query strings from structured filters, shaping raw Gmail API responses into the tool's documented `outputs`. I/O functions: thin wrappers that call the Gmail API client (via `googleapis`) and pass results through the pure shaping functions. Unit tests exercise only the pure functions; integration tests exercise the I/O wrappers against a fake/mock Gmail client (no real network calls, no real mailbox required).
+3. **Split `logic.js` per Rule 6 (design for testability).** Pure functions: building a MIME `RFC 2822` message from `{to, cc, bcc, subject, body, inReplyTo}`, building Gmail search query strings from structured filters, shaping raw Gmail API responses into the tool's documented `outputs`, deciding whether a stored token is expired. I/O functions: thin wrappers that call the Gmail API client (via `googleapis`) and the token store, passing results through the pure shaping functions. Unit tests exercise only the pure functions; integration tests exercise the I/O wrappers against a fake/mock Gmail client and a fake token store (no real network calls, no real mailbox, no real filesystem token required).
 
 4. **Implement `index.js`** as the MCP entry point per `skill/server-authoring`'s standard pattern — imports from `logic.js`, registers each tool with zod input schemas, connects `StdioServerTransport`.
 
-5. **Write the new steering rule** at `steering/generic/gmail-send-approval.md` per `skill/steering-authoring`. Core rule: before invoking `gmail_send_message`, `gmail_send_draft`, or `gmail_reply_message` (or any future tool that transmits an email), the agent must ask the human an explicit, unambiguous approval question naming the recipient(s), subject, and a summary of the body, and must receive an explicit affirmative response in that same conversation turn-exchange. A prior general instruction ("send my emails for me") does not count as approval for an individual send — each send needs its own explicit yes. No exceptions (this mirrors the "Never Fabricate" / security-style absolute rules already in this repo's steering, per `skill/steering-authoring`'s guidance that rules can be absolute when justified). Enforcement section: violating this rule is a security-severity finding, not a style finding, consistent with `steering/global/core.md` Rule 3's treatment of security requirements.
+5. **Write the new steering rule** at `steering/generic/gmail-irreversible-action-approval.md` per `skill/steering-authoring`. Core rule: before invoking any tool that sends an email in any form (`gmail_send_message`, `gmail_send_draft`, `gmail_reply_message`) or permanently deletes data (`gmail_delete_message`, `gmail_delete_draft`, `gmail_delete_label`) — or any future tool with equivalent irreversible effect — the agent must ask the human an explicit, unambiguous approval question describing exactly what will happen (for sends: recipient(s), subject, body summary; for deletes: what is being permanently removed and its scope of impact, e.g. "this label is applied to N messages and will be removed from all of them") and must receive an explicit affirmative response in that same conversation exchange. A prior general instruction ("send my emails for me," "clean up my labels") does not count as approval for an individual action — each irreversible action needs its own explicit yes. `gmail_trash_message` and `gmail_create_*` tools are explicitly excluded from this gate because they are reversible/additive, not irreversible. No exceptions. Enforcement section: violating this rule is a security-severity finding, not a style finding, consistent with `steering/global/core.md` Rule 3's treatment of security requirements.
 
-6. **Create the `generic` bundle** at `bundles/generic/bundle.yaml` using the explicit-list resolution strategy (no `domain` field — no agent domain named "generic" exists, and none is being created by this plan). Lists: `servers: ["gmail"]`, `steering: ["steering/generic/gmail-send-approval.md"]`. `agents` and `skills` left empty — this bundle is for direct MCP tool installation into a harness (e.g. Claude Desktop/Claude Code) without an ai-foundation agent persona attached.
+6. **Create the `generic` bundle** at `bundles/generic/bundle.yaml` using the explicit-list resolution strategy (no `domain` field — no agent domain named "generic" exists, and none is being created by this plan). Lists: `servers: ["gmail"]`, `steering: ["steering/generic/gmail-irreversible-action-approval.md"]`. `agents` and `skills` left empty — this bundle is for direct MCP tool installation into a harness (e.g. Claude Desktop/Claude Code) without an ai-foundation agent persona attached.
 
-7. **Write tests** per `skill/server-authoring` Step 6: unit tests for MIME/query building, integration tests for the I/O wrappers against a fake Gmail client, and MCP protocol tests (tool listing, valid invocation, error handling) using `InMemoryTransport`.
+7. **Write tests** per `skill/server-authoring` Step 6: unit tests for MIME/query building and token-expiry logic, integration tests for the I/O wrappers (Gmail API + token store) against fakes, and MCP protocol tests (tool listing, valid invocation, error handling) using `InMemoryTransport`.
 
 8. **Self-validate** against both `skill/server-authoring` and `skill/bundle-authoring` checklists, then run the full test suite.
 
@@ -57,17 +61,16 @@ Add a `gmail` MCP server exposing the common Gmail operations (search/read/organ
 
 ## Open Questions
 
-1. **OAuth credential delivery mechanism** — this plan proposes environment variables (`GMAIL_CLIENT_ID`/`SECRET`/`REFRESH_TOKEN`) set by the human outside the repo, with no token file ever written by the server. Confirm this is acceptable, or specify a different mechanism (e.g. OS keychain) before implementation begins.
-2. **Scope of "usual things"** — the tool list in Approach step 1 is my best-effort coverage of common Gmail actions (search, read, label/archive/trash, draft, send, reply, attachments). Confirm this list is complete enough, or flag anything missing (e.g. forwarding as a distinct tool vs. reusing send with quoted body, calendar/contacts are explicitly out of scope per below).
-3. **Bundle naming casing** — bundle folder/`name` field will be `generic` (kebab-case, per schema) even though referred to as "Generic" — confirm this is fine, since bundle names are lowercase identifiers throughout the repo.
+1. **Bundle naming casing** — bundle folder/`name` field will be `generic` (kebab-case, per schema) even though referred to as "Generic" — confirm this is fine, since bundle names are lowercase identifiers throughout the repo.
 
 ---
 
 ## Risks
 
-- **Destructive/irreversible actions beyond sending** — `gmail_trash_message` and `gmail_delete_draft` are reversible (trash) or low-risk (draft deletion), so this plan does not extend the explicit-approval gate to them, only to actual sends. Flagging this trade-off explicitly rather than silently deciding it — if the human wants approval gating on trash/delete too, say so and this plan will be revised before implementation.
-- **OAuth setup friction** — the human must complete a one-time Google Cloud Console app registration + consent flow outside of any agent's control before the server is usable. This is unavoidable for Gmail API access and will be documented, not automated.
-- **No production Gmail account available for integration testing** — integration tests will use a mocked/fake Gmail API client rather than a real mailbox, per `skill/server-authoring`'s "external infrastructure" edge case. This means send behavior is verified structurally (correct API calls made) but not against a live inbox.
+- **OAuth app registration friction** — the human must still complete a one-time Google Cloud Console app registration (Client ID/Secret) before `authorize.js` can run. This step cannot be automated by any local script — it requires the human's Google account and Cloud Console access. Everything past that point is automated, per step 2.
+- **Local loopback OAuth flow environment assumptions** — `authorize.js` assumes a local browser is reachable from the machine running it (standard for a developer workstation, not for a headless server). Will be documented as a prerequisite in `README.md`; not a blocker for the primary use case (human's own machine).
+- **Token file is a local secret at rest** — `~/.aif/gmail-token.json` contains a long-lived refresh token. It's kept outside the repo by default and never logged, but the file itself is only as safe as the local filesystem's permissions — documented, not further mitigated in this plan.
+- **No production Gmail account available for integration testing** — integration tests will use a mocked/fake Gmail API client rather than a real mailbox, per `skill/server-authoring`'s "external infrastructure" edge case. This means send/delete behavior is verified structurally (correct API calls made) but not against a live inbox.
 
 ---
 
@@ -76,7 +79,7 @@ Add a `gmail` MCP server exposing the common Gmail operations (search/read/organ
 - `node --test "servers/gmail/tests/unit/**/*.test.js"`
 - `node --test "servers/gmail/tests/integration/**/*.test.js"`
 - `node --test "tests/validation/**/*.test.js"` (repo-wide schema/cross-reference checks, run from repo root)
-- Manual cross-reference check: bundle's `servers`/`steering` entries resolve to real files; server YAML tool list matches implemented tools in `index.js`/`logic.js`
+- Manual cross-reference check: bundle's `servers`/`steering` entries resolve to real files; server YAML tool list matches implemented tools in `index.js`/`logic.js`; every gated tool's description explicitly flags the approval requirement
 - Self-validation checklists from `skill/server-authoring`, `skill/bundle-authoring`, and `skill/steering-authoring` walked explicitly before declaring done
 
 ---
@@ -85,5 +88,5 @@ Add a `gmail` MCP server exposing the common Gmail operations (search/read/organ
 
 - Google Calendar, Google Contacts, or any non-Gmail Google API
 - Any agent definition wiring this server into an existing agent's `tools`/`approved_tools` (this plan only creates the server + bundle; attaching it to an agent persona is a separate, future decision)
-- Automating the initial OAuth consent flow (documented manual step only)
-- Extending the approval gate to non-send mutating actions (trash/label/draft) — see Risks
+- Automating Google Cloud Console app (Client ID/Secret) registration itself — this remains a documented one-time manual step; everything after it (consent flow, token storage, refresh) is automated per step 2
+- Extending the approval gate beyond sends and permanent deletes (e.g. `gmail_trash_message`, `gmail_modify_labels`, `gmail_create_draft`, `gmail_create_label` remain ungated as reversible/additive actions)
