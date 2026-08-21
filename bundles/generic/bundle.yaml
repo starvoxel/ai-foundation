@@ -1,0 +1,7 @@
+name: "generic"
+version: "0.1.0"
+description: "General-purpose MCP tools not tied to a specific engineering agent domain, e.g. the gmail server, each with its own required steering."
+servers:
+  - "gmail"
+steering:
+  - "steering/generic/gmail-irreversible-action-approval.md"
