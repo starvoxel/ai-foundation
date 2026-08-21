@@ -20,6 +20,7 @@
  */
 
 import { createServer } from 'node:http';
+import { pathToFileURL } from 'node:url';
 import { google } from 'googleapis';
 
 import { GMAIL_SCOPES, resolveTokenPath, saveTokenFile } from '../auth.js';
@@ -108,8 +109,11 @@ async function main() {
   console.log(`\nSaved Gmail credentials to ${tokenPath}. The server can now authenticate itself.`);
 }
 
-// Only run when invoked directly (not when imported by tests).
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Only run when invoked directly (not when imported by tests). Compared as
+// file:// URLs (via pathToFileURL) rather than string concatenation, since
+// process.argv[1] is a native path (backslashes on Windows) and naive
+// `file://${...}` concatenation never matches import.meta.url there.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((err) => {
     console.error('Gmail authorization failed:', err.message);
     process.exit(1);

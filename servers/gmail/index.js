@@ -14,6 +14,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { google } from 'googleapis';
+import { pathToFileURL } from 'node:url';
 
 import { getAuthorizedClient } from './auth.js';
 import {
@@ -41,11 +42,18 @@ const IRREVERSIBLE_NOTICE =
   'Irreversible action — requires prior explicit human approval per steering; never call without it. ';
 
 /**
- * Build the MCP server with all tools registered. Accepts the Gmail API
- * client as a parameter so tests can register against a fake client.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * Build the MCP server with all tools registered.
+ *
+ * Accepts either a ready Gmail API client (tests pass a fake client object
+ * directly) or an async factory `() => Promise<gmail_v1.Gmail>` (index.js's
+ * runtime path). The factory form lets the server connect and list tools
+ * immediately at startup, deferring OAuth (and any "run authorize.js first"
+ * error) until a tool is actually invoked — a missing/invalid token must not
+ * prevent the server from loading.
+ *
+ * @param {import('googleapis').gmail_v1.Gmail | (() => Promise<import('googleapis').gmail_v1.Gmail>)} gmailOrFactory
  */
-export function createGmailServer(gmail) {
+export function createGmailServer(gmailOrFactory) {
   const server = new McpServer({ name: 'gmail', version: SERVER_VERSION });
 
   const asText = (result) => ({ content: [{ type: 'text', text: JSON.stringify(result, null, 2) }] });
@@ -55,6 +63,7 @@ export function createGmailServer(gmail) {
   });
   const wrap = (fn) => async (args) => {
     try {
+      const gmail = typeof gmailOrFactory === 'function' ? await gmailOrFactory() : gmailOrFactory;
       return asText(await fn(gmail, args));
     } catch (err) {
       return asError(err);
@@ -182,16 +191,29 @@ export function createGmailServer(gmail) {
 }
 
 async function main() {
-  const authClient = await getAuthorizedClient();
-  const gmail = google.gmail({ version: 'v1', auth: authClient });
-  const server = createGmailServer(gmail);
+  // Memoized factory: the server connects and lists tools immediately even
+  // if OAuth setup hasn't happened yet. Auth is only attempted (and only
+  // fails) when a tool is actually called.
+  let gmailClient;
+  const getGmail = async () => {
+    if (!gmailClient) {
+      const authClient = await getAuthorizedClient();
+      gmailClient = google.gmail({ version: 'v1', auth: authClient });
+    }
+    return gmailClient;
+  };
+
+  const server = createGmailServer(getGmail);
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error('gmail MCP server running on stdio');
 }
 
-// Only run when invoked directly (not when imported by tests).
-if (import.meta.url === `file://${process.argv[1]}`) {
+// Only run when invoked directly (not when imported by tests). Compared as
+// file:// URLs (via pathToFileURL) rather than string concatenation, since
+// process.argv[1] is a native path (backslashes on Windows) and naive
+// `file://${...}` concatenation never matches import.meta.url there.
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     console.error('gmail MCP server error:', error);
     process.exit(1);
