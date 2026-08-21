@@ -23,11 +23,40 @@ Plan ID: `docs/plans/gmail-mcp-server-plan.md`
 
 ## Step 2 — Run the one-time authorization script
 
-From the repo root:
+From the repo root, using whichever shell you actually have open (the multi-line `\`-continued form doesn't paste reliably into every terminal — pick the single-line variant for your shell instead):
+
+**Git Bash / macOS / Linux (bash or zsh):**
 
 ```bash
-GMAIL_CLIENT_ID="<your client id>" GMAIL_CLIENT_SECRET="<your client secret>" \
-  node servers/gmail/scripts/authorize.js
+GMAIL_CLIENT_ID="<your client id>" GMAIL_CLIENT_SECRET="<your client secret>" node servers/gmail/scripts/authorize.js
+```
+
+**Windows PowerShell:**
+
+```powershell
+$env:GMAIL_CLIENT_ID="<your client id>"; $env:GMAIL_CLIENT_SECRET="<your client secret>"; node servers/gmail/scripts/authorize.js
+```
+
+**Windows cmd.exe:**
+
+```cmd
+set GMAIL_CLIENT_ID=<your client id>&& set GMAIL_CLIENT_SECRET=<your client secret>&& node servers/gmail/scripts/authorize.js
+```
+
+If pasting a single long line still gets mangled, set the variables one at a time instead, then run the script on its own:
+
+```bash
+# bash/zsh
+export GMAIL_CLIENT_ID="<your client id>"
+export GMAIL_CLIENT_SECRET="<your client secret>"
+node servers/gmail/scripts/authorize.js
+```
+
+```powershell
+# PowerShell
+$env:GMAIL_CLIENT_ID = "<your client id>"
+$env:GMAIL_CLIENT_SECRET = "<your client secret>"
+node servers/gmail/scripts/authorize.js
 ```
 
 This will:
