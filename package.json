@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
+    "googleapis": "176.0.0",
     "yaml": "2.9.0"
   }
 }
