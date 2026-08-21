@@ -5,7 +5,7 @@ transport: "stdio"
 description: "Gmail operations: search, read, organize, label, and send email via the Gmail API."
 tools:
   # ── Read-only ────────────────────────────────────────────────────────────
-  - name: "gmail_list_messages"
+  - name: "gmail-list-messages"
     description: "Lists/searches messages matching a Gmail search query (same syntax as the Gmail search bar), with optional label filter and pagination."
     inputs:
       - "query (string): Gmail search query, e.g. 'from:someone@example.com is:unread' [optional, default: '']"
@@ -14,40 +14,40 @@ tools:
       - "page_token (string): Pagination token from a previous call's output [optional]"
     outputs: "JSON object: { messages: { id: string, thread_id: string, snippet: string }[], next_page_token: string|null }."
 
-  - name: "gmail_get_message"
+  - name: "gmail-get-message"
     description: "Fetches full content and headers of a single message by ID."
     inputs:
       - "message_id (string): Gmail message ID"
       - "format (string): 'full' (headers+body) or 'metadata' (headers only) [optional, default: 'full']"
     outputs: "JSON object: { id, thread_id, label_ids, from, to, cc, subject, date, snippet, body_text, body_html, attachments: { attachment_id, filename, mime_type, size }[] }."
 
-  - name: "gmail_get_attachment"
+  - name: "gmail-get-attachment"
     description: "Downloads a single attachment's content from a message."
     inputs:
       - "message_id (string): Gmail message ID"
-      - "attachment_id (string): Attachment ID from gmail_get_message's output"
+      - "attachment_id (string): Attachment ID from gmail-get-message's output"
     outputs: "JSON object: { filename, mime_type, size, data_base64 }."
 
-  - name: "gmail_list_labels"
+  - name: "gmail-list-labels"
     description: "Lists all labels (system and user-created) in the mailbox."
     inputs: []
     outputs: "JSON object: { labels: { id: string, name: string, type: 'system'|'user' }[] }."
 
-  - name: "gmail_list_drafts"
+  - name: "gmail-list-drafts"
     description: "Lists existing drafts."
     inputs:
       - "max_results (number): Maximum drafts to return [optional, default: 25]"
       - "page_token (string): Pagination token from a previous call's output [optional]"
     outputs: "JSON object: { drafts: { draft_id: string, message_id: string, snippet: string }[], next_page_token: string|null }."
 
-  - name: "gmail_get_draft"
+  - name: "gmail-get-draft"
     description: "Fetches full content of a single draft by ID."
     inputs:
       - "draft_id (string): Draft ID"
     outputs: "JSON object: { draft_id, message_id, to, cc, subject, body_text }."
 
   # ── Safe-mutating (reversible/additive, ungated) ────────────────────────
-  - name: "gmail_modify_labels"
+  - name: "gmail-modify-labels"
     description: "Adds and/or removes labels on a message. Covers archive (remove INBOX), mark read/unread (remove/add UNREAD), and star (add/remove STARRED). Reversible — does not send or permanently delete anything."
     inputs:
       - "message_id (string): Gmail message ID"
@@ -55,14 +55,14 @@ tools:
       - "remove_label_ids (array): Label IDs to remove [optional]"
     outputs: "JSON object: { id, label_ids: string[] } reflecting the message's labels after the change."
 
-  - name: "gmail_trash_message"
-    description: "Moves a message to Trash. Recoverable for 30 days (Gmail auto-purges Trash after that) — distinct from gmail_delete_message, which is permanent. Reversible within the window, so this tool is not gated by the irreversible-action approval steering."
+  - name: "gmail-trash-message"
+    description: "Moves a message to Trash. Recoverable for 30 days (Gmail auto-purges Trash after that) — distinct from gmail-delete-message, which is permanent. Reversible within the window, so this tool is not gated by the irreversible-action approval steering."
     inputs:
       - "message_id (string): Gmail message ID"
     outputs: "JSON object: { id, label_ids: string[] } reflecting the message's labels after being trashed."
 
-  - name: "gmail_create_draft"
-    description: "Creates a new draft. Does not send anything — drafts are only transmitted via gmail_send_draft, which is gated."
+  - name: "gmail-create-draft"
+    description: "Creates a new draft. Does not send anything — drafts are only transmitted via gmail-send-draft, which is gated."
     inputs:
       - "to (array): Recipient email addresses"
       - "subject (string): Subject line"
@@ -71,14 +71,14 @@ tools:
       - "bcc (array): BCC recipient email addresses [optional]"
     outputs: "JSON object: { draft_id, message_id }."
 
-  - name: "gmail_create_label"
-    description: "Creates a new user label. Additive and reversible via gmail_delete_label (which is gated)."
+  - name: "gmail-create-label"
+    description: "Creates a new user label. Additive and reversible via gmail-delete-label (which is gated)."
     inputs:
       - "name (string): Label name, e.g. 'Project X' or nested 'Project X/Invoices'"
     outputs: "JSON object: { id, name }."
 
   # ── Gated — irreversible (see steering/generic/gmail-irreversible-action-approval.md) ──
-  - name: "gmail_send_message"
+  - name: "gmail-send-message"
     description: "Irreversible action — requires prior explicit human approval per steering; never call without it. Composes and immediately sends a new email."
     inputs:
       - "to (array): Recipient email addresses"
@@ -88,13 +88,13 @@ tools:
       - "bcc (array): BCC recipient email addresses [optional]"
     outputs: "JSON object: { id, thread_id } of the sent message."
 
-  - name: "gmail_send_draft"
+  - name: "gmail-send-draft"
     description: "Irreversible action — requires prior explicit human approval per steering; never call without it. Sends an existing draft as-is."
     inputs:
       - "draft_id (string): Draft ID to send"
     outputs: "JSON object: { id, thread_id } of the sent message."
 
-  - name: "gmail_reply_message"
+  - name: "gmail-reply-message"
     description: "Irreversible action — requires prior explicit human approval per steering; never call without it. Sends a reply within an existing thread, quoting the original message."
     inputs:
       - "message_id (string): Gmail message ID being replied to"
@@ -102,19 +102,19 @@ tools:
       - "reply_all (boolean): Reply to all original recipients instead of just the sender [optional, default: false]"
     outputs: "JSON object: { id, thread_id } of the sent reply."
 
-  - name: "gmail_delete_message"
+  - name: "gmail-delete-message"
     description: "Irreversible action — requires prior explicit human approval per steering; never call without it. Permanently deletes a message, bypassing Trash. Cannot be undone."
     inputs:
       - "message_id (string): Gmail message ID"
     outputs: "JSON object: { id, deleted: true }."
 
-  - name: "gmail_delete_draft"
+  - name: "gmail-delete-draft"
     description: "Irreversible action — requires prior explicit human approval per steering; never call without it. Permanently deletes a draft. Cannot be undone."
     inputs:
       - "draft_id (string): Draft ID"
     outputs: "JSON object: { draft_id, deleted: true }."
 
-  - name: "gmail_delete_label"
+  - name: "gmail-delete-label"
     description: "Irreversible action — requires prior explicit human approval per steering; never call without it. Permanently deletes a user label and removes it from every message it is applied to. Cannot be undone."
     inputs:
       - "label_id (string): Label ID"

@@ -62,7 +62,7 @@ export function createGmailServer(gmail) {
   };
 
   // ── Read-only ──────────────────────────────────────────────────────────
-  server.registerTool('gmail_list_messages', {
+  server.registerTool('gmail-list-messages', {
     description: 'Lists/searches messages matching a Gmail search query, with optional label filter and pagination.',
     inputSchema: {
       query: z.string().optional().describe('Gmail search query'),
@@ -72,7 +72,7 @@ export function createGmailServer(gmail) {
     },
   }, wrap(listMessages));
 
-  server.registerTool('gmail_get_message', {
+  server.registerTool('gmail-get-message', {
     description: 'Fetches full content and headers of a single message by ID.',
     inputSchema: {
       message_id: z.string().describe('Gmail message ID'),
@@ -80,20 +80,20 @@ export function createGmailServer(gmail) {
     },
   }, wrap(getMessage));
 
-  server.registerTool('gmail_get_attachment', {
+  server.registerTool('gmail-get-attachment', {
     description: "Downloads a single attachment's content from a message.",
     inputSchema: {
       message_id: z.string().describe('Gmail message ID'),
-      attachment_id: z.string().describe('Attachment ID from gmail_get_message output'),
+      attachment_id: z.string().describe('Attachment ID from gmail-get-message output'),
     },
   }, wrap(getAttachment));
 
-  server.registerTool('gmail_list_labels', {
+  server.registerTool('gmail-list-labels', {
     description: 'Lists all labels (system and user-created) in the mailbox.',
     inputSchema: {},
   }, wrap(listLabels));
 
-  server.registerTool('gmail_list_drafts', {
+  server.registerTool('gmail-list-drafts', {
     description: 'Lists existing drafts.',
     inputSchema: {
       max_results: z.number().optional().describe('Maximum drafts to return'),
@@ -101,13 +101,13 @@ export function createGmailServer(gmail) {
     },
   }, wrap(listDrafts));
 
-  server.registerTool('gmail_get_draft', {
+  server.registerTool('gmail-get-draft', {
     description: 'Fetches full content of a single draft by ID.',
     inputSchema: { draft_id: z.string().describe('Draft ID') },
   }, wrap(getDraft));
 
   // ── Safe-mutating (reversible/additive, ungated) ──────────────────────
-  server.registerTool('gmail_modify_labels', {
+  server.registerTool('gmail-modify-labels', {
     description: 'Adds and/or removes labels on a message (archive, mark read/unread, star). Reversible.',
     inputSchema: {
       message_id: z.string().describe('Gmail message ID'),
@@ -116,12 +116,12 @@ export function createGmailServer(gmail) {
     },
   }, wrap(modifyLabels));
 
-  server.registerTool('gmail_trash_message', {
-    description: 'Moves a message to Trash. Recoverable for 30 days — not gated (see gmail_delete_message for permanent deletion).',
+  server.registerTool('gmail-trash-message', {
+    description: 'Moves a message to Trash. Recoverable for 30 days — not gated (see gmail-delete-message for permanent deletion).',
     inputSchema: { message_id: z.string().describe('Gmail message ID') },
   }, wrap(trashMessage));
 
-  server.registerTool('gmail_create_draft', {
+  server.registerTool('gmail-create-draft', {
     description: 'Creates a new draft. Does not send anything.',
     inputSchema: {
       to: z.array(z.string()).describe('Recipient email addresses'),
@@ -132,13 +132,13 @@ export function createGmailServer(gmail) {
     },
   }, wrap(createDraft));
 
-  server.registerTool('gmail_create_label', {
-    description: 'Creates a new user label. Additive and reversible via gmail_delete_label.',
+  server.registerTool('gmail-create-label', {
+    description: 'Creates a new user label. Additive and reversible via gmail-delete-label.',
     inputSchema: { name: z.string().describe('Label name, e.g. "Project X" or nested "Project X/Invoices"') },
   }, wrap(createLabel));
 
   // ── Gated — irreversible ──────────────────────────────────────────────
-  server.registerTool('gmail_send_message', {
+  server.registerTool('gmail-send-message', {
     description: IRREVERSIBLE_NOTICE + 'Composes and immediately sends a new email.',
     inputSchema: {
       to: z.array(z.string()).describe('Recipient email addresses'),
@@ -149,12 +149,12 @@ export function createGmailServer(gmail) {
     },
   }, wrap(sendMessage));
 
-  server.registerTool('gmail_send_draft', {
+  server.registerTool('gmail-send-draft', {
     description: IRREVERSIBLE_NOTICE + 'Sends an existing draft as-is.',
     inputSchema: { draft_id: z.string().describe('Draft ID to send') },
   }, wrap(sendDraft));
 
-  server.registerTool('gmail_reply_message', {
+  server.registerTool('gmail-reply-message', {
     description: IRREVERSIBLE_NOTICE + 'Sends a reply within an existing thread, quoting the original message.',
     inputSchema: {
       message_id: z.string().describe('Gmail message ID being replied to'),
@@ -163,17 +163,17 @@ export function createGmailServer(gmail) {
     },
   }, wrap(replyMessage));
 
-  server.registerTool('gmail_delete_message', {
+  server.registerTool('gmail-delete-message', {
     description: IRREVERSIBLE_NOTICE + 'Permanently deletes a message, bypassing Trash. Cannot be undone.',
     inputSchema: { message_id: z.string().describe('Gmail message ID') },
   }, wrap(deleteMessage));
 
-  server.registerTool('gmail_delete_draft', {
+  server.registerTool('gmail-delete-draft', {
     description: IRREVERSIBLE_NOTICE + 'Permanently deletes a draft. Cannot be undone.',
     inputSchema: { draft_id: z.string().describe('Draft ID') },
   }, wrap(deleteDraft));
 
-  server.registerTool('gmail_delete_label', {
+  server.registerTool('gmail-delete-label', {
     description: IRREVERSIBLE_NOTICE + 'Permanently deletes a user label and removes it from every message it is applied to. Cannot be undone.',
     inputSchema: { label_id: z.string().describe('Label ID') },
   }, wrap(deleteLabel));

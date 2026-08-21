@@ -18,12 +18,12 @@ file_patterns: []
 ### Rule 1: Every Irreversible Gmail Action Requires Its Own Explicit Approval
 
 - Before invoking any of the following tools, the agent must first ask the human an explicit, unambiguous approval question and receive an explicit affirmative response in that same conversation exchange:
-  - **Sending, in any form:** `gmail_send_message`, `gmail_send_draft`, `gmail_reply_message`
-  - **Permanent deletion:** `gmail_delete_message` (bypasses Trash), `gmail_delete_draft`, `gmail_delete_label`
+  - **Sending, in any form:** `gmail-send-message`, `gmail-send-draft`, `gmail-reply-message`
+  - **Permanent deletion:** `gmail-delete-message` (bypasses Trash), `gmail-delete-draft`, `gmail-delete-label`
   - Any future tool added to the `gmail` server with equivalent send or permanent-delete effect
 - The approval question must state exactly what will happen:
   - For sends: recipient(s), subject, and a summary of the body
-  - For permanent deletes: precisely what is being removed and the scope of impact — for `gmail_delete_label` specifically, how many messages currently carry that label, since deleting it strips the label from all of them
+  - For permanent deletes: precisely what is being removed and the scope of impact — for `gmail-delete-label` specifically, how many messages currently carry that label, since deleting it strips the label from all of them
 - A prior general instruction (e.g. "send my emails for me," "clean up my labels") does not satisfy this rule for any individual action. Each call needs its own explicit yes, asked and answered in the turn immediately preceding the tool call.
 - Silence, an unrelated reply, or a previous unrelated "yes" in the conversation does not count as approval.
 
@@ -33,10 +33,10 @@ file_patterns: []
 
 ---
 
-### Rule 2: `gmail_trash_message` and Additive Tools Are Explicitly Not Gated
+### Rule 2: `gmail-trash-message` and Additive Tools Are Explicitly Not Gated
 
-- `gmail_trash_message` (recoverable for 30 days), `gmail_modify_labels`, `gmail_create_draft`, and `gmail_create_label` do not require the explicit-approval question in Rule 1
-- These are reversible or purely additive — trashing is recoverable, and creating a draft or label has no external effect until a separately gated action (send, or `gmail_delete_label`) acts on it
+- `gmail-trash-message` (recoverable for 30 days), `gmail-modify-labels`, `gmail-create-draft`, and `gmail-create-label` do not require the explicit-approval question in Rule 1
+- These are reversible or purely additive — trashing is recoverable, and creating a draft or label has no external effect until a separately gated action (send, or `gmail-delete-label`) acts on it
 
 **Rationale:** Gating every mutating call regardless of consequence would make the tool unusable and would dilute the signal of the approval question for the calls that actually matter. The line is drawn at irreversibility, not at "mutation" in general.
 

@@ -17,31 +17,31 @@ import { createGmailServer } from '../../index.js';
 import { encodeBase64Url } from '../../logic.js';
 
 const ALL_TOOL_NAMES = [
-  'gmail_list_messages',
-  'gmail_get_message',
-  'gmail_get_attachment',
-  'gmail_list_labels',
-  'gmail_list_drafts',
-  'gmail_get_draft',
-  'gmail_modify_labels',
-  'gmail_trash_message',
-  'gmail_create_draft',
-  'gmail_create_label',
-  'gmail_send_message',
-  'gmail_send_draft',
-  'gmail_reply_message',
-  'gmail_delete_message',
-  'gmail_delete_draft',
-  'gmail_delete_label',
+  'gmail-list-messages',
+  'gmail-get-message',
+  'gmail-get-attachment',
+  'gmail-list-labels',
+  'gmail-list-drafts',
+  'gmail-get-draft',
+  'gmail-modify-labels',
+  'gmail-trash-message',
+  'gmail-create-draft',
+  'gmail-create-label',
+  'gmail-send-message',
+  'gmail-send-draft',
+  'gmail-reply-message',
+  'gmail-delete-message',
+  'gmail-delete-draft',
+  'gmail-delete-label',
 ].sort();
 
 const GATED_TOOL_NAMES = [
-  'gmail_send_message',
-  'gmail_send_draft',
-  'gmail_reply_message',
-  'gmail_delete_message',
-  'gmail_delete_draft',
-  'gmail_delete_label',
+  'gmail-send-message',
+  'gmail-send-draft',
+  'gmail-reply-message',
+  'gmail-delete-message',
+  'gmail-delete-draft',
+  'gmail-delete-label',
 ];
 
 function fakeGmailClient() {
@@ -135,22 +135,22 @@ describe('mcp: gmail server protocol layer', () => {
     }
   });
 
-  it('invokes gmail_list_messages and returns shaped JSON', async () => {
-    const result = await client.callTool({ name: 'gmail_list_messages', arguments: { query: 'is:unread' } });
+  it('invokes gmail-list-messages and returns shaped JSON', async () => {
+    const result = await client.callTool({ name: 'gmail-list-messages', arguments: { query: 'is:unread' } });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed.messages, [{ id: 'm1', thread_id: 't1', snippet: 'hi' }]);
   });
 
-  it('invokes gmail_get_message and returns shaped JSON', async () => {
-    const result = await client.callTool({ name: 'gmail_get_message', arguments: { message_id: 'm1' } });
+  it('invokes gmail-get-message and returns shaped JSON', async () => {
+    const result = await client.callTool({ name: 'gmail-get-message', arguments: { message_id: 'm1' } });
     const parsed = JSON.parse(result.content[0].text);
     assert.equal(parsed.id, 'm1');
     assert.equal(parsed.body_text, 'Body');
   });
 
-  it('invokes gmail_send_message (gated tool, invocation itself is unconditional at the protocol layer)', async () => {
+  it('invokes gmail-send-message (gated tool, invocation itself is unconditional at the protocol layer)', async () => {
     const result = await client.callTool({
-      name: 'gmail_send_message',
+      name: 'gmail-send-message',
       arguments: { to: ['a@example.com'], subject: 'Hi', body: 'text' },
     });
     const parsed = JSON.parse(result.content[0].text);
@@ -158,8 +158,8 @@ describe('mcp: gmail server protocol layer', () => {
     assert.equal(gmail.users.messages.send.mock.calls.length, 1);
   });
 
-  it('invokes gmail_delete_label and returns confirmation', async () => {
-    const result = await client.callTool({ name: 'gmail_delete_label', arguments: { label_id: 'L1' } });
+  it('invokes gmail-delete-label and returns confirmation', async () => {
+    const result = await client.callTool({ name: 'gmail-delete-label', arguments: { label_id: 'L1' } });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed, { id: 'L1', deleted: true });
   });
@@ -168,7 +168,7 @@ describe('mcp: gmail server protocol layer', () => {
     gmail.users.messages.get.mock.mockImplementationOnce(async () => {
       throw new Error('simulated API failure');
     });
-    const result = await client.callTool({ name: 'gmail_get_message', arguments: { message_id: 'missing' } });
+    const result = await client.callTool({ name: 'gmail-get-message', arguments: { message_id: 'missing' } });
     assert.equal(result.isError, true);
     const parsed = JSON.parse(result.content[0].text);
     assert.match(parsed.error, /simulated API failure/);

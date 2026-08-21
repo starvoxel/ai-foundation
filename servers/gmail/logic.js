@@ -197,7 +197,7 @@ export function shapeFullDraft(draft) {
 // ── I/O Layer ────────────────────────────────────────────────────────────────
 
 /**
- * Tool: gmail_list_messages
+ * Tool: gmail-list-messages
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ query?: string, label_ids?: string[], max_results?: number, page_token?: string }} params
  */
@@ -216,7 +216,7 @@ export async function listMessages(gmail, { query = '', label_ids, max_results =
 }
 
 /**
- * Tool: gmail_get_message
+ * Tool: gmail-get-message
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, format?: 'full'|'metadata' }} params
  */
@@ -226,7 +226,7 @@ export async function getMessage(gmail, { message_id, format = 'full' }) {
 }
 
 /**
- * Tool: gmail_get_attachment
+ * Tool: gmail-get-attachment
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, attachment_id: string }} params
  */
@@ -246,7 +246,7 @@ export async function getAttachment(gmail, { message_id, attachment_id }) {
 }
 
 /**
- * Tool: gmail_list_labels
+ * Tool: gmail-list-labels
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  */
 export async function listLabels(gmail) {
@@ -257,7 +257,7 @@ export async function listLabels(gmail) {
 }
 
 /**
- * Tool: gmail_list_drafts
+ * Tool: gmail-list-drafts
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ max_results?: number, page_token?: string }} params
  */
@@ -274,7 +274,7 @@ export async function listDrafts(gmail, { max_results = 25, page_token } = {}) {
 }
 
 /**
- * Tool: gmail_get_draft
+ * Tool: gmail-get-draft
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ draft_id: string }} params
  */
@@ -284,7 +284,7 @@ export async function getDraft(gmail, { draft_id }) {
 }
 
 /**
- * Tool: gmail_modify_labels (reversible)
+ * Tool: gmail-modify-labels (reversible)
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, add_label_ids?: string[], remove_label_ids?: string[] }} params
  */
@@ -298,7 +298,7 @@ export async function modifyLabels(gmail, { message_id, add_label_ids = [], remo
 }
 
 /**
- * Tool: gmail_trash_message (reversible — Trash, not permanent delete)
+ * Tool: gmail-trash-message (reversible — Trash, not permanent delete)
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string }} params
  */
@@ -308,7 +308,7 @@ export async function trashMessage(gmail, { message_id }) {
 }
 
 /**
- * Tool: gmail_create_draft (additive, not a send)
+ * Tool: gmail-create-draft (additive, not a send)
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ to: string[], subject: string, body: string, cc?: string[], bcc?: string[] }} params
  */
@@ -319,7 +319,7 @@ export async function createDraft(gmail, params) {
 }
 
 /**
- * Tool: gmail_create_label (additive, reversible via gated gmail_delete_label)
+ * Tool: gmail-create-label (additive, reversible via gated gmail-delete-label)
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ name: string }} params
  */
@@ -329,7 +329,7 @@ export async function createLabel(gmail, { name }) {
 }
 
 /**
- * Tool: gmail_send_message — IRREVERSIBLE. Callers (index.js) must not invoke
+ * Tool: gmail-send-message — IRREVERSIBLE. Callers (index.js) must not invoke
  * this without the human approval required by
  * steering/generic/gmail-irreversible-action-approval.md.
  * @param {import('googleapis').gmail_v1.Gmail} gmail
@@ -342,7 +342,7 @@ export async function sendMessage(gmail, params) {
 }
 
 /**
- * Tool: gmail_send_draft — IRREVERSIBLE. Steering-gated, see sendMessage.
+ * Tool: gmail-send-draft — IRREVERSIBLE. Steering-gated, see sendMessage.
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ draft_id: string }} params
  */
@@ -352,7 +352,7 @@ export async function sendDraft(gmail, { draft_id }) {
 }
 
 /**
- * Tool: gmail_reply_message — IRREVERSIBLE. Steering-gated, see sendMessage.
+ * Tool: gmail-reply-message — IRREVERSIBLE. Steering-gated, see sendMessage.
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, body: string, reply_all?: boolean }} params
  */
@@ -388,7 +388,7 @@ export async function replyMessage(gmail, { message_id, body, reply_all = false 
 }
 
 /**
- * Tool: gmail_delete_message — IRREVERSIBLE (permanent, bypasses Trash).
+ * Tool: gmail-delete-message — IRREVERSIBLE (permanent, bypasses Trash).
  * Steering-gated, see sendMessage.
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string }} params
@@ -399,7 +399,7 @@ export async function deleteMessage(gmail, { message_id }) {
 }
 
 /**
- * Tool: gmail_delete_draft — IRREVERSIBLE (permanent). Steering-gated, see sendMessage.
+ * Tool: gmail-delete-draft — IRREVERSIBLE (permanent). Steering-gated, see sendMessage.
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ draft_id: string }} params
  */
@@ -409,7 +409,7 @@ export async function deleteDraft(gmail, { draft_id }) {
 }
 
 /**
- * Tool: gmail_delete_label — IRREVERSIBLE (permanent, removes label from
+ * Tool: gmail-delete-label — IRREVERSIBLE (permanent, removes label from
  * every message it's applied to). Steering-gated, see sendMessage.
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ label_id: string }} params
