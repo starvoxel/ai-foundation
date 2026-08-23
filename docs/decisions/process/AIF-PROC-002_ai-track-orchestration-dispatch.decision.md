@@ -4,20 +4,23 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-005 |
+| Decision ID | AIF-PROC-002 |
 | Project | ai-foundation |
+| Tier | A |
+| Domain | process |
 | Status | Approved |
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-08-13 |
-| Referenced By | AIF-007, AIF-009, AIF-010 |
-| References | AIF-004 |
+| Referenced By | AIF-PROC-004, AIF-PROC-005, AIF-PROC-006 |
+| References | AIF-PROC-001 |
+| Tags | orchestration, dual-track, dispatch |
 
 ---
 
 ## Problem Statement
 
-AIF-004 established that `ai-foundation` work splits into two tracks: declarative AI components (owned by AI-Engineer) and application code in `bin/`/`lib/` (owned by Software-Engineer, planned via Tech-Lead's Epic/Chunk process). But chunk orchestration is still single-track: `chunk-orchestration`'s dispatch logic (Step 2)
+AIF-PROC-001 established that `ai-foundation` work splits into two tracks: declarative AI components (owned by AI-Engineer) and application code in `bin/`/`lib/` (owned by Software-Engineer, planned via Tech-Lead's Epic/Chunk process). But chunk orchestration is still single-track: `chunk-orchestration`'s dispatch logic (Step 2)
 always dispatches Software-Engineer, and its monitored pipeline (Step 3) is hardcoded SE → TE → PE. Its own edge cases explicitly list "AI component authoring" as an example of "out-of-domain work" that gets `Blocked` and escalated to a human, rather than routed to AI-Engineer. This means a single Epic cannot currently contain both AI-track and software-track chunks and have both dispatch automatically — even though `chunks.json` already has an `agents` field per chunk that is structurally capable of expressing this split.
 
 ---
@@ -42,7 +45,7 @@ What was a preference but not a hard requirement:
 `chunk-orchestration` gains a branch in Step 2/3: if `agents` is `["AI-Engineer"]`, dispatch AI-Engineer instead of Software-Engineer, but keep Test-Engineer and Principal-Engineer in the pipeline unchanged.
 **Strengths**: Minimal new concepts — one plan schema, one universal pipeline shape.
 Principal-Engineer stays the single quality gate across all work.
-**Weaknesses**: Tech-Lead ends up writing "components/interfaces" detail for AGENTS.md schema changes it has no particular expertise in, conflicting with the escalate-to-the-right-owner principle already established for this repo (AIF-004).
+**Weaknesses**: Tech-Lead ends up writing "components/interfaces" detail for AGENTS.md schema changes it has no particular expertise in, conflicting with the escalate-to-the-right-owner principle already established for this repo (AIF-PROC-001).
 Test-Engineer in the pipeline for declarative changes has nothing meaningful to test (there's no separate runtime test suite for prompt/schema content beyond the validation tests AI-Engineer already runs itself).
 
 ### Option B: Dual-authorship, track-appropriate plan and pipeline
@@ -53,7 +56,7 @@ AI-Engineer then authors that chunk's own plan — using `skill/complexity-tiers
 `chunk-orchestration` Step 2 dispatches by the chunk's `agents` field: AI-track chunks go to AI-Engineer; software-track chunks go to Software-Engineer as today.
 Step 3's pipeline branches too: AI-track = AI-Engineer implements + self-validates → Principal-Engineer review → Done (Test-Engineer skipped — AI-Engineer's own hard rule already requires running validation tests before declaring work complete).
 Software-track pipeline is unchanged (SE → TE → PE).
-**Strengths**: Each agent authors the plan for its own domain, matching AIF-004 and the escalation principle already in effect. Reuses the `agents` field exactly as `chunks-schema.md` already documents it — no schema change required. Preserves DAG dependency automation and parallel wave dispatch across both tracks in one Epic.
+**Strengths**: Each agent authors the plan for its own domain, matching AIF-PROC-001 and the escalation principle already in effect. Reuses the `agents` field exactly as `chunks-schema.md` already documents it — no schema change required. Preserves DAG dependency automation and parallel wave dispatch across both tracks in one Epic.
 Principal-Engineer remains the review gate for both tracks (schema/cross-reference review for AI-track, code review for software-track), so "never skip the quality pipeline" still holds — only the track-specific *tester* step is skipped, not review.
 **Weaknesses**: `chunk-orchestration` and `chunk-planning` need branching logic (track-aware dispatch and track-aware plan authorship) added — real, if bounded, work. Two plan schemas now exist under one Epic, so anyone reading `chunks.json` must check `agents` to know which plan format to expect at a chunk's path.
 
@@ -70,7 +73,7 @@ and a plain-text "AI Component Work" list handled entirely outside orchestration
 
 **Chosen approach**: Option B — dual-authorship, track-appropriate plan and pipeline, dispatched via the chunk's existing `agents` field.
 
-**Rationale**: The `agents` field in `chunks.json` already exists specifically to assign "appropriate agent(s) to each chunk" (per `chunks-schema.md` Step 5) — the gap is purely that `chunk-orchestration` never reads it for dispatch or pipeline selection, and its "out-of-domain" edge case actively blocks the exact work AIF-004 just brought in-scope. Fixing dispatch to honor the field it already has is smaller and more consistent than either forcing one plan format on both tracks (Option A) or abandoning DAG automation (Option C). Keeping Principal-Engineer as the review gate for both tracks (just varying what precedes it) preserves "never skip the quality pipeline" without forcing Test-Engineer to review artifacts it has nothing to meaningfully test.
+**Rationale**: The `agents` field in `chunks.json` already exists specifically to assign "appropriate agent(s) to each chunk" (per `chunks-schema.md` Step 5) — the gap is purely that `chunk-orchestration` never reads it for dispatch or pipeline selection, and its "out-of-domain" edge case actively blocks the exact work AIF-PROC-001 just brought in-scope. Fixing dispatch to honor the field it already has is smaller and more consistent than either forcing one plan format on both tracks (Option A) or abandoning DAG automation (Option C). Keeping Principal-Engineer as the review gate for both tracks (just varying what precedes it) preserves "never skip the quality pipeline" without forcing Test-Engineer to review artifacts it has nothing to meaningfully test.
 
 **Trade-offs accepted**:
 - `chunk-orchestration`, `chunk-planning`, and `epic-planning` all need edits to become track-aware. This is real implementation work, tracked as its own planned change (see Impact on Planning) — not done as part of this Decision Record.
@@ -81,8 +84,8 @@ and a plain-text "AI Component Work" list handled entirely outside orchestration
 ## Impact on Planning
 
 - A Chunk Plan (or Tier-appropriate ai-foundation-internal plan) is needed to implement the `chunk-orchestration`/`chunk-planning`/`epic-planning` changes:
-  track-aware dispatch in Step 2, track-aware pipeline in Step 3, and removal/rewrite of the "AI component authoring is out-of-domain" edge case. This is `bin`/`lib`-adjacent process work, not application code — it should be planned by Tech-Lead as a normal Epic (the skills being modified are declarative components, so implementation is AI-Engineer's, per AIF-004).
-- See AIF-009 for the related (but separate) decision on how orchestrated chunks — from either track — interact with this repo's git workflow mode.
+  track-aware dispatch in Step 2, track-aware pipeline in Step 3, and removal/rewrite of the "AI component authoring is out-of-domain" edge case. This is `bin`/`lib`-adjacent process work, not application code — it should be planned by Tech-Lead as a normal Epic (the skills being modified are declarative components, so implementation is AI-Engineer's, per AIF-PROC-001).
+- See AIF-PROC-005 for the related (but separate) decision on how orchestrated chunks — from either track — interact with this repo's git workflow mode.
 
 ---
 

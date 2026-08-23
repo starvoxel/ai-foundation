@@ -4,13 +4,17 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-004 |
+| Decision ID | AIF-PROC-001 |
 | Project | ai-foundation |
+| Tier | A |
+| Domain | process |
 | Status | Approved |
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-08-13 |
-| Referenced By | AIF-005, AIF-007, AIF-009 |
+| Referenced By | AIF-PROC-002, AIF-PROC-004, AIF-PROC-005, AIF-PROC-006 |
+| References | — |
+| Tags | boundary, ownership, application-code |
 
 ---
 
