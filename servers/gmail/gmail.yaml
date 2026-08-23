@@ -56,7 +56,7 @@ tools:
     inputs:
       - "query (string): Gmail search query restricting which messages to aggregate, e.g. 'after:2025/01/01 before:2025/07/01 in:inbox' [optional, default: '']"
       - "max_senders (number): Maximum number of senders to return, ranked by message count descending [optional, default: 50]"
-    outputs: "JSON object: { senders: { sender: string, domain: string, count: number, sample_subjects: string[] }[] }. sample_subjects holds up to 5 distinct subjects per sender so a sender spanning multiple categories (e.g. an investment firm sending both tax slips and promotions) shows that split in one pass."
+    outputs: "JSON object: { senders: { sender: string, domain: string, count: number, sample_subjects: string[] }[], truncated: boolean }. sample_subjects holds up to 5 distinct subjects per sender so a sender spanning multiple categories (e.g. an investment firm sending both tax slips and promotions) shows that split in one pass. truncated is true if the query matched more messages than this tool's internal per-call scan cap (5000) — pass a narrower query (e.g. a shorter date range) for a complete picture."
 
   # ── Safe-mutating (reversible/additive, ungated) ────────────────────────
   - name: "gmail-modify-labels"
