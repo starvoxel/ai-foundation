@@ -12,7 +12,7 @@
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-08-13 |
-| Referenced By | AIF-PROC-002, AIF-PROC-004, AIF-PROC-005 |
+| Referenced By | AIF-PROC-002, AIF-PROC-004, AIF-PROC-005, AIF-PROC-006 |
 | References | — |
 | Tags | boundary, ownership, application-code |
 
