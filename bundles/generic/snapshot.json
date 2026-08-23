@@ -1,0 +1,8 @@
+{
+  "bundle": "generic",
+  "version": "0.1.0",
+  "computed_at": "2026-08-23T23:22:36.072Z",
+  "sources": {
+    "steering/generic/gmail-irreversible-action-approval.md": "sha256:dd817fa289a52436c471b477da10497bb8b3b379efef359974fd38d349f5e9ab"
+  }
+}
