@@ -4,13 +4,17 @@
 
 | Field | Value |
 |---|---|
-| Decision ID | AIF-011 |
+| Decision ID | AIF-PLAN-001 |
 | Project | ai-foundation |
+| Tier | A |
+| Domain | planning |
 | Status | Approved |
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-08-13 |
-| Referenced By | None yet — will govern the Epic implementing this change |
+| Referenced By | AIF-META-001 |
+| References | — |
+| Tags | epic-chunk-colocation, worklog-split, plan-lifecycle |
 
 ---
 
