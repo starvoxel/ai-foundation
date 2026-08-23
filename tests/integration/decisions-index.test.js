@@ -20,6 +20,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { runIndex, resolveDecisionsPath } from '../../lib/commands/index.js';
+import { parseArgs } from '../../bin/aif.js';
 
 function decisionFixture({ id, tier = 'A', domain = 'architecture', status = 'Approved', references = '—', title }) {
   return `# Decision Record: ${title}
@@ -190,6 +191,43 @@ describe('integration: decision index', () => {
     );
     assert.equal(code, 1);
     assert.ok(output.length > 0);
+  });
+
+  it('end-to-end: `aif index -d` (short flag, via the real bin/aif.js parseArgs) '
+    + 'is recognized the same way `--decision` is (Test-Engineer gap coverage, '
+    + 'added post-implementation — see AIF-002-014 Test Results Report)', async () => {
+    const decisionsDir = join(projectRoot, 'docs', 'decisions');
+    mkdirSync(decisionsDir, { recursive: true });
+    writeFileSync(
+      join(projectRoot, '.aiconfig.json'),
+      JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
+      'utf8',
+    );
+    writeFileSync(
+      join(decisionsDir, 'AIF-ARCH-001.decision.md'),
+      decisionFixture({ id: 'AIF-ARCH-001', title: 'First Decision' }),
+      'utf8',
+    );
+
+    // This mirrors exactly what a real user typing `aif index -d` triggers:
+    // bin/aif.js's parseArgs(process.argv.slice(2)) feeding runIndex's
+    // `parsed` argument — not a hand-built { args: { d: true } } object like
+    // every other test in this file uses.
+    const parsed = parseArgs(['index', '-d']);
+    const { code } = await quiet(() => runIndex(parsed, projectRoot));
+
+    assert.equal(
+      code,
+      0,
+      'Expected `aif index -d` (short flag) to generate the decision index, '
+      + 'same as `--decision` does. bin/aif.js\'s parseArgs() only recognizes '
+      + 'double-dash (--decision/--knowledge) flags — single-dash short flags '
+      + '(-d/-k) are captured as positional arguments instead of args.d/args.k, '
+      + 'so parsed.args.d is undefined and runIndex() falls through to the '
+      + 'no-flag usage error. Every other test in this file bypasses this bug '
+      + 'by hand-constructing `{ args: { d: true } }` directly, never going '
+      + 'through the real CLI argument parser end-to-end.',
+    );
   });
 
   describe('DEC-IT07: resolveDecisionsPath fallback derivation', () => {
