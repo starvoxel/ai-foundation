@@ -14,13 +14,21 @@
     { "id": "008", "wave": 0, "status": "Done", "branch": "AIF-002/008-aiconfig-paths-decisions", "worktree_path": "", "pr_number": 4, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/4", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "009", "wave": 0, "status": "Done", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "", "pr_number": 8, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/8", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "010", "wave": 1, "status": "Done", "branch": "AIF-002/010-migrate-aif-006", "worktree_path": "../worktrees/ai-foundation/AIF-002/010-migrate-aif-006", "pr_number": 13, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/13", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "011", "wave": 1, "status": "Done", "branch": "AIF-002/011-migrate-aif-008", "worktree_path": "../worktrees/ai-foundation/AIF-002/011-migrate-aif-008", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "012", "wave": 1, "status": "Done", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": null, "pr_url": null, "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "013", "wave": 1, "status": "Done", "branch": "AIF-002/013-migrate-aif-011", "worktree_path": "../worktrees/ai-foundation/AIF-002/013-migrate-aif-011", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "011", "wave": 1, "status": "Done", "branch": "AIF-002/011-migrate-aif-008", "worktree_path": "../worktrees/ai-foundation/AIF-002/011-migrate-aif-008", "pr_number": 15, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/15", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "012", "wave": 1, "status": "Done", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": 16, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/16", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "013", "wave": 1, "status": "Done", "branch": "AIF-002/013-migrate-aif-011", "worktree_path": "../worktrees/ai-foundation/AIF-002/013-migrate-aif-011", "pr_number": 14, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/14", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "014", "wave": 1, "status": "Testing", "branch": "AIF-002/014-aif-index-decisions-cli", "worktree_path": "../worktrees/ai-foundation/AIF-002/014-aif-index-decisions-cli", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
-  "escalations": [],
+  "escalations": [
+    {
+      "timestamp": "2026-08-23T00:15:00Z",
+      "type": "security",
+      "chunk_id": "012",
+      "status": "open",
+      "details": "ai-git push argument-reordering bug (push -u / push ... -u) echoed the live AI_GIT_TOKEN in an authenticated URL to stdout and persisted it into a worktree's local .git/config during PR creation for chunk 012. Self-remediated locally (config reset to origin, no token string remains in that worktree). This is the second confirmed occurrence (first: 2026-08-18, chunks 001/002/004/008, which led to a token rotation that day) and the bug in lib/ai-git.js has not been fixed since. Needs human decision: (1) rotate AI_GIT_TOKEN again, and (2) whether to authorize a chunk plan to fix lib/ai-git.js's push-argument handling (Software-Engineer domain per AIF-PROC-001)."
+    }
+  ],
   "log": [
     {
       "timestamp": "2026-08-14T00:00:00Z",
@@ -392,6 +400,27 @@
       "action": "wave_started",
       "chunk_id": null,
       "details": "Dispatched AI-Engineer to create PRs for chunks 011, 012, 013 (all Done/PE-approved, no PR yet). Dispatched Test-Engineer for chunk 014 (SE implementation complete, 510/510 self-reported, standard SE->TE->PE pipeline)."
+    },
+    {
+      "timestamp": "2026-08-23T00:10:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "013",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/14. No push needed (branch already matched origin at commits 1ec36ae/fa3b123/f4beed2/572808b). Body notes PE approval with 2 non-blocking MEDIUM findings, both already fixed in-branch by commit 572808b. Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-23T00:12:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "011",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/15. No push needed (branch already matched origin at commit e49b0d1). Body notes PE approval and the one non-blocking LOW finding (Test M011-T05 wording inconsistency -- plan-authoring defect, not implementation). Awaiting human merge."
+    },
+    {
+      "timestamp": "2026-08-23T00:15:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "012",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/16 (head commit e807354). SECURITY INCIDENT during creation: `ai-git gh-pr-create` initially failed with 'branch has no upstream', so the agent used the documented workaround `ai-git push origin <branch> -u` (flag after branch name) -- this reproduced the known ai-git push arg-reordering bug (previously seen at chunks 001/002/004/008 on 2026-08-18, leading to a token rotation that day): it echoed an authenticated URL containing the live AI_GIT_TOKEN to stdout AND persisted that token-embedded URL into the worktree's local .git/config under `branch.<name>.remote` (should be `origin`). Agent self-remediated immediately: reset the local git config value to the correct `origin` (a local, untracked git-metadata fix, not a repo file change) and verified no token string remains in that worktree's config. PR creation then succeeded. ESCALATING to human per global-core Rule 3 (security requirements never optional) and steering precedent (chunk 002, 2026-08-18): the underlying ai-git bug is still live 5 days after the prior token rotation and has now leaked a token a second time. Recommending human decide whether to rotate AI_GIT_TOKEN again and whether to open a chunk plan to fix the bug in lib/ai-git.js (Software-Engineer domain per AIF-PROC-001) rather than continuing to rely on the push-argument-order workaround. Holding no further dispatch on this pending human reply -- Wave 1's remaining action (chunk 014's Test-Engineer result) is unaffected and continues independently."
     }
   ]
 }
