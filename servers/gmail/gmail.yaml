@@ -46,6 +46,18 @@ tools:
       - "draft_id (string): Draft ID"
     outputs: "JSON object: { draft_id, message_id, to, cc, subject, body_text }."
 
+  - name: "gmail-list-filters"
+    description: "Lists all existing Gmail filters (auto-apply-label rules). Check this before creating a new filter to avoid duplicates."
+    inputs: []
+    outputs: "JSON object: { filters: { id: string, criteria: object, action: object }[] }."
+
+  - name: "gmail-sender-report"
+    description: "Convenience/discovery tool, not a dependency of any other tool: aggregates messages matching a query by sender, so a categorization pass can see 'who sends what, how often' as one compact summary instead of reading messages one at a time. Fetches header metadata only (From/Subject) — never message bodies. If this tool is ever removed, the same result can still be obtained by paging gmail-list-messages and calling gmail-get-message (format: 'metadata') per message."
+    inputs:
+      - "query (string): Gmail search query restricting which messages to aggregate, e.g. 'after:2025/01/01 before:2025/07/01 in:inbox' [optional, default: '']"
+      - "max_senders (number): Maximum number of senders to return, ranked by message count descending [optional, default: 50]"
+    outputs: "JSON object: { senders: { sender: string, domain: string, count: number, sample_subjects: string[] }[] }. sample_subjects holds up to 5 distinct subjects per sender so a sender spanning multiple categories (e.g. an investment firm sending both tax slips and promotions) shows that split in one pass."
+
   # ── Safe-mutating (reversible/additive, ungated) ────────────────────────
   - name: "gmail-modify-labels"
     description: "Adds and/or removes labels on a message. Covers archive (remove INBOX), mark read/unread (remove/add UNREAD), and star (add/remove STARRED). Reversible — does not send or permanently delete anything."
@@ -76,6 +88,37 @@ tools:
     inputs:
       - "name (string): Label name, e.g. 'Project X' or nested 'Project X/Invoices'"
     outputs: "JSON object: { id, name }."
+
+  - name: "gmail-create-filter"
+    description: "Creates a Gmail filter (auto-apply-label rule). Only affects future mail — does not retroactively apply to existing messages; use gmail-batch-modify-labels with a matching search query to backfill history. Additive and reversible via gmail-delete-filter."
+    inputs:
+      - "from (string): Match sender address [optional]"
+      - "to (string): Match recipient address [optional]"
+      - "subject (string): Match subject text [optional]"
+      - "query (string): Raw Gmail search string to match [optional]"
+      - "negated_query (string): Raw Gmail search string that must NOT match [optional]"
+      - "has_attachment (boolean): Match only messages with an attachment [optional]"
+      - "exclude_chats (boolean): Exclude chat messages from matching [optional]"
+      - "size (number): Match messages by size in bytes, used with size_comparison [optional]"
+      - "size_comparison (string): 'larger' or 'smaller', paired with size [optional]"
+      - "add_label_ids (array): Label IDs to apply to matching messages [optional]"
+      - "remove_label_ids (array): Label IDs to remove from matching messages [optional]"
+      - "forward (string): Email address to forward matching messages to [optional]"
+    outputs: "JSON object: { id, criteria, action } reflecting the created filter."
+
+  - name: "gmail-delete-filter"
+    description: "Deletes a Gmail filter. Removes the rule only — does not affect labels already applied to messages by that rule while it existed. Additive/reversible in effect since the filter can simply be recreated with gmail-create-filter; not gated by the irreversible-action approval steering."
+    inputs:
+      - "filter_id (string): Filter ID from gmail-list-filters or gmail-create-filter's output"
+    outputs: "JSON object: { id, deleted: true }."
+
+  - name: "gmail-batch-modify-labels"
+    description: "Adds and/or removes labels across many messages in one call. Chunks internally at the underlying Gmail API's 1000-message-per-call limit, so any number of message_ids may be passed. Reversible — does not send or permanently delete anything. Pairs with gmail-create-filter to backfill a filter's criteria across existing history."
+    inputs:
+      - "message_ids (array): Gmail message IDs to modify"
+      - "add_label_ids (array): Label IDs to add [optional]"
+      - "remove_label_ids (array): Label IDs to remove [optional]"
+    outputs: "JSON object: { modified_count: number, label_ids_added: string[], label_ids_removed: string[] }."
 
   # ── Gated — irreversible (see steering/generic/gmail-irreversible-action-approval.md) ──
   - name: "gmail-send-message"
