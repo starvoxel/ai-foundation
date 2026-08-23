@@ -25,6 +25,10 @@ describe('unit: snapshot/isRuntimeFile', () => {
     assert.equal(isRuntimeFile('index.js'), true);
     assert.equal(isRuntimeFile('lib/logic.js'), true);
   });
+
+  it('excludes the resource\'s own snapshot.json to avoid self-reference', () => {
+    assert.equal(isRuntimeFile('snapshot.json'), false);
+  });
 });
 
 // ── resolveExplicitTargets ───────────────────────────────────────────────────
