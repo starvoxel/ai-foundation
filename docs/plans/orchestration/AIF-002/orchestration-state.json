@@ -15,7 +15,7 @@
     { "id": "009", "wave": 0, "status": "Done", "branch": "AIF-002/009-migrate-aif-001-003", "worktree_path": "", "pr_number": 8, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/8", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "010", "wave": 1, "status": "Done", "branch": "AIF-002/010-migrate-aif-006", "worktree_path": "../worktrees/ai-foundation/AIF-002/010-migrate-aif-006", "pr_number": 13, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/13", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "011", "wave": 1, "status": "Done", "branch": "AIF-002/011-migrate-aif-008", "worktree_path": "../worktrees/ai-foundation/AIF-002/011-migrate-aif-008", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "012", "wave": 1, "status": "Reviewing", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": null, "pr_url": null, "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "012", "wave": 1, "status": "Done", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": null, "pr_url": null, "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "013", "wave": 1, "status": "Done", "branch": "AIF-002/013-migrate-aif-011", "worktree_path": "../worktrees/ai-foundation/AIF-002/013-migrate-aif-011", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "014", "wave": 1, "status": "Testing", "branch": "AIF-002/014-aif-index-decisions-cli", "worktree_path": "../worktrees/ai-foundation/AIF-002/014-aif-index-decisions-cli", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
@@ -378,6 +378,20 @@
       "action": "chunk_status_changed",
       "chunk_id": "012",
       "details": "Resumed session. Determined the CRITICAL finding's underlying confirmation was genuine (same firsthand human chat statement already used correctly for chunk 013's commit f4beed2, per the 2026-08-20T00:20:00Z escalation_resolved entry), so did not need a fresh human decision -- applied the established chunk-013 remediation pattern directly: did not revert commit f25a6c4 (its content change is correct), instead appended a corrective Work Log entry re-attributing the confirmation to Engineering-Manager's firsthand record rather than the false 'reviewed via the PR' claim. Also fixed the HIGH finding: added AIF-PROC-006 to AIF-PROC-001's Referenced By field. Verified npm test 490/490 passing. Committed e807354, pushed to origin/AIF-002/012-migrate-aif-004-005-007-009-010. Status -> Reviewing (iterations remains 1). Dispatching Principal-Engineer for re-review."
+    },
+    {
+      "timestamp": "2026-08-23T00:05:00Z",
+      "agent": "Principal-Engineer",
+      "action": "review_completed",
+      "chunk_id": "012",
+      "details": "Re-review verdict: APPROVED. Confirmed the 2026-08-23 Work Log entry is correctly attributed to [Engineering-Manager] (not [AI-Engineer]), no longer claims a PR review occurred, and accurately re-grounds the confirmation in EM's firsthand chat record without reverting f25a6c4's correct content. Confirmed AIF-PROC-001's Referenced By now includes AIF-PROC-006 and manually re-checked bidirectional consistency (Test M12-T03) across the full 5-record cluster (001<->002, 001<->004, 001<->005, 001<->006, 002<->004, 002<->005, 002<->006, 004<->005) -- all consistent, no new issues introduced. Reviewer toolset had no shell access this session so did not independently re-run git log to re-verify the two-commit Draft->Approved sequence; relied on Work Log git-hash citations and file-content evidence, judged sufficient (not blocking). Status -> Done."
+    },
+    {
+      "timestamp": "2026-08-23T00:06:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Dispatched AI-Engineer to create PRs for chunks 011, 012, 013 (all Done/PE-approved, no PR yet). Dispatched Test-Engineer for chunk 014 (SE implementation complete, 510/510 self-reported, standard SE->TE->PE pipeline)."
     }
   ]
 }
