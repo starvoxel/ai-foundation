@@ -34,6 +34,11 @@ import {
   deleteMessage,
   deleteDraft,
   deleteLabel,
+  listFilters,
+  createFilter,
+  deleteFilter,
+  batchModifyLabels,
+  senderReport,
 } from '../../logic.js';
 
 import {
@@ -73,6 +78,7 @@ function fakeGmailClient() {
         attachments: {
           get: mock.fn(async () => ({ data: { data: encodeBase64Url('filedata'), size: 8 } })),
         },
+        batchModify: mock.fn(async () => ({ data: {} })),
       },
       labels: {
         list: mock.fn(async () => ({ data: { labels: [{ id: 'L1', name: 'Work', type: 'user' }] } })),
@@ -97,6 +103,13 @@ function fakeGmailClient() {
         create: mock.fn(async () => ({ data: { id: 'd2', message: { id: 'm3' } } })),
         send: mock.fn(async () => ({ data: { id: 'sent2', threadId: 't2' } })),
         delete: mock.fn(async () => ({ data: {} })),
+      },
+      settings: {
+        filters: {
+          list: mock.fn(async () => ({ data: { filter: [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } }] } })),
+          create: mock.fn(async () => ({ data: { id: 'f2', criteria: { subject: 'Invoice' }, action: { addLabelIds: ['L2'] } } })),
+          delete: mock.fn(async () => ({ data: {} })),
+        },
       },
     },
   };
@@ -213,6 +226,99 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
     const result = await deleteLabel(gmail, { label_id: 'L1' });
     assert.equal(gmail.users.labels.delete.mock.calls.length, 1);
     assert.deepEqual(result, { id: 'L1', deleted: true });
+  });
+
+  it('listFilters shapes the filter list to snake_case', async () => {
+    const result = await listFilters(gmail);
+    assert.deepEqual(result, { filters: [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } }] });
+  });
+
+  it('createFilter builds criteria/action and shapes the created filter', async () => {
+    const result = await createFilter(gmail, { subject: 'Invoice', add_label_ids: ['L2'] });
+    const callArgs = gmail.users.settings.filters.create.mock.calls[0].arguments[0];
+    assert.deepEqual(callArgs.requestBody, { criteria: { subject: 'Invoice' }, action: { addLabelIds: ['L2'] } });
+    assert.deepEqual(result, { id: 'f2', criteria: { subject: 'Invoice' }, action: { add_label_ids: ['L2'] } });
+  });
+
+  it('deleteFilter calls the delete API and returns confirmation', async () => {
+    const result = await deleteFilter(gmail, { filter_id: 'f1' });
+    assert.equal(gmail.users.settings.filters.delete.mock.calls[0].arguments[0].id, 'f1');
+    assert.deepEqual(result, { id: 'f1', deleted: true });
+  });
+
+  it('batchModifyLabels sends a single batchModify call for message counts under the chunk limit', async () => {
+    const result = await batchModifyLabels(gmail, { message_ids: ['m1', 'm2'], add_label_ids: ['L1'] });
+    assert.equal(gmail.users.messages.batchModify.mock.calls.length, 1);
+    assert.deepEqual(result, { modified_count: 2, label_ids_added: ['L1'], label_ids_removed: [] });
+  });
+
+  it('batchModifyLabels chunks across the 1000-id API limit', async () => {
+    const messageIds = Array.from({ length: 1500 }, (_, i) => `m${i}`);
+    const result = await batchModifyLabels(gmail, { message_ids: messageIds, remove_label_ids: ['UNREAD'] });
+    assert.equal(gmail.users.messages.batchModify.mock.calls.length, 2);
+    assert.equal(gmail.users.messages.batchModify.mock.calls[0].arguments[0].requestBody.ids.length, 1000);
+    assert.equal(gmail.users.messages.batchModify.mock.calls[1].arguments[0].requestBody.ids.length, 500);
+    assert.deepEqual(result, { modified_count: 1500, label_ids_added: [], label_ids_removed: ['UNREAD'] });
+  });
+
+  it('senderReport pages messages, fetches metadata-only, and aggregates by sender', async () => {
+    gmail.users.messages.list = mock.fn(async () => ({
+      data: { messages: [{ id: 'm1' }, { id: 'm2' }], nextPageToken: null },
+    }));
+    gmail.users.messages.get = mock.fn(async ({ id }) => ({
+      data: {
+        payload: {
+          headers: [
+            { name: 'From', value: 'a@b.com' },
+            { name: 'Subject', value: id === 'm1' ? 'Tax slip' : 'Promo' },
+          ],
+        },
+      },
+    }));
+    const result = await senderReport(gmail, { query: 'after:2025/01/01', max_senders: 10 });
+    // Every messages.get call must request metadata only, never a full body.
+    for (const call of gmail.users.messages.get.mock.calls) {
+      assert.equal(call.arguments[0].format, 'metadata');
+      assert.deepEqual(call.arguments[0].metadataHeaders, ['From', 'Subject']);
+    }
+    assert.deepEqual(result, {
+      senders: [{ sender: 'a@b.com', domain: 'b.com', count: 2, sample_subjects: ['Tax slip', 'Promo'] }],
+      truncated: false,
+    });
+  });
+
+  it('senderReport retries a rate-limited metadata fetch and still returns correct results', async () => {
+    let attempts = 0;
+    gmail.users.messages.list = mock.fn(async () => ({
+      data: { messages: [{ id: 'm1' }], nextPageToken: null },
+    }));
+    gmail.users.messages.get = mock.fn(async () => {
+      attempts += 1;
+      if (attempts === 1) {
+        const err = new Error('rate limited');
+        err.code = 429;
+        throw err;
+      }
+      return { data: { payload: { headers: [{ name: 'From', value: 'a@b.com' }, { name: 'Subject', value: 'x' }] } } };
+    });
+    const result = await senderReport(gmail, { query: 'in:inbox' });
+    assert.equal(attempts, 2);
+    assert.equal(result.senders[0].count, 1);
+  });
+
+  it('senderReport stops scanning at the internal cap and reports truncated: true', async () => {
+    let page = 0;
+    gmail.users.messages.list = mock.fn(async () => {
+      page += 1;
+      const messages = Array.from({ length: 500 }, (_, i) => ({ id: `m${page}-${i}` }));
+      return { data: { messages, nextPageToken: 'always-more' } }; // simulates an unbounded query
+    });
+    gmail.users.messages.get = mock.fn(async ({ id }) => ({
+      data: { payload: { headers: [{ name: 'From', value: `${id}@example.com` }, { name: 'Subject', value: 'x' }] } },
+    }));
+    const result = await senderReport(gmail, { query: '', max_senders: 5 });
+    assert.equal(result.truncated, true);
+    assert.ok(result.senders.length <= 5);
   });
 });
 

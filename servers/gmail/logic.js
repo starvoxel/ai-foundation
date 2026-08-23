@@ -143,6 +143,188 @@ export function base64UrlToUtf8(base64url) {
   return Buffer.from(padded, 'base64').toString('utf-8');
 }
 
+// ── Pure Logic: filter criteria/action shaping ──────────────────────────────
+// Plan ID: docs/plans/gmail-filter-and-batch-tools-plan.md
+
+/**
+ * Build the Gmail API's `criteria` object from the tool's snake_case inputs.
+ * Undefined fields are omitted rather than sent as null/false.
+ * @param {{ from?: string, to?: string, subject?: string, query?: string, negated_query?: string, has_attachment?: boolean, exclude_chats?: boolean, size?: number, size_comparison?: 'larger'|'smaller'|'unspecified' }} params
+ * @returns {object}
+ */
+export function buildFilterCriteria({
+  from, to, subject, query, negated_query, has_attachment, exclude_chats, size, size_comparison,
+} = {}) {
+  const criteria = {};
+  if (from !== undefined) criteria.from = from;
+  if (to !== undefined) criteria.to = to;
+  if (subject !== undefined) criteria.subject = subject;
+  if (query !== undefined) criteria.query = query;
+  if (negated_query !== undefined) criteria.negatedQuery = negated_query;
+  if (has_attachment !== undefined) criteria.hasAttachment = has_attachment;
+  if (exclude_chats !== undefined) criteria.excludeChats = exclude_chats;
+  if (size !== undefined) criteria.size = size;
+  if (size_comparison !== undefined) criteria.sizeComparison = size_comparison;
+  return criteria;
+}
+
+/**
+ * Build the Gmail API's `action` object from the tool's snake_case inputs.
+ * @param {{ add_label_ids?: string[], remove_label_ids?: string[], forward?: string }} params
+ * @returns {object}
+ */
+export function buildFilterAction({ add_label_ids, remove_label_ids, forward } = {}) {
+  const action = {};
+  if (add_label_ids !== undefined) action.addLabelIds = add_label_ids;
+  if (remove_label_ids !== undefined) action.removeLabelIds = remove_label_ids;
+  if (forward !== undefined) action.forward = forward;
+  return action;
+}
+
+/**
+ * Shape a Gmail API `criteria` object back to the tool's snake_case output.
+ * @param {object} criteria
+ * @returns {object}
+ */
+export function shapeFilterCriteriaOut(criteria = {}) {
+  const out = {};
+  if (criteria.from !== undefined) out.from = criteria.from;
+  if (criteria.to !== undefined) out.to = criteria.to;
+  if (criteria.subject !== undefined) out.subject = criteria.subject;
+  if (criteria.query !== undefined) out.query = criteria.query;
+  if (criteria.negatedQuery !== undefined) out.negated_query = criteria.negatedQuery;
+  if (criteria.hasAttachment !== undefined) out.has_attachment = criteria.hasAttachment;
+  if (criteria.excludeChats !== undefined) out.exclude_chats = criteria.excludeChats;
+  if (criteria.size !== undefined) out.size = criteria.size;
+  if (criteria.sizeComparison !== undefined) out.size_comparison = criteria.sizeComparison;
+  return out;
+}
+
+/**
+ * Shape a Gmail API `action` object back to the tool's snake_case output.
+ * @param {object} action
+ * @returns {object}
+ */
+export function shapeFilterActionOut(action = {}) {
+  const out = {};
+  if (action.addLabelIds !== undefined) out.add_label_ids = action.addLabelIds;
+  if (action.removeLabelIds !== undefined) out.remove_label_ids = action.removeLabelIds;
+  if (action.forward !== undefined) out.forward = action.forward;
+  return out;
+}
+
+/**
+ * Shape a full Gmail API filter resource into the tool's documented output.
+ * @param {{ id: string, criteria?: object, action?: object }} filter
+ * @returns {{ id: string, criteria: object, action: object }}
+ */
+export function shapeFilter(filter) {
+  return {
+    id: filter.id,
+    criteria: shapeFilterCriteriaOut(filter.criteria),
+    action: shapeFilterActionOut(filter.action),
+  };
+}
+
+// ── Pure Logic: batch label modification ────────────────────────────────────
+
+/**
+ * Split message IDs into chunks no larger than the Gmail API's per-call
+ * limit for users.messages.batchModify (1000).
+ * @param {string[]} ids
+ * @param {number} [chunkSize]
+ * @returns {string[][]}
+ */
+export function chunkMessageIds(ids = [], chunkSize = 1000) {
+  if (chunkSize <= 0) {
+    throw new Error('chunkSize must be a positive number');
+  }
+  const chunks = [];
+  for (let i = 0; i < ids.length; i += chunkSize) {
+    chunks.push(ids.slice(i, i + chunkSize));
+  }
+  return chunks;
+}
+
+/**
+ * Summarize the result of one or more batchModify calls into the tool's
+ * documented output shape.
+ * @param {string[][]} chunks - the chunks that were actually sent
+ * @param {string[]} add_label_ids
+ * @param {string[]} remove_label_ids
+ * @returns {{ modified_count: number, label_ids_added: string[], label_ids_removed: string[] }}
+ */
+export function summarizeBatchModify(chunks = [], add_label_ids = [], remove_label_ids = []) {
+  const modified_count = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
+  return { modified_count, label_ids_added: add_label_ids, label_ids_removed: remove_label_ids };
+}
+
+// ── Pure Logic: sender aggregation ──────────────────────────────────────────
+
+/**
+ * Parse a `From` header value into a lowercased email address and its domain.
+ * @param {string} fromValue - e.g. '"Some Sender" <someone@example.com>'
+ * @returns {{ email: string, domain: string }}
+ */
+export function parseFromHeader(fromValue = '') {
+  const match = fromValue.match(/<([^>]+)>/);
+  const email = (match ? match[1] : fromValue).trim().toLowerCase();
+  const domain = email.includes('@') ? email.split('@')[1] : '';
+  return { email, domain };
+}
+
+/**
+ * Group `{ from, subject }` pairs by sender, counting messages per sender
+ * and keeping up to 5 distinct sample subjects so a sender spanning multiple
+ * categories (e.g. an investment firm sending both tax slips and
+ * promotions) is visible in one pass instead of hidden behind one example.
+ * @param {{ from: string, subject?: string }[]} messages
+ * @param {number} [maxSenders]
+ * @returns {{ sender: string, domain: string, count: number, sample_subjects: string[] }[]}
+ */
+export function aggregateBySender(messages = [], maxSenders = 50) {
+  const bySender = new Map();
+  for (const { from, subject } of messages) {
+    const { email, domain } = parseFromHeader(from);
+    if (!email) continue;
+    if (!bySender.has(email)) {
+      bySender.set(email, { sender: email, domain, count: 0, sample_subjects: [] });
+    }
+    const entry = bySender.get(email);
+    entry.count += 1;
+    const subj = (subject || '').trim();
+    if (subj && entry.sample_subjects.length < 5 && !entry.sample_subjects.includes(subj)) {
+      entry.sample_subjects.push(subj);
+    }
+  }
+  return [...bySender.values()]
+    .sort((a, b) => b.count - a.count)
+    .slice(0, maxSenders);
+}
+
+// ── Pure Logic: rate-limit backoff ──────────────────────────────────────────
+
+/**
+ * Compute an exponential backoff delay for a given retry attempt (0-based).
+ * @param {number} attempt
+ * @param {number} [baseMs]
+ * @returns {number}
+ */
+export function computeBackoffDelayMs(attempt, baseMs = 500) {
+  return baseMs * 2 ** attempt;
+}
+
+/**
+ * Decide whether an error from the googleapis client represents a rate-limit
+ * response (429, or 403 with a rate-limit reason) worth retrying.
+ * @param {{ code?: number, response?: { status?: number } }} err
+ * @returns {boolean}
+ */
+export function isRateLimitError(err) {
+  const code = err?.code ?? err?.response?.status;
+  return code === 429 || code === 403;
+}
+
 /**
  * Shape a full Gmail message resource into the tool's documented output.
  * @param {object} msg - Gmail API messages.get response (format=full)
@@ -417,4 +599,140 @@ export async function deleteDraft(gmail, { draft_id }) {
 export async function deleteLabel(gmail, { label_id }) {
   await gmail.users.labels.delete({ userId: 'me', id: label_id });
   return { id: label_id, deleted: true };
+}
+
+// ── I/O Layer: filters, batch labels, sender report ─────────────────────────
+// Plan ID: docs/plans/gmail-filter-and-batch-tools-plan.md
+
+/**
+ * Tool: gmail-list-filters (read-only)
+ * @param {import('googleapis').gmail_v1.Gmail} gmail
+ */
+export async function listFilters(gmail) {
+  const { data } = await gmail.users.settings.filters.list({ userId: 'me' });
+  return { filters: (data.filter || []).map(shapeFilter) };
+}
+
+/**
+ * Tool: gmail-create-filter (additive, reversible via gmail-delete-filter).
+ * Only affects future mail — see gmail-batch-modify-labels for backfilling.
+ * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {Parameters<typeof buildFilterCriteria>[0] & Parameters<typeof buildFilterAction>[0]} params
+ */
+export async function createFilter(gmail, params = {}) {
+  const requestBody = {
+    criteria: buildFilterCriteria(params),
+    action: buildFilterAction(params),
+  };
+  const { data } = await gmail.users.settings.filters.create({ userId: 'me', requestBody });
+  return shapeFilter(data);
+}
+
+/**
+ * Tool: gmail-delete-filter (removes the rule only; not gated — see
+ * gmail.yaml description for rationale).
+ * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {{ filter_id: string }} params
+ */
+export async function deleteFilter(gmail, { filter_id }) {
+  await gmail.users.settings.filters.delete({ userId: 'me', id: filter_id });
+  return { id: filter_id, deleted: true };
+}
+
+/**
+ * Tool: gmail-batch-modify-labels (reversible — add/remove labels across
+ * many messages). Chunks internally at the API's 1000-id-per-call limit.
+ * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {{ message_ids: string[], add_label_ids?: string[], remove_label_ids?: string[] }} params
+ */
+export async function batchModifyLabels(gmail, { message_ids = [], add_label_ids = [], remove_label_ids = [] }) {
+  const chunks = chunkMessageIds(message_ids, 1000);
+  for (const chunk of chunks) {
+    if (chunk.length === 0) continue;
+    await gmail.users.messages.batchModify({
+      userId: 'me',
+      requestBody: { ids: chunk, addLabelIds: add_label_ids, removeLabelIds: remove_label_ids },
+    });
+  }
+  return summarizeBatchModify(chunks, add_label_ids, remove_label_ids);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+const SENDER_REPORT_CONCURRENCY = 25;
+// A safety cap on how many messages a single gmail-sender-report call will
+// scan, so an unbounded query (e.g. no date range) can't balloon into
+// thousands of metadata fetches by accident. Callers should pass a bounded
+// query (date range) per call; `truncated: true` in the output signals when
+// this cap was hit and more messages exist beyond it.
+const SENDER_REPORT_MAX_SCAN = 5000;
+
+/**
+ * Fetch From/Subject metadata for one message, retrying with exponential
+ * backoff on rate-limit responses (429, or 403 rate-limit reasons).
+ * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {string} messageId
+ * @param {{ retries?: number, baseDelayMs?: number }} [opts]
+ * @returns {Promise<{ from: string, subject: string }>}
+ */
+async function getMessageMetadataForReport(gmail, messageId, { retries = 3, baseDelayMs = 500 } = {}) {
+  let attempt = 0;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      const { data } = await gmail.users.messages.get({
+        userId: 'me',
+        id: messageId,
+        format: 'metadata',
+        metadataHeaders: ['From', 'Subject'],
+      });
+      const headers = data.payload?.headers || [];
+      return { from: getHeader(headers, 'From'), subject: getHeader(headers, 'Subject') };
+    } catch (err) {
+      if (isRateLimitError(err) && attempt < retries) {
+        await sleep(computeBackoffDelayMs(attempt, baseDelayMs));
+        attempt += 1;
+        continue;
+      }
+      throw err;
+    }
+  }
+}
+
+/**
+ * Tool: gmail-sender-report (read-only, convenience/discovery — not a
+ * dependency of any other tool; see gmail.yaml description). Fetches
+ * From/Subject metadata only — never message bodies — using
+ * capped-concurrency requests rather than the Gmail API's raw HTTP batch
+ * endpoint (see plan for rationale).
+ * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {{ query?: string, max_senders?: number }} params
+ */
+export async function senderReport(gmail, { query = '', max_senders = 50 } = {}) {
+  const ids = [];
+  let pageToken;
+  do {
+    const { data } = await gmail.users.messages.list({
+      userId: 'me',
+      q: query,
+      maxResults: 500,
+      pageToken,
+    });
+    for (const m of data.messages || []) ids.push(m.id);
+    pageToken = data.nextPageToken || undefined;
+  } while (pageToken && ids.length < SENDER_REPORT_MAX_SCAN);
+
+  const truncated = Boolean(pageToken);
+  const scanned = ids.slice(0, SENDER_REPORT_MAX_SCAN);
+
+  const messages = [];
+  for (let i = 0; i < scanned.length; i += SENDER_REPORT_CONCURRENCY) {
+    const chunk = scanned.slice(i, i + SENDER_REPORT_CONCURRENCY);
+    const results = await Promise.all(chunk.map((id) => getMessageMetadataForReport(gmail, id)));
+    messages.push(...results);
+  }
+
+  return { senders: aggregateBySender(messages, max_senders), truncated };
 }

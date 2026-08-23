@@ -20,6 +20,17 @@ import {
   shapeFullMessage,
   shapeMessageSummary,
   shapeFullDraft,
+  buildFilterCriteria,
+  buildFilterAction,
+  shapeFilterCriteriaOut,
+  shapeFilterActionOut,
+  shapeFilter,
+  chunkMessageIds,
+  summarizeBatchModify,
+  parseFromHeader,
+  aggregateBySender,
+  computeBackoffDelayMs,
+  isRateLimitError,
 } from '../../logic.js';
 
 import {
@@ -230,6 +241,205 @@ describe('unit: shapeFullMessage / shapeMessageSummary / shapeFullDraft', () => 
     assert.equal(shaped.message_id, 'm1');
     assert.equal(shaped.to, 'b@example.com');
     assert.equal(shaped.body_text, 'Body');
+  });
+});
+
+// ── logic.js: filter criteria/action shaping ────────────────────────────────
+
+describe('unit: buildFilterCriteria / buildFilterAction', () => {
+  it('maps all snake_case criteria fields to the API camelCase shape', () => {
+    const criteria = buildFilterCriteria({
+      from: 'a@b.com',
+      to: 'c@d.com',
+      subject: 'Invoice',
+      query: 'has:attachment',
+      negated_query: 'promo',
+      has_attachment: true,
+      exclude_chats: true,
+      size: 1000,
+      size_comparison: 'larger',
+    });
+    assert.deepEqual(criteria, {
+      from: 'a@b.com',
+      to: 'c@d.com',
+      subject: 'Invoice',
+      query: 'has:attachment',
+      negatedQuery: 'promo',
+      hasAttachment: true,
+      excludeChats: true,
+      size: 1000,
+      sizeComparison: 'larger',
+    });
+  });
+
+  it('omits undefined criteria fields rather than sending null/false', () => {
+    assert.deepEqual(buildFilterCriteria({ from: 'a@b.com' }), { from: 'a@b.com' });
+    assert.deepEqual(buildFilterCriteria(), {});
+  });
+
+  it('maps action fields to the API camelCase shape', () => {
+    const action = buildFilterAction({ add_label_ids: ['L1'], remove_label_ids: ['L2'], forward: 'x@y.com' });
+    assert.deepEqual(action, { addLabelIds: ['L1'], removeLabelIds: ['L2'], forward: 'x@y.com' });
+  });
+
+  it('omits undefined action fields', () => {
+    assert.deepEqual(buildFilterAction({ add_label_ids: ['L1'] }), { addLabelIds: ['L1'] });
+    assert.deepEqual(buildFilterAction(), {});
+  });
+});
+
+describe('unit: shapeFilterCriteriaOut / shapeFilterActionOut / shapeFilter', () => {
+  it('shapes API criteria back to snake_case', () => {
+    const out = shapeFilterCriteriaOut({ from: 'a@b.com', hasAttachment: true, sizeComparison: 'larger' });
+    assert.deepEqual(out, { from: 'a@b.com', has_attachment: true, size_comparison: 'larger' });
+  });
+
+  it('shapes API action back to snake_case', () => {
+    const out = shapeFilterActionOut({ addLabelIds: ['L1'], forward: 'x@y.com' });
+    assert.deepEqual(out, { add_label_ids: ['L1'], forward: 'x@y.com' });
+  });
+
+  it('handles missing criteria/action gracefully', () => {
+    assert.deepEqual(shapeFilterCriteriaOut(), {});
+    assert.deepEqual(shapeFilterActionOut(), {});
+  });
+
+  it('shapeFilter composes id + shaped criteria + shaped action', () => {
+    const filter = shapeFilter({ id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } });
+    assert.deepEqual(filter, { id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } });
+  });
+});
+
+// ── logic.js: batch label modification ──────────────────────────────────────
+
+describe('unit: chunkMessageIds', () => {
+  it('splits into exact-multiple chunks', () => {
+    assert.deepEqual(chunkMessageIds(['a', 'b', 'c', 'd'], 2), [['a', 'b'], ['c', 'd']]);
+  });
+
+  it('handles a remainder in the last chunk', () => {
+    assert.deepEqual(chunkMessageIds(['a', 'b', 'c'], 2), [['a', 'b'], ['c']]);
+  });
+
+  it('returns a single chunk when under the chunk size', () => {
+    assert.deepEqual(chunkMessageIds(['a'], 1000), [['a']]);
+  });
+
+  it('returns no chunks for an empty array', () => {
+    assert.deepEqual(chunkMessageIds([], 1000), []);
+  });
+
+  it('throws for a non-positive chunk size', () => {
+    assert.throws(() => chunkMessageIds(['a'], 0));
+  });
+});
+
+describe('unit: summarizeBatchModify', () => {
+  it('sums modified_count across chunks and echoes the label id arrays', () => {
+    const summary = summarizeBatchModify([['a', 'b'], ['c']], ['L1'], ['L2']);
+    assert.deepEqual(summary, { modified_count: 3, label_ids_added: ['L1'], label_ids_removed: ['L2'] });
+  });
+
+  it('handles no chunks', () => {
+    assert.deepEqual(summarizeBatchModify([]), { modified_count: 0, label_ids_added: [], label_ids_removed: [] });
+  });
+});
+
+// ── logic.js: sender aggregation ────────────────────────────────────────────
+
+describe('unit: parseFromHeader', () => {
+  it('extracts email and domain from a display-name form', () => {
+    assert.deepEqual(parseFromHeader('"Some Sender" <someone@example.com>'), {
+      email: 'someone@example.com',
+      domain: 'example.com',
+    });
+  });
+
+  it('handles a bare email address with no display name', () => {
+    assert.deepEqual(parseFromHeader('someone@example.com'), { email: 'someone@example.com', domain: 'example.com' });
+  });
+
+  it('lowercases the email address', () => {
+    assert.equal(parseFromHeader('Someone@Example.COM').email, 'someone@example.com');
+  });
+
+  it('handles an empty/missing value', () => {
+    assert.deepEqual(parseFromHeader(''), { email: '', domain: '' });
+    assert.deepEqual(parseFromHeader(undefined), { email: '', domain: '' });
+  });
+});
+
+describe('unit: aggregateBySender', () => {
+  it('groups by sender, counts messages, and sorts by count descending', () => {
+    const result = aggregateBySender([
+      { from: 'a@b.com', subject: 's1' },
+      { from: 'c@d.com', subject: 's2' },
+      { from: 'a@b.com', subject: 's3' },
+      { from: 'a@b.com', subject: 's4' },
+    ], 50);
+    assert.equal(result[0].sender, 'a@b.com');
+    assert.equal(result[0].count, 3);
+    assert.equal(result[1].sender, 'c@d.com');
+    assert.equal(result[1].count, 1);
+  });
+
+  it('caps sample_subjects at 5 distinct subjects per sender', () => {
+    const messages = Array.from({ length: 8 }, (_, i) => ({ from: 'a@b.com', subject: `s${i}` }));
+    const result = aggregateBySender(messages, 50);
+    assert.equal(result[0].sample_subjects.length, 5);
+  });
+
+  it('shows multiple distinct subjects for a sender spanning categories', () => {
+    const result = aggregateBySender([
+      { from: 'invest@firm.com', subject: 'Your 2025 tax slip' },
+      { from: 'invest@firm.com', subject: 'Quarterly account report' },
+      { from: 'invest@firm.com', subject: 'New promotion for you' },
+    ], 50);
+    assert.deepEqual(result[0].sample_subjects, [
+      'Your 2025 tax slip',
+      'Quarterly account report',
+      'New promotion for you',
+    ]);
+  });
+
+  it('respects the maxSenders cap', () => {
+    const messages = Array.from({ length: 5 }, (_, i) => ({ from: `s${i}@b.com`, subject: 'x' }));
+    const result = aggregateBySender(messages, 2);
+    assert.equal(result.length, 2);
+  });
+
+  it('skips messages with no parseable sender', () => {
+    const result = aggregateBySender([{ from: '', subject: 'x' }], 50);
+    assert.deepEqual(result, []);
+  });
+});
+
+// ── logic.js: rate-limit backoff ────────────────────────────────────────────
+
+describe('unit: computeBackoffDelayMs', () => {
+  it('doubles the delay for each successive attempt', () => {
+    assert.equal(computeBackoffDelayMs(0, 500), 500);
+    assert.equal(computeBackoffDelayMs(1, 500), 1000);
+    assert.equal(computeBackoffDelayMs(2, 500), 2000);
+  });
+});
+
+describe('unit: isRateLimitError', () => {
+  it('treats a 429 code as a rate-limit error', () => {
+    assert.equal(isRateLimitError({ code: 429 }), true);
+  });
+
+  it('treats a 403 code as a rate-limit error', () => {
+    assert.equal(isRateLimitError({ code: 403 }), true);
+  });
+
+  it('reads the code from response.status when top-level code is absent', () => {
+    assert.equal(isRateLimitError({ response: { status: 429 } }), true);
+  });
+
+  it('does not treat other errors as rate-limit errors', () => {
+    assert.equal(isRateLimitError({ code: 500 }), false);
+    assert.equal(isRateLimitError(new Error('boom')), false);
   });
 });
 

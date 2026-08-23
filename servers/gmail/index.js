@@ -24,10 +24,15 @@ import {
   listLabels,
   listDrafts,
   getDraft,
+  listFilters,
+  senderReport,
   modifyLabels,
   trashMessage,
   createDraft,
   createLabel,
+  createFilter,
+  deleteFilter,
+  batchModifyLabels,
   sendMessage,
   sendDraft,
   replyMessage,
@@ -115,6 +120,19 @@ export function createGmailServer(gmailOrFactory) {
     inputSchema: { draft_id: z.string().describe('Draft ID') },
   }, wrap(getDraft));
 
+  server.registerTool('gmail-list-filters', {
+    description: 'Lists all existing Gmail filters. Check before creating a new one to avoid duplicates.',
+    inputSchema: {},
+  }, wrap(listFilters));
+
+  server.registerTool('gmail-sender-report', {
+    description: "Convenience/discovery tool, not a dependency of any other tool: aggregates messages matching a query by sender (From/Subject metadata only, never bodies). If removed, the same result is obtainable via gmail-list-messages + gmail-get-message(format:'metadata') per message.",
+    inputSchema: {
+      query: z.string().optional().describe('Gmail search query restricting which messages to aggregate'),
+      max_senders: z.number().optional().describe('Maximum number of senders to return, ranked by count descending'),
+    },
+  }, wrap(senderReport));
+
   // ── Safe-mutating (reversible/additive, ungated) ──────────────────────
   server.registerTool('gmail-modify-labels', {
     description: 'Adds and/or removes labels on a message (archive, mark read/unread, star). Reversible.',
@@ -145,6 +163,38 @@ export function createGmailServer(gmailOrFactory) {
     description: 'Creates a new user label. Additive and reversible via gmail-delete-label.',
     inputSchema: { name: z.string().describe('Label name, e.g. "Project X" or nested "Project X/Invoices"') },
   }, wrap(createLabel));
+
+  server.registerTool('gmail-create-filter', {
+    description: 'Creates a Gmail filter (auto-apply-label rule). Only affects future mail — use gmail-batch-modify-labels to backfill history. Additive, reversible via gmail-delete-filter.',
+    inputSchema: {
+      from: z.string().optional().describe('Match sender address'),
+      to: z.string().optional().describe('Match recipient address'),
+      subject: z.string().optional().describe('Match subject text'),
+      query: z.string().optional().describe('Raw Gmail search string to match'),
+      negated_query: z.string().optional().describe('Raw Gmail search string that must NOT match'),
+      has_attachment: z.boolean().optional().describe('Match only messages with an attachment'),
+      exclude_chats: z.boolean().optional().describe('Exclude chat messages from matching'),
+      size: z.number().optional().describe('Match messages by size in bytes, used with size_comparison'),
+      size_comparison: z.enum(['larger', 'smaller', 'unspecified']).optional().describe('Paired with size'),
+      add_label_ids: z.array(z.string()).optional().describe('Label IDs to apply to matching messages'),
+      remove_label_ids: z.array(z.string()).optional().describe('Label IDs to remove from matching messages'),
+      forward: z.string().optional().describe('Email address to forward matching messages to'),
+    },
+  }, wrap(createFilter));
+
+  server.registerTool('gmail-delete-filter', {
+    description: 'Deletes a Gmail filter (the rule only, not labels already applied). Not gated — trivially recreatable via gmail-create-filter.',
+    inputSchema: { filter_id: z.string().describe('Filter ID') },
+  }, wrap(deleteFilter));
+
+  server.registerTool('gmail-batch-modify-labels', {
+    description: 'Adds and/or removes labels across many messages in one call, chunking internally at the API\'s 1000-message limit. Reversible.',
+    inputSchema: {
+      message_ids: z.array(z.string()).describe('Gmail message IDs to modify'),
+      add_label_ids: z.array(z.string()).optional().describe('Label IDs to add'),
+      remove_label_ids: z.array(z.string()).optional().describe('Label IDs to remove'),
+    },
+  }, wrap(batchModifyLabels));
 
   // ── Gated — irreversible ──────────────────────────────────────────────
   server.registerTool('gmail-send-message', {
