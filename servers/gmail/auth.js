@@ -13,7 +13,13 @@ import { dirname, join } from 'node:path';
 import { homedir } from 'node:os';
 import { google } from 'googleapis';
 
-export const GMAIL_SCOPES = ['https://mail.google.com/'];
+export const GMAIL_SCOPES = [
+  'https://mail.google.com/',
+  // Needed for filter CRUD (users.settings.filters.*) — added for
+  // gmail-create-filter/gmail-list-filters/gmail-delete-filter.
+  // Plan ID: docs/plans/gmail-filter-and-batch-tools-plan.md
+  'https://www.googleapis.com/auth/gmail.settings.basic',
+];
 
 export const DEFAULT_TOKEN_PATH = join(homedir(), '.aif', 'gmail-token.json');
 

@@ -76,3 +76,10 @@ If the token file is missing or invalid, tool calls will fail with an error mess
 ## Re-authorizing / revoking access
 
 To revoke this server's access entirely, visit https://myaccount.google.com/permissions, remove the app, and re-run Step 2 to generate a fresh token.
+
+## Re-authorizing after a scope change
+
+`GMAIL_SCOPES` in `auth.js` was extended (2026-08-22) to add `https://www.googleapis.com/auth/gmail.settings.basic`, needed by the filter tools (`gmail-create-filter`, `gmail-list-filters`, `gmail-delete-filter`). If you already have a token file from before this change:
+
+- All existing tools (messages, labels, drafts, send/delete) keep working with your current token — no action needed for those.
+- The filter tools will fail with a Google insufficient-scope error until you re-run Step 2 above. Re-running it (with `prompt: 'consent'` already baked into the script) re-issues a token covering the new scope automatically — no code changes needed, just run the script again.
