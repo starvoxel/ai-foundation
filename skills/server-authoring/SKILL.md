@@ -17,13 +17,16 @@ Use this skill when adding a new tool server to the framework.
 - **Server name** — kebab-case identifier (becomes the folder name)
 - **What tools it exposes** — names, descriptions, parameters
 - **Protocol and transport** — `mcp`/`stdio`, `mcp`/`http`, `http`, etc.
-- **Runtime dependencies** — any packages beyond what the protocol SDK provides
+- **Hosted** — `self` (we implement and run it) or `vendor` (a third party implements and runs it, e.g. a product's own official remote MCP endpoint). Defaults to `self`. See Step 1a for what changes when `hosted: "vendor"`.
+- **Runtime dependencies** — any packages beyond what the protocol SDK provides (`hosted: "self"` only)
 
 ---
 
 ## Steps
 
 ### Step 1 — Create folder structure
+
+For `hosted: "vendor"` servers, skip to Step 1a — the full structure below does not apply.
 
 Create `servers/{name}/` containing:
 
@@ -52,6 +55,17 @@ servers/{name}/
 | `tests/unit/{name}.test.js` | Tests pure logic functions directly. No I/O, no protocol. |
 | `tests/integration/{name}.test.js` | Tests I/O layer functions against real filesystem. |
 | `tests/integration/{name}.mcp.test.js` | Tests MCP protocol layer via in-memory transport (tool listing + invocation). |
+
+### Step 1a — Vendor-hosted servers (`hosted: "vendor"`)
+
+When a third party implements and runs the server (e.g. a product's own official remote MCP endpoint), there is no local implementation:
+
+- Create only `servers/{name}/{name}.yaml` — no `index.js`, `logic.js`, `package.json`, or `tests/` directory.
+- Set `hosted: "vendor"`, `transport: "http"`, and a literal `url` (endpoint URLs are not secret).
+- If the endpoint requires auth headers, use a `${ENV_VAR_NAME}` placeholder in `headers` — never a literal secret. See `skills/server-authoring/reference/schema.yaml` for the full field docs and an example.
+- Source `tools[].name`/`inputs`/`outputs` from a live `listTools()` call against a real instance of the vendor's server, not from vendor marketing docs — exact parameter schemas are usually not published statically, and transcribed prose risks being wrong or stale. Note in each tool's `description` whether the schema was confirmed live or is doc-derived.
+- Tool names are whatever the vendor registers them as (often not kebab-case) — do not rename them to fit our convention; the name must match what actually gets invoked at runtime.
+- Skip to Step 7 (Self-validate) — Steps 2–6 below describe implementing a self-hosted server and don't apply.
 
 ### Step 2 — Write the YAML definition
 
@@ -130,6 +144,9 @@ Use `node:test` with `describe/it` structure. Group tests under descriptive pref
 - [ ] Every tool has `name`, `description`, `inputs`, `outputs`
 - [ ] Input types are specified: `string`, `number`, `boolean`, `array`, `object`
 - [ ] Optional inputs are marked `[optional]`
+- [ ] No literal secrets in `headers` — `${ENV_VAR_NAME}` placeholders only
+
+For `hosted: "self"` (default) additionally:
 - [ ] `logic.js` contains only pure business logic — no protocol imports
 - [ ] `index.js` is a thin protocol wrapper — imports from `logic.js`, registers tools
 - [ ] `package.json` declares runtime dependencies for standalone install
@@ -137,6 +154,12 @@ Use `node:test` with `describe/it` structure. Group tests under descriptive pref
 - [ ] `tests/integration/{name}.test.js` tests I/O layer with real files
 - [ ] `tests/integration/{name}.mcp.test.js` tests MCP protocol layer (for MCP servers)
 - [ ] Protocol tests cover: tool listing, tool invocation with valid input, error handling
+- [ ] Tool `name`s are kebab-case (we control the naming)
+
+For `hosted: "vendor"` additionally:
+- [ ] Only `{name}.yaml` exists — no `index.js`/`logic.js`/`package.json`/`tests/`
+- [ ] `url` is set (http transport) and is a literal value, not a placeholder
+- [ ] Tool list was sourced from a live `listTools()` call, not transcribed from vendor docs (or the gap is explicitly noted per tool)
 
 ---
 
@@ -241,7 +264,9 @@ Protocol tests must verify:
 ## Edge Cases
 
 - **Server requires external infrastructure** — mark tool invocation tests as skipped with documented reason. Tool listing and protocol connection tests are never optional.
-- **Server not yet implemented** — definition-only is acceptable during planning. Set `version: "0.x.y"` to signal it's not yet validated. Implementation is required before the server can be installed.
+- **Server not yet implemented** — definition-only is acceptable during planning. Set `version: "0.x.y"` to signal it's not yet validated. Implementation is required before the server can be installed. (This applies to `hosted: "self"` — a `hosted: "vendor"` server's yaml is complete once written, since there's nothing for us to implement.)
 - **Tool has complex input schema** — use zod's composable types in `index.js`. Document complex schemas with examples in the YAML `outputs` field.
 - **Tool name collides with another server** — agents disambiguate via the `@server/tool` format, so same tool names across different servers is fine.
 - **Non-MCP protocols** — follow the same `index.js`/`logic.js` split. The protocol-specific section for that protocol will be added to this skill when needed.
+- **Vendor-hosted server (no local implementation)** — see Step 1a. The defining trait is that a third party runs the actual server; we only document how to connect to it. No `logic.js`/`index.js`/`package.json`/tests exist, tool names follow the vendor's own convention rather than our kebab-case rule, and `tools[].inputs`/`outputs` should be confirmed against a live `listTools()` call rather than vendor prose docs, which are often incomplete or imprecise about exact parameters.
+- **Vendor-hosted server needs auth** — never write a literal secret into the committed yaml. Use a `${ENV_VAR_NAME}` placeholder in `headers`; the installer resolves it from the environment at install time (see `lib/harnesses/claude.js`'s `installMcpHttp`) and fails clearly if the variable is unset.

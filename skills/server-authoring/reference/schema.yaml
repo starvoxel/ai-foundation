@@ -7,16 +7,44 @@ fields:
   protocol:    "mcp"
   transport:   "stdio | http"
   description: "One sentence — what tools this server exposes"
+  hosted:      "self | vendor [optional, default: self] — see 'hosted' below"
+  url:         "Endpoint URL. Required when transport is http. Not secret — safe to commit literally."
+  headers:     "Object of HTTP header name -> value, sent on every request [optional, http transport only]. See 'headers and secrets' below."
   tools:       "Array of tool definitions (see below)"
 
 tool_definition:
-  name:        "Tool name — agents reference as @server/tool_name"
+  name:        "Tool name — agents reference as @server/tool_name. Must be kebab-case for hosted: self. For hosted: vendor, use the tool's real name exactly as the vendor registers it (may be snake_case or other casing) — do not rename it to fit our convention, since the name here must match what actually gets called at runtime."
   description: "When to use this tool (one or two sentences)"
   inputs:      "Array of 'param (type): description [optional]'"
   outputs:     "What is returned and in what format"
 
 # Input types: string, number, boolean, array, object
 # Mark optional params with [optional] or [optional, default: value]
+
+# --- hosted ---
+#
+# self (default): we implement and run this server. index.js, logic.js,
+#   package.json, and the full tests/unit + tests/integration +
+#   tests/integration/*.mcp.test.js suite are all required (see
+#   skill/server-authoring Step 1).
+#
+# vendor: a third party implements and runs this server (e.g. a product's
+#   own official remote MCP endpoint). Only {name}.yaml is required — there
+#   is no local code to write or unit-test. tools[].inputs/outputs should be
+#   sourced from the live server (call listTools() against a real instance)
+#   rather than transcribed from vendor marketing docs, since exact
+#   parameter schemas are usually not published statically. State plainly
+#   in the tool's description if the schema was vendor-doc-derived rather
+#   than confirmed against a live listTools() call.
+
+# --- headers and secrets ---
+#
+# Never write a literal secret (token, API key, etc.) into a committed
+# server yaml. Use a "${ENV_VAR_NAME}" placeholder as the header value;
+# the installer resolves it from process.env at install time and errors
+# clearly if the variable is unset. This mirrors the
+# .aiconfig.json ai_identity.git_token_env pattern (name the env var,
+# never embed the secret).
 
 example:
   name: "git"
@@ -36,3 +64,20 @@ example:
         - "path (string): Repository path [optional, default: cwd]"
         - "staged (boolean): Show staged changes instead [optional, default: false]"
       outputs: "Diff output as text."
+
+vendor_example:
+  name: "acme-tracker"
+  version: "0.1.0"
+  protocol: "mcp"
+  transport: "http"
+  hosted: "vendor"
+  description: "Acme's official remote MCP server for issue tracking."
+  url: "https://my-org.acme.example/mcp"
+  headers:
+    Authorization: "Bearer ${ACME_TRACKER_TOKEN}"
+  tools:
+    - name: "search_issues"
+      description: "Searches issues using Acme's query language. Confirmed against a live listTools() call on 2026-08-23."
+      inputs:
+        - "query (string): Acme search query syntax"
+      outputs: "JSON object: { issues: [...] } — see Acme's listTools() output for the full schema."
