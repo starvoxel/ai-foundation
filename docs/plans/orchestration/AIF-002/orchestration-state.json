@@ -17,7 +17,7 @@
     { "id": "011", "wave": 1, "status": "Done", "branch": "AIF-002/011-migrate-aif-008", "worktree_path": "../worktrees/ai-foundation/AIF-002/011-migrate-aif-008", "pr_number": 15, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/15", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "012", "wave": 1, "status": "Done", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": 16, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/16", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "013", "wave": 1, "status": "Done", "branch": "AIF-002/013-migrate-aif-011", "worktree_path": "../worktrees/ai-foundation/AIF-002/013-migrate-aif-011", "pr_number": 14, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/14", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "014", "wave": 1, "status": "Done", "branch": "AIF-002/014-aif-index-decisions-cli", "worktree_path": "../worktrees/ai-foundation/AIF-002/014-aif-index-decisions-cli", "pr_number": null, "pr_url": null, "iterations": 1, "blocked_reason": null, "agents": ["Software-Engineer"] },
+    { "id": "014", "wave": 1, "status": "Done", "branch": "AIF-002/014-aif-index-decisions-cli", "worktree_path": "../worktrees/ai-foundation/AIF-002/014-aif-index-decisions-cli", "pr_number": 17, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/17", "iterations": 1, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [
@@ -456,6 +456,13 @@
       "action": "review_completed",
       "chunk_id": "014",
       "details": "Verdict: APPROVED. Full first-time review against the Chunk Plan (Acceptance Criteria, Architecture & Design, Security, Testing). Confirmed the short-flag HIGH fix is correct and the regression test passes unmodified against the real contract. Verified lib/decisions.js's pure/io split (Rule 6), referenced_by inversion logic, malformed-record loud-failure behavior (no partial writes), resolveDecisionsPath's two-level fallback design, security checklist (path.join only, no child_process/network/eval, no stack-trace leaks), logging checklist, and README accuracy -- all correct. Two non-blocking findings: MEDIUM (bin/aif.js meaningfully modified for this plan's AC but carries no Plan ID reference anywhere in the file, unlike lib/decisions.js and both test files which correctly reference AIF-002-014 -- Rule 2 violation, recommend a follow-up comment/header addition); LOW (confirmed Test-Engineer's dead-code finding independently -- the old '!commandFound flag-before-command' branch is now unreachable for all realistic input, recommend removal in a future cleanup, not this chunk). npm test 511/511 confirmed via Work Log. Status -> Done. Dispatching Software-Engineer to create PR."
+    },
+    {
+      "timestamp": "2026-08-23T00:45:00Z",
+      "agent": "Software-Engineer",
+      "action": "pr_created",
+      "chunk_id": "014",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/17 (head commit dab9f57). No push needed (branch already matched origin). Body notes PE approval after one review-loop iteration, both non-blocking MEDIUM/LOW findings surfaced for human visibility. WAVE 1 (010-014) NOW FULLY DISPATCHED: all 5 chunks Done, PRs open (#13 merged, #14/#15/#16 merged, #17 open awaiting human merge)."
     }
   ]
 }
