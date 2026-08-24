@@ -78,10 +78,44 @@ describe('server schemas', () => {
         }
       });
 
-      it('tool names are kebab-case', () => {
+      it('tool names are kebab-case (hosted: self only — vendor tool names are dictated by the vendor)', () => {
         if (!Array.isArray(parsed.tools)) return;
+        if (parsed.hosted === 'vendor') return;
         for (const tool of parsed.tools) {
           assert.match(tool.name, KEBAB_CASE_PATTERN);
+        }
+      });
+
+      it('hosted, if present, is "self" or "vendor"', () => {
+        if (parsed.hosted === undefined) return;
+        assert.ok(['self', 'vendor'].includes(parsed.hosted),
+          `hosted must be "self" or "vendor", got "${parsed.hosted}"`);
+      });
+
+      it('vendor-hosted servers have no local implementation files', () => {
+        if (parsed.hosted !== 'vendor') return;
+        const serverDir = join(SERVERS_DIR, folder);
+        for (const forbidden of ['index.js', 'logic.js', 'package.json', 'tests']) {
+          assert.ok(!existsSync(join(serverDir, forbidden)),
+            `hosted: vendor server "${folder}" should not have ${forbidden} (vendor implements/runs this server, not us)`);
+        }
+      });
+
+      it('http transport has a literal url; vendor-hosted url is not a secret placeholder', () => {
+        if (parsed.transport !== 'http') return;
+        assert.ok(typeof parsed.url === 'string' && parsed.url.length > 0,
+          `Server "${folder}" has transport: http but no url field`);
+        assert.ok(!/\$\{[A-Z0-9_]+\}/.test(parsed.url),
+          `Server "${folder}" url should be a literal value, not a placeholder — urls are not secret`);
+      });
+
+      it('headers, if present, never contain a literal secret-shaped value', () => {
+        if (!parsed.headers) return;
+        for (const [key, value] of Object.entries(parsed.headers)) {
+          if (typeof value !== 'string') continue;
+          const looksLikeBearerWithoutPlaceholder = /^Bearer\s+(?!\$\{)\S+/.test(value);
+          assert.ok(!looksLikeBearerWithoutPlaceholder,
+            `Server "${folder}" header "${key}" looks like a literal secret — use a \${ENV_VAR_NAME} placeholder instead`);
         }
       });
     });

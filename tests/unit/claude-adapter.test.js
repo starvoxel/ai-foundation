@@ -13,6 +13,7 @@ import {
   parseFrontmatter,
   detectSharedResource,
   BLOCK_COMMAND_RESOURCE,
+  resolveHeaderPlaceholders,
 } from '../../lib/harnesses/claude.js';
 
 describe('unit: claude adapter', () => {
@@ -225,6 +226,57 @@ describe('unit: claude adapter', () => {
     it('returns null when blocked_commands is an empty array', () => {
       const agent = { ...baseAgent, blocked_commands: [] };
       assert.equal(detectSharedResource(agent), null);
+    });
+  });
+
+  describe('resolveHeaderPlaceholders()', () => {
+    it('resolves a ${VAR} placeholder from the given env map', () => {
+      const result = resolveHeaderPlaceholders(
+        { Authorization: 'Bearer ${MY_TOKEN}' },
+        { MY_TOKEN: 'secret-value' }
+      );
+      assert.deepEqual(result, { Authorization: 'Bearer secret-value' });
+    });
+
+    it('resolves multiple placeholders across multiple headers', () => {
+      const result = resolveHeaderPlaceholders(
+        { A: '${X}', B: 'prefix-${Y}-suffix' },
+        { X: '1', Y: '2' }
+      );
+      assert.deepEqual(result, { A: '1', B: 'prefix-2-suffix' });
+    });
+
+    it('leaves headers with no placeholder unchanged', () => {
+      const result = resolveHeaderPlaceholders({ Accept: 'application/json' }, {});
+      assert.deepEqual(result, { Accept: 'application/json' });
+    });
+
+    it('passes through non-string values unchanged', () => {
+      const result = resolveHeaderPlaceholders({ 'X-Count': 5 }, {});
+      assert.deepEqual(result, { 'X-Count': 5 });
+    });
+
+    it('throws when the referenced env var is unset', () => {
+      assert.throws(
+        () => resolveHeaderPlaceholders({ Authorization: 'Bearer ${MISSING}' }, {}),
+        /MISSING/
+      );
+    });
+
+    it('does not mutate the input headers object', () => {
+      const input = { Authorization: 'Bearer ${MY_TOKEN}' };
+      resolveHeaderPlaceholders(input, { MY_TOKEN: 'x' });
+      assert.equal(input.Authorization, 'Bearer ${MY_TOKEN}');
+    });
+
+    it('defaults to process.env when no env map is passed', () => {
+      process.env.__TEST_RESOLVE_HEADER_VAR__ = 'from-process-env';
+      try {
+        const result = resolveHeaderPlaceholders({ X: '${__TEST_RESOLVE_HEADER_VAR__}' });
+        assert.deepEqual(result, { X: 'from-process-env' });
+      } finally {
+        delete process.env.__TEST_RESOLVE_HEADER_VAR__;
+      }
     });
   });
 });
