@@ -12,8 +12,10 @@ import {
   parseGhCommand,
   isGhCommand,
   needsPushAuth,
-  buildAuthUrl,
-  injectAuthUrl,
+  getAuthScope,
+  buildAuthHeaderValue,
+  buildAuthConfigArgs,
+  findRemoteName,
 } from '../../lib/ai-git.js';
 
 describe('unit: ai-git', () => {
@@ -148,79 +150,117 @@ describe('unit: ai-git', () => {
     });
   });
 
-  describe('buildAuthUrl()', () => {
-    it('builds authenticated URL from GitHub HTTPS remote', () => {
-      const url = buildAuthUrl(
-        'https://github.com/org/repo.git',
-        'token123',
-        'Bot Name'
-      );
-      assert.equal(url, 'https://bot-name:token123@github.com/org/repo.git');
-    });
-
-    it('handles username with multiple spaces', () => {
-      const url = buildAuthUrl(
-        'https://github.com/org/repo.git',
-        'tok',
-        'My AI Agent'
-      );
-      assert.equal(url, 'https://my-ai-agent:tok@github.com/org/repo.git');
+  describe('getAuthScope()', () => {
+    it('returns the scope prefix for a GitHub HTTPS remote', () => {
+      assert.equal(getAuthScope('https://github.com/org/repo.git'), 'https://github.com/');
     });
 
     it('returns null for SSH URLs', () => {
-      const url = buildAuthUrl(
-        'git@github.com:org/repo.git',
-        'token123',
-        'Bot'
-      );
-      assert.equal(url, null);
+      assert.equal(getAuthScope('git@github.com:org/repo.git'), null);
     });
 
     it('returns null for non-GitHub HTTPS URLs', () => {
-      const url = buildAuthUrl(
-        'https://gitlab.com/org/repo.git',
-        'token123',
-        'Bot'
-      );
-      assert.equal(url, null);
+      assert.equal(getAuthScope('https://gitlab.com/org/repo.git'), null);
     });
   });
 
-  describe('injectAuthUrl()', () => {
-    it('replaces remote name with auth URL', () => {
-      const result = injectAuthUrl(
-        ['push', 'origin', 'main'],
-        'https://bot:tok@github.com/org/repo.git'
-      );
-      assert.deepEqual(result, ['push', 'https://bot:tok@github.com/org/repo.git', 'main']);
+  describe('buildAuthHeaderValue()', () => {
+    it('builds a base64 Basic auth header value', () => {
+      const value = buildAuthHeaderValue('token123', 'Bot Name');
+      const expected = `AUTHORIZATION: basic ${Buffer.from('bot-name:token123').toString('base64')}`;
+      assert.equal(value, expected);
     });
 
-    it('inserts auth URL when no remote specified', () => {
-      const result = injectAuthUrl(
-        ['push'],
-        'https://bot:tok@github.com/org/repo.git'
-      );
-      assert.deepEqual(result, ['push', 'https://bot:tok@github.com/org/repo.git']);
+    it('never contains the raw token as a plain substring alongside the username delimiter', () => {
+      // The header value must be base64-encoded, not string-concatenated,
+      // so a naive substring scan for "token123" plaintext must fail.
+      const value = buildAuthHeaderValue('token123', 'Bot');
+      assert.equal(value.includes('token123'), false);
     });
 
-    it('inserts auth URL when args start with flags', () => {
-      const result = injectAuthUrl(
-        ['push', '--force'],
-        'https://bot:tok@github.com/org/repo.git'
-      );
-      assert.deepEqual(result, ['push', 'https://bot:tok@github.com/org/repo.git', '--force']);
+    it('handles username with multiple spaces', () => {
+      const value = buildAuthHeaderValue('tok', 'My AI Agent');
+      const expected = `AUTHORIZATION: basic ${Buffer.from('my-ai-agent:tok').toString('base64')}`;
+      assert.equal(value, expected);
+    });
+  });
+
+  describe('buildAuthConfigArgs()', () => {
+    it('builds -c extraheader args for a GitHub HTTPS remote', () => {
+      const args = buildAuthConfigArgs('https://github.com/org/repo.git', 'token123', 'Bot');
+      assert.equal(args[0], '-c');
+      assert.ok(args[1].startsWith('http.https://github.com/.extraheader='));
+      assert.equal(args.length, 2);
     });
 
-    it('does not modify args that already have an https URL', () => {
-      const args = ['push', 'https://existing@github.com/org/repo.git', 'main'];
-      const result = injectAuthUrl(args, 'https://bot:tok@github.com/org/repo.git');
-      assert.deepEqual(result, args);
+    it('returns [] for SSH remotes', () => {
+      assert.deepEqual(buildAuthConfigArgs('git@github.com:org/repo.git', 'token123', 'Bot'), []);
     });
 
-    it('does not mutate the original args array', () => {
-      const args = ['push', 'origin', 'main'];
-      injectAuthUrl(args, 'https://bot:tok@github.com/org/repo.git');
-      assert.deepEqual(args, ['push', 'origin', 'main']);
+    it('returns [] for non-GitHub HTTPS remotes', () => {
+      assert.deepEqual(buildAuthConfigArgs('https://gitlab.com/org/repo.git', 'token123', 'Bot'), []);
     });
+
+    it('never includes the raw token in plaintext in the returned args', () => {
+      const args = buildAuthConfigArgs('https://github.com/org/repo.git', 'super-secret-token', 'Bot');
+      assert.ok(!args.join(' ').includes('super-secret-token'));
+    });
+  });
+
+  describe('findRemoteName() — argument-order regression coverage', () => {
+    it('finds remote when it is the first positional arg', () => {
+      assert.equal(findRemoteName(['push', 'origin', 'main']), 'origin');
+    });
+
+    it('finds remote when -u precedes it', () => {
+      assert.equal(findRemoteName(['push', '-u', 'origin', 'main']), 'origin');
+    });
+
+    it('finds remote when -u follows the branch', () => {
+      assert.equal(findRemoteName(['push', 'origin', 'main', '-u']), 'origin');
+    });
+
+    it('finds remote when --set-upstream precedes it', () => {
+      assert.equal(findRemoteName(['push', '--set-upstream', 'origin', 'main']), 'origin');
+    });
+
+    it('falls back to origin when no positional remote is present', () => {
+      assert.equal(findRemoteName(['push', '-u']), 'origin');
+      assert.equal(findRemoteName(['push']), 'origin');
+    });
+  });
+
+  describe('regression: push/fetch auth injection is order-independent and leak-free', () => {
+    const orderings = [
+      ['push', '-u', 'origin', 'main'],
+      ['push', 'origin', '-u', 'main'],
+      ['push', 'origin', 'main', '-u'],
+      ['push', '--set-upstream', 'origin', 'main'],
+      ['push', 'origin', 'main'],
+      ['fetch', '-v', 'origin'],
+    ];
+
+    for (const args of orderings) {
+      it(`resolves the correct remote and never leaks the token for: ${args.join(' ')}`, () => {
+        const remoteName = findRemoteName(args);
+        assert.equal(remoteName, 'origin');
+
+        const authConfigArgs = buildAuthConfigArgs(
+          'https://github.com/org/repo.git',
+          'super-secret-token',
+          'Bot'
+        );
+
+        // Auth is injected as a prepended -c override; the caller's own
+        // args (including -u in any position) are never rewritten.
+        const finalArgs = [...authConfigArgs, ...args];
+        assert.deepEqual(finalArgs.slice(authConfigArgs.length), args);
+
+        // The raw token must never appear in plaintext anywhere in the
+        // args that would be passed to spawnSync (and therefore never
+        // in anything git could echo or persist).
+        assert.ok(!finalArgs.join(' ').includes('super-secret-token'));
+      });
+    }
   });
 });

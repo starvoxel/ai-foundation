@@ -22,6 +22,9 @@
  *   ai-git gh-<subcommand> [args...]
  *
  * All arguments after the command are passed through verbatim.
+ *
+ * No Plan ID — small human-approved security bugfix (see chat approval
+ * 2026-08-23) for the push/fetch auth-injection argument-order bug.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -34,8 +37,8 @@ import {
   parseGhCommand,
   isGhCommand,
   needsPushAuth,
-  buildAuthUrl,
-  injectAuthUrl,
+  findRemoteName,
+  buildAuthConfigArgs,
 } from '../lib/ai-git.js';
 
 // --- Config resolution ---
@@ -78,12 +81,19 @@ function runGit(args, identity) {
   const env = buildGitEnv(identity, process.env);
   let finalArgs = args;
 
-  // Inject authentication for push/fetch
+  // Inject authentication for push/fetch. This uses a transient
+  // `-c http.<scope>.extraheader=...` config override rather than
+  // embedding the token in the remote URL, so the token is never
+  // echoed by git's own progress output ("To <url>" / "From <url>")
+  // and is never written into .git/config. Because the override is
+  // prepended before the subcommand, the caller's own args (remote
+  // name, refspec, flags such as -u/--set-upstream) are passed through
+  // completely unchanged — auth injection no longer depends on where
+  // those flags appear.
   if (needsPushAuth(args[0])) {
     const token = identity.tokenEnvName ? process.env[identity.tokenEnvName] : null;
     if (token) {
-      // Resolve remote URL
-      const remoteName = (args[1] && !args[1].startsWith('-')) ? args[1] : 'origin';
+      const remoteName = findRemoteName(args);
       const result = spawnSync('git', ['remote', 'get-url', remoteName], {
         encoding: 'utf8',
         stdio: ['pipe', 'pipe', 'pipe'],
@@ -91,9 +101,9 @@ function runGit(args, identity) {
 
       if (result.status === 0) {
         const remoteUrl = result.stdout.trim();
-        const authUrl = buildAuthUrl(remoteUrl, token, identity.name);
-        if (authUrl) {
-          finalArgs = injectAuthUrl(args, authUrl);
+        const authConfigArgs = buildAuthConfigArgs(remoteUrl, token, identity.name);
+        if (authConfigArgs.length > 0) {
+          finalArgs = [...authConfigArgs, ...args];
         }
       }
     }
