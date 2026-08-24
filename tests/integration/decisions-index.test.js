@@ -49,6 +49,34 @@ Test fixture.
 `;
 }
 
+// Legacy pre-Tier×Domain fixture (mirrors AIF-ARCH-001/002/003, migrated
+// without Tier/Domain fields — chunk AIF-002-009, "light-touch"). Human-
+// approved fix, no formal Plan ID, per chat approval 2026-08-24.
+function legacyDecisionFixture({ id, status = 'Approved', references = '—', title }) {
+  return `# Decision Record: ${title}
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Decision ID | ${id} |
+| Project | ai-foundation |
+| Status | ${status} |
+| Author (Agent) | Architect |
+| Approved By | Jeremy |
+| Created | 2020-01-01 |
+| Referenced By | — |
+| References | ${references} |
+| Tags | — |
+
+---
+
+## Problem Statement
+
+Test fixture. This decision predates the AIF-META-001 Tier x Domain model.
+`;
+}
+
 async function quiet(fn) {
   const origLog = console.log;
   const origErr = console.error;
@@ -104,6 +132,56 @@ describe('integration: decision index', () => {
       assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
       assert.deepEqual(byId['AIF-ARCH-002'].references, ['AIF-ARCH-001']);
     });
+  });
+
+  it('DEC-IT01b: legacy records missing Tier/Domain do not halt the scan and '
+    + 'produce a complete, correct index alongside fully-tagged records', async () => {
+    const decisionsDir = join(projectRoot, 'docs', 'decisions');
+    mkdirSync(decisionsDir, { recursive: true });
+    writeFileSync(
+      join(projectRoot, '.aiconfig.json'),
+      JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
+      'utf8',
+    );
+    // Fully-tagged record.
+    writeFileSync(
+      join(decisionsDir, 'AIF-002-001.decision.md'),
+      decisionFixture({ id: 'AIF-002-001', title: 'Fully Tagged Decision' }),
+      'utf8',
+    );
+    // Legacy records missing Tier/Domain, one referencing the other.
+    writeFileSync(
+      join(decisionsDir, 'AIF-ARCH-001.decision.md'),
+      legacyDecisionFixture({ id: 'AIF-ARCH-001', title: 'Legacy Decision One' }),
+      'utf8',
+    );
+    writeFileSync(
+      join(decisionsDir, 'AIF-ARCH-002.decision.md'),
+      legacyDecisionFixture({
+        id: 'AIF-ARCH-002',
+        title: 'Legacy Decision Two',
+        references: 'AIF-ARCH-001',
+      }),
+      'utf8',
+    );
+
+    const { code } = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
+    assert.equal(code, 0);
+
+    const indexPath = join(decisionsDir, 'index.json');
+    assert.ok(existsSync(indexPath));
+    const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+    assert.equal(index.entries.length, 3);
+
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+    assert.equal(byId['AIF-002-001'].tier, 'A');
+    assert.equal(byId['AIF-002-001'].domain, 'architecture');
+    assert.equal(byId['AIF-ARCH-001'].tier, null);
+    assert.equal(byId['AIF-ARCH-001'].domain, null);
+    assert.equal(byId['AIF-ARCH-002'].tier, null);
+    assert.equal(byId['AIF-ARCH-002'].domain, null);
+    assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
+    assert.deepEqual(byId['AIF-ARCH-002'].references, ['AIF-ARCH-001']);
   });
 
   it('DEC-IT02: no -k/-d flag is a usage error, not an implicit -k', async () => {

@@ -53,6 +53,39 @@ Test fixture.
 `;
 }
 
+// Legacy pre-Tier×Domain record (mirrors AIF-ARCH-001/002/003, which were
+// deliberately migrated without Tier/Domain fields — chunk AIF-002-009,
+// "light-touch"). Human-approved fix, no formal Plan ID, per chat approval
+// 2026-08-24.
+function legacyRecordMissingTierAndDomain({
+  id = 'AIF-ARCH-001',
+  status = 'Approved',
+  title = 'A Legacy Decision',
+} = {}) {
+  return `# Decision Record: ${title}
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Decision ID | ${id} |
+| Project | ai-foundation |
+| Status | ${status} |
+| Author (Agent) | Architect |
+| Approved By | Jeremy |
+| Created | 2020-01-01 |
+| Referenced By | — |
+| References | — |
+| Tags | — |
+
+---
+
+## Problem Statement
+
+Test fixture. This decision predates the AIF-META-001 Tier x Domain model.
+`;
+}
+
 // ── parseDecisionRecord ──────────────────────────────────────────────────
 
 describe('unit: decisions/parseDecisionRecord', () => {
@@ -107,6 +140,17 @@ Test fixture.
     assert.deepEqual(withEmpty.record.references, []);
   });
 
+  it('parses a legacy record missing Tier/Domain successfully with null values (DEC-T11)', () => {
+    const content = legacyRecordMissingTierAndDomain();
+    const result = parseDecisionRecord(content, 'AIF-ARCH-001.decision.md');
+
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.id, 'AIF-ARCH-001');
+    assert.equal(result.record.tier, null);
+    assert.equal(result.record.domain, null);
+    assert.equal(result.record.status, 'Approved');
+  });
+
   it('parses Tags: —/empty as [] and a real value splits/trims correctly (DEC-T05)', () => {
     const withDash = parseDecisionRecord(wellFormedRecord({ tags: '—' }), 'a.decision.md');
     const withEmpty = parseDecisionRecord(wellFormedRecord({ tags: '' }), 'b.decision.md');
@@ -137,6 +181,20 @@ describe('unit: decisions/buildDecisionIndex', () => {
     assert.deepEqual(byId.A.referenced_by, []);
     assert.deepEqual(byId.B.referenced_by.sort(), ['A', 'C']);
     assert.deepEqual(byId.C.referenced_by, ['B']);
+  });
+
+  it('produces null tier/domain index entries for legacy records, inversion still works (DEC-T12)', () => {
+    const records = [
+      { id: 'AIF-ARCH-001', tier: null, domain: null, title: 'Legacy A', status: 'Approved', path: 'a.decision.md', references: [], tags: [] },
+      { id: 'AIF-ARCH-002', tier: null, domain: null, title: 'Legacy B', status: 'Approved', path: 'b.decision.md', references: ['AIF-ARCH-001'], tags: [] },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.equal(byId['AIF-ARCH-001'].tier, null);
+    assert.equal(byId['AIF-ARCH-001'].domain, null);
+    assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
   });
 
   it('returns a valid empty index for an empty record list (DEC-T07)', () => {
