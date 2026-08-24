@@ -86,6 +86,8 @@ What this requires to actually hold up:
 
 ## 12. Decision-index synthesis: YouTrack Articles as DR source of truth, `index.json` stays the discovery layer
 
+> **Correction (2026-08-19):** the custom-fields-on-Articles premise below is wrong — Articles have a fixed schema with no custom field support. See `youtrack-dr-issue-setup-notes.md` for the corrected Issue-based design (structured fields on an Issue, readable body on a linked Article).
+
 This resolves the Open Question 10 fork above (for Decision Records specifically) without giving up the filesystem-based discovery the standards/knowledge-loading rules depend on — and it reuses plumbing already being built in AIF-002.
 
 AIF-002-014 (`aif index -d` / `lib/decisions.js`) already splits into pure functions (`parseDecisionRecord`, `buildDecisionIndex`, `diffDecisionIndex` — data in, data out, no I/O) and thin io wrappers (`collectDecisionFiles`, `buildDecisionIndexForDir`), per Rule 6 (design for testability). If DRs move to YouTrack Articles as the source of truth:
