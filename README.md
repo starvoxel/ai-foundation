@@ -69,8 +69,10 @@ aif test [unit|integration|validation]
 aif snapshot --check
 aif snapshot
 
-# Knowledge indexing
-aif index
+# Knowledge/decision indexing
+aif index -k|--knowledge          # generate knowledge/index.json
+aif index -d|--decision           # generate {paths.decisions}/index.json
+aif index -d --check              # verify the decision index without writing
 
 # Project scaffolding
 aif init --name my-app --shortname myapp --language typescript --org acme

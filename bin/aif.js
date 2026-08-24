@@ -44,6 +44,19 @@ export function parseArgs(argv) {
       } else {
         result.args[key] = true;
       }
+    } else if (arg.startsWith('-') && arg.length > 1) {
+      // Single-dash short flag (e.g. -k, -d), after the command has been
+      // identified. Parsed the same way as its double-dash equivalent —
+      // stored under the same key convention (single-character key), with
+      // an optional value if the next arg isn't itself a flag.
+      const key = arg.slice(1);
+      const next = argv[i + 1];
+      if (next && !next.startsWith('-')) {
+        result.args[key] = next;
+        i++;
+      } else {
+        result.args[key] = true;
+      }
     } else if (!commandFound) {
       // Flag before command
       const key = arg.slice(2);
