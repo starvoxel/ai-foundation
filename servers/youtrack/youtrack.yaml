@@ -1,0 +1,208 @@
+name: "youtrack"
+version: "0.1.0"
+protocol: "mcp"
+transport: "http"
+hosted: "vendor"
+description: "JetBrains YouTrack's official remote MCP server: issue and knowledge-base (article) management, project/group/user lookup, and time tracking."
+url: "https://starvoxel.youtrack.cloud/mcp"
+headers:
+  Authorization: "Bearer ${YOUTRACK_TOKEN}"
+# Tool names, inputs, and outputs below were captured from a live
+# listTools() call against the real server on 2026-08-23, not transcribed
+# from vendor marketing docs (see skill/server-authoring's hosted: vendor
+# guidance). Names are snake_case exactly as YouTrack registers them —
+# not renamed to kebab-case, since the name here must match what actually
+# gets invoked at runtime.
+tools:
+  # ── Issue management ────────────────────────────────────────────────────
+  - name: "search_issues"
+    description: "Searches issues using YouTrack's query language (attribute filters like project/for/reporter/tag/State, date ranges, links, free text, keywords like #Unresolved). See the live tool description (or get_issue_fields_schema) for full query syntax."
+    inputs:
+      - "query (string): Search query in YouTrack syntax, e.g. 'project: DEMO for: me #Unresolved'"
+      - "customFieldsToReturn (array): Custom field names to include in each result's customFields map [optional, default: ['Type','State','Assignee']]"
+      - "offset (number): Number of issues to skip [optional, default: 0]"
+      - "limit (number): Maximum issues to return, max 20 [optional, default: 20]"
+    outputs: "JSON object: { issues: [{ id, summary, project, resolved, reporter, created, updated, customFields }] }, paginated by offset/limit."
+
+  - name: "get_issue_fields_schema"
+    description: "Returns the JSON schema for custom fields in a project — required/optional fields and permitted values. Call before create_issue/update_issue to discover what fields exist."
+    inputs:
+      - "projectKey (string): Project key, e.g. 'DEMO'"
+    outputs: "JSON Schema object describing the project's custom fields."
+
+  - name: "create_issue"
+    description: "Creates a new issue in a project. Projects may require specific customFields at creation — check get_issue_fields_schema first."
+    inputs:
+      - "project (string): Project key where the issue will be created"
+      - "summary (string): Issue summary"
+      - "description (string): Issue description, plain text or Markdown [optional]"
+      - "customFields (object): Custom field name -> value map, e.g. { Type: 'Task', Priority: 'Minor' } [optional]"
+      - "parentIssue (string): Parent issue ID — creates this issue as a subtask of it [optional]"
+      - "permittedUsers (array): Usernames restricting who can see the issue [optional]"
+      - "permittedGroups (array): Group names restricting who can see the issue [optional]"
+    outputs: "JSON object: { id, url } of the created issue."
+
+  - name: "create_draft_issue"
+    description: "Creates an issue draft visible only to the current user. Project workflows may pre-fill the description from a template. Update later with update_issue."
+    inputs:
+      - "project (string): Project key"
+      - "summary (string): Issue summary"
+    outputs: "JSON object: { id, url } of the created draft."
+
+  - name: "update_issue"
+    description: "Partially updates an issue or draft: summary, description, custom fields, star/subscription, or vote. Cannot change visibility."
+    inputs:
+      - "issueId (string): Issue ID (e.g. 'DEMO-123') or draft ID (e.g. '3-22')"
+      - "summary (string): New summary [optional]"
+      - "description (string): New description [optional]"
+      - "customFields (object): Subset of custom fields to update; use null to clear a single-value field, [] to clear a multi-value field [optional]"
+      - "subscription (boolean): Star (true) or unstar (false) the issue for the current user [optional]"
+      - "vote (boolean): Add (true) or remove (false) the current user's vote [optional]"
+    outputs: "JSON object: { id, changes } summarizing what was applied."
+
+  - name: "get_issue"
+    description: "Returns full issue details: summary, description, url, project, reporter, links, attachments, tags, votes, recent comments, and custom fields (Type, State, Assignee, Priority, Subsystem, etc)."
+    inputs:
+      - "issueId (string): Issue ID (e.g. 'DEMO-123') or draft ID (e.g. '3-22')"
+      - "recentCommentsCount (number): Number of recent comments to include [optional, default: 5]"
+    outputs: "JSON object with issue details as described above."
+
+  - name: "change_issue_assignee"
+    description: "Sets the Assignee field on an issue to a specified user, or unassigns it."
+    inputs:
+      - "issueId (string): Issue ID"
+      - "assigneeLogin (string): Login of new assignee; pass null to unassign [optional]"
+    outputs: "JSON object confirming the updated Assignee field."
+
+  - name: "add_issue_comment"
+    description: "Adds a Markdown comment to an issue, optionally visibility-restricted."
+    inputs:
+      - "issueId (string): Issue ID"
+      - "text (string): Comment text, plain text or Markdown"
+      - "permittedUsers (array): Usernames restricting who can see the comment [optional]"
+      - "permittedGroups (array): Group names restricting who can see the comment [optional]"
+    outputs: "JSON object confirming the comment was added."
+
+  - name: "get_issue_comments"
+    description: "Lists comments on an issue with author, text, timestamp, and attachments."
+    inputs:
+      - "issueId (string): Issue ID"
+      - "offset (number): Comments to skip [optional, default: 0]"
+      - "limit (number): Maximum comments to return, max 10 [optional, default: 10]"
+    outputs: "JSON object: { comments: [{ author, text, created, attachments }] }, paginated."
+
+  - name: "get_saved_issue_searches"
+    description: "Returns the current user's favorited saved searches, each with a reusable query string."
+    inputs:
+      - "offset (number): Searches to skip [optional, default: 0]"
+      - "limit (number): Maximum searches to return, max 20 [optional, default: 20]"
+    outputs: "JSON object: { searches: [{ name, query }] }, paginated."
+
+  - name: "manage_issue_tags"
+    description: "Adds or removes a tag on an issue. An unmatched tag name errors with similar-name suggestions."
+    inputs:
+      - "issueId (string): Issue ID"
+      - "tag (string): Tag ID (preferred) or exact name"
+      - "operation (string): 'add' or 'remove'"
+    outputs: "JSON object: { issueId, tags } reflecting the issue's tags after the change."
+
+  - name: "link_issues"
+    description: "Creates a link between two issues using a named link type (e.g. 'relates to', 'subtask of', 'depends on', 'duplicates', 'blocked by')."
+    inputs:
+      - "targetIssueId (string): The issue being linked"
+      - "linkType (string): Inward/outward link type name"
+      - "issueToLinkId (string): The issue to link from"
+    outputs: "JSON object with updated link counts per link type for the target issue."
+
+  # ── Articles (knowledge base) ───────────────────────────────────────────
+  - name: "create_article"
+    description: "Creates a documentation article in a project, optionally as a sub-article with restricted visibility."
+    inputs:
+      - "project (string): Project key"
+      - "summary (string): Article title"
+      - "content (string): Article content in Markdown [optional]"
+      - "parentArticle (string): Parent article ID — creates this as a sub-article of it [optional]"
+      - "permittedUsers (array): Usernames restricting who can see the article [optional]"
+      - "permittedGroups (array): Group names restricting who can see the article [optional]"
+    outputs: "JSON object: { id, url } of the created article."
+
+  - name: "update_article"
+    description: "Updates an article's title, content, or parent. Content replaces existing content unless append is true."
+    inputs:
+      - "articleId (string): Article ID (e.g. 'DEMO-A-123')"
+      - "summary (string): New title [optional]"
+      - "content (string): New content in Markdown [optional]"
+      - "append (boolean): Append to end instead of overwriting [optional, default: false]"
+      - "parentArticleId (string): New parent article ID [optional]"
+    outputs: "JSON object: { id, url } of the updated article."
+
+  - name: "get_article"
+    description: "Returns article details: title, content, sub-articles, tags, and visibility. Supports line-range navigation for long articles."
+    inputs:
+      - "articleId (string): Article ID (e.g. 'DEMO-A-123')"
+      - "linesOffset (number): Content lines to skip [optional, default: 0]"
+      - "linesCount (number): Maximum content lines to return [optional, default: 500]"
+    outputs: "JSON object with article details as described above."
+
+  - name: "search_articles"
+    description: "Searches the knowledge base using YouTrack's query language (project, author, tag, date, has: filters, plus free text)."
+    inputs:
+      - "query (string): Search query in YouTrack syntax"
+      - "offset (number): Articles to skip [optional, default: 0]"
+      - "limit (number): Maximum articles to return, max 20 [optional, default: 10]"
+    outputs: "JSON object: { articles: [{ id, summary, url, parentArticle, matches }] }, paginated."
+
+  # ── Projects & groups ────────────────────────────────────────────────────
+  - name: "find_projects"
+    description: "Finds projects by case-insensitive name/key substring; empty string lists all projects."
+    inputs:
+      - "query (string): Substring to match in project name or key"
+      - "offset (number): Items to skip [optional, default: 0]"
+      - "limit (number): Maximum items to return, max 20 [optional, default: 20]"
+    outputs: "JSON object: { projects: [{ key, name }] }, paginated."
+
+  - name: "get_project"
+    description: "Returns a project's full configuration, team info, and time-tracking settings (work item types, attribute values)."
+    inputs:
+      - "projectKey (string): Project key, e.g. 'DEMO'"
+    outputs: "JSON object with project configuration as described above."
+
+  - name: "find_user_groups"
+    description: "Finds user groups or project teams by case-insensitive name substring; empty string lists all."
+    inputs:
+      - "nameContains (string): Substring to match in group or team name"
+      - "offset (number): Items to skip [optional, default: 0]"
+      - "limit (number): Maximum items to return, max 20 [optional, default: 20]"
+    outputs: "JSON object: { groups: [{ name }] }, paginated."
+
+  - name: "get_user_group_members"
+    description: "Lists members of a group or project team."
+    inputs:
+      - "group (string): Group or project team name"
+      - "offset (number): Members to skip [optional, default: 0]"
+      - "limit (number): Maximum members to return, max 20 [optional, default: 20]"
+    outputs: "JSON object: { members: [{ login, fullName }] }, paginated."
+
+  # ── Users ────────────────────────────────────────────────────────────────
+  - name: "find_user"
+    description: "Finds a user by exact login or email. 'me' returns the currently authenticated user."
+    inputs:
+      - "loginOrEmail (string): Username or email, or 'me'"
+    outputs: "JSON object: { login, fullName, email, timeZone }."
+
+  - name: "get_current_user"
+    description: "Returns the authenticated account's own profile."
+    inputs: []
+    outputs: "JSON object: { login, email, fullName, timeZone }."
+
+  # ── Time tracking ────────────────────────────────────────────────────────
+  - name: "log_work"
+    description: "Logs a work item (time spent) against an issue. Available work types and attributes are defined in the project's time-tracking settings (see get_project)."
+    inputs:
+      - "issueId (string): Issue ID the work item belongs to"
+      - "durationMinutes (number): Work duration in minutes, positive integer"
+      - "description (string): Work item description [optional]"
+      - "date (string): Date for the work item, 'yyyy-MM-dd' [optional]"
+      - "workType (string): Work type name defined in the project's time-tracking settings, e.g. 'Development' [optional]"
+      - "workItemAttributes (object): Work item attribute name -> value map, per the project's time-tracking settings [optional]"
+    outputs: "JSON object confirming the logged work item."
