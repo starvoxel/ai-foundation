@@ -1,0 +1,7 @@
+{
+  "server": "youtrack",
+  "computed_at": "2026-08-24T01:43:28.924Z",
+  "sources": {
+    "servers/youtrack/youtrack.yaml": "sha256:e850cd0ab2056d891e943c3b398fea4d12f5f3f3daae061ea1d4fc0316c2e393"
+  }
+}
