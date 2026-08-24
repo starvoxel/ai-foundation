@@ -1,7 +1,7 @@
 {
   "epic_id": "AIF-002",
   "status": "In Progress",
-  "current_wave": 1,
+  "current_wave": 2,
   "total_waves": 3,
   "chunks": [
     { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-002/001-decision-triage", "worktree_path": "", "pr_number": 2, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/2", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -18,7 +18,7 @@
     { "id": "012", "wave": 1, "status": "Done", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": 16, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/16", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "013", "wave": 1, "status": "Done", "branch": "AIF-002/013-migrate-aif-011", "worktree_path": "../worktrees/ai-foundation/AIF-002/013-migrate-aif-011", "pr_number": 14, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/14", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "014", "wave": 1, "status": "Done", "branch": "AIF-002/014-aif-index-decisions-cli", "worktree_path": "../worktrees/ai-foundation/AIF-002/014-aif-index-decisions-cli", "pr_number": 17, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/17", "iterations": 1, "blocked_reason": null, "agents": ["Software-Engineer"] },
-    { "id": "015", "wave": 2, "status": "Ready", "branch": "", "worktree_path": "", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "015", "wave": 2, "status": "Implementing", "branch": "AIF-002/015-backfill-decisions-index", "worktree_path": "../worktrees/ai-foundation/AIF-002/015-backfill-decisions-index", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [
     {
@@ -464,6 +464,27 @@
       "action": "pr_created",
       "chunk_id": "014",
       "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/17 (head commit dab9f57). No push needed (branch already matched origin). Body notes PE approval after one review-loop iteration, both non-blocking MEDIUM/LOW findings surfaced for human visibility. WAVE 1 (010-014) NOW FULLY DISPATCHED: all 5 chunks Done, PRs open (#13 merged, #14/#15/#16 merged, #17 open awaiting human merge)."
+    },
+    {
+      "timestamp": "2026-08-23T21:00:00Z",
+      "agent": "Software-Engineer",
+      "action": "chunk_status_changed",
+      "chunk_id": null,
+      "details": "Fixed the ai-git push/fetch auth-injection token-leak bug (human-approved ad hoc fix, no formal Plan ID) directly on main: commit 5543cc4. Root cause was injectAuthUrl only checking args[1], mishandling -u immediately after `push`; replaced URL-embedded token injection with a transient -c http.<scope>.extraheader= Basic-auth header override, making auth injection argument-order-independent by construction. Added unit tests (multiple -u/--set-upstream orderings) and an integration test asserting the token never appears in stdout/stderr/.git/config. npm test 629/629 passing, independently re-confirmed by Engineering-Manager. Security escalation (see escalations array) marked resolved."
+    },
+    {
+      "timestamp": "2026-08-24T00:15:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_completed",
+      "chunk_id": null,
+      "details": "Human confirmed PR #17 (chunk 014) merged. Verified via `ai-git gh-pr-list --state open` (empty) and `--state merged` (#13/#14/#15/#16/#17 all present). Wave 1 (010-014) confirmed all Done, all PRs merged. current_wave -> 2."
+    },
+    {
+      "timestamp": "2026-08-24T00:16:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Wave-boundary rebase: rebased main onto origin/main (6f7eb17, includes PR #17's merge commit) after stashing pre-existing unrelated uncommitted changes (docs/misc/youtrack-tracking-config-notes.md, present since before this session) and popping them back cleanly. No Wave 2 chunk has an existing worktree, so no further rebase needed. Verified chunk 015's Chunk Plan (AIF-002-015) is Status: Approved, and all 6 dependencies (009, 010, 011, 012, 013, 014) are Done/merged. Created branch AIF-002/015-backfill-decisions-index and worktree ../worktrees/ai-foundation/AIF-002/015-backfill-decisions-index per skill/worktree-management; ran npm ci. Dispatching AI-Engineer for chunk 015 (final chunk, sole Wave 2/Wave 3 -- Epic Plan's chunks.json places it alone in the final wave)."
     }
   ]
 }
