@@ -12,7 +12,7 @@
 | Author (Agent) | Architect |
 | Approved By | Jeremy |
 | Created | 2026-08-13 |
-| Referenced By | AIF-PROC-004, AIF-PROC-005, AIF-PROC-006 |
+| Referenced By | AIF-PROC-004, AIF-PROC-005, AIF-PROC-006, AIF-ARCH-005 |
 | References | AIF-PROC-001 |
 | Tags | orchestration, dual-track, dispatch |
 

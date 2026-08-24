@@ -13,7 +13,7 @@
 | Approved By | Jeremy |
 | Created | 2026-08-23 |
 | Referenced By | — |
-| References | AIF-005 |
+| References | AIF-PROC-002 |
 | Tags | mcp, dag, tooling, cross-harness |
 
 > **Note:** This record documents, retrospectively, a decision already implemented in `servers/dag/` (built under `docs/plans/completed/engineering-manager-plan.md`, Phase 1, commit `f29d00e`). No Decision Record was produced at the time. It is written now, at human request, so the reasoning is a durable, citable artifact instead of something that has to be reconstructed from a plan's prose each time it comes up — and so the same reasoning can be applied consistently when auditing other cross-harness tooling (see Impact on Planning). Options B and C below were not actually built or trialed; they are reconstructed counterfactuals evaluated against the same constraints the original implementation satisfied, not alternatives that were live-tested and discarded.

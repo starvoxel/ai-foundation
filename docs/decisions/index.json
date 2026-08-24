@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T00:43:51.811Z",
+  "generated_at": "2026-08-24T01:39:21.947Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -71,7 +71,7 @@
       "supersedes": [],
       "superseded_by": [],
       "references": [
-        "AIF-005"
+        "AIF-PROC-002"
       ],
       "referenced_by": [
         "AIF-ARCH-006"
@@ -173,6 +173,7 @@
         "AIF-PROC-001"
       ],
       "referenced_by": [
+        "AIF-ARCH-005",
         "AIF-PROC-003",
         "AIF-PROC-004",
         "AIF-PROC-005",
