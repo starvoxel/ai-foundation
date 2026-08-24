@@ -1,0 +1,274 @@
+{
+  "generated_at": "2026-08-24T00:43:51.811Z",
+  "entries": [
+    {
+      "id": "AIF-ARCH-001",
+      "tier": null,
+      "domain": null,
+      "title": "Install CLI Redesign",
+      "status": "Approved",
+      "path": "architecture/AIF-ARCH-001_install-cli-redesign.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [],
+      "referenced_by": [],
+      "tags": []
+    },
+    {
+      "id": "AIF-ARCH-002",
+      "tier": null,
+      "domain": null,
+      "title": "Steering Schema & Harness Adapter Scoping",
+      "status": "Approved",
+      "path": "architecture/AIF-ARCH-002_steering-schema-harness-scoping.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [],
+      "referenced_by": [],
+      "tags": []
+    },
+    {
+      "id": "AIF-ARCH-003",
+      "tier": null,
+      "domain": null,
+      "title": "Shared Resource Lifecycle Management (Servers & Hooks)",
+      "status": "Approved",
+      "path": "architecture/AIF-ARCH-003_shared-resource-lifecycle-management.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [],
+      "referenced_by": [],
+      "tags": []
+    },
+    {
+      "id": "AIF-ARCH-004",
+      "tier": "A",
+      "domain": "architecture",
+      "title": "Standards Push/Pull/Sync Mechanism",
+      "status": "Draft",
+      "path": "architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-004"
+      ],
+      "referenced_by": [],
+      "tags": [
+        "standards-sync",
+        "cli",
+        "filesystem-sync",
+        "config-schema",
+        "conflict-detection"
+      ]
+    },
+    {
+      "id": "AIF-ARCH-005",
+      "tier": "A",
+      "domain": "architecture",
+      "title": "DAG Validation/Wave-Computation as an MCP Server",
+      "status": "Approved",
+      "path": "architecture/AIF-ARCH-005_dag-tool-as-mcp-server.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-005"
+      ],
+      "referenced_by": [
+        "AIF-ARCH-006"
+      ],
+      "tags": [
+        "mcp",
+        "dag",
+        "tooling",
+        "cross-harness"
+      ]
+    },
+    {
+      "id": "AIF-ARCH-006",
+      "tier": "A",
+      "domain": "architecture",
+      "title": "`ai-git` Tool Boundary — CLI Script vs. MCP Server",
+      "status": "Approved",
+      "path": "architecture/AIF-ARCH-006_ai-git-tool-boundary.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-ARCH-005"
+      ],
+      "referenced_by": [],
+      "tags": [
+        "mcp",
+        "ai-git",
+        "tooling",
+        "cross-harness",
+        "credentials"
+      ]
+    },
+    {
+      "id": "AIF-META-001",
+      "tier": "A",
+      "domain": "meta-process",
+      "title": "Decision-Record Tiering, Domain Ownership, and Interconnectivity",
+      "status": "Approved",
+      "path": "meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-004",
+        "AIF-005",
+        "AIF-011 (current numbering; see migration table)"
+      ],
+      "referenced_by": [],
+      "tags": []
+    },
+    {
+      "id": "AIF-PLAN-001",
+      "tier": "A",
+      "domain": "planning",
+      "title": "Co-locate Epic/Chunk Plan Artifacts, Split Work Log from Plan Body",
+      "status": "Approved",
+      "path": "planning/AIF-PLAN-001_epic-chunk-colocation-worklog-split.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [],
+      "referenced_by": [],
+      "tags": [
+        "epic-chunk-colocation",
+        "worklog-split",
+        "plan-lifecycle"
+      ]
+    },
+    {
+      "id": "AIF-PROC-001",
+      "tier": "A",
+      "domain": "process",
+      "title": "AI-Engineer / Software-Engineer Boundary for ai-foundation Repo Code",
+      "status": "Approved",
+      "path": "process/AIF-PROC-001_ai-engineer-framework-code-boundary.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [],
+      "referenced_by": [
+        "AIF-PROC-002",
+        "AIF-PROC-004",
+        "AIF-PROC-005",
+        "AIF-PROC-006"
+      ],
+      "tags": [
+        "boundary",
+        "ownership",
+        "application-code"
+      ]
+    },
+    {
+      "id": "AIF-PROC-002",
+      "tier": "A",
+      "domain": "process",
+      "title": "AI-Track Chunk Orchestration Dispatch",
+      "status": "Approved",
+      "path": "process/AIF-PROC-002_ai-track-orchestration-dispatch.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-001"
+      ],
+      "referenced_by": [
+        "AIF-PROC-003",
+        "AIF-PROC-004",
+        "AIF-PROC-005",
+        "AIF-PROC-006"
+      ],
+      "tags": [
+        "orchestration",
+        "dual-track",
+        "dispatch"
+      ]
+    },
+    {
+      "id": "AIF-PROC-003",
+      "tier": "A",
+      "domain": "process",
+      "title": "Parallel Chunk Isolation Mechanism (Git Worktrees)",
+      "status": "Draft",
+      "path": "process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-002",
+        "AIF-PROC-005"
+      ],
+      "referenced_by": [],
+      "tags": [
+        "worktrees",
+        "orchestration",
+        "parallel-dispatch",
+        "chunk-isolation",
+        "git"
+      ]
+    },
+    {
+      "id": "AIF-PROC-004",
+      "tier": "B",
+      "domain": "process",
+      "title": "Ownership of Standards Push/Pull/Sync (PLAN.md v1.3)",
+      "status": "Draft",
+      "path": "process/AIF-PROC-004_standards-sync-ownership.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-001",
+        "AIF-PROC-002",
+        "AIF-PROC-005"
+      ],
+      "referenced_by": [
+        "AIF-ARCH-004"
+      ],
+      "tags": [
+        "standards-sync",
+        "ownership"
+      ]
+    },
+    {
+      "id": "AIF-PROC-005",
+      "tier": "A",
+      "domain": "process",
+      "title": "Git Workflow Mode for `ai-foundation`",
+      "status": "Draft",
+      "path": "process/AIF-PROC-005_git-workflow-mode.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-001",
+        "AIF-PROC-002"
+      ],
+      "referenced_by": [
+        "AIF-PROC-003",
+        "AIF-PROC-004"
+      ],
+      "tags": [
+        "git-workflow",
+        "orchestration",
+        "worktrees"
+      ]
+    },
+    {
+      "id": "AIF-PROC-006",
+      "tier": "A",
+      "domain": "process",
+      "title": "Who Sets AI-Track Chunk Boundaries",
+      "status": "Approved",
+      "path": "process/AIF-PROC-006_ai-track-chunk-decomposition-ownership.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-001",
+        "AIF-PROC-002"
+      ],
+      "referenced_by": [],
+      "tags": [
+        "chunk-boundaries",
+        "decomposition"
+      ]
+    }
+  ]
+}
