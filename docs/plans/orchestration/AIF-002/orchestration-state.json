@@ -18,7 +18,7 @@
     { "id": "012", "wave": 1, "status": "Done", "branch": "AIF-002/012-migrate-aif-004-005-007-009-010", "worktree_path": "../worktrees/ai-foundation/AIF-002/012-migrate-aif-004-005-007-009-010", "pr_number": 16, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/16", "iterations": 1, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "013", "wave": 1, "status": "Done", "branch": "AIF-002/013-migrate-aif-011", "worktree_path": "../worktrees/ai-foundation/AIF-002/013-migrate-aif-011", "pr_number": 14, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/14", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "014", "wave": 1, "status": "Done", "branch": "AIF-002/014-aif-index-decisions-cli", "worktree_path": "../worktrees/ai-foundation/AIF-002/014-aif-index-decisions-cli", "pr_number": 17, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/17", "iterations": 1, "blocked_reason": null, "agents": ["Software-Engineer"] },
-    { "id": "015", "wave": 2, "status": "Done", "branch": "AIF-002/015-backfill-decisions-index", "worktree_path": "../worktrees/ai-foundation/AIF-002/015-backfill-decisions-index", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
+    { "id": "015", "wave": 2, "status": "Done", "branch": "AIF-002/015-backfill-decisions-index", "worktree_path": "../worktrees/ai-foundation/AIF-002/015-backfill-decisions-index", "pr_number": 18, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/18", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] }
   ],
   "escalations": [
     {
@@ -528,6 +528,13 @@
       "action": "review_completed",
       "chunk_id": "015",
       "details": "Verdict: APPROVED. Independently verified all 14 index entries against the real docs/decisions/ glob (exact match, no missing/spurious); BF-T03 paths all resolve; BF-T04 confirmed AIF-ARCH-001/002/003 genuinely lack Tier/Domain rows in their source Metadata tables, consistent with null/null in the index (not fabricated, not excluded); BF-T05 manually inverted all 14 entries' references and confirmed bidirectional consistency, including confirming AIF-ARCH-005's stale reference correctly produces no inbound match (expected per Risk 4); confirmed lib/decisions.js's REQUIRED_FIELDS relaxation landed and AIF-ARCH-001/002/003 source files were not modified by it; confirmed Key Design Decision 1 (no hand-editing) via field-order/shape match to buildDecisionIndex's output; confirmed both documentation edits (AIF-META-001 pointer, AIF-ARCH-001 stale-ID fix) landed correctly; confirmed Risk 4 (AIF-ARCH-005 dangling ref) was correctly left unfixed and properly logged, not silently dropped; confirmed Work Log completeness and Rule 2/4 compliance. BF-T06/BF-T07 not independently re-run (no shell access this session), relied on Work Log's documented results per established convention. One MEDIUM non-blocking finding (Epic-level, not this chunk's fault): docs/plans/epics/AIF-002.epic.md Section 10 line 256 still says 'backfilled with all 11 migrated records', stale against the human-approved 14-entry outcome -- flagged for Epic AIF-002 sign-off, not blocking this chunk. Status -> Done. ALL 15 CHUNKS OF EPIC AIF-002 NOW DONE. Dispatching AI-Engineer to create PR for chunk 015."
+    },
+    {
+      "timestamp": "2026-08-24T02:20:00Z",
+      "agent": "AI-Engineer",
+      "action": "pr_created",
+      "chunk_id": "015",
+      "details": "PR created: https://github.com/starvoxel/ai-foundation/pull/18 (head commit ec1b77a). No push needed (branch already matched origin). Body summarizes the index generation, the two mid-implementation escalations and their human resolutions, the two documentation fixes, PE approval with its non-blocking MEDIUM finding, and notes this completes all 15 chunks of Epic AIF-002. ALL AIF-002 CHUNKS DISPATCHED -- awaiting human merge of PR #18 (last of 15/15). Once merged, remaining wrap-up: fix Epic Plan Section 10's stale '11 migrated records' text, confirm Epic AC fully satisfied, present Epic completion summary to human."
     }
   ]
 }
