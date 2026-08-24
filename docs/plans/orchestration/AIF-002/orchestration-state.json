@@ -549,6 +549,13 @@
       "action": "worktree_removed",
       "chunk_id": null,
       "details": "Human explicitly requested worktree cleanup; retried ai-git worktree remove for all 6 Wave 1/2 worktrees (chunks 010-015), no longer blocked by the classifier this time. 010/011/012/013/015 removed cleanly. 014 initially failed ('contains modified or untracked files') -- inspected first: only an untracked docs/index.json (a harmless generated aif index -k artifact, previously noted by the PR-creation agent for this same chunk), no uncommitted source changes -- removed with --force after confirming nothing of value would be lost. All 6 branches (already fully merged) then deleted locally via ai-git branch -d. worktree_path cleared to '' for chunks 010-015 as a bookkeeping match. ai-git worktree list now shows only the main repo."
+    },
+    {
+      "timestamp": "2026-08-24T09:30:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "015",
+      "details": "Human explicitly directed fixing chunk 015's Risk 4 (AIF-ARCH-005's stale AIF-005 reference), with full commit authorization given directly. Fixed AIF-ARCH-005's References field to AIF-PROC-002, added the reverse link on AIF-PROC-002's Referenced By, regenerated docs/decisions/index.json via aif index -d (generated artifact, not hand-edited), confirmed --check passes and npm test 681/681. Committed 745d503 directly to main -- small, contained, human-approved fix, no formal Plan ID (same pattern as commits 5543cc4/c47c86f). Updated chunk AIF-002-015's Risk 4/Work Log and the Epic Plan's Acceptance Criteria/Work Log to reflect resolution (commit 1435d2c). No remaining known open items for Epic AIF-002. Noted but did not touch an unrelated concurrent modification to agents/engineering-manager.yaml (v0.5.0 -> 0.6.0, YouTrack tool grants) found in the working tree -- not part of this session's work, left uncommitted for whoever is making that change."
     }
   ]
 }
