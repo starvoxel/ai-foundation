@@ -177,6 +177,8 @@ What Tech-Lead must know when decomposing the Epic that implements this decision
 
 **Migration of existing records (AIF-001 through AIF-011):**
 
+> **Note (added AIF-002-015):** The table below is this decision's original, point-in-time proposal and remains valid as historical record, but it is no longer the current source of truth for the old→new ID mapping. Epic `AIF-002` Section 4 (migration table) is the authoritative, up-to-date reference — see it for the final resolved IDs, domains, and migration treatment actually applied.
+
 | Old ID | Title | Status | New Domain | New ID | New Folder | `knowledge/index.json`? | Notes |
 |---|---|---|---|---|---|---|---|
 | AIF-001 | Install CLI Redesign | Approved | Architecture | `AIF-ARCH-001` | `architecture/` | Yes | |
