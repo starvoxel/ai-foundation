@@ -6,7 +6,7 @@
   "chunks": [
     { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
-    { "id": "003", "wave": 0, "status": "Implementing", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Reviewing", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -35,6 +35,13 @@
       "action": "chunk_status_changed",
       "chunk_id": "005",
       "details": "AI-Engineer completed implementation on branch AIF-003/005-steering-status-de-enumeration (commits a922338, 5f5c807): replaced the enumerated 'Never reference' bullet in steering/global/knowledge-consumption.md with the negative-phrasing single check against Approved per the plan, and regenerated bundles/engineering/snapshot.json (only the knowledge-consumption.md hash + computed_at changed; 50 other sources unaffected). Self-validated: `aif snapshot --check --bundle engineering` reports up to date, `aif validate` passes, npm test 681/681. Did not touch reference/status-vocabulary.md or the user's installed global rules copy, per plan's Out of Scope. Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline: Test-Engineer skipped)."
+    },
+    {
+      "timestamp": "2026-08-25T18:30:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "003",
+      "details": "AI-Engineer completed implementation on branch AIF-003/003-decision-record-template-sections (commits ca74170, 1459b34): added Last Amended and Supersedes Metadata rows plus ## Amendments/## Errata sections to skills/decision-record/reference/template.md and skills/decision-brief/reference/template.md, matching AIF-003-001's parser expectations exactly. Self-validated: all 10 plan checks (003-T01..T10) passed, npm test 681/681. Flagged (not blocked): no CHANGELOG.md exists anywhere in repo history, so the plan's CHANGELOG checklist item was treated as not applicable, consistent with already-merged sibling chunk AIF-003-001's precedent (commit 862b92e). Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline: Test-Engineer skipped)."
     }
   ]
 }
