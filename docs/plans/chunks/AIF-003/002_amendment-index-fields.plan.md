@@ -10,11 +10,11 @@
 | Depends On | AIF-003-001 |
 | Can Parallel | AIF-003-006 (wave 2) |
 | Project | ai-foundation |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | Tech-Lead |
-| Reviewed By | Pending |
+| Reviewed By | Jeremy Smellie |
 | Created | 2026-08-25 |
-| Last Updated | 2026-08-25 |
+| Last Updated | 2026-08-25 (Approved by Jeremy Smellie) |
 | Standards | `standards/javascript_base.md`, `standards/javascript_node.md` (project tags `javascript`, `node`). Software-Engineer track per `AIF-PROC-001`. |
 
 ---
@@ -311,3 +311,5 @@ Unit fixtures are synthetic in-memory strings, per the existing file's conventio
 ## 15. Work Log
 
 [2026-08-25] [Tech-Lead] [Created] [AIF-003-002] [Chunk Plan drafted from Epic AIF-003 Section 9 following its approval (`8c82f90`). Verified against source: confirmed `entriesEqual` enumerates only array fields for sorting (so the two new scalars must be deliberately included — recorded as Risk 2 with a dedicated test), confirmed `parseMetadataTable` is anchored to `## Metadata` and unsuitable for the positional Amendments table (hence a separate pure helper), and confirmed all 16 current records lack `Last Amended` so the `REQUIRED_FIELDS` trap in Epic Risk 11 would fail every record at once — promoted to an explicit acceptance criterion and a regression test (002-T13). Identified the fenced-code-block exposure in Risk 1 while checking how `## Amendments` would be located; deliberately not fixed here, since `parseMetadataTable` has the same exposure and a partial fix would leave the two functions inconsistent. Folded the index regeneration into this chunk per Epic Risk 12, with an instruction to commit it separately from the code change. Complexity assessed as Tier 2 per `skill/complexity-tiers`.]
+
+[2026-08-25] [Tech-Lead] [Approved] [AIF-003-002] [Approved by Jeremy Smellie with no requested revisions. Status committed per `skill/plan-lifecycle` Step 4, as its own commit ahead of any implementation commit. This chunk is now cleared for dispatch; implementation is Software-Engineer's, not Tech-Lead's, and must commit incrementally per engineering-core Rule 9.]
