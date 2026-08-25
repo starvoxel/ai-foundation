@@ -28,7 +28,8 @@ An `Approved` Decision Record has exactly one documented post-approval transitio
 
 What was non-negotiable:
 
-- Must not add a new `Status` value. `skill/plan-lifecycle` and `reference/status-vocabulary.md` both mandate that dependent-work gates check for `Status: Approved` and nothing else. Any new status (`Amended`, `Amending`, …) would silently block every downstream gate on every amended record.
+- Must not require any existing gate-checking logic to change. `skill/plan-lifecycle` and `reference/status-vocabulary.md` mandate that dependent-work gates check *positively* for `Status: Approved` and never special-case any other value. A new status value is therefore safe to add by construction — every existing gate treats it as "not approved" without modification — but a new *kind* of check would not be.
+- Dependent work must be blocked while an amendment awaits approval. A record whose body contains unapproved content is not in an approved state, and nothing new should start against it until a human has confirmed the change.
 - Must not weaken the human-approval gate for any change that alters what was decided.
 - Must not require an amendment to carry its own Decision ID. A change substantial enough to need independent identity and citation is a supersede by definition — that distinction is the entire reason amendment exists as a separate concept.
 - Must preserve an auditable record of what was approved and when, without relying solely on a reader's willingness to walk `git log`.
@@ -47,7 +48,7 @@ What was a preference but not a hard requirement:
 
 ### Option A: In-record amendment log (`## Amendments`)
 
-**Summary**: Amend the affected section in place, mark it `*(amended — see Amendment N)*`, and append a row to an append-only `## Amendments` table at the bottom of the record recording what changed, why, who approved it, and when. `Status` stays `Approved` throughout.
+**Summary**: Amend the affected section in place, mark it `*(amended — see Amendment N)*`, and append a row to an append-only `## Amendments` table at the bottom of the record recording what changed, why, who approved it, and when. `Status` moves to `Amending` for the duration of the cycle and returns to `Approved` on confirmation.
 
 **Strengths**: The record remains a single readable source of truth — no assembly required to know what is currently true. No ID churn. Near-zero tooling cost. Matches how this repo already handles worklogs.
 
@@ -109,6 +110,7 @@ The two problems in play are orthogonal, exactly as AIF-META-001 found for rigor
 - The originally-approved text of an amended section is no longer recoverable from the record itself, only from `git log`. Accepted because the `## Amendments` table names the section and summarises the change, so the reader knows what to look for and where; the alternatives that avoid this (Options B and C) each cost more than the audit convenience is worth.
 - The errata test is semantic, not mechanically checkable. Mitigated by the default-deny tie-breaker below rather than by attempting to make it checkable.
 - Three rungs is more surface area to teach than one. Accepted because the ladder's shape is already familiar from AIF-META-001.
+- `Amending` blocks work that has not yet started, but does not retroactively stop work already in flight that checked `Approved` before the amendment was proposed. Accepted as inherent to a status-based gate rather than a defect of this design — the same is true of `Superseded` today.
 
 ---
 
@@ -119,7 +121,7 @@ The two problems in play are orthogonal, exactly as AIF-META-001 found for rigor
 | Change | Path | Author | Gate |
 |---|---|---|---|
 | Provably cannot alter the decision | `## Errata` entry | Anyone | None |
-| Alters the record, but the original rationale still holds | `## Amendments` entry + in-place edit | Domain owner | Two-commit confirmation (below) |
+| Alters the record, but the original rationale still holds | `## Amendments` entry + in-place edit | Domain owner | `Amending` + two-commit confirmation (below) |
 | The original rationale no longer holds, or the decision reverses | `Status: Superseded` + new record | Domain owner | Full Tier A cycle |
 
 ### The errata test
@@ -144,14 +146,15 @@ The second row of the right-hand column is the case most likely to be misfiled. 
 
 ### Record-shape changes
 
-Two optional sections are added to both the `skill/decision-record` and `skill/decision-brief` templates, placed after the closing `Resolved Items` / `Open Items` section. Both are append-only; existing rows are never edited or deleted.
+Two optional sections are added to both the `skill/decision-record` and `skill/decision-brief` templates, placed after the closing `Resolved Items` / `Open Items` section. Both are append-only; a row's `Outcome` is filled in once when the cycle closes, and otherwise existing rows are never edited or deleted.
 
 ```markdown
 ## Amendments
 
-| # | Date | Section | Change | Rationale | Approved By |
+| # | Date | Section | Change | Rationale | Outcome |
 |---|---|---|---|---|---|
-| 1 | 2026-09-02 | Design | {what changed} | {why} | {human name} |
+| 1 | 2026-09-02 | Design | {what changed} | {why} | Approved by {name} |
+| 2 | 2026-09-14 | Decision | {what was proposed} | {why} | Rejected by {name} |
 
 ## Errata
 
@@ -160,35 +163,50 @@ Two optional sections are added to both the `skill/decision-record` and `skill/d
 | 1 | 2026-09-02 | {what changed} | {name} |
 ```
 
+`Outcome` reads `Pending` while `Status: Amending`, and is filled in with `Approved by {name}` or `Rejected by {name}` when the cycle closes. Rejected rows stay in the table — that a change was proposed and declined is worth keeping, and it is the only place that fact survives outside `git log`.
+
 An amended section carries an inline marker at the point of change: `*(amended — see Amendment N)*`. Errata carry no inline marker, since by construction there is nothing at the point of change worth flagging.
 
 One Metadata field is added: `Last Amended | {YYYY-MM-DD} (Amendment {N})` or `—`. Errata do not touch it — they are not amendments and must not present as though a reader should re-check anything.
 
 ### Status handling
 
-`Status` remains `Approved` for the entire amendment cycle. This is load-bearing, not incidental: moving an amended record to `Draft` while its amendment is pending would break every dependent gate that checks for `Approved`, which is precisely the failure mode the no-new-status constraint exists to prevent. The amendment's own pending state lives in the `Approved By` column of its `## Amendments` row, not in the record's `Status`.
+`reference/status-vocabulary.md` gains one value, scoped to Decision Records only (alongside `Superseded`):
 
-`reference/status-vocabulary.md` gains one transition and no new values:
+| Status | Meaning | Dependent work allowed? |
+|---|---|---|
+| `Amending` | An amendment has been proposed and applied to the body, and is awaiting human confirmation. | No |
 
-- `Approved` → `Approved` (amendment or errata; the record stays approved throughout)
+`Amending` is to an approved record what `Draft` is to a new one: the body contains content no human has confirmed. Because every gate checks positively for `Approved` and `reference/status-vocabulary.md` forbids special-casing any other value, this new status blocks dependent work through the existing mechanism — no gate-checking logic anywhere needs to change.
+
+Blocking is the intended behaviour, not a cost accepted reluctantly. Amendment is partial in what it changes, but a record mid-amendment is wholly unconfirmed while it sits there, and nothing new should start against it until the human has decided.
+
+New transitions:
+
+- `Approved` → `Amending` (amendment proposed)
+- `Amending` → `Approved` (human confirms, or rejects and the proposal is withdrawn)
+
+Errata never touch `Status`. An errata change cannot alter the decision, so there is nothing for a gate to protect.
 
 ### Amendment gate — two commits
 
-Mirrors Tier B's two-commit shape without touching `Status`:
+Mirrors Tier B's two-commit shape:
 
 ```
-1. Domain owner appends the Amendments row describing the proposed change,
-   Approved By: Pending. Body text is NOT yet edited.
+1. Domain owner applies the body edit, adds the inline marker, appends the
+   Amendments row (Outcome: Pending), sets Status: Amending.
                                         -> commit ("Propose amendment: ...")
 2. Present to human.
-3. Human confirms -> apply the body edit, add the inline marker, fill in
-   Approved By, update Last Amended.
-                                        -> commit ("Amend decision: ...")
+3a. Human confirms -> Outcome: Approved by {name}, update Last Amended,
+    Status back to Approved.            -> commit ("Amend decision: ...")
+3b. Human rejects  -> revert the body edit and inline marker,
+    Outcome: Rejected by {name} (the row stays),
+    Status back to Approved.            -> commit ("Reject amendment: ...")
 ```
 
-The body edit deliberately lands only in the approval commit, so the record's body at any commit is always body-as-approved — a reader between the two commits sees a proposal, never unapproved content presented as decided.
+The body edit lands in the proposal commit rather than being deferred, because `Amending` already tells any reader that the body is unconfirmed. Deferring the edit would mean holding the proposed wording somewhere other than the place it belongs, for a safety property the status now provides directly.
 
-Errata need no sequence: edit, append the `## Errata` row, one commit (`Errata: ...`).
+Errata need no sequence and no status change: edit, append the `## Errata` row, one commit (`Errata: ...`).
 
 ### Tooling
 
@@ -205,7 +223,8 @@ What every domain's decision-authoring agent must know, since a meta-process dec
 - Superseding is no longer the only governed post-approval path. Before superseding a record, check the ladder: if the original rationale still holds, this is an amendment.
 - Amendments never receive a Decision ID. If a change feels like it needs one, that feeling is the signal to supersede instead.
 - Errata may be authored by anyone; amendments and supersedes remain the domain owner's, per AIF-META-001's ownership table. The errata test therefore gates authorship as well as approval, which is why its default-deny property is not optional.
-- No `Status` value is added, and no existing gate-checking logic changes. Any future work that checks `Status: Approved` continues to work unmodified against amended records.
+- One `Status` value is added — `Amending`, Decision Records only. No existing gate-checking logic changes: every gate already checks positively for `Approved`, so `Amending` blocks dependent work through the mechanism that is already there. Do not add special-case handling for it, exactly as `reference/status-vocabulary.md` already forbids for `Draft` and `Deferred`.
+- A record in `Amending` does not satisfy an approval gate. Work that depends on an amended record must wait for the amendment to be confirmed or rejected, even if the section being amended is unrelated to that work.
 - `skill/decision-triage` gains no new routing responsibility. Triage classifies new decisions; choosing a rung for an existing record is the domain owner's call at the point of change.
 - Ruled out and must not reappear: child-record amendments with their own IDs (Option B), inline section-level version stamps (Option C), and whole-record versioned reissue (Option E).
 
@@ -219,6 +238,8 @@ What every domain's decision-authoring agent must know, since a meta-process dec
 | 2 | Who may author an amendment? | Errata: anyone, given the rung cannot alter the decision. Amendments and supersedes: the domain owner per AIF-META-001. |
 | 3 | Should the errata boundary be drawn by section or by meaning? | By meaning. A section-boundary rule was proposed and rejected — it is checkable but wrong, admitting substantive rewrites in `Options Explored` while excluding typo fixes in `Decision`. |
 | 4 | How is a semantic test kept from becoming a loophole? | Default-deny: doubt disqualifies. Uncertainty removes the ungated option rather than leaving it to the author's judgment. |
+| 5 | Should a new `Status` value be added for the amendment cycle? | Yes — `Amending`. An earlier draft ruled this out on the grounds that a new status would break downstream gates; that was wrong. Gates check positively for `Approved` and are forbidden from special-casing other values, so a new value engages them uniformly rather than breaking them. Blocking dependent work while an amendment is unconfirmed is the desired behaviour. |
+| 6 | Should the body edit land in the proposal commit or the approval commit? | The proposal commit. Deferring it was only ever a workaround for a reader mistaking unapproved content for decided content — a job `Amending` now does directly and more visibly. |
 
 ## Open Items
 
