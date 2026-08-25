@@ -6,9 +6,9 @@
   "chunks": [
     { "id": "001", "wave": 0, "status": "Testing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
-    { "id": "003", "wave": 0, "status": "PR-Pending", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": 21, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/21", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": 19, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/19", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "005", "wave": 0, "status": "PR-Pending", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": 20, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/20", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 2, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 2, "status": "NotPlanned", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": "Chunk Plan not yet Approved by human. Open Question resolved (deferred ai-engineer.yaml skills-list gap to AIF-004) but Status still Draft as of orchestration start.", "agents": ["AI-Engineer"] }
@@ -63,6 +63,20 @@
       "action": "pr_opened",
       "chunk_id": "004",
       "details": "AI-Engineer opened PR #19 (https://github.com/starvoxel/ai-foundation/pull/19) from AIF-003/004-amending-status-vocabulary into main, head commit fe06043. Not merged — awaiting human review/merge per repo governance. Status moved PR-Pending -> Done (pipeline complete; merge is a separate human action)."
+    },
+    {
+      "timestamp": "2026-08-25T19:20:00Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_opened",
+      "chunk_id": "005",
+      "details": "AI-Engineer opened PR #20 (https://github.com/starvoxel/ai-foundation/pull/20) from AIF-003/005-steering-status-de-enumeration into main, head commit 5f5c807. Not merged. Status moved PR-Pending -> Done."
+    },
+    {
+      "timestamp": "2026-08-25T19:22:00Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_opened",
+      "chunk_id": "003",
+      "details": "AI-Engineer opened PR #21 (https://github.com/starvoxel/ai-foundation/pull/21) from AIF-003/003-decision-record-template-sections into main, head commit 1459b34. Not merged. Status moved PR-Pending -> Done. All wave-1 AI-track chunks (003, 004, 005) now Done. Wave 1 remaining: chunk 001 (software-track), still in Testing pending independent Test-Engineer verification."
     }
   ]
 }
