@@ -7,7 +7,7 @@
     { "id": "001", "wave": 0, "status": "Testing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "003", "wave": 0, "status": "PR-Pending", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "PR-Pending", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": 19, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/19", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "PR-Pending", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 2, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -56,6 +56,13 @@
       "action": "chunk_status_changed",
       "chunk_id": "003,004,005",
       "details": "Principal-Engineer reviewed all three AI-track wave-1 chunks in parallel; all three APPROVED. PE's toolset (Read/Grep/Glob/LSP only, no Bash) meant it could not itself execute npm test/aif validate/aif snapshot --check as instructed, and each report flagged this as a tooling constraint with a recommendation that a shell-capable reviewer confirm before merge. Engineering-Manager independently ran `git show --stat` on every commit and `npm test` (and, for 005, `aif validate` + `aif snapshot --check --bundle engineering`) directly in each worktree: 003 (commits ca74170, 1459b34) 681/681 pass; 004 (commit fe06043) 681/681 pass; 005 (commits a922338, 5f5c807) 681/681 pass, validate clean, snapshot up to date. All commit scopes matched what each implementer reported — no undisclosed files touched. PE also caught and corrected an inaccurate 'AIF-003-001 already-merged' framing that had crept into this orchestrator's own chunk-003 summary; corrected in this log's chunk-003 entry above and acknowledged to the human. One non-blocking LOW finding on chunk 003 (unannotated CHANGELOG checkbox in the plan, no action required — no CHANGELOG.md exists in this repo). Status moved Reviewing -> PR-Pending for all three. Re-dispatching each chunk's AI-Engineer to open a PR per skill/chunk-orchestration Step 3."
+    },
+    {
+      "timestamp": "2026-08-25T19:15:00Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_opened",
+      "chunk_id": "004",
+      "details": "AI-Engineer opened PR #19 (https://github.com/starvoxel/ai-foundation/pull/19) from AIF-003/004-amending-status-vocabulary into main, head commit fe06043. Not merged — awaiting human review/merge per repo governance. Status moved PR-Pending -> Done (pipeline complete; merge is a separate human action)."
     }
   ]
 }
