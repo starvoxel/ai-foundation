@@ -167,7 +167,9 @@ Two optional sections are added to both the `skill/decision-record` and `skill/d
 
 An amended section carries an inline marker at the point of change: `*(amended — see Amendment N)*`. Errata carry no inline marker, since by construction there is nothing at the point of change worth flagging.
 
-One Metadata field is added: `Last Amended | {YYYY-MM-DD} (Amendment {N})` or `—`. Errata do not touch it — they are not amendments and must not present as though a reader should re-check anything.
+One Metadata field is added: `Last Amended | {YYYY-MM-DD} (Amendment {N})`. Errata do not touch it — they are not amendments and must not present as though a reader should re-check anything.
+
+The field is **optional and forward-looking**. Existing records are not retrofitted; a record acquires `Last Amended` the first time it is amended and not before, so the field's presence is itself the signal that a record has ever been amended. This follows the tolerance `lib/decisions.js` already applies to `Tier`/`Domain` for the pre-AIF-META-001 records (`REQUIRED_FIELDS` is only `Decision ID` and `Status`) — `Last Amended` must not be added to `REQUIRED_FIELDS`.
 
 ### Status handling
 
@@ -212,7 +214,9 @@ Errata need no sequence and no status change: edit, append the `## Errata` row, 
 
 `lib/decisions.js` currently hardcodes `supersedes: []` and `superseded_by: []` in `buildDecisionIndex` (`lib/decisions.js:134`) and never reads a `Supersedes` field in `parseDecisionRecord`. The existing all-or-nothing path is therefore only half-wired today, independent of this decision. Implementing work must fix that parse before adding anything new, or the index will misrepresent the top rung of the very ladder it is being extended to describe.
 
-Index entries gain `last_amended` (string or `null`) and `amendment_count` (integer). Errata are deliberately not indexed — an indexed errata list would imply readers should consult it, contradicting the rung's defining property.
+Index entries gain `last_amended` (string, or `null` for any record whose Metadata table has no such field — the normal case) and `amendment_count` (integer, `0` when the `## Amendments` section is absent). Errata are deliberately not indexed — an indexed errata list would imply readers should consult it, contradicting the rung's defining property.
+
+Sequencing of the `Supersedes`-parse fix against the rest of this work is left to Epic decomposition rather than fixed here — see Resolved Items.
 
 ---
 
@@ -225,6 +229,7 @@ What every domain's decision-authoring agent must know, since a meta-process dec
 - Errata may be authored by anyone; amendments and supersedes remain the domain owner's, per AIF-META-001's ownership table. The errata test therefore gates authorship as well as approval, which is why its default-deny property is not optional.
 - One `Status` value is added — `Amending`, Decision Records only. No existing gate-checking logic changes: every gate already checks positively for `Approved`, so `Amending` blocks dependent work through the mechanism that is already there. Do not add special-case handling for it, exactly as `reference/status-vocabulary.md` already forbids for `Draft` and `Deferred`.
 - A record in `Amending` does not satisfy an approval gate. Work that depends on an amended record must wait for the amendment to be confirmed or rejected, even if the section being amended is unrelated to that work.
+- Records predating this decision are not retrofitted. An absent `Last Amended` field means "never amended", not "unknown" — do not treat its absence as a gap to be backfilled.
 - `skill/decision-triage` gains no new routing responsibility. Triage classifies new decisions; choosing a rung for an existing record is the domain owner's call at the point of change.
 - Ruled out and must not reappear: child-record amendments with their own IDs (Option B), inline section-level version stamps (Option C), and whole-record versioned reissue (Option E).
 
@@ -240,10 +245,5 @@ What every domain's decision-authoring agent must know, since a meta-process dec
 | 4 | How is a semantic test kept from becoming a loophole? | Default-deny: doubt disqualifies. Uncertainty removes the ungated option rather than leaving it to the author's judgment. |
 | 5 | Should a new `Status` value be added for the amendment cycle? | Yes — `Amending`. An earlier draft ruled this out on the grounds that a new status would break downstream gates; that was wrong. Gates check positively for `Approved` and are forbidden from special-casing other values, so a new value engages them uniformly rather than breaking them. Blocking dependent work while an amendment is unconfirmed is the desired behaviour. |
 | 6 | Should the body edit land in the proposal commit or the approval commit? | The proposal commit. Deferring it was only ever a workaround for a reader mistaking unapproved content for decided content — a job `Amending` now does directly and more visibly. |
-
-## Open Items
-
-| # | Item | Owner |
-|---|---|---|
-| 1 | Whether the `lib/decisions.js` `Supersedes`-parse fix ships in this decision's implementing Epic or as a standalone correction ahead of it | Human |
-| 2 | Whether the existing records are retrofitted with the `Last Amended` metadata field or gain it lazily on first amendment | Human |
+| 7 | Does the `lib/decisions.js` `Supersedes`-parse fix ship inside this decision's implementing Epic or as a standalone correction ahead of it? | Deferred to Epic decomposition, to be settled with Tech-Lead when the Epic is written. This record states only that the fix must land before the index describes the new rungs; it does not constrain how that work is packaged. |
+| 8 | Are existing records retrofitted with `Last Amended`, or do they acquire it lazily? | Forward-looking only — no retrofit. The field is optional, and a record gains it on first amendment, so its presence is itself the signal that a record has ever been amended. |
