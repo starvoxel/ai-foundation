@@ -10,11 +10,11 @@
 | Depends On | None |
 | Can Parallel | AIF-003-003, AIF-003-004, AIF-003-005 (wave 1) |
 | Project | ai-foundation |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | Tech-Lead |
-| Reviewed By | Pending |
+| Reviewed By | Jeremy Smellie |
 | Created | 2026-08-25 |
-| Last Updated | 2026-08-25 |
+| Last Updated | 2026-08-25 (Approved by Jeremy Smellie) |
 | Standards | `standards/javascript_base.md`, `standards/javascript_node.md` (project tags `javascript`, `node`). Software-Engineer track per `AIF-PROC-001`. |
 
 ---
@@ -259,3 +259,5 @@ All tests are unit tests against synthetic in-memory fixtures, per the existing 
 ## 15. Work Log
 
 [2026-08-25] [Tech-Lead] [Created] [AIF-003-001] [Chunk Plan drafted from Epic AIF-003 Section 9 following its approval (`8c82f90`). Verified against the current source rather than the Epic's summary: confirmed `buildDecisionIndex` hardcodes both arrays (`lib/decisions.js:134-136`), confirmed `parseDecisionRecord` returns no `supersedes` property, confirmed `parseListField` already handles the `—` convention and comma splitting, and confirmed `entriesEqual` already normalises both fields — so `diffDecisionIndex` needs no change and none is planned. Scoped the index regeneration out (AIF-003-002 owns it) and recorded as Risk 1 that this chunk therefore produces no visible `index.json` change, with an explicit instruction not to manufacture a supersede relationship to demonstrate one. Complexity assessed as Tier 2 per `skill/complexity-tiers`: a contained change to two functions in one file, following a pattern that already exists in the same file.]
+
+[2026-08-25] [Tech-Lead] [Approved] [AIF-003-001] [Approved by Jeremy Smellie with no requested revisions. Status committed per `skill/plan-lifecycle` Step 4, as its own commit ahead of any implementation commit. This chunk is now cleared for dispatch; implementation is Software-Engineer's, not Tech-Lead's, and must commit incrementally per engineering-core Rule 9.]
