@@ -126,11 +126,11 @@ The two problems in play are orthogonal, exactly as AIF-META-001 found for rigor
 
 ### The errata test
 
-> **Errata** is a change that provably leaves the rendered meaning of `Options Explored`, `Decision`, `Design`, and `Impact on Planning` unchanged. Any change that alters, adds to, or removes from the solution space considered, the chosen approach, or how it is to be implemented is not errata — regardless of how small it appears or which section of the record it occupies.
+> **Errata** is a change that provably leaves the rendered meaning of a record's substantive sections unchanged — `Options Explored`, `Decision, Design`, and `Impact on Planning` at Tier A; `Rationale`, `Decision`, and `Impact` at Tier B. Any change that alters, adds to, or removes from the solution space considered, the chosen approach, or how it is to be implemented is not errata — regardless of how small it appears or which section of the record it occupies.
 
 Two properties of this test matter and are easy to get wrong:
 
-1. **It is about meaning, not location.** A typo inside the `Decision` section is errata. A clarifying rewrite of an option's stated weakness in `Options Explored` is not, even though `Options Explored` describes work already concluded.
+1. **It is about meaning, not location.** A typo inside the `Decision` section is errata. A clarifying rewrite of an option's stated weakness in `Options Explored` is not, even though `Options Explored` describes work already concluded — nor is its Tier B equivalent, a rewrite of `Rationale`, which carries the reasoning a brief has in place of an options table
 2. **Doubt disqualifies.** If it is not obvious that a change leaves meaning unchanged, it is not errata. This default-deny tie-breaker is what makes the ungated rung safe without making the test mechanically checkable: an author cannot reason their way into the ungated path, because uncertainty itself removes the option.
 
 Worked examples:
@@ -139,7 +139,7 @@ Worked examples:
 |---|---|
 | Typos, grammar, formatting | Correcting a factual claim in an option's strengths or weaknesses |
 | Broken or moved link/path fixes | Adding an option that was not originally considered |
-| ID renumbering where the referent is identical (`AIF-004` → `AIF-PROC-001`) | Sharpening vague wording in `Decision` or `Design` |
+| ID renumbering where the referent is identical (`AIF-004` → `AIF-PROC-001`) | Sharpening vague wording in `Decision`, `Design` or `Rationale` |
 | Metadata corrections other than `Status`, `Tier`, `Domain` | Any change to `Status`, `Tier`, or `Domain` |
 
 The second row of the right-hand column is the case most likely to be misfiled. Discovering that "Option B cannot do X" was factually wrong is not a correction to be logged and forgotten — it undermines the reasoning that rejected Option B, so it routes to supersede consideration, not to an amendment row.
