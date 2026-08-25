@@ -8,9 +8,9 @@
 | Project | ai-foundation |
 | Tier | A |
 | Domain | meta-process |
-| Status | Draft |
+| Status | Approved |
 | Author (Agent) | Generic Agent |
-| Approved By | Pending |
+| Approved By | Jeremy Smellie |
 | Created | 2026-08-25 12:36 |
 | Referenced By | — |
 | References | AIF-META-001 |

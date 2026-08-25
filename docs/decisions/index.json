@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-25T16:38:54.578Z",
+  "generated_at": "2026-08-25T18:29:05.744Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -147,7 +147,7 @@
       "tier": "A",
       "domain": "meta-process",
       "title": "Partial Amendment of Approved Decision Records",
-      "status": "Draft",
+      "status": "Approved",
       "path": "meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md",
       "supersedes": [],
       "superseded_by": [],
