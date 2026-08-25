@@ -7,7 +7,7 @@
     { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "003", "wave": 0, "status": "Implementing", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "004", "wave": 0, "status": "Implementing", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Implementing", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 2, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -21,6 +21,13 @@
       "action": "wave_started",
       "chunk_id": null,
       "details": "Orchestration initialized for AIF-003 (Decision-Record Amendment Ladder). Epic confirmed Approved. dag-compute-waves (via servers/dag/logic.js, invoked directly since the @dag MCP tool was unavailable this session) computed 3 waves: [001,003,004,005] / [002,006] / [007,008]. Chunk Plans 001-007 are Approved as of this point; chunk 008 remains Draft (human resolved its one open question — the agents/ai-engineer.yaml skills-list gap deferred to AIF-004 — but has not yet approved the plan itself). Dispatching Wave 1 now (001, 003, 004, 005); chunk 008 will be blocked from dispatch in Wave 3 pending its own approval, independent of dependency status. Track-aware pipeline per AIF-PROC-002 (Approved): chunk 001 (agents: [\"Software-Engineer\"]) follows SE -> TE -> PE; chunks 003/004/005 (agents: [\"AI-Engineer\"]) follow AI-Engineer implement+self-validate -> PE, Test-Engineer skipped. Created branch + worktree for each of the 4 Wave 1 chunks per skill/worktree-management, ran npm ci in each. Dispatching now."
+    },
+    {
+      "timestamp": "2026-08-25T18:10:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "004",
+      "details": "AI-Engineer completed implementation on branch AIF-003/004-amending-status-vocabulary (commit fe06043): added `Amending` to the Decision Record row's Allowed Statuses in skills/plan-lifecycle/reference/status-vocabulary.md plus its two transitions (Approved -> Amending, Amending -> Approved). Deliberately did not add Amending -> Superseded, per the human's decision (2026-08-25 chat) that a mid-amendment full-replacement scenario is handled via the existing reject-then-supersede two-step path in AIF-META-002, not a shortcut transition. Self-validated: all 8 plan acceptance checks (004-C01..C08) passed, confirmed no lib/ code special-cases Superseded/Amending strings (grep -rn returned zero matches) so gate-checking logic is unaffected, npm test 681/681 passing. Single file changed, single commit, pushed to origin. Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline per AIF-PROC-002: Test-Engineer skipped)."
     }
   ]
 }
