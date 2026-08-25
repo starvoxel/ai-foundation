@@ -4,7 +4,7 @@
   "current_wave": 0,
   "total_waves": 3,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Implementing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Testing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "003", "wave": 0, "status": "Reviewing", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -41,7 +41,14 @@
       "agent": "Engineering-Manager",
       "action": "chunk_status_changed",
       "chunk_id": "003",
-      "details": "AI-Engineer completed implementation on branch AIF-003/003-decision-record-template-sections (commits ca74170, 1459b34): added Last Amended and Supersedes Metadata rows plus ## Amendments/## Errata sections to skills/decision-record/reference/template.md and skills/decision-brief/reference/template.md, matching AIF-003-001's parser expectations exactly. Self-validated: all 10 plan checks (003-T01..T10) passed, npm test 681/681. Flagged (not blocked): no CHANGELOG.md exists anywhere in repo history, so the plan's CHANGELOG checklist item was treated as not applicable, consistent with already-merged sibling chunk AIF-003-001's precedent (commit 862b92e). Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline: Test-Engineer skipped)."
+      "details": "AI-Engineer completed implementation on branch AIF-003/003-decision-record-template-sections (commits ca74170, 1459b34): added Last Amended and Supersedes Metadata rows plus ## Amendments/## Errata sections to skills/decision-record/reference/template.md and skills/decision-brief/reference/template.md, matching AIF-003-001's parser expectations exactly. Self-validated: all 10 plan checks (003-T01..T10) passed, npm test 681/681. Flagged (not blocked): no CHANGELOG.md exists anywhere in repo history, so the plan's CHANGELOG checklist item was treated as not applicable, consistent with sibling chunk AIF-003-001's own precedent (its implementer independently reached the same conclusion at commit 862b92e; AIF-003-001 is on its own branch and not yet merged to main). Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline: Test-Engineer skipped)."
+    },
+    {
+      "timestamp": "2026-08-25T18:35:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "001",
+      "details": "Software-Engineer completed implementation on branch AIF-003/001-supersedes-parse-and-inversion (commits 862b92e, e1a0b03): lib/decisions.js now parses `Supersedes` in parseDecisionRecord and inverts it into `superseded_by` in buildDecisionIndex, replacing the hardcoded empty arrays; file header updated to reference both AIF-002-014 (original provenance) and AIF-003-001. Added unit tests 001-T01..T05, T09..T11 to tests/unit/decisions.test.js covering parse, inversion, dangling/self-reference/shared-predecessor cases, and diffDecisionIndex staleness. npm test 692/692 passing (up from 681 baseline). Self-caught and fixed one test-authoring bug (reversed references/referenced_by assertion) before final run. Flagged (not blocked): no CHANGELOG.md convention exists in this repo; independently reached the same conclusion as AIF-003-003's implementer. docs/decisions/index.json and REQUIRED_FIELDS deliberately untouched, per plan's out-of-scope list. Status moved Implementing -> Testing (software-track pipeline: SE -> TE -> PE). Dispatching Test-Engineer next."
     }
   ]
 }
