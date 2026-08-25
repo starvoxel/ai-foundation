@@ -4,7 +4,7 @@
   "current_wave": 0,
   "total_waves": 3,
   "chunks": [
-    { "id": "001", "wave": 0, "status": "Testing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
+    { "id": "001", "wave": 0, "status": "Reviewing", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": 21, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/21", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": 19, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/19", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
@@ -77,6 +77,13 @@
       "action": "pr_opened",
       "chunk_id": "003",
       "details": "AI-Engineer opened PR #21 (https://github.com/starvoxel/ai-foundation/pull/21) from AIF-003/003-decision-record-template-sections into main, head commit 1459b34. Not merged. Status moved PR-Pending -> Done. All wave-1 AI-track chunks (003, 004, 005) now Done. Wave 1 remaining: chunk 001 (software-track), still in Testing pending independent Test-Engineer verification."
+    },
+    {
+      "timestamp": "2026-08-25T19:35:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "001",
+      "details": "Test-Engineer independently verified chunk AIF-003-001 (commit 8e03d44 adds a Test Results Report + plan work-log entry): confirmed 692/692 passing from a clean run, matching baseline 681 + 11 new tests exactly per plan's Test 001-T12 expectation. All 12 testing-plan rows (001-T01..T12) mapped to distinct, non-redundant tests -- no coverage gaps found. Scope check via `git diff origin/main...HEAD --stat` confirmed only lib/decisions.js and tests/unit/decisions.test.js touched. Same CHANGELOG non-applicability flagged again (4th independent agent to note it across this epic -- treated as a consistent, non-blocking finding, not an oversight). Status moved Testing -> Reviewing. Dispatching Principal-Engineer next (software-track pipeline: SE -> TE -> PE, final gate)."
     }
   ]
 }
