@@ -1,0 +1,53 @@
+{
+  "epic_id": "AIF-003",
+  "chunks": [
+    {
+      "id": "001",
+      "title": "Parse the Supersedes metadata field and invert it into superseded_by",
+      "depends_on": [],
+      "agents": ["Software-Engineer"]
+    },
+    {
+      "id": "002",
+      "title": "Add last_amended and amendment_count to index entries, and regenerate docs/decisions/index.json",
+      "depends_on": ["001"],
+      "agents": ["Software-Engineer"]
+    },
+    {
+      "id": "003",
+      "title": "Add Supersedes, Last Amended, ## Amendments and ## Errata to both Decision Record templates",
+      "depends_on": [],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "004",
+      "title": "Add the Amending status and its two transitions to status-vocabulary.md",
+      "depends_on": [],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "005",
+      "title": "De-enumerate the Decision Record status check in steering/global/knowledge-consumption.md",
+      "depends_on": [],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "006",
+      "title": "Document the amendment ladder, errata test and two-commit gate in skill/plan-lifecycle",
+      "depends_on": ["004"],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "007",
+      "title": "Point skill/decision-record and skill/decision-brief at the ladder",
+      "depends_on": ["003", "006"],
+      "agents": ["AI-Engineer"]
+    },
+    {
+      "id": "008",
+      "title": "Align architect.yaml and engineering-manager.yaml with the ladder and the set-but-do-not-commit rule",
+      "depends_on": ["006"],
+      "agents": ["AI-Engineer"]
+    }
+  ]
+}
