@@ -8,7 +8,7 @@
     { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "003", "wave": 0, "status": "Implementing", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Reviewing", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "005", "wave": 0, "status": "Implementing", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "005", "wave": 0, "status": "Reviewing", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "006", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 2, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 2, "status": "NotPlanned", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": "Chunk Plan not yet Approved by human. Open Question resolved (deferred ai-engineer.yaml skills-list gap to AIF-004) but Status still Draft as of orchestration start.", "agents": ["AI-Engineer"] }
@@ -28,6 +28,13 @@
       "action": "chunk_status_changed",
       "chunk_id": "004",
       "details": "AI-Engineer completed implementation on branch AIF-003/004-amending-status-vocabulary (commit fe06043): added `Amending` to the Decision Record row's Allowed Statuses in skills/plan-lifecycle/reference/status-vocabulary.md plus its two transitions (Approved -> Amending, Amending -> Approved). Deliberately did not add Amending -> Superseded, per the human's decision (2026-08-25 chat) that a mid-amendment full-replacement scenario is handled via the existing reject-then-supersede two-step path in AIF-META-002, not a shortcut transition. Self-validated: all 8 plan acceptance checks (004-C01..C08) passed, confirmed no lib/ code special-cases Superseded/Amending strings (grep -rn returned zero matches) so gate-checking logic is unaffected, npm test 681/681 passing. Single file changed, single commit, pushed to origin. Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline per AIF-PROC-002: Test-Engineer skipped)."
+    },
+    {
+      "timestamp": "2026-08-25T18:20:00Z",
+      "agent": "Engineering-Manager",
+      "action": "chunk_status_changed",
+      "chunk_id": "005",
+      "details": "AI-Engineer completed implementation on branch AIF-003/005-steering-status-de-enumeration (commits a922338, 5f5c807): replaced the enumerated 'Never reference' bullet in steering/global/knowledge-consumption.md with the negative-phrasing single check against Approved per the plan, and regenerated bundles/engineering/snapshot.json (only the knowledge-consumption.md hash + computed_at changed; 50 other sources unaffected). Self-validated: `aif snapshot --check --bundle engineering` reports up to date, `aif validate` passes, npm test 681/681. Did not touch reference/status-vocabulary.md or the user's installed global rules copy, per plan's Out of Scope. Status moved Implementing -> Reviewing. Dispatching Principal-Engineer next (AI-track pipeline: Test-Engineer skipped)."
     }
   ]
 }
