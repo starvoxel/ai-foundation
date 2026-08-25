@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-24T01:39:21.947Z",
+  "generated_at": "2026-08-25T16:38:54.578Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -105,6 +105,25 @@
       ]
     },
     {
+      "id": "AIF-ARCH-007",
+      "tier": "A",
+      "domain": "architecture",
+      "title": "Epic/Chunk Tracking Migration to YouTrack",
+      "status": "Draft",
+      "path": "architecture/AIF-ARCH-007_epic-chunk-youtrack-migration.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [],
+      "referenced_by": [],
+      "tags": [
+        "youtrack",
+        "epic-planning",
+        "chunk-orchestration",
+        "tracking",
+        "audit-trail"
+      ]
+    },
+    {
       "id": "AIF-META-001",
       "tier": "A",
       "domain": "meta-process",
@@ -118,8 +137,31 @@
         "AIF-005",
         "AIF-011 (current numbering; see migration table)"
       ],
-      "referenced_by": [],
+      "referenced_by": [
+        "AIF-META-002"
+      ],
       "tags": []
+    },
+    {
+      "id": "AIF-META-002",
+      "tier": "A",
+      "domain": "meta-process",
+      "title": "Partial Amendment of Approved Decision Records",
+      "status": "Draft",
+      "path": "meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-META-001"
+      ],
+      "referenced_by": [],
+      "tags": [
+        "decision-record",
+        "amendment",
+        "errata",
+        "plan-lifecycle",
+        "status-vocabulary"
+      ]
     },
     {
       "id": "AIF-PLAN-001",
