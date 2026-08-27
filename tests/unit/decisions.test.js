@@ -2,7 +2,7 @@
 // decisions.test.js
 //
 // Author: Starvoxel AI Agent - 2026-08-19
-// Plan: AIF-002-014, AIF-003-001
+// Plan: AIF-002-014, AIF-003-001, AIF-003-002
 //
 // Copyright (c) StarVoxel. All rights reserved.
 // ------------------------------
@@ -27,7 +27,13 @@ function wellFormedRecord({
   supersedes = '—',
   tags = '—',
   title = 'A Well-Formed Decision',
+  lastAmended = undefined,
+  amendmentRows = undefined,
 } = {}) {
+  const lastAmendedRow = lastAmended !== undefined ? `| Last Amended | ${lastAmended} |\n` : '';
+  const amendmentsSection = amendmentRows !== undefined
+    ? `\n## Amendments\n\n| # | Date | Summary | Outcome |\n|---|---|---|---|\n${amendmentRows}\n`
+    : '';
   return `# Decision Record: ${title}
 
 ## Metadata
@@ -46,9 +52,9 @@ function wellFormedRecord({
 | References | ${references} |
 | Supersedes | ${supersedes} |
 | Tags | ${tags} |
-
+${lastAmendedRow}
 ---
-
+${amendmentsSection}
 ## Problem Statement
 
 Test fixture.
@@ -204,6 +210,169 @@ Test fixture.
   });
 });
 
+// ── countAmendmentRows / last_amended / amendment_count ─────────────────
+
+describe('unit: decisions/countAmendmentRows and last_amended', () => {
+  it('no ## Amendments section: amendment_count is 0, no throw (002-T01)', () => {
+    const result = parseDecisionRecord(wellFormedRecord(), 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 0);
+  });
+
+  it('## Amendments with header + separator + 0 data rows (002-T02)', () => {
+    const content = wellFormedRecord({ amendmentRows: '' });
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 0);
+  });
+
+  it('## Amendments with 1 data row (002-T03)', () => {
+    const content = wellFormedRecord({
+      amendmentRows: '| 1 | 2026-09-02 | Clarified scope | Approved |',
+    });
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 1);
+  });
+
+  it('## Amendments with 3 data rows, one rejected, all count (002-T04)', () => {
+    const content = wellFormedRecord({
+      amendmentRows: [
+        '| 1 | 2026-09-02 | Clarified scope | Approved |',
+        '| 2 | 2026-09-10 | Widen threshold | Rejected |',
+        '| 3 | 2026-09-15 | Fix typo | Approved |',
+      ].join('\n'),
+    });
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 3);
+  });
+
+  it('## Amendments followed by another ## section: count stops at table end (002-T05)', () => {
+    const content = `# Decision Record: With Trailing Section
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Decision ID | AIF-ARCH-001 |
+| Status | Approved |
+
+---
+
+## Amendments
+
+| # | Date | Summary | Outcome |
+|---|---|---|---|
+| 1 | 2026-09-02 | Clarified scope | Approved |
+| 2 | 2026-09-10 | Widen threshold | Rejected |
+
+## Problem Statement
+
+| Not | An amendment row |
+|---|---|
+| foo | bar |
+`;
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 2);
+  });
+
+  it('## Amendments present but malformed (heading, no table): 0, no throw (002-T06)', () => {
+    const content = `# Decision Record: Malformed Amendments
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Decision ID | AIF-ARCH-001 |
+| Status | Approved |
+
+---
+
+## Amendments
+
+This is not a table at all.
+
+## Problem Statement
+
+Test fixture.
+`;
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 0);
+  });
+
+  it('## Errata present with rows, no ## Amendments: count is 0, errata never surfaces (002-T07)', () => {
+    const content = `# Decision Record: Record With Corrections
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Decision ID | AIF-ARCH-001 |
+| Status | Approved |
+
+---
+
+## Errata
+
+| # | Date | Note |
+|---|---|---|
+| 1 | 2026-09-02 | Typo in Section 3 |
+| 2 | 2026-09-05 | Broken link |
+
+## Problem Statement
+
+Test fixture.
+`;
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 0);
+    assert.ok(!JSON.stringify(result.record).includes('Errata'));
+    assert.ok(!JSON.stringify(result.record).includes('Broken link'));
+  });
+
+  it('Last Amended absent: last_amended is null (002-T08)', () => {
+    const result = parseDecisionRecord(wellFormedRecord(), 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.last_amended, null);
+  });
+
+  it('Last Amended present: stored verbatim, not parsed/reformatted (002-T09)', () => {
+    const content = wellFormedRecord({ lastAmended: '2026-09-02 (Amendment 1)' });
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.last_amended, '2026-09-02 (Amendment 1)');
+  });
+
+  it('Last Amended present as — is treated as absent: null (002-T10)', () => {
+    const content = wellFormedRecord({ lastAmended: '—' });
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.last_amended, null);
+  });
+
+  it('amendment_count: 1 with last_amended: null (rejected-only) indexes without error (002-T12)', () => {
+    const content = wellFormedRecord({
+      amendmentRows: '| 1 | 2026-09-02 | Widen threshold | Rejected |',
+    });
+    const result = parseDecisionRecord(content, 'a.decision.md');
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.amendment_count, 1);
+    assert.equal(result.record.last_amended, null);
+  });
+
+  it('REQUIRED_FIELDS regression guard: no Tier/Domain/Supersedes/Last Amended/Amendments (002-T13)', () => {
+    const content = legacyRecordMissingTierAndDomain();
+    const result = parseDecisionRecord(content, 'AIF-ARCH-001.decision.md');
+
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.equal(result.record.last_amended, null);
+    assert.equal(result.record.amendment_count, 0);
+  });
+});
+
 // ── buildDecisionIndex ───────────────────────────────────────────────────
 
 describe('unit: decisions/buildDecisionIndex', () => {
@@ -309,6 +478,47 @@ describe('unit: decisions/buildDecisionIndex', () => {
     assert.deepEqual(byId.A.superseded_by, ['B']);
     assert.deepEqual(byId.B.supersedes, ['A']);
   });
+
+  it('emits last_amended/amendment_count on every entry, carried through from the record (002-T15-ish)', () => {
+    const records = [
+      {
+        id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved',
+        path: 'a.decision.md', references: [], supersedes: [], tags: [],
+        last_amended: '2026-09-02 (Amendment 1)', amendment_count: 1,
+      },
+      {
+        id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved',
+        path: 'b.decision.md', references: [], supersedes: [], tags: [],
+        last_amended: null, amendment_count: 0,
+      },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.equal(byId.A.last_amended, '2026-09-02 (Amendment 1)');
+    assert.equal(byId.A.amendment_count, 1);
+    assert.equal(byId.B.last_amended, null);
+    assert.equal(byId.B.amendment_count, 0);
+  });
+
+  it('places last_amended/amendment_count after tags in the emitted entry key order (002-T14)', () => {
+    const records = [
+      {
+        id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved',
+        path: 'a.decision.md', references: [], supersedes: [], tags: [],
+        last_amended: null, amendment_count: 0,
+      },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const keys = Object.keys(index.entries[0]);
+    const tagsIdx = keys.indexOf('tags');
+    const lastAmendedIdx = keys.indexOf('last_amended');
+    const amendmentCountIdx = keys.indexOf('amendment_count');
+
+    assert.ok(tagsIdx >= 0 && lastAmendedIdx > tagsIdx && amendmentCountIdx > tagsIdx);
+  });
 });
 
 // ── diffDecisionIndex ────────────────────────────────────────────────────
@@ -325,6 +535,8 @@ const baseEntry = {
   references: [],
   referenced_by: [],
   tags: [],
+  last_amended: null,
+  amendment_count: 0,
 };
 
 describe('unit: decisions/diffDecisionIndex', () => {
@@ -372,6 +584,27 @@ describe('unit: decisions/diffDecisionIndex', () => {
 
   it('reports a supersede-only change as stale (001-T11)', () => {
     const computed = { generated_at: 'now', entries: [{ ...baseEntry, supersedes: ['Z'] }] };
+    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
+
+    const diff = diffDecisionIndex(computed, existing);
+    assert.equal(diff.stale, true);
+    assert.match(diff.summary, /A/);
+  });
+
+  it('reports a last_amended-only change as stale (002-T11)', () => {
+    const computed = {
+      generated_at: 'now',
+      entries: [{ ...baseEntry, last_amended: '2026-09-02 (Amendment 1)' }],
+    };
+    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
+
+    const diff = diffDecisionIndex(computed, existing);
+    assert.equal(diff.stale, true);
+    assert.match(diff.summary, /A/);
+  });
+
+  it('reports an amendment_count-only change as stale (002-T11)', () => {
+    const computed = { generated_at: 'now', entries: [{ ...baseEntry, amendment_count: 1 }] };
     const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
 
     const diff = diffDecisionIndex(computed, existing);
