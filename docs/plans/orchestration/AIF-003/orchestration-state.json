@@ -9,7 +9,7 @@
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": null, "pr_number": 21, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/21", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": null, "pr_number": 19, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/19", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": null, "pr_number": 20, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/20", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "006", "wave": 1, "status": "PR-Pending", "branch": "AIF-003/006-plan-lifecycle-ladder-docs", "worktree_path": "../worktrees/ai-foundation/AIF-003/006-plan-lifecycle-ladder-docs", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
+    { "id": "006", "wave": 1, "status": "Done", "branch": "AIF-003/006-plan-lifecycle-ladder-docs", "worktree_path": "../worktrees/ai-foundation/AIF-003/006-plan-lifecycle-ladder-docs", "pr_number": 23, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/23", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 2, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 2, "status": "NotPlanned", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": "Chunk Plan not yet Approved by human. Open Question resolved (deferred ai-engineer.yaml skills-list gap to AIF-004) but Status still Draft as of orchestration start.", "agents": ["AI-Engineer"] }
   ],
@@ -126,6 +126,13 @@
       "action": "chunk_status_changed",
       "chunk_id": "006",
       "details": "Principal-Engineer APPROVED chunk AIF-003-006. No CRITICAL/HIGH/MEDIUM findings. Verified content fidelity against AIF-META-002 directly: ladder table, both tiers' protected-section lists (correctly split rather than reproducing the source record's own code-span rendering glitch, per Design Decision 4), default-deny tie-breaker, Status/Tier/Domain exclusion, all four worked-examples rows, and all three commit-message strings all match exactly. Confirmed no self-approval path (both amendment outcomes gated on 'Human confirms'/'Human rejects' as the triggering event), append-only stated as an explicit property, no new agent authority granted, no gate-checking logic touched, no ruled-out mechanisms reappear, and no duplication into skill/decision-record or skill/decision-brief (correctly deferred to chunk 007). Three LOW/informational items flagged for EM's shell-side confirmation (PE has no Bash access): npm test/aif validate results, diff scope, and literal commit-message text. Engineering-Manager independently ran `ai-git diff origin/main...HEAD --stat` (confirms only skills/plan-lifecycle/SKILL.md and reference/commit-gate-procedure.md touched by content commit aae1fbe, plus the separate orchestration-state.json tracking commit 7d69dd7), `ai-git show -s --format=%B aae1fbe` (message: 'Add Decision Record Amendment Ladder docs (AIF-003-006)', Plan ID present), `npm test` (692/692 passing), and `npx aif validate` (schema/refs/bundles all clean) directly in the worktree. Status moved Reviewing -> PR-Pending. Dispatching AI-Engineer to open a PR."
+    },
+    {
+      "timestamp": "2026-08-26T01:20:00Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_opened",
+      "chunk_id": "006",
+      "details": "AI-Engineer opened PR #23 (https://github.com/starvoxel/ai-foundation/pull/23) from AIF-003/006-plan-lifecycle-ladder-docs into main, head commit aae1fbe. Not merged -- awaiting human review/merge. Status moved PR-Pending -> Done. Wave 2 remaining: chunk 002 (software-track), still Implementing with Software-Engineer."
     }
   ]
 }
