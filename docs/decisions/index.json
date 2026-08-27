@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-25T18:29:05.744Z",
+  "generated_at": "2026-08-27T01:24:16.362Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -12,7 +12,9 @@
       "superseded_by": [],
       "references": [],
       "referenced_by": [],
-      "tags": []
+      "tags": [],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-ARCH-002",
@@ -25,7 +27,9 @@
       "superseded_by": [],
       "references": [],
       "referenced_by": [],
-      "tags": []
+      "tags": [],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-ARCH-003",
@@ -38,7 +42,9 @@
       "superseded_by": [],
       "references": [],
       "referenced_by": [],
-      "tags": []
+      "tags": [],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-ARCH-004",
@@ -59,7 +65,9 @@
         "filesystem-sync",
         "config-schema",
         "conflict-detection"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-ARCH-005",
@@ -81,7 +89,9 @@
         "dag",
         "tooling",
         "cross-harness"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-ARCH-006",
@@ -102,7 +112,9 @@
         "tooling",
         "cross-harness",
         "credentials"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-ARCH-007",
@@ -121,7 +133,9 @@
         "chunk-orchestration",
         "tracking",
         "audit-trail"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-META-001",
@@ -140,7 +154,9 @@
       "referenced_by": [
         "AIF-META-002"
       ],
-      "tags": []
+      "tags": [],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-META-002",
@@ -161,24 +177,9 @@
         "errata",
         "plan-lifecycle",
         "status-vocabulary"
-      ]
-    },
-    {
-      "id": "AIF-PLAN-001",
-      "tier": "A",
-      "domain": "planning",
-      "title": "Co-locate Epic/Chunk Plan Artifacts, Split Work Log from Plan Body",
-      "status": "Deferred",
-      "path": "planning/AIF-PLAN-001_epic-chunk-colocation-worklog-split.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [],
-      "referenced_by": [],
-      "tags": [
-        "epic-chunk-colocation",
-        "worklog-split",
-        "plan-lifecycle"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 2
     },
     {
       "id": "AIF-PROC-001",
@@ -200,7 +201,9 @@
         "boundary",
         "ownership",
         "application-code"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-PROC-002",
@@ -225,7 +228,9 @@
         "orchestration",
         "dual-track",
         "dispatch"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-PROC-003",
@@ -247,7 +252,9 @@
         "parallel-dispatch",
         "chunk-isolation",
         "git"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-PROC-004",
@@ -269,7 +276,9 @@
       "tags": [
         "standards-sync",
         "ownership"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-PROC-005",
@@ -292,7 +301,9 @@
         "git-workflow",
         "orchestration",
         "worktrees"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     },
     {
       "id": "AIF-PROC-006",
@@ -311,7 +322,9 @@
       "tags": [
         "chunk-boundaries",
         "decomposition"
-      ]
+      ],
+      "last_amended": null,
+      "amendment_count": 0
     }
   ]
 }
