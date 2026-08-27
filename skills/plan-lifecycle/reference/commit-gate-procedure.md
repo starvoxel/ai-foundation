@@ -45,3 +45,59 @@ The mechanical sequence behind `skill/plan-lifecycle` Steps 1-4, for quick refer
      procedure itself)
   ```
 - **Tier C**: No sequence applies. The decision is recorded inline in the governing plan (Chunk Plan/Epic Plan) and is fully covered by that plan's own Draft → Approved sequence above. `{paths.decisions}/index.json` is never touched for a Tier C decision.
+
+## Decision Record Amendment Ladder
+
+*(AIF-003-006)* Source of truth: `AIF-META-002` (`docs/decisions/meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md`), Design section. This section reproduces the ladder table, the errata test, and the two-commit sequence in full so a reader does not need to open the record to get the exact wording.
+
+### The Ladder
+
+| Change | Path | Author | Gate |
+|---|---|---|---|
+| Provably cannot alter the decision | `## Errata` entry | Anyone | None |
+| Alters the record, but the original rationale still holds | `## Amendments` entry + in-place edit | Domain owner | `Amending` + two-commit confirmation |
+| The original rationale no longer holds, or the decision reverses | `Status: Superseded` + new record | Domain owner | Full Tier A cycle |
+
+### The Errata Test
+
+Errata is a change that provably leaves the rendered meaning of a record's substantive sections unchanged — `Options Explored`, `Decision`, `Design`, and `Impact on Planning` at Tier A; `Rationale`, `Decision`, and `Impact` at Tier B. Any change that alters, adds to, or removes from the solution space considered, the chosen approach, or how it is to be implemented is not errata — regardless of how small it appears or which section of the record it occupies.
+
+Two properties of this test matter and are easy to get wrong:
+
+- **It is about meaning, not location.** A typo inside `Decision` is errata. A clarifying rewrite of an option's stated weakness in `Options Explored` — or its Tier B analogue, a rewrite of `Rationale` — is not.
+- **Doubt disqualifies.** If it is not obvious that a change leaves meaning unchanged, it is not errata. Default-deny: an author cannot reason their way into the ungated path, because uncertainty itself removes the option.
+- `Status`, `Tier`, and `Domain` changes are never errata; other metadata corrections may be.
+
+Worked examples:
+
+| Errata | Not errata |
+|---|---|
+| Typos, grammar, formatting | Correcting a factual claim in an option's strengths or weaknesses |
+| Broken or moved link/path fixes | Adding an option that was not originally considered |
+| ID renumbering where the referent is identical (`AIF-004` → `AIF-PROC-001`) | Sharpening vague wording in `Decision`, `Design` or `Rationale` |
+| Metadata corrections other than `Status`, `Tier`, `Domain` | Any change to `Status`, `Tier`, or `Domain` |
+
+The second row of the right-hand column is the case most likely to be misfiled: a factual correction to an option's strengths or weaknesses is the case most often misfiled as errata, because it undermines the reasoning that rejected an option rather than merely fixing prose.
+
+### Amendment Gate — Two Commits
+
+```
+1. Domain owner applies the body edit, adds the inline marker
+   (*(amended — see Amendment N)*), appends the Amendments row
+   (Outcome: Pending), sets Status: Amending.
+                                        → commit ("Propose amendment: ...")
+2. Present to human.
+3a. Human confirms → Outcome: Approved by {name}, update Last Amended,
+    Status back to Approved.            → commit ("Amend decision: ...")
+3b. Human rejects  → revert the body edit and inline marker,
+    Outcome: Rejected by {name} (the row stays),
+    Status back to Approved.            → commit ("Reject amendment: ...")
+```
+
+Errata need no sequence and no status change: edit, append the `## Errata` row, one commit (`Errata: ...`).
+
+The `## Amendments` and `## Errata` tables are append-only: existing rows are never edited or deleted. A rejected amendment's row stays in the table with `Outcome: Rejected by {name}` — that a change was proposed and declined is worth keeping, and it is the only place that fact survives outside `git log`.
+
+The body edit lands in the proposal commit, not the approval commit, because `Amending` already signals unconfirmed content — deferring the edit would mean holding the proposed wording somewhere other than the place it belongs, for a safety property the status now provides directly.
+
+Every gate checks positively for `Approved` only. `Amending` requires no new gate-checking logic anywhere — see `reference/status-vocabulary.md`.
