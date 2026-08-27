@@ -2,7 +2,7 @@
 // decisions.test.js
 //
 // Author: Starvoxel AI Agent - 2026-08-19
-// Plan: AIF-002-014
+// Plan: AIF-002-014, AIF-003-001
 //
 // Copyright (c) StarVoxel. All rights reserved.
 // ------------------------------
@@ -24,6 +24,7 @@ function wellFormedRecord({
   domain = 'architecture',
   status = 'Approved',
   references = '—',
+  supersedes = '—',
   tags = '—',
   title = 'A Well-Formed Decision',
 } = {}) {
@@ -43,6 +44,7 @@ function wellFormedRecord({
 | Created | 2026-08-19 |
 | Referenced By | — |
 | References | ${references} |
+| Supersedes | ${supersedes} |
 | Tags | ${tags} |
 
 ---
@@ -163,6 +165,43 @@ Test fixture.
     assert.deepEqual(withEmpty.record.tags, []);
     assert.deepEqual(withValues.record.tags, ['orchestration', 'dispatch']);
   });
+
+  it('parses cleanly with Supersedes absent from the Metadata table entirely (001-T01)', () => {
+    const content = wellFormedRecord().replace('| Supersedes | — |\n', '');
+    const result = parseDecisionRecord(content, 'AIF-ARCH-001.decision.md');
+
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.deepEqual(result.record.supersedes, []);
+  });
+
+  it('parses Supersedes: — as an empty array (001-T02)', () => {
+    const result = parseDecisionRecord(wellFormedRecord({ supersedes: '—' }), 'a.decision.md');
+    assert.deepEqual(result.record.supersedes, []);
+  });
+
+  it('parses a single Supersedes ID (001-T03)', () => {
+    const result = parseDecisionRecord(
+      wellFormedRecord({ supersedes: 'AIF-ARCH-004' }),
+      'a.decision.md',
+    );
+    assert.deepEqual(result.record.supersedes, ['AIF-ARCH-004']);
+  });
+
+  it('parses multiple Supersedes IDs with irregular spacing, split and trimmed (001-T04)', () => {
+    const result = parseDecisionRecord(
+      wellFormedRecord({ supersedes: 'AIF-ARCH-004,AIF-ARCH-005 ,  AIF-ARCH-006' }),
+      'a.decision.md',
+    );
+    assert.deepEqual(result.record.supersedes, ['AIF-ARCH-004', 'AIF-ARCH-005', 'AIF-ARCH-006']);
+  });
+
+  it('parses a legacy record with no Tier/Domain and no Supersedes (001-T10)', () => {
+    const content = legacyRecordMissingTierAndDomain();
+    const result = parseDecisionRecord(content, 'AIF-ARCH-001.decision.md');
+
+    assert.ok(result.record, 'expected a record, got error: ' + result.error);
+    assert.deepEqual(result.record.supersedes, []);
+  });
 });
 
 // ── buildDecisionIndex ───────────────────────────────────────────────────
@@ -201,6 +240,74 @@ describe('unit: decisions/buildDecisionIndex', () => {
     const index = buildDecisionIndex([]);
     assert.deepEqual(index.entries, []);
     assert.ok(index.generated_at);
+  });
+
+  it('inverts supersedes into superseded_by: B supersedes A (001-T05)', () => {
+    const records = [
+      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: [], supersedes: [], tags: [] },
+      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: [], supersedes: ['A'], tags: [] },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.deepEqual(byId.A.superseded_by, ['B']);
+    assert.deepEqual(byId.B.supersedes, ['A']);
+    assert.deepEqual(byId.B.superseded_by, []);
+  });
+
+  it('does not throw on a dangling Supersedes ID and contributes no superseded_by (001-T06)', () => {
+    const records = [
+      { id: 'C', tier: 'A', domain: 'architecture', title: 'C', status: 'Approved', path: 'c.decision.md', references: [], supersedes: ['AIF-ARCH-999'], tags: [] },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.deepEqual(byId.C.supersedes, ['AIF-ARCH-999']);
+    for (const entry of index.entries) {
+      assert.deepEqual(entry.superseded_by, []);
+    }
+  });
+
+  it('accumulates superseded_by from two records superseding the same predecessor (001-T07)', () => {
+    const records = [
+      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: [], supersedes: [], tags: [] },
+      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: [], supersedes: ['A'], tags: [] },
+      { id: 'C', tier: 'A', domain: 'architecture', title: 'C', status: 'Approved', path: 'c.decision.md', references: [], supersedes: ['A'], tags: [] },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.deepEqual(byId.A.superseded_by.sort(), ['B', 'C']);
+  });
+
+  it('excludes self-reference when a record names itself in Supersedes (001-T08)', () => {
+    const records = [
+      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: [], supersedes: ['A'], tags: [] },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.deepEqual(byId.A.superseded_by, []);
+    assert.deepEqual(byId.A.supersedes, ['A']);
+  });
+
+  it('computes references/referenced_by correctly alongside supersedes/superseded_by (001-T09)', () => {
+    const records = [
+      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: ['B'], supersedes: [], tags: [] },
+      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: [], supersedes: ['A'], tags: [] },
+    ];
+
+    const index = buildDecisionIndex(records);
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.deepEqual(byId.B.referenced_by, ['A']);
+    assert.deepEqual(byId.A.referenced_by, []);
+    assert.deepEqual(byId.A.superseded_by, ['B']);
+    assert.deepEqual(byId.B.supersedes, ['A']);
   });
 });
 
@@ -261,5 +368,14 @@ describe('unit: decisions/diffDecisionIndex', () => {
     const computed = { generated_at: 'now', entries: [{ ...baseEntry }] };
     const diff = diffDecisionIndex(computed, null);
     assert.equal(diff.stale, true);
+  });
+
+  it('reports a supersede-only change as stale (001-T11)', () => {
+    const computed = { generated_at: 'now', entries: [{ ...baseEntry, supersedes: ['Z'] }] };
+    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
+
+    const diff = diffDecisionIndex(computed, existing);
+    assert.equal(diff.stale, true);
+    assert.match(diff.summary, /A/);
   });
 });
