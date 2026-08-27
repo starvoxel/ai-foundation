@@ -1,15 +1,15 @@
 {
   "epic_id": "AIF-003",
   "status": "InProgress",
-  "current_wave": 0,
+  "current_wave": 1,
   "total_waves": 3,
   "chunks": [
     { "id": "001", "wave": 0, "status": "Done", "branch": "AIF-003/001-supersedes-parse-and-inversion", "worktree_path": "../worktrees/ai-foundation/AIF-003/001-supersedes-parse-and-inversion", "pr_number": 22, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/22", "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
-    { "id": "002", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": "Depends on 001 at the code level (both modify lib/decisions.js). 001's Chunk Plan status is Done and PR #22 is open, but not yet merged to main. Dispatching now would branch chunk 002's worktree from a main that lacks 001's changes. Holding until human merges PR #22.", "agents": ["Software-Engineer"] },
+    { "id": "002", "wave": 1, "status": "Implementing", "branch": "AIF-003/002-amendment-index-fields", "worktree_path": "../worktrees/ai-foundation/AIF-003/002-amendment-index-fields", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["Software-Engineer"] },
     { "id": "003", "wave": 0, "status": "Done", "branch": "AIF-003/003-decision-record-template-sections", "worktree_path": "../worktrees/ai-foundation/AIF-003/003-decision-record-template-sections", "pr_number": 21, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/21", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "004", "wave": 0, "status": "Done", "branch": "AIF-003/004-amending-status-vocabulary", "worktree_path": "../worktrees/ai-foundation/AIF-003/004-amending-status-vocabulary", "pr_number": 19, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/19", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "005", "wave": 0, "status": "Done", "branch": "AIF-003/005-steering-status-de-enumeration", "worktree_path": "../worktrees/ai-foundation/AIF-003/005-steering-status-de-enumeration", "pr_number": 20, "pr_url": "https://github.com/starvoxel/ai-foundation/pull/20", "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
-    { "id": "006", "wave": 1, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": "Depends on 004 (documents the Amending status/transitions 004 defines). 004's Chunk Plan status is Done and PR #19 is open, but not yet merged to main. Holding until human merges PR #19 so chunk 006's worktree branches from a main that has the final status-vocabulary.md text.", "agents": ["AI-Engineer"] },
+    { "id": "006", "wave": 1, "status": "Implementing", "branch": "AIF-003/006-plan-lifecycle-ladder-docs", "worktree_path": "../worktrees/ai-foundation/AIF-003/006-plan-lifecycle-ladder-docs", "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "007", "wave": 2, "status": "Blocked-Waiting", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": null, "agents": ["AI-Engineer"] },
     { "id": "008", "wave": 2, "status": "NotPlanned", "branch": null, "worktree_path": null, "pr_number": null, "pr_url": null, "iterations": 0, "blocked_reason": "Chunk Plan not yet Approved by human. Open Question resolved (deferred ai-engineer.yaml skills-list gap to AIF-004) but Status still Draft as of orchestration start.", "agents": ["AI-Engineer"] }
   ],
@@ -98,6 +98,13 @@
       "action": "wave_completed",
       "chunk_id": null,
       "details": "Software-Engineer opened PR #22 (https://github.com/starvoxel/ai-foundation/pull/22) from AIF-003/001-supersedes-parse-and-inversion into main, head commit 8e03d44. Not merged. Status moved PR-Pending -> Done. Wave 1 (001, 003, 004, 005) is now fully Done: all four chunks implemented, reviewed/approved, and have open PRs (#22, #21, #19, #20 respectively) awaiting human merge. Wave 2 (002, 006) is NOT dispatched yet, deliberately: 002 depends on 001 and 006 depends on 004 at the code/content level, and neither dependency PR is merged to main yet. Per skill/worktree-management and this project's wave-boundary rule (rebase existing branches onto updated main before dispatching the next wave), creating chunk 002/006 worktrees now would branch them from a main that lacks 001's/004's changes. Both chunks marked Blocked-Waiting with an explicit blocked_reason pending human merge of PR #22 and PR #19. Will dispatch wave 2 as soon as those merges land."
+    },
+    {
+      "timestamp": "2026-08-26T00:00:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "chunk_id": null,
+      "details": "Human confirmed all four Wave 1 PRs merged. Verified independently via `ai-git fetch origin main` + `ai-git gh-pr-list --state all`: #19, #20, #21, #22 all report MERGED, and `origin/main` contains all four merge commits (8281da2, 62afd69, 35117e5, 84fdee6) plus the underlying chunk commits. Fast-forwarded local main to origin/main (12 commits). Confirmed both Wave 2 Chunk Plans (002_amendment-index-fields.plan.md, 006_plan-lifecycle-ladder-docs.plan.md) carry Status: Approved. Created branch + worktree for each per skill/worktree-management, both from the now-current main: AIF-003/002-amendment-index-fields (Software-Engineer track: SE -> TE -> PE) and AIF-003/006-plan-lifecycle-ladder-docs (AI-Engineer track: implement+self-validate -> PE). Ran npm ci in both, 0 vulnerabilities. Attempted teardown of the four merged Wave 1 worktrees per skill/worktree-management Step 4; blocked by the local auto-mode command classifier (git worktree remove flagged as a destructive-looking action) — left in place, non-blocking, flagged for human cleanup or a future EM turn with explicit permission. current_wave advanced 0 -> 1. Dispatching Wave 2 (002, 006) now, 2 of max_concurrent 10."
     }
   ]
 }
