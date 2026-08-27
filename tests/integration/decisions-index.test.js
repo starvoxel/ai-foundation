@@ -2,7 +2,7 @@
 // decisions-index.test.js
 //
 // Author: Starvoxel AI Agent - 2026-08-19
-// Plan: AIF-002-014
+// Plan: AIF-002-014, AIF-003-002
 //
 // Copyright (c) StarVoxel. All rights reserved.
 // ------------------------------
@@ -21,6 +21,12 @@ import { tmpdir } from 'node:os';
 
 import { runIndex, resolveDecisionsPath } from '../../lib/commands/index.js';
 import { parseArgs } from '../../bin/aif.js';
+import { buildDecisionIndexForDir, collectDecisionFiles } from '../../lib/decisions.js';
+import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = join(__dirname, '..', '..');
 
 function decisionFixture({ id, tier = 'A', domain = 'architecture', status = 'Approved', references = '—', title }) {
   return `# Decision Record: ${title}
@@ -42,6 +48,42 @@ function decisionFixture({ id, tier = 'A', domain = 'architecture', status = 'Ap
 | Tags | — |
 
 ---
+
+## Problem Statement
+
+Test fixture.
+`;
+}
+
+// A record that has been through the amendment ladder (AIF-META-002), used
+// to verify last_amended/amendment_count end-to-end (AIF-003-002).
+function amendedDecisionFixture({ id, status = 'Approved', title }) {
+  return `# Decision Record: ${title}
+
+## Metadata
+
+| Field | Value |
+|---|---|
+| Decision ID | ${id} |
+| Project | ai-foundation |
+| Tier | A |
+| Domain | architecture |
+| Status | ${status} |
+| Author (Agent) | Architect |
+| Approved By | Jeremy |
+| Created | 2026-08-19 |
+| Last Amended | 2026-09-02 (Amendment 1) |
+| Referenced By | — |
+| References | — |
+| Tags | — |
+
+---
+
+## Amendments
+
+| # | Date | Summary | Outcome |
+|---|---|---|---|
+| 1 | 2026-09-02 | Clarified scope | Approved |
 
 ## Problem Statement
 
@@ -182,6 +224,39 @@ describe('integration: decision index', () => {
     assert.equal(byId['AIF-ARCH-002'].domain, null);
     assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
     assert.deepEqual(byId['AIF-ARCH-002'].references, ['AIF-ARCH-001']);
+  });
+
+  it('002-T15: an amended record and a non-amended record both carry correct '
+    + 'last_amended/amendment_count', async () => {
+    const decisionsDir = join(projectRoot, 'docs', 'decisions');
+    mkdirSync(decisionsDir, { recursive: true });
+    writeFileSync(
+      join(projectRoot, '.aiconfig.json'),
+      JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
+      'utf8',
+    );
+    writeFileSync(
+      join(decisionsDir, 'AIF-ARCH-001.decision.md'),
+      decisionFixture({ id: 'AIF-ARCH-001', title: 'Never Amended' }),
+      'utf8',
+    );
+    writeFileSync(
+      join(decisionsDir, 'AIF-ARCH-002.decision.md'),
+      amendedDecisionFixture({ id: 'AIF-ARCH-002', title: 'Once Amended' }),
+      'utf8',
+    );
+
+    const { code } = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
+    assert.equal(code, 0);
+
+    const indexPath = join(decisionsDir, 'index.json');
+    const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+
+    assert.equal(byId['AIF-ARCH-001'].last_amended, null);
+    assert.equal(byId['AIF-ARCH-001'].amendment_count, 0);
+    assert.equal(byId['AIF-ARCH-002'].last_amended, '2026-09-02 (Amendment 1)');
+    assert.equal(byId['AIF-ARCH-002'].amendment_count, 1);
   });
 
   it('DEC-IT02: no -k/-d flag is a usage error, not an implicit -k', async () => {
@@ -325,5 +400,41 @@ describe('integration: decision index', () => {
       const resolved = resolveDecisionsPath(projectRoot);
       assert.equal(resolved, join(projectRoot, 'knowledge', 'decisions'));
     });
+  });
+
+  describe('002-T16/002-T17: real repo docs/decisions', () => {
+    it('002-T17: all real records index cleanly, none carry Last Amended/Amendments '
+      + '(no retrofit, per Epic AIF-003). Entry count is compared against '
+      + 'collectDecisionFiles().length rather than a hardcoded literal, since the '
+      + 'plan\'s assumption of 16 records was already stale by the time this chunk '
+      + 'ran (AIF-PLAN-001 was removed by an unrelated chunk, ac33c98, without a '
+      + 'matching index regeneration) — this test should not need to change every '
+      + 'time a record is added or removed. AIF-META-002 is exempted from the '
+      + 'amendment_count: 0 assertion: it is the decision that defines the '
+      + '`## Amendments` table format and contains a fenced markdown example of one '
+      + '(2 rows) inside its own body — exactly the fenced-code-block exposure the '
+      + 'chunk plan accepted and declined to fix as Epic AIF-003 Risk 1.', () => {
+        const decisionsDir = resolveDecisionsPath(REPO_ROOT);
+        const index = buildDecisionIndexForDir(decisionsDir);
+        const onDiskCount = collectDecisionFiles(decisionsDir).length;
+
+        assert.equal(index.entries.length, onDiskCount);
+        for (const entry of index.entries) {
+          assert.equal(entry.last_amended, null, `${entry.id} should have last_amended: null`);
+          if (entry.id === 'AIF-META-002') {
+            assert.equal(entry.amendment_count, 2, 'AIF-META-002: fenced example table (Risk 1)');
+          } else {
+            assert.equal(entry.amendment_count, 0, `${entry.id} should have amendment_count: 0`);
+          }
+        }
+      });
+
+    it('002-T16: the committed docs/decisions/index.json is up to date with the '
+      + 'real records (regenerated by this chunk per Epic AIF-003 Risk 12)', async () => {
+        const { code } = await quiet(
+          () => runIndex({ args: { d: true, check: true }, positional: [] }, REPO_ROOT),
+        );
+        assert.equal(code, 0);
+      });
   });
 });
