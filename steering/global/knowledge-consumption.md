@@ -33,7 +33,7 @@ If no `knowledge/index.json` exists, scan `knowledge/` directory listings to dis
 - **Never ignore:** confirmed Decision Records that relate to your work area
 - **Load if relevant:** entries scoped to your domain or agent name
 - **May skip:** entries scoped to other domains/agents with no tag overlap to your task
-- **Never reference:** Decision Records with `status: "Draft"` or `status: "Pending"` — these are not authoritative
+- **Never reference:** a Decision Record that is not in the `Approved` status — these are not authoritative
 
 ### When Knowledge Conflicts with Standards
 
