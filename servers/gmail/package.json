@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Gmail operations: search, read, organize, label, and send email via the Gmail API.",
   "engines": {
-    "node": ">=24.0.0"
+    "node": ">=22.0.0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",

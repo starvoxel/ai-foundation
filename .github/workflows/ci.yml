@@ -15,10 +15,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # 24.x is the package's stated floor (Active LTS); 26.x is the
-        # current non-LTS release, to catch forward-compatibility breaks
-        # before it becomes the next LTS.
-        node-version: ['24.x', '26.x']
+        # 22.x is the oldest still-supported LTS (the package's stated
+        # floor, Maintenance LTS); 26.x is the newest release (current,
+        # non-LTS), to catch forward-compatibility breaks before it
+        # becomes the next LTS.
+        node-version: ['22.x', '26.x']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
