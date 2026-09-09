@@ -212,12 +212,22 @@ reasons specific to this repo:
   Rust binary in every consuming project is a real change to that contract, not an
   internal tooling detail — and it is the strongest argument against adoption.
 
-| Option | Verdict |
-|---|---|
-| Pinned binary from GitHub releases, bootstrapped in setup + CI | Works on all three OSes with no Rust toolchain. Costs a version-pinned download step and a checksum. **Recommended starting point.** |
-| Own npm wrapper (per-platform `optionalDependencies`, the esbuild/swc pattern) | Best DX for Node consumers, but means maintaining a distribution package for someone else's binary and re-publishing on every upstream release |
-| Reimplement MADR handling in JS | Keeps the pure-Node contract; loses the MCP server and upstream maintenance. Note the maintenance argument is weaker than it looks — MADR is far simpler than the in-house format, so this is plausibly *less* code than `lib/decisions.js` is today |
-| Homebrew / `cargo install` | Out — not Windows, or needs a Rust toolchain |
+**An MCP server is available under every option, so it is not a differentiator.**
+`adrs` ships its own (tools for reading, creating and managing ADRs — not query-only),
+and a JS implementation would front itself with one built to `skill/server-authoring`'s
+existing shape, exactly as `servers/dag` already does. `ARCH-005`'s own general guidance
+points here: a capability that is identical across harnesses, deterministic, and called
+by more than one agent should default to MCP rather than a shell script. ADR
+create/link/lint/query is all three, and unlike `ai-git` in `ARCH-006` its operation set
+is small and fixed — the condition that made MCP the wrong fit there and the right one
+here. The real axes are distribution cost and who maintains the logic.
+
+| Option | Distribution | Maintenance | Verdict |
+|---|---|---|---|
+| Pinned `adrs` binary from GitHub releases, bootstrapped in setup + CI | Binary on every dev machine and CI runner, in this repo *and* every consuming project | Upstream | Works on all three OSes with no Rust toolchain. Costs a version-pinned download and a checksum |
+| Own npm wrapper around the binary (per-platform `optionalDependencies`, the esbuild/swc pattern) | Clean `npm install` for consumers | Upstream, plus a wrapper republished on every upstream release | Best consumer DX, but you maintain a distribution package for someone else's binary |
+| Reimplement MADR handling in JS, fronted by an in-repo MCP server | **None** — already Node, already has the SDK | Yours | Keeps `ARCH-001`'s pure-Node contract intact. MADR is far simpler than the in-house format, so this is plausibly *less* code than `lib/decisions.js` is today — and it loses the `adrs` lint rules and upstream bug fixes, not the MCP server |
+| Homebrew / `cargo install` | — | — | Out — not Windows, or needs a Rust toolchain |
 
 This is exactly the "contested, costly-to-reverse fork" shape the model reserves ADRs
 for, and it partially reopens `ARCH-001`. Settle it as its own ADR (check 27) before
@@ -278,7 +288,7 @@ per-call human-confirmation gate rather than a structural boundary.
 
 | Agent | Role | Write | Shell | Web | Subagent dispatch |
 |---|---|---|---|---|---|
-| **Architect** | ADRs — rare, contested, costly-to-reverse forks (per Decisions above) — plus starting the software doc an ADR's mechanism content splits into | Yes, scoped to `docs/decisions/**` + `docs/software/**` | Yes (`adrs` CLI) | **No** | Callable as a subagent by Engineering Manager or Software Engineer; dispatches Researcher (gated) |
+| **Architect** | ADRs — rare, contested, costly-to-reverse forks (per Decisions above) — plus starting the software doc an ADR's mechanism content splits into | Yes, scoped to `docs/decisions/**` + `docs/software/**` | **No** — ADR operations arrive as typed `@adr/*` MCP tools | **No** | Callable as a subagent by Engineering Manager or Software Engineer; dispatches Researcher (gated) |
 | **Engineering Manager** | Absorbs Tech-Lead: PRD/request → Feature Plan → Task decomposition → dispatch → orchestration | Yes (plans, orchestration state) | Yes (`ai-git`, dag tools) | **No** | Dispatches Software Engineer, Architect (on a spotted ADR-worthy fork), Researcher |
 | **Software Engineer** | Absorbs Test-Engineer + Engineering-Tech-Writer + AI-Engineer + Task-level design (part of former Tech-Lead). Owns product code and AI-component work (agents/skills/steering/servers/bundles) alike, loading whichever skill set a Task calls for. | Yes | Yes | **No** | Gated `subagent` → Researcher (excluded from `approved_tools`, human confirms each dispatch) |
 | **Engineering Researcher** *(new)* | Web research → decision-ready brief, for Architect, Engineering Manager or Software Engineer. Scoped for ADR-grade depth, not only light briefs — see below | Yes, scoped to a notes/scratch path (`.md` only) | **No** | Yes | No |
@@ -300,19 +310,28 @@ repo already established (`lib/`+`bin/` vs. `agents/`+`skills/`+`steering/`+
 `tests/integration` vs. `tests/validation`) is unaffected — same directories,
 same categories, one agent applying the right one per Task instead of two.
 
-### Why Architect trades web for shell
+### Why Architect holds neither shell nor web
 
-Adopting `adrs` makes ADR authoring a CLI activity: `adrs new` scaffolds the record and
-`adrs link` writes typed links plus their reverse edges — and letting `adrs link` own
-that field is the primary mitigation for its known hyphenated-`kind` bug. An Architect
-with no shell can use none of it, which would leave the one agent that authors ADRs
-unable to run the tool adopted for exactly that job.
+ADR authoring is tool work — scaffold a record, write a typed link and its reverse edge,
+lint the set. The obvious way to give Architect that is `shell` plus a CLI, which then
+forces a choice between rebuilding the trifecta (shell + write + web) or stripping
+something else to compensate.
 
-Keeping web alongside a new shell grant would rebuild the trifecta this roster exists to
-break. So Architect gives up web entirely and routes research through Engineering
-Researcher, exactly as Software Engineer does. Web stays isolated in the one agent that
-holds nothing else, and Architect ends up with the same write+shell profile as the other
-two privileged agents — one profile to reason about instead of three.
+It does not have to be shell. Every tooling option in ADR tooling above exposes those
+operations through an MCP server — `adrs` ships one, and a JS implementation would front
+itself with one built to `skill/server-authoring`'s existing shape. So the operations
+reach Architect as typed `@adr/*` tools, and the shell grant is simply unnecessary.
+`ARCH-005` already settled this as the default for capabilities that are cross-harness,
+deterministic and multi-agent; `ARCH-006`'s counter-test (is the operation set fixed and
+enumerable?) passes here too, since ADR operations are a handful of fixed verbs rather
+than git's unbounded surface.
+
+Architect additionally gives up web and routes research through Engineering Researcher,
+so web stays isolated in the one agent that holds nothing else. With no shell, that is
+no longer forced — write + web with no shell would be two legs, not three — but it is
+still the better default: research that shapes a binding ADR benefits from passing
+through an agent that cannot write to the repo at all, and it keeps one web-holder
+instead of two. Revisit only if the Researcher hop proves to cost more than it saves.
 
 **Consequence: Engineering Researcher must be scoped for ADR-grade research**, not just
 light briefs. An ADR needs the option space, evidence for each option's trade-offs, and
@@ -336,7 +355,7 @@ actually scrutinizing that class of diff.
 
 | Agent | Legs held | Residual risk |
 |---|---|---|
-| Architect | write + shell, no web | Same profile as Software Engineer: sees only Researcher briefs, never raw web content. See Residual injection surface below |
+| Architect | write only (plus typed `@adr/*` tools) | The tightest posture in the roster — no shell, no web. Sees only Researcher briefs, never raw web content. See Residual injection surface below |
 | Engineering Manager | write + shell, no web | Only ever sees compressed briefs from Architect/Researcher, never raw content |
 | Software Engineer | write + shell, no web | Direct web-vector closed, exposure substantially reduced — but not zero. See Residual injection surface below. |
 | Engineering Researcher | web only, write scoped to non-executable `.md` output | The one agent allowed to hold the web leg freely holds nothing else |
@@ -383,7 +402,7 @@ PRD / human request
       |
       v
 Engineering Manager -- spots an ADR-worthy fork? --> Architect (subagent, gated)
-  writes Feature Plan                                   writes ADR (adrs CLI), may start
+  writes Feature Plan                                   writes ADR (@adr/* tools), may start
       | human approves                                  its software doc; human approves
       v                                                       |
       |                                    needs research? --> Engineering Researcher
@@ -567,7 +586,7 @@ Two related items that are *not* missing ADRs:
 | 8 | `steering/engineering/core.md` Rules 1/2/8/9 reworded: Rule 1 replaced by the `complexity-tiers` gate, Rule 2 gets a fallback for Tier 1/2 work with no plan artifact, "Chunk Plan"/"Epic Plan" wording → Feature Plan; `knowledge-consumption.md` drops decision-record loading; doc-update acceptance gate added. |
 | 8b | **Full vocabulary + reference sweep**, not just the planning skills. Chunk/epic wording also lives in `skills/code-review/` (SKILL + template), `skills/test-execution/` (SKILL + template), `skills/worktree-management/SKILL.md`, `skills/complexity-tiers/SKILL.md`, `skills/plan-lifecycle/reference/commit-gate-procedure.md`, `standards/csharp_base.md`, `standards/javascript_base.md`, and `steering/engineering/git-workflow-projects.md`. References to the deleted decision skills also live in `skills/agent-authoring/reference/schema.md`, `skills/knowledge-authoring/SKILL.md`, `projects/_template/project-standards.md`, `standards/javascript_node.md`, and — as JSDoc example values — `lib/resolver.js`. |
 | 8c | `skill/knowledge-authoring` reconciled with the Document types table: `decision` and `architecture` drop out of its `type` list (they are ADRs and software docs now), the remaining types stay, and it points at that table rather than restating it. |
-| 9 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). Two specifics that are easy to miss: `architect.yaml` **gains** `shell` and **loses** `web_search`/`web_fetch` (it holds `shell` today — this is a swap, not an addition) and gains gated Researcher dispatch; `engineering-researcher.yaml` is scoped for ADR-grade research depth, not light briefs only (see Why Architect trades web for shell). |
+| 9 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). Two specifics that are easy to miss: `architect.yaml` **loses** both `shell` and `web_search`/`web_fetch` — it holds `shell` today, and ADR operations arrive as `@adr/*` tools instead — and gains gated Researcher dispatch; `engineering-researcher.yaml` is scoped for ADR-grade research depth, not light briefs only (see Why Architect holds neither shell nor web). |
 | 10 | `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). Product-doc ownership is **not** assigned — the slot is reserved and unbuilt until a product agent exists. |
 | 11 | Existing decision records dispositioned per the table above; archive location created. |
 | 12 | Freeform `docs/plans/*.md` triaged and cleared; `docs/plans/completed/` holds the finished ones. |
@@ -576,6 +595,7 @@ Two related items that are *not* missing ADRs:
 | 15 | `README.md`, `PLAN.md`, `AGENTS.md`, `install.ps1`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` specifically enumerates agent files for install — retired names must be removed there as a real code change. |
 | 16 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
 | 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
+| 17b | An `@adr/*` MCP server exposes the ADR operations Architect needs (new, link, lint, query) per `skill/server-authoring`, whichever tooling check 27 selects — `adrs`'s own server if adopted, an in-repo one built to the `servers/dag` shape if not. This is what lets Architect hold neither shell nor web. |
 | 18 | `adrs` adopted and pinned; `docs/decisions/` flattened (domain subfolders removed, `adrs`-native filenames, `AIF-ADR-nnn` carried in frontmatter `id:`); every surviving record converted to MADR within the word budget; `adrs lint` green. |
 | 19 | `lib/decisions.js`, `aif index -d`, `docs/decisions/index.json`, `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` removed; no remaining references to the decision index in skills, steering, or CLI help. |
 | 20 | CI decision made and landed (`.github/` does not exist today): `adrs lint`, the hyphenated-`kind` grep guard, and the relative-link staleness check for `docs/software` all run somewhere enforced. Guard regex validated against real `adrs`-generated frontmatter first. |
