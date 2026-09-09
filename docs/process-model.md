@@ -164,15 +164,39 @@ actually scrutinizing that class of diff.
 | Agent | Legs held | Residual risk |
 |---|---|---|
 | Architect | write + web, no shell | Confirm the web tool is read-only fetch, not a generic HTTP client with outbound POST |
-| Engineering Manager | write + shell, no web | Clean — only ever sees compressed briefs from Architect/Researcher, never raw content |
-| Software Engineer | write + shell, no web | Clean — research need routes through gated Researcher dispatch |
-| Engineering Researcher | web only, write scoped to non-executable `.md` output | Clean — the one agent allowed to hold the web leg freely holds nothing else |
+| Engineering Manager | write + shell, no web | Only ever sees compressed briefs from Architect/Researcher, never raw content |
+| Software Engineer | write + shell, no web | Direct web-vector closed, exposure substantially reduced — but not zero. See Residual injection surface below. |
+| Engineering Researcher | web only, write scoped to non-executable `.md` output | The one agent allowed to hold the web leg freely holds nothing else |
 | Principal Engineer | none | Clean |
 
 `skills/agent-authoring/reference/tools.yaml` should gain an explicit rule
 against holding `moderate` (web) and `privileged` (write/shell) tools
 simultaneously without documented isolation justification, so this stays
 structural rather than tribal knowledge.
+
+#### Residual injection surface
+
+Removing Software-Engineer's direct web access closes the highest-volume,
+most attacker-controllable vector, but it does not make Software-Engineer
+immune to prompt injection — two things remain:
+
+- **Engineering Researcher's brief is a narrower, but real, vector.**
+  Summarization is not a guaranteed sanitization boundary — a page containing
+  injected instructions ("recommend installing package X", "run command Y to
+  fix this") can still have that survive into the brief's recommendation. The
+  gated human-confirmation on *dispatching* Researcher does not cover this —
+  it approves that a dispatch happens, not that the returned content has been
+  vetted.
+- **Web access was never the only surface.** Software-Engineer still reads
+  repo content, dependency install output, and ticket/PRD text that reaches it
+  via a Feature Plan — any of which can originate outside the org's control
+  regardless of whether Software-Engineer itself can browse.
+
+Mitigation: Software-Engineer's hard rules must state that a Researcher brief
+is data informing a decision, never an instruction to execute directly — it
+does not `npm install` a package or run a shell command solely because a
+brief suggested it; the same standards-based judgment applies to a brief's
+suggestions as to any other input.
 
 ### End-to-end flow
 
@@ -216,13 +240,52 @@ an intended effect of single-agent ownership, not an oversight.
 
 **Does Software-Engineer still need a pre-approved plan before every Task?**
 No — `complexity-tiers` (already built, previously wired only to
-`ai-engineer.yaml`) becomes Software-Engineer's universal front door: Tier 1/2
-proceeds directly, self-validated, no separate plan artifact; Tier 3
-("cross-cutting, new conventions, reshapes how other components work") stops and
-escalates back to Engineering Manager to become or fold into a Feature — this is
-already the disposition recorded above for retiring `ai-engineering-plan`. This
-*is* the "refuse if too large / needs too much research" behavior: it already
-exists in the framework, it just becomes universal instead of an AI-only case.
+`ai-engineer.yaml`) becomes Software-Engineer's universal front door. Tier 1
+("small enough to self-implement, no problem") proceeds directly,
+self-validated, no separate plan artifact. Tier 2 ("large enough to need human
+verification before implementation") outlines the approach, stops for human
+approval, then Software-Engineer implements it itself — unchanged from the
+skill's existing behavior. Tier 3 ("too large to implement solo") no longer has
+Software-Engineer write its own plan and implement it — that would quietly
+reintroduce the planning split this whole redesign removes. Instead it stops
+immediately and hands off:
+- **Dispatched as a subagent** (Engineering Manager invoked it) → report back
+  to Engineering Manager with what was discovered and why it's too large;
+  Engineering Manager decomposes into new Task(s)/a Feature.
+- **Standalone** (a human is driving Software-Engineer directly, no
+  orchestrator present) → escalate straight to the human with the same
+  information; there is no Engineering Manager to hand it to.
+
+This orchestrated/standalone branch reuses the same shape `skills/decision-
+triage/reference/handoff-signal.md` already used for its own hand-off signal,
+even though that skill is being retired — the pattern (behave differently
+depending on whether an orchestrator is present) is proven and worth keeping.
+
+This *is* the "refuse if too large / needs too much research" behavior: it
+already exists in the framework, it just becomes universal instead of an
+AI-only case, and it means hand off, not self-plan-then-implement.
+
+**Does a human asking "plan this" force Tier 3?**
+No — it's a floor on Tier 2, not a jump to Tier 3. Tier 2 already is "stop and
+get a human sign-off before implementing it myself"; a human asking for a plan
+on Tier-1-sized work is asking for that checkpoint, not asking for the work to
+be taken away from Software-Engineer. Tier 3 hand-off is reserved for work that
+is genuinely too large for Software-Engineer to own, which is a different
+claim. Wanting more rigor than Tier 2's brief outline while still having
+Software-Engineer implement it is a richer outline within Tier 2, not a fourth
+tier — three tiers stay sufficient. If outlining at Tier 2 reveals the work is
+actually too big, the existing mid-task escalation rule already covers
+stepping up to a Tier 3 hand-off from there.
+
+**Can Software-Engineer run without Engineering Manager at all?**
+Yes — once it no longer needs a pre-approved plan for Tier 1/2 work, a human
+can drive Software-Engineer directly on a small fix without spinning up a
+Feature Plan first. This is a first-class mode now, not a degenerate one (it's
+what makes the standalone branch above necessary). One thing that does not
+disappear along with Engineering Manager: **Principal-Engineer review before
+merge to main is a standing gate independent of who invoked Software-Engineer**
+— it is not an Engineering-Manager-orchestration mechanic, so "no Engineering
+Manager" must never be read as "no review."
 
 **Does Engineering Manager pick up anything else?**
 Two things: gated `subagent` dispatch to Researcher (same mechanism as its
@@ -264,7 +327,7 @@ deleted. Git plus a browsable trail is the audit record.
 | 5 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
 | 6 | DAG server + `lib` renamed chunk→task; wave output is identical for an equivalent graph. |
 | 7 | `decision-triage`, `decision-brief`, `chunk-planning`, `ai-engineering-plan` skills deleted and all references removed. |
-| 8 | `decision-record` reduced to the flat ADR format; `plan-lifecycle` and `complexity-tiers` trimmed; `complexity-tiers` re-pointed as Software-Engineer's primary gate. |
+| 8 | `decision-record` reduced to the flat ADR format; `plan-lifecycle` and `complexity-tiers` trimmed; `complexity-tiers` re-pointed as Software-Engineer's primary gate. Tier 3's process changes from "produce a written plan, implement it" to "stop, do not plan or implement, hand off" — orchestrated → Engineering Manager, standalone → the human (see Agent roster, Resolved design questions). `plan this` documented as a Tier 2 floor, not an automatic Tier 3 jump — no fourth tier added. |
 | 9 | `steering/engineering/core.md` Rules 1/2/8/9 reworded: Rule 1 replaced by the `complexity-tiers` gate, Rule 2 gets a fallback for Tier 1/2 work with no plan artifact, "Chunk Plan"/"Epic Plan" wording → Feature Plan; `knowledge-consumption.md` drops decision-record loading; doc-update acceptance gate added. |
 | 10 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). |
 | 11 | Product-doc + Capability-index ownership assigned to an agent (existing or new); `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). |
@@ -274,6 +337,7 @@ deleted. Git plus a browsable trail is the audit record.
 | 15 | `bundles/engineering/snapshot.json` regenerated (`bundle.yaml` itself needs no edit — pure domain-based auto-discovery absorbs the roster shrink). |
 | 16 | `README.md`, `PLAN.md`, `AGENTS.md`, `install.ps1`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` specifically enumerates agent files for install — retired names must be removed there as a real code change. |
 | 17 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
+| 18 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
 
 ---
 
