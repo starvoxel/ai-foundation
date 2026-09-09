@@ -34,18 +34,21 @@ only what is binding and current.
 
 | Level | Was | Definition | Artifact | Gate |
 |---|---|---|---|---|
-| **Capability** | — (new) | A large-scale product function. Lifecycle: `Proposed → Active → Delivered → Deprecated → Removed`. | Index entry (name, one-paragraph charter, status, features, doc link) + `docs/product/{cap}.md`. | None — status change only. |
-| **Feature** | Epic | A small, definable piece of a Capability, reviewable by a human in one pass. | Feature Plan. | One committed human approval. |
+| **Feature** | Epic | A small, definable piece of work, reviewable by a human in one pass. | Feature Plan. | One committed human approval. |
 | **Task** | Chunk | One execution unit of a Feature, owned end-to-end by one Software-Engineer dispatch (design → implement → test → document). Same DAG / wave / worktree machinery. | Row in `tasks.json` (+ optional short plan, see Agent roster). | Covered by the Feature's approval, or a Tier 3 escalation per `complexity-tiers`. |
 
-- Capability is optional — a project that defines none has Features standing alone.
 - Feature keeps today's Epic mechanics; Task keeps today's Chunk mechanics. Rename,
   plus the pipeline-ownership change described in Agent roster below.
 
 ### Task sizing
 
-- A Task is a unit of review — roughly a focused half-day to a day, reviewable in one
-  sitting — not the smallest mergeable diff.
+- A Task is a unit of review — reviewable by Principal-Engineer in one sitting —
+  not the smallest mergeable diff, and not bounded by a duration estimate. Now
+  that a Task is owned end-to-end (design, implement, test, document) by one
+  Software-Engineer dispatch, the same reviewable scope can take longer in
+  elapsed time than the old chunk model implied, simply because process that
+  used to span separate SE/TE/ETW steps now runs inside a single Task. Size by
+  interface/contract boundary, not by a clock estimate.
 - Split a Feature into multiple Tasks only for real parallelism or a hard dependency
   boundary. "Different files" is not a reason, and neither is artifact type
   (product code vs. AI-component work) — one Software-Engineer dispatch handles
@@ -57,9 +60,9 @@ only what is binding and current.
 ### Reference docs (current truth, not history)
 
 - `docs/architecture/*` — one file per long-lived technical subsystem. Stable set.
-- `docs/product/*` — one file per Capability. Churns with the capability lifecycle;
-  archived when the capability is Deprecated.
-- Each ~1 page. Outgrowing a page means the subsystem/capability should split.
+- `docs/product/*` — one file per product area. Stable set; archived manually when
+  a product area is retired.
+- Each ~1 page. Outgrowing a page means the subsystem/product area should split.
 - `aif index` generates a nav index for both, scoped like `knowledge/index.json`.
 - Updating the affected doc is an acceptance criterion of any Feature that changes
   behavior, checked in review alongside tests.
@@ -76,8 +79,8 @@ only what is binding and current.
 | How the system / product works | The relevant `docs/architecture` or `docs/product` file |
 | Process / tooling / convention change | No record — edit the skill/steering file; the commit + CHANGELOG line is the record |
 
-- ADR scoped to one Capability is archived with it; foundational or cross-cutting ADRs
-  attach to an architecture subsystem so they outlive any one capability.
+- ADR scoped to one Feature is archived with it; foundational or cross-cutting ADRs
+  attach to an architecture subsystem so they outlive any one Feature.
 - `complexity-tiers` and `plan-lifecycle` stay (trimmed). `decision-record` shrinks to
   the ADR-only format. `decision-triage`'s tier/domain classification step goes away
   entirely with it — with only one record type left (ADRs, rare architectural/product
@@ -92,19 +95,6 @@ only what is binding and current.
 - Decision records leave `knowledge/index.json` — one discovery index.
 - No migration tables, "supersedes X because…", or point-in-time proposals in any
   artifact body. Those belong in commit messages.
-
-### YouTrack (after the above lands)
-
-- **Owns:** Capability/Feature/Task status, activity log (replaces the hand-authored
-  orchestration log), hierarchy, dependency links for the board, PR links, escalations,
-  dashboards and reports.
-- **Does not own:** `tasks.json`, reference-doc bodies, ADR bodies, the nav index — all
-  stay in git. A generated one-way Article mirrors the repo nav index for in-tracker
-  navigation.
-- Self-approval prevention: a YouTrack workflow rule if the free tier supports it, else a
-  CI check that rejects an `Approved` flip authored by the AI identity.
-- Prerequisite: verify free-tier custom fields + JS workflow rules on a throwaway
-  instance before migrating.
 
 ---
 
@@ -322,34 +312,34 @@ deleted. Git plus a browsable trail is the audit record.
 |---|---|
 | 1 | `docs/architecture/` and `docs/product/` exist, each with an index and a one-page file template. |
 | 2 | `aif index` emits a nav index for architecture + product docs, scoped like `knowledge/index.json`. |
-| 3 | Capability index format is defined (name, charter, status, features, doc link) with the four-state status vocabulary. |
-| 4 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
-| 5 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
-| 6 | DAG server + `lib` renamed chunk→task; wave output is identical for an equivalent graph. |
-| 7 | `decision-triage`, `decision-brief`, `chunk-planning`, `ai-engineering-plan` skills deleted and all references removed. |
-| 8 | `decision-record` reduced to the flat ADR format; `plan-lifecycle` and `complexity-tiers` trimmed; `complexity-tiers` re-pointed as Software-Engineer's primary gate. Tier 3's process changes from "produce a written plan, implement it" to "stop, do not plan or implement, hand off" — orchestrated → Engineering Manager, standalone → the human (see Agent roster, Resolved design questions). `plan this` documented as a Tier 2 floor, not an automatic Tier 3 jump — no fourth tier added. |
-| 9 | `steering/engineering/core.md` Rules 1/2/8/9 reworded: Rule 1 replaced by the `complexity-tiers` gate, Rule 2 gets a fallback for Tier 1/2 work with no plan artifact, "Chunk Plan"/"Epic Plan" wording → Feature Plan; `knowledge-consumption.md` drops decision-record loading; doc-update acceptance gate added. |
-| 10 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). |
-| 11 | Product-doc + Capability-index ownership assigned to an agent (existing or new); `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). |
-| 12 | Existing decision records dispositioned per the table above; archive location created. |
-| 13 | Freeform `docs/plans/*.md` triaged and cleared; `docs/plans/completed/` holds the finished ones. |
-| 14 | `tests/validation/` cross-reference check passes against the new agent/skill/doc set; `npm test` green. Fixture data referencing retired agent names (`tests/unit/decisions.test.js`, `tests/integration/decisions-index.test.js`, `knowledge-index.test.js`, `base.test.js`, `claude-adapter.test.js`, `kiro-adapter.test.js`) cleaned up as a low-risk pass. |
-| 15 | `bundles/engineering/snapshot.json` regenerated (`bundle.yaml` itself needs no edit — pure domain-based auto-discovery absorbs the roster shrink). |
-| 16 | `README.md`, `PLAN.md`, `AGENTS.md`, `install.ps1`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` specifically enumerates agent files for install — retired names must be removed there as a real code change. |
-| 17 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
-| 18 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
+| 3 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
+| 4 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
+| 5 | DAG server + `lib` renamed chunk→task; wave output is identical for an equivalent graph. |
+| 6 | `decision-triage`, `decision-brief`, `chunk-planning`, `ai-engineering-plan` skills deleted and all references removed. |
+| 7 | `decision-record` reduced to the flat ADR format; `plan-lifecycle` and `complexity-tiers` trimmed; `complexity-tiers` re-pointed as Software-Engineer's primary gate. Tier 3's process changes from "produce a written plan, implement it" to "stop, do not plan or implement, hand off" — orchestrated → Engineering Manager, standalone → the human (see Agent roster, Resolved design questions). `plan this` documented as a Tier 2 floor, not an automatic Tier 3 jump — no fourth tier added. |
+| 8 | `steering/engineering/core.md` Rules 1/2/8/9 reworded: Rule 1 replaced by the `complexity-tiers` gate, Rule 2 gets a fallback for Tier 1/2 work with no plan artifact, "Chunk Plan"/"Epic Plan" wording → Feature Plan; `knowledge-consumption.md` drops decision-record loading; doc-update acceptance gate added. |
+| 9 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). |
+| 10 | Product-doc ownership assigned to an agent (existing or new); `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). |
+| 11 | Existing decision records dispositioned per the table above; archive location created. |
+| 12 | Freeform `docs/plans/*.md` triaged and cleared; `docs/plans/completed/` holds the finished ones. |
+| 13 | `tests/validation/` cross-reference check passes against the new agent/skill/doc set; `npm test` green. Fixture data referencing retired agent names (`tests/unit/decisions.test.js`, `tests/integration/decisions-index.test.js`, `knowledge-index.test.js`, `base.test.js`, `claude-adapter.test.js`, `kiro-adapter.test.js`) cleaned up as a low-risk pass. |
+| 14 | `bundles/engineering/snapshot.json` regenerated (`bundle.yaml` itself needs no edit — pure domain-based auto-discovery absorbs the roster shrink). |
+| 15 | `README.md`, `PLAN.md`, `AGENTS.md`, `install.ps1`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` specifically enumerates agent files for install — retired names must be removed there as a real code change. |
+| 16 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
+| 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
 
 ---
 
 ## Sequencing
 
-1. Land the reference-doc structure + `aif index` extension (checks 1–3).
-2. Agent roster changes first (check 10) — everything else in this step derives
+1. Land the reference-doc structure + `aif index` extension (checks 1–2).
+2. Agent roster changes first (check 9) — everything else in this step derives
    from it. Then vocabulary + skill + agent sweep in one pass — feature/task
    rename, skill deletions, `complexity-tiers` re-pointed to Software-Engineer,
-   steering rewrites, product-doc owner decision (checks 4–9, 11, 14–17).
-3. Disposition existing records and plans (checks 12–13).
-4. YouTrack — verify free-tier capability, then migrate Capability/Feature/Task tracking.
-   Grandfather `AIF-001/002/003`.
+   steering rewrites, product-doc owner decision (checks 3–8, 10, 13–16).
+3. Disposition existing records and plans (checks 11–12).
 
-Steps 1–3 are the "start being efficient" core and do not depend on YouTrack.
+This is the full sequencing for this document's scope. YouTrack integration is
+a separate, follow-on layer on top of this model — see
+`docs/plans/youtrack-integration-plan.md` — sequenced independently once the
+above lands; nothing in this document depends on it.
