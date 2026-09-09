@@ -18,7 +18,7 @@ This file assumes `javascript_base` is already loaded (per `depends_on`). Langua
 
 | Layer           | Convention                                          |
 |------------------|------------------------------------------------------|
-| Runtime          | Node.js 20+ (LTS)                                     |
+| Runtime          | Node.js 24+ (LTS)                                     |
 | Module system    | ES Modules — `"type": "module"` in `package.json`    |
 | Package manager  | npm, unless a project standard specifies otherwise    |
 | Testing          | Node's built-in `node:test` + `node:assert/strict`    |
