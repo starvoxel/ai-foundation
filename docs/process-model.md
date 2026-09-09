@@ -104,11 +104,40 @@ is where PRDs start paying for themselves — build it when that agent lands, no
   Agent roster table and the agent charters it drives — never by a record in
   `docs/decisions/`. Three current records (`PROC-001/004/006`) exist only because
   there was no other home for that question.
-- **`skill/knowledge-authoring` is reconciled with this table, not left beside it.** Its
-  `type` list (`decision`, `reference`, `architecture`, `api`, `business-rule`) predates
-  these four kinds and now overlaps them: `decision` is an ADR and no longer its
-  business, `architecture` is an arc42 section. It keeps the types that are genuinely
-  neither — reference material, API notes, business rules — and points here for the rest.
+
+#### Subject matter is not a document kind
+
+`skill/knowledge-authoring`'s `type` list (`decision`, `reference`, `architecture`,
+`api`, `business-rule`) mixes two axes: the first three are document *kinds*, the last
+two are *subjects*. The four kinds above are purely a kind axis, split by mutability —
+which is exactly why `api` and `business-rule` never slot into it. They become **tags**;
+their content lands in whichever kind fits.
+
+API content splits four ways:
+
+| The thing | Home |
+|---|---|
+| The authoritative spec (OpenAPI, JSON Schema, zod, `.d.ts`) | Code, not docs — a `key_files` entry, never restated in prose, because a prose copy drifts the day it is written |
+| The system's external interfaces — what it exposes, to whom, over what | arc42 §3 Technical Context |
+| A building block's interface to its neighbours | That block's §5 file (arc42's white-box template has an Interfaces subsection) |
+| Stability / versioning policy | Prescriptive → `standards/`, not knowledge |
+
+Business rules split three ways by the rule's *nature*: a requirement ("the product must
+behave this way") is product content and belongs in the reserved `docs/product/` slot;
+how the domain is modelled in code is arc42 §8 Cross-cutting Concepts, or the §5 block
+that owns it; an externally imposed rule (regulatory, contractual) is arc42 §2
+Constraints, because §2 is precisely what you do not get to choose.
+
+**`skill/knowledge-authoring` retires** (check 6). Once `decision` and `architecture`
+move out and `api`/`business-rule` become tags, one type is left: reference material
+about systems *outside* this one — a third-party format's quirks, an upstream tool's
+behaviour. That genuinely has no arc42 home, since arc42 documents your system rather
+than your dependencies, but it is not a procedure either. The routing above is always-on
+and belongs in `steering/`; the file shape is a template. It is also the only
+`*-authoring` skill with no `reference/` schema — that family exists for artifacts with
+something to validate against, and prose with four frontmatter fields has none — and no
+agent or bundle declares it today, so it is already dead wiring. External reference stays
+as plain files under `paths.knowledge`, indexed like everything else.
 
 ### Decisions — four homes, no tiers, no domains
 
@@ -633,11 +662,11 @@ Two related items that are *not* missing ADRs:
 | 3 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
 | 4 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
 | 5 | DAG server + `lib` renamed chunk→task; wave output is identical for an equivalent graph. |
-| 6 | `decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`, `ai-engineering-plan` skills deleted and all references removed — `decision-record` included, since the MADR template replaces it rather than shrinks it. |
+| 6 | `decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring` skills deleted and all references removed. `decision-record` because the MADR template replaces it rather than shrinks it; `knowledge-authoring` per Subject matter is not a document kind — no agent or bundle declares it, and it is the only `*-authoring` skill whose artifact has no schema. |
 | 7 | `plan-lifecycle` and `complexity-tiers` trimmed; `complexity-tiers` re-pointed as Software-Engineer's primary gate. Tier 3's process changes from "produce a written plan, implement it" to "stop, do not plan or implement, hand off" — orchestrated → Engineering Manager, standalone → the human (see Agent roster, Resolved design questions). `plan this` documented as a Tier 2 floor, not an automatic Tier 3 jump — no fourth tier added. |
 | 8 | `steering/engineering/core.md` Rules 1/2/8/9 reworded: Rule 1 replaced by the `complexity-tiers` gate, Rule 2 gets a fallback for Tier 1/2 work with no plan artifact, "Chunk Plan"/"Epic Plan" wording → Feature Plan; `knowledge-consumption.md` drops decision-record loading; doc-update acceptance gate added. |
-| 8b | **Full vocabulary + reference sweep**, not just the planning skills. Chunk/epic wording also lives in `skills/code-review/` (SKILL + template), `skills/test-execution/` (SKILL + template), `skills/worktree-management/SKILL.md`, `skills/complexity-tiers/SKILL.md`, `skills/plan-lifecycle/reference/commit-gate-procedure.md`, `standards/csharp_base.md`, `standards/javascript_base.md`, and `steering/engineering/git-workflow-projects.md`. References to the deleted decision skills also live in `skills/agent-authoring/reference/schema.md`, `skills/knowledge-authoring/SKILL.md`, `projects/_template/project-standards.md`, `standards/javascript_node.md`, and — as JSDoc example values — `lib/resolver.js`. |
-| 8c | `skill/knowledge-authoring` reconciled with the Document types table: `decision` and `architecture` drop out of its `type` list (they are ADRs and arc42 sections now), the remaining types stay, and it points at that table rather than restating it. |
+| 8b | **Full vocabulary + reference sweep**, not just the planning skills. Chunk/epic wording also lives in `skills/code-review/` (SKILL + template), `skills/test-execution/` (SKILL + template), `skills/worktree-management/SKILL.md`, `skills/complexity-tiers/SKILL.md`, `skills/plan-lifecycle/reference/commit-gate-procedure.md`, `standards/csharp_base.md`, `standards/javascript_base.md`, and `steering/engineering/git-workflow-projects.md`. References to the deleted decision skills also live in `skills/agent-authoring/reference/schema.md`, `projects/_template/project-standards.md`, `standards/javascript_node.md`, and — as JSDoc example values — `lib/resolver.js`. |
+| 8c | What `knowledge-authoring` carried is re-homed rather than lost: a **steering rule** holds the four-kind routing table (including the API and business-rule placements), since choosing a home applies whenever an agent writes documentation — which is every Task, because doc-updating is an acceptance criterion — and **templates** hold the file shapes (MADR record, arc42 section, external-reference file). A skill earns its place when there is a procedure with judgment steps or validation to pass; a template plus an always-on rule is enough when the artifact is prose with light structure. |
 | 9 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). Two specifics that are easy to miss: `architect.yaml` **loses** both `shell` and `web_search`/`web_fetch` — it holds `shell` today, and ADR operations arrive as `@adr/*` tools instead — and gains gated Researcher dispatch; `engineering-researcher.yaml` is scoped for ADR-grade research depth, not light briefs only (see Why Architect holds neither shell nor web). |
 | 10 | `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). Product-doc ownership is **not** assigned — the slot is reserved and unbuilt until a product agent exists. |
 | 11 | Existing decision records dispositioned per the table above; archive location created. |
