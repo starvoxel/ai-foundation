@@ -1,8 +1,11 @@
 # Agent Consolidation Plan
 
-> Status: Draft
+> Status: Superseded
 > Created: 2026-09-09
 > Approved by: Pending
+> Superseded by: `docs/process-model.md` (2026-09-09) — merged in as its "Agent roster" section
+> plus updates to Existing artifacts, Implementation checks, and Sequencing. Kept here as
+> a historical record; do not edit further. See `docs/process-model.md` for the live version.
 
 Target-state redesign of the engineering agent roster, moving from an 8-agent
 role-pipeline (architect / tech-lead / engineering-manager / software-engineer /
