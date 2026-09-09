@@ -62,6 +62,12 @@ only what is binding and current.
 
 ### Document types
 
+Everything below is **knowledge** — the general term for non-code material an agent reads
+to do its work, and the name `.aiconfig.json` already uses for the path
+(`paths.knowledge`). This repo happens to point that at `docs/`; another project may
+leave it as `knowledge/`. The types below are subdirectories under it, not a competing
+concept.
+
 Four kinds, split by what question each answers and whether it may change after it
 lands. Collapsing them into one artifact type is what produced the current 15-record
 decision log, of which 7 are not decisions at all.
@@ -69,25 +75,39 @@ decision log, of which 7 are not decisions at all.
 | Type | Answers | Mutability | Home | Owner |
 |---|---|---|---|---|
 | **ADR** | Why this path won over another | Immutable once accepted — superseded, never edited | `docs/decisions/` | Architect |
-| **Architecture doc** | How a subsystem currently works | Living — updated as the subsystem changes | `docs/architecture/*` | Software-Engineer, at implementation time |
-| **Product doc** | What a product area does, and for whom | Living — archived manually when the area retires | `docs/product/*` | Product-doc owner (check 10) |
+| **Software doc** | How a subsystem currently works | Living — updated as the subsystem changes | `docs/software/*` | Architect may start one alongside an ADR; Software-Engineer maintains it at implementation time |
+| **Product doc** *(reserved — not built yet)* | What a product area does, and for whom | Living | `docs/product/*` | A future product agent |
 | **Process & ownership** | How we work / who is accountable | Living — edited in place | `steering/`, `standards/`, agent charters, the Agent roster above | Engineering Manager |
 
-- Reference docs (architecture + product) are ~1 page each. Outgrowing a page means the
-  subsystem or product area should split.
+**Named "software", not "architecture", deliberately.** An "architecture doc" sitting
+next to an "architecture decision record" is a coin-flip for humans and agents every
+time either is referenced, and the two are precisely the pair this model most needs kept
+apart. `software` also pairs cleanly with `product`: how it is built, versus what it
+does for users.
+
+**Product docs are a reserved slot, not current work.** Nothing here needs a PRD today,
+and standing up a directory with no content and no owner is how unused ceremony starts.
+The slot is named now because a product agent is a foreseeable addition and design work
+is where PRDs start paying for themselves — build it when that agent lands, not before.
+
+- Software docs are ~1 page each. Outgrowing a page means the subsystem should split.
 - Updating the affected doc is an acceptance criterion of any Feature that changes
   behavior, checked in review alongside tests.
-- Bodies stay in git. `aif index` generates a nav index for architecture + product;
-  decisions are indexed by `adrs`, not `aif` (see ADR tooling below).
+- Bodies stay in git. `aif index` generates a nav index for software docs; decisions are
+  indexed by `adrs`, not `aif` (see ADR tooling below).
 - **PRDs are an input, not a fifth type.** A PRD states goal, users, success criteria
-  and out-of-scope — what and why, never how. For most Features the Feature Plan's own
-  goal/acceptance-criteria section *is* the PRD, and no separate artifact exists. Write
-  a standalone one in `docs/product/` only when the content outlives the Feature that
-  introduced it.
+  and out-of-scope — what and why, never how. For every Feature today, the Feature Plan's
+  own goal/acceptance-criteria section *is* the PRD. When the product agent arrives and
+  PRDs start outliving the Feature that introduced them, they go in the reserved slot.
 - **Ownership (RACI) questions are not decisions.** "Who owns X" is answered by the
   Agent roster table and the agent charters it drives — never by a record in
   `docs/decisions/`. Three current records (`PROC-001/004/006`) exist only because
   there was no other home for that question.
+- **`skill/knowledge-authoring` is reconciled with this table, not left beside it.** Its
+  `type` list (`decision`, `reference`, `architecture`, `api`, `business-rule`) predates
+  these four kinds and now overlaps them: `decision` is an ADR and no longer its
+  business, `architecture` is a software doc. It keeps the types that are genuinely
+  neither — reference material, API notes, business rules — and points here for the rest.
 
 ### Decisions — four homes, no tiers, no domains
 
@@ -95,11 +115,11 @@ decision log, of which 7 are not decisions at all.
 |---|---|
 | Binding implementer rule (stack, pattern, layering) | `standards/` or `steering/` |
 | Genuine architectural/product fork — contested, costly to reverse (rare) | ADR — `docs/decisions/`, MADR format (below) |
-| How the system / product works | The relevant `docs/architecture` or `docs/product` file |
+| How the system / product works | The relevant `docs/software` file (or `docs/product`, once that slot is built) |
 | Process / tooling / convention / ownership change | No record — edit the skill/steering/agent file; the commit + CHANGELOG line is the record |
 
 - ADR scoped to one Feature is archived with it; foundational or cross-cutting ADRs
-  attach to an architecture subsystem so they outlive any one Feature.
+  attach to a software subsystem so they outlive any one Feature.
 - `complexity-tiers` and `plan-lifecycle` stay (trimmed). `decision-record` is not
   trimmed but **replaced outright** by MADR + the `adrs` CLI below;
   `decision-triage`'s tier/domain classification goes away with it. With one record
@@ -127,7 +147,7 @@ the Options → optional More Information.
 | Consequences | 3–5 one-line bullets |
 | Pros and Cons of the Options | optional; 2–3 bullets per option, only where a rejection isn't obvious from its one-liner |
 
-Does **not** belong in an ADR — goes to the architecture doc, or to the Feature/ticket:
+Does **not** belong in an ADR — goes to the software doc, or to the Feature/ticket:
 schemas, config field tables, algorithms, code blocks beyond a 3-line illustration,
 migration and rollout steps, "what the implementer must know when decomposing this",
 and open questions about how the system will work.
@@ -177,9 +197,37 @@ Consequences of adopting it:
 - Version/behavior claims above come from the linked research notes (`adrs-core`
   v0.11–0.12.x); re-verify against the current release at adoption time.
 
+#### Open: how a Rust CLI reaches a Node project
+
+`adrs` ships prebuilt macOS/Linux/Windows binaries via GitHub releases (a `cargo-dist`
+installer script), plus Homebrew, Cargo and Docker. It does **not** publish an npm
+package. That makes distribution a real decision rather than an install line, for two
+reasons specific to this repo:
+
+- **Windows is supported and not optional** — `install.ps1` exists and `ARCH-001` set
+  OS-agnosticism as a hard constraint. Homebrew is out; Cargo means a Rust toolchain on
+  every Windows dev machine.
+- **The framework installs into other people's projects.** `ARCH-001` chose Node
+  explicitly for "portable, minimal dependencies (Node.js stdlib + `yaml`)". Requiring a
+  Rust binary in every consuming project is a real change to that contract, not an
+  internal tooling detail — and it is the strongest argument against adoption.
+
+| Option | Verdict |
+|---|---|
+| Pinned binary from GitHub releases, bootstrapped in setup + CI | Works on all three OSes with no Rust toolchain. Costs a version-pinned download step and a checksum. **Recommended starting point.** |
+| Own npm wrapper (per-platform `optionalDependencies`, the esbuild/swc pattern) | Best DX for Node consumers, but means maintaining a distribution package for someone else's binary and re-publishing on every upstream release |
+| Reimplement MADR handling in JS | Keeps the pure-Node contract; loses the MCP server and upstream maintenance. Note the maintenance argument is weaker than it looks — MADR is far simpler than the in-house format, so this is plausibly *less* code than `lib/decisions.js` is today |
+| Homebrew / `cargo install` | Out — not Windows, or needs a Rust toolchain |
+
+This is exactly the "contested, costly-to-reverse fork" shape the model reserves ADRs
+for, and it partially reopens `ARCH-001`. Settle it as its own ADR (check 27) before
+committing the conversion to `adrs`; if it lands against adoption, the MADR format and
+everything else in this section still stand — only the tooling changes.
+
 ### Writing docs agents can consume
 
-Applies to architecture and product docs — ADRs get their shape from MADR above.
+Applies to software docs, and to product docs when that slot is built — ADRs get their
+shape from MADR above.
 
 - **Frontmatter is for filtering, not reading**: `status`, `tags`, `last_verified`. No
   prose. A summary field here duplicates the doc's own opening line and drifts from it.
@@ -206,8 +254,8 @@ Applies to architecture and product docs — ADRs get their shape from MADR abov
   The MADR word budget makes this cheap to hold to — a whole ADR is now roughly the size
   of one old record's `Options Explored` heading block.
 - Decision records leave `knowledge/index.json`. Two discovery surfaces, no overlap:
-  `aif index` for architecture + product docs, the `adrs` MCP server for decisions when
-  an agent genuinely needs to query them.
+  `aif index` for software docs, the `adrs` MCP server for decisions when an agent
+  genuinely needs to query them.
 - No migration tables, "supersedes X because…", or point-in-time proposals in any
   artifact body. Those belong in commit messages.
 
@@ -230,10 +278,10 @@ per-call human-confirmation gate rather than a structural boundary.
 
 | Agent | Role | Write | Shell | Web | Subagent dispatch |
 |---|---|---|---|---|---|
-| **Architect** | ADRs only — rare, contested, costly-to-reverse forks (per Decisions above) | Yes, scoped to `docs/decisions/**` | **No** | Yes (`web_search`/`web_fetch`) | Callable as a subagent by Engineering Manager or Software Engineer |
+| **Architect** | ADRs — rare, contested, costly-to-reverse forks (per Decisions above) — plus starting the software doc an ADR's mechanism content splits into | Yes, scoped to `docs/decisions/**` + `docs/software/**` | Yes (`adrs` CLI) | **No** | Callable as a subagent by Engineering Manager or Software Engineer; dispatches Researcher (gated) |
 | **Engineering Manager** | Absorbs Tech-Lead: PRD/request → Feature Plan → Task decomposition → dispatch → orchestration | Yes (plans, orchestration state) | Yes (`ai-git`, dag tools) | **No** | Dispatches Software Engineer, Architect (on a spotted ADR-worthy fork), Researcher |
 | **Software Engineer** | Absorbs Test-Engineer + Engineering-Tech-Writer + AI-Engineer + Task-level design (part of former Tech-Lead). Owns product code and AI-component work (agents/skills/steering/servers/bundles) alike, loading whichever skill set a Task calls for. | Yes | Yes | **No** | Gated `subagent` → Researcher (excluded from `approved_tools`, human confirms each dispatch) |
-| **Engineering Researcher** *(new)* | Web research → decision-ready brief, for Engineering Manager or Software Engineer | Yes, scoped to a notes/scratch path (`.md` only) | **No** | Yes | No |
+| **Engineering Researcher** *(new)* | Web research → decision-ready brief, for Architect, Engineering Manager or Software Engineer. Scoped for ADR-grade depth, not only light briefs — see below | Yes, scoped to a notes/scratch path (`.md` only) | **No** | Yes | No |
 | **Principal Engineer** | Review gate — standards + the Feature's outline, not full implementation history. Checklist branches by artifact type (code standards vs. AGENTS.md schema/cross-reference checks). | No (findings only) | No | No | No |
 
 ### Why AI-Engineer merges into Software-Engineer
@@ -252,6 +300,26 @@ repo already established (`lib/`+`bin/` vs. `agents/`+`skills/`+`steering/`+
 `tests/integration` vs. `tests/validation`) is unaffected — same directories,
 same categories, one agent applying the right one per Task instead of two.
 
+### Why Architect trades web for shell
+
+Adopting `adrs` makes ADR authoring a CLI activity: `adrs new` scaffolds the record and
+`adrs link` writes typed links plus their reverse edges — and letting `adrs link` own
+that field is the primary mitigation for its known hyphenated-`kind` bug. An Architect
+with no shell can use none of it, which would leave the one agent that authors ADRs
+unable to run the tool adopted for exactly that job.
+
+Keeping web alongside a new shell grant would rebuild the trifecta this roster exists to
+break. So Architect gives up web entirely and routes research through Engineering
+Researcher, exactly as Software Engineer does. Web stays isolated in the one agent that
+holds nothing else, and Architect ends up with the same write+shell profile as the other
+two privileged agents — one profile to reason about instead of three.
+
+**Consequence: Engineering Researcher must be scoped for ADR-grade research**, not just
+light briefs. An ADR needs the option space, evidence for each option's trade-offs, and
+enough substance to defend a rejection — materially deeper than "what does this library
+do". Its charter and prompt must say so, or Architect will be under-served by the only
+research path it now has.
+
 ### Why Principal-Engineer absorbs AI-component review rather than a new role
 
 A reviewer needing to apply either "standards + code correctness" or "AGENTS.md
@@ -268,7 +336,7 @@ actually scrutinizing that class of diff.
 
 | Agent | Legs held | Residual risk |
 |---|---|---|
-| Architect | write + web, no shell | Confirm the web tool is read-only fetch, not a generic HTTP client with outbound POST |
+| Architect | write + shell, no web | Same profile as Software Engineer: sees only Researcher briefs, never raw web content. See Residual injection surface below |
 | Engineering Manager | write + shell, no web | Only ever sees compressed briefs from Architect/Researcher, never raw content |
 | Software Engineer | write + shell, no web | Direct web-vector closed, exposure substantially reduced — but not zero. See Residual injection surface below. |
 | Engineering Researcher | web only, write scoped to non-executable `.md` output | The one agent allowed to hold the web leg freely holds nothing else |
@@ -281,9 +349,9 @@ structural rather than tribal knowledge.
 
 #### Residual injection surface
 
-Removing Software-Engineer's direct web access closes the highest-volume,
-most attacker-controllable vector, but it does not make Software-Engineer
-immune to prompt injection — two things remain:
+Removing direct web access from Software-Engineer — and now Architect — closes the
+highest-volume, most attacker-controllable vector. It does not make either immune to
+prompt injection; two things remain:
 
 - **Engineering Researcher's brief is a narrower, but real, vector.**
   Summarization is not a guaranteed sanitization boundary — a page containing
@@ -291,17 +359,22 @@ immune to prompt injection — two things remain:
   fix this") can still have that survive into the brief's recommendation. The
   gated human-confirmation on *dispatching* Researcher does not cover this —
   it approves that a dispatch happens, not that the returned content has been
-  vetted.
-- **Web access was never the only surface.** Software-Engineer still reads
-  repo content, dependency install output, and ticket/PRD text that reaches it
+  vetted. Routing Architect's research through the same path widens this
+  vector's blast radius rather than adding a new one: a brief that shapes an
+  ADR influences every implementer who later treats that ADR as binding, which
+  is a longer-lived effect than one bad `npm install`.
+- **Web access was never the only surface.** Both agents still read repo
+  content, dependency install output, and ticket/PRD text that reaches them
   via a Feature Plan — any of which can originate outside the org's control
-  regardless of whether Software-Engineer itself can browse.
+  regardless of whether the agent itself can browse.
 
-Mitigation: Software-Engineer's hard rules must state that a Researcher brief
-is data informing a decision, never an instruction to execute directly — it
-does not `npm install` a package or run a shell command solely because a
-brief suggested it; the same standards-based judgment applies to a brief's
-suggestions as to any other input.
+Mitigation: the hard rules for **both** Architect and Software-Engineer must state that
+a Researcher brief is data informing a decision, never an instruction to execute
+directly — Software-Engineer does not `npm install` a package or run a shell command
+solely because a brief suggested it, and Architect does not adopt an option, or reject
+one, solely because a brief recommended it. The same standards-based judgment applies to
+a brief's suggestions as to any other input. Architect's ADRs also still pass a human
+approval gate, which is the backstop for the longer-lived effect above.
 
 ### End-to-end flow
 
@@ -310,9 +383,11 @@ PRD / human request
       |
       v
 Engineering Manager -- spots an ADR-worthy fork? --> Architect (subagent, gated)
-  writes Feature Plan                                   writes ADR, human approves
-      | human approves
-      v
+  writes Feature Plan                                   writes ADR (adrs CLI), may start
+      | human approves                                  its software doc; human approves
+      v                                                       |
+      |                                    needs research? --> Engineering Researcher
+      |                                                        (gated subagent)
   dispatch per Task -------------------------------------
       |
       +--> Software Engineer -- needs research? --> Engineering Researcher (gated subagent)
@@ -437,12 +512,12 @@ mislabeled. What they *do* carry is a `Design` section that fails the litmus tes
 
 | Record | Genuine ADR? | Disposition |
 |---|---|---|
-| `ARCH-001` Install CLI redesign | Yes — 3 options | ADR core → MADR. `Design` (bundle schema, manifest format, Kiro adapter table) → `docs/architecture/install-cli.md`. |
-| `ARCH-002` Steering schema & harness scoping | Yes — 3 options | ADR core → MADR. `Design` (frontmatter schema, adapter translation table) **and** `Known Limitations` (the Kiro `fileMatch` bug) → `docs/architecture/steering-schema.md` — a live upstream bug is exactly the content that must stay editable. |
-| `ARCH-003` Shared resource lifecycle | Yes — 3 options | ADR core → MADR. `Design` (manifest schema, ownership lifecycle, 12-row component table) → `docs/architecture/install-manifest.md`. |
-| `ARCH-004` Standards sync mechanism | Yes — still `Draft` | Decide or drop it before converting. Its own text defers the byte-level schema to implementation — that content belongs in `docs/architecture/standards-sync.md`, not a frozen ADR. |
+| `ARCH-001` Install CLI redesign | Yes — 3 options | ADR core → MADR. `Design` (bundle schema, manifest format, Kiro adapter table) → `docs/software/install-cli.md`. |
+| `ARCH-002` Steering schema & harness scoping | Yes — 3 options | ADR core → MADR. `Design` (frontmatter schema, adapter translation table) **and** `Known Limitations` (the Kiro `fileMatch` bug) → `docs/software/steering-schema.md` — a live upstream bug is exactly the content that must stay editable. |
+| `ARCH-003` Shared resource lifecycle | Yes — 3 options | ADR core → MADR. `Design` (manifest schema, ownership lifecycle, 12-row component table) → `docs/software/install-manifest.md`. |
+| `ARCH-004` Standards sync mechanism | Yes — still `Draft` | Decide or drop it before converting. Its own text defers the byte-level schema to implementation — that content belongs in `docs/software/standards-sync.md`, not a frozen ADR. |
 | `ARCH-005` DAG tool as MCP server | Yes — minimal `Design` | Convert whole to MADR; nothing to split. Retrospective by design — its entire value is preserved reasoning, so do **not** fold-and-archive it. |
-| `ARCH-006` `ai-git` tool boundary | Yes — a decision *not* to build | Convert whole to MADR. **Nothing to fold into an architecture doc** — the record contains no "how it works" content at all. |
+| `ARCH-006` `ai-git` tool boundary | Yes — a decision *not* to build | Convert whole to MADR. **Nothing to fold into a software doc** — the record contains no "how it works" content at all. |
 | `ARCH-007` Epic/Chunk → YouTrack | Yes — 4 options | ADR core → MADR. `Design` (YouTrack field schema, workflow rules, permission scheme) → `docs/plans/youtrack-integration-plan.md`, which now owns that layer. |
 | `PROC-001` AI-Engineer/SE boundary | No — ownership | → `steering/` as an artifact-type (code vs. declarative) classification rule; no longer an agent boundary now that one agent applies it. |
 | `PROC-002`, `PROC-006` AI-track dispatch / decomposition | No — ownership | Moot. The AI-track distinction retires with the AI-Engineer/Software-Engineer merge. |
@@ -452,7 +527,7 @@ mislabeled. What they *do* carry is a `Design` section that fails the litmus tes
 | `PLAN-001` Epic/chunk colocation | No — convention | Already deleted from disk; only the stale committed index still references it. Nothing to do beyond retiring that index (check 19). |
 | `META-001`, `META-002` Tiering + amendment ladder | No — meta-process | Retired wholesale, nothing survives into a skill. Both exist to manage decision-record bloat that MADR + `adrs` prevent structurally. |
 
-Corrects the earlier disposition, which folded `ARCH-001/005/006` into architecture docs
+Corrects the earlier disposition, which folded `ARCH-001/005/006` into software docs
 and archived them: that discards the decision rationale in all three, and `ARCH-006` has
 no mechanism content to fold in the first place.
 
@@ -482,30 +557,35 @@ Two related items that are *not* missing ADRs:
 
 | # | Check |
 |---|---|
-| 1 | `docs/architecture/` and `docs/product/` exist, each with an index and a one-page file template carrying the conventions in Writing docs agents can consume: minimal frontmatter (`status`, `tags`, `last_verified`), a one-sentence blockquote summary after the H1, and a Key Files section of relative links. |
-| 2 | `aif index` emits a nav index for architecture + product docs, scoped like `knowledge/index.json`, with the entry shape above. Decisions are explicitly out of its scope — `adrs` owns them. |
+| 1 | `docs/software/` exists with an index and a one-page file template carrying the conventions in Writing docs agents can consume: minimal frontmatter (`status`, `tags`, `last_verified`), a one-sentence blockquote summary after the H1, and a Key Files section of relative links. `docs/product/` is **not** created — reserved slot, no content and no owner yet. |
+| 2 | `aif index` emits a nav index for software docs, scoped like `knowledge/index.json`, with the entry shape above. Decisions are explicitly out of its scope — `adrs` owns them. |
 | 3 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
 | 4 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
 | 5 | DAG server + `lib` renamed chunk→task; wave output is identical for an equivalent graph. |
 | 6 | `decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`, `ai-engineering-plan` skills deleted and all references removed — `decision-record` included, since `adrs` + the MADR template replace it rather than shrink it. |
 | 7 | `plan-lifecycle` and `complexity-tiers` trimmed; `complexity-tiers` re-pointed as Software-Engineer's primary gate. Tier 3's process changes from "produce a written plan, implement it" to "stop, do not plan or implement, hand off" — orchestrated → Engineering Manager, standalone → the human (see Agent roster, Resolved design questions). `plan this` documented as a Tier 2 floor, not an automatic Tier 3 jump — no fourth tier added. |
 | 8 | `steering/engineering/core.md` Rules 1/2/8/9 reworded: Rule 1 replaced by the `complexity-tiers` gate, Rule 2 gets a fallback for Tier 1/2 work with no plan artifact, "Chunk Plan"/"Epic Plan" wording → Feature Plan; `knowledge-consumption.md` drops decision-record loading; doc-update acceptance gate added. |
-| 9 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). |
-| 10 | Product-doc ownership assigned to an agent (existing or new); `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). |
+| 8b | **Full vocabulary + reference sweep**, not just the planning skills. Chunk/epic wording also lives in `skills/code-review/` (SKILL + template), `skills/test-execution/` (SKILL + template), `skills/worktree-management/SKILL.md`, `skills/complexity-tiers/SKILL.md`, `skills/plan-lifecycle/reference/commit-gate-procedure.md`, `standards/csharp_base.md`, `standards/javascript_base.md`, and `steering/engineering/git-workflow-projects.md`. References to the deleted decision skills also live in `skills/agent-authoring/reference/schema.md`, `skills/knowledge-authoring/SKILL.md`, `projects/_template/project-standards.md`, `standards/javascript_node.md`, and — as JSDoc example values — `lib/resolver.js`. |
+| 8c | `skill/knowledge-authoring` reconciled with the Document types table: `decision` and `architecture` drop out of its `type` list (they are ADRs and software docs now), the remaining types stay, and it points at that table rather than restating it. |
+| 9 | Agent YAMLs updated per Agent roster above: 4 retired, 4 modified, 1 new (`engineering-researcher.yaml`). Two specifics that are easy to miss: `architect.yaml` **gains** `shell` and **loses** `web_search`/`web_fetch` (it holds `shell` today — this is a swap, not an addition) and gains gated Researcher dispatch; `engineering-researcher.yaml` is scoped for ADR-grade research depth, not light briefs only (see Why Architect trades web for shell). |
+| 10 | `skill/agent-authoring` and `docs/agent-prompt-extraction-candidates.md` swept (several tracked candidates resolve or move owner as their originating agents merge). Product-doc ownership is **not** assigned — the slot is reserved and unbuilt until a product agent exists. |
 | 11 | Existing decision records dispositioned per the table above; archive location created. |
 | 12 | Freeform `docs/plans/*.md` triaged and cleared; `docs/plans/completed/` holds the finished ones. |
-| 13 | `tests/validation/` cross-reference check passes against the new agent/skill/doc set; `npm test` green. Fixture data referencing retired agent names (`tests/unit/decisions.test.js`, `tests/integration/decisions-index.test.js`, `knowledge-index.test.js`, `base.test.js`, `claude-adapter.test.js`, `kiro-adapter.test.js`) cleaned up as a low-risk pass. |
+| 13 | `tests/validation/` cross-reference check passes against the new agent/skill/doc set; `npm test` green. Fixture data referencing retired agent or skill names cleaned up as a low-risk pass: `tests/unit/decisions.test.js`, `tests/integration/decisions-index.test.js`, `knowledge-index.test.js`, `base.test.js`, `claude-adapter.test.js`, `kiro-adapter.test.js`, and also `tests/unit/resolver.test.js`, `tests/integration/resolver.test.js`, `tests/integration/commands.test.js` — the last three reference the deleted decision skills and were missed in the first pass. |
 | 14 | `bundles/engineering/snapshot.json` regenerated (`bundle.yaml` itself needs no edit — pure domain-based auto-discovery absorbs the roster shrink). |
 | 15 | `README.md`, `PLAN.md`, `AGENTS.md`, `install.ps1`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` specifically enumerates agent files for install — retired names must be removed there as a real code change. |
 | 16 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
 | 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
 | 18 | `adrs` adopted and pinned; `docs/decisions/` flattened (domain subfolders removed, `adrs`-native filenames, `AIF-ADR-nnn` carried in frontmatter `id:`); every surviving record converted to MADR within the word budget; `adrs lint` green. |
 | 19 | `lib/decisions.js`, `aif index -d`, `docs/decisions/index.json`, `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` removed; no remaining references to the decision index in skills, steering, or CLI help. |
-| 20 | CI decision made and landed (`.github/` does not exist today): `adrs lint`, the hyphenated-`kind` grep guard, and the relative-link staleness check for `docs/architecture` + `docs/product` all run somewhere enforced. Guard regex validated against real `adrs`-generated frontmatter first. |
-| 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into their architecture docs (or the YouTrack plan for `007`) per Decision-record disposition; `ARCH-005/006` converted whole with nothing split. |
+| 20 | CI decision made and landed (`.github/` does not exist today): `adrs lint`, the hyphenated-`kind` grep guard, and the relative-link staleness check for `docs/software` all run somewhere enforced. Guard regex validated against real `adrs`-generated frontmatter first. |
+| 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into their software docs (or the YouTrack plan for `007`) per Decision-record disposition; `ARCH-005/006` converted whole with nothing split. |
 | 22 | The three New ADRs to write are written in MADR form: no-TypeScript, `node:test`, MCP server credential handling. |
 | 23 | `AIF-003` torn down as abandoned work: the Epic Plan and all 8 chunk plans move to `Deferred` and into `archive/` (per Retiring a plan above), reason recorded once, with `chunks.json` and `orchestration-state.json` archived alongside them. Delete the two stale remote branches (`AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`) — their PRs are already closed. Three older strays deserve the same sweep: `AIF-001/003-epic-planning-ai-track`, `AIF-002/010-migrate-aif-006`, `AIF-002/015-backfill-decisions-index`. |
 | 24 | The merged half of `AIF-003` unwound — but only the part that does not already die elsewhere. `AIF-003-004`'s `Amending` status is the one real revert: remove it from `plan-lifecycle/reference/status-vocabulary.md` by hand. `AIF-003-003`'s `## Amendments`/`## Errata`/`Last Amended` template sections die with the `decision-record`/`decision-brief` skills (check 6), and `AIF-003-001`'s `Supersedes` parse dies with `lib/decisions.js` (check 19) — neither needs its own revert commit. `AIF-003-005`'s steering de-enumeration is **kept**: replacing an enumerated status list with a positive check against `Approved` is correct under MADR too, and reverting it would reintroduce a hardcoded list of statuses that no longer exist. |
+| 25 | `.aiconfig.json` schema updated and its consumers with it: `paths.epics` → `paths.features`, `paths.chunks` → `paths.tasks`, add `paths.software`, keep `paths.decisions` (now flat), and reserve `paths.product` in documentation without shipping a default. This is a code change as well as a doc change — `resolveKnowledgePath`/`resolveDecisionsPath` in `lib/commands/index.js` read these, and the field table in `AGENTS.md` documents them. This repo's own `.aiconfig.json` updated to match. |
+| 26 | `projects/_template/` brought to the new format — the whole reason the schema above matters, and untouched by every earlier draft of this plan. Its `.aiconfig.json` paths, its `plans/{epics,chunks,orchestration}/` skeleton, its `knowledge/decisions/` directory, and `project-standards.md`'s references to the deleted decision skills all move. Every consuming project starts from this. |
+| 27 | The `adrs`-distribution ADR is written and accepted (see Open: how a Rust CLI reaches a Node project). **Blocks checks 18–20** — do not begin the conversion until it lands, since a decision against adoption changes the tooling but not the MADR format. If adoption wins, the pinned binary + checksum bootstrap works on macOS/Linux/Windows and is wired into both setup and CI. |
 
 ---
 
@@ -515,23 +595,29 @@ Two related items that are *not* missing ADRs:
    stale branches. Independent of everything else and cheap, and it removes the
    largest current source of confusion about what is still live. Its PRs are
    already closed, so nothing here waits on anyone.
-2. Land the reference-doc structure + `aif index` extension + doc conventions
+2. Settle the `adrs`-distribution ADR (check 27). Early, and deliberately ahead of
+   any conversion work: it is cheap to answer now and expensive to discover late,
+   and a decision against adoption changes what step 5 builds without touching
+   the MADR format everything else assumes.
+3. Land the software-doc structure + `aif index` extension + doc conventions
    (checks 1–2).
-3. Agent roster changes first (check 9) — everything else in this step derives
+4. Agent roster changes first (check 9) — everything else in this step derives
    from it. Then vocabulary + skill + agent sweep in one pass — feature/task
    rename, skill deletions, `complexity-tiers` re-pointed to Software-Engineer,
-   steering rewrites, product-doc owner decision (checks 3–8, 10, 13–17).
-4. Decisions conversion: adopt `adrs`, flatten `docs/decisions/`, convert the
-   survivors to MADR, split `Design` sections into their architecture docs, rehome
-   the ownership/convention records, retire the in-house indexer, and write the
-   three missing ADRs (checks 11, 18–19, 21–22). Depends on step 2 — the
-   architecture docs must exist before `Design` content can move into them.
-5. Unwind what is left of the merged `AIF-003` half (check 24) — small by this
-   point, since steps 3 and 4 already delete most of it. Verify nothing survived,
+   steering rewrites (checks 3–8c, 10, 13–17) — plus the config fallout that
+   rides with the rename: `.aiconfig.json` schema and its resolvers, then
+   `projects/_template/` (checks 25–26).
+5. Decisions conversion: adopt `adrs` per step 2, flatten `docs/decisions/`,
+   convert the survivors to MADR, split `Design` sections into their software
+   docs, rehome the ownership/convention records, retire the in-house indexer,
+   and write the three missing ADRs (checks 11, 18–19, 21–22). Depends on
+   step 3 — the software docs must exist before `Design` content can move in.
+6. Unwind what is left of the merged `AIF-003` half (check 24) — small by this
+   point, since steps 4 and 5 already delete most of it. Verify nothing survived,
    and hand-revert the `Amending` status.
-6. Land the CI decision and its guards (check 20), once there is a valid,
+7. Land the CI decision and its guards (check 20), once there is a valid,
    converted decision log for `adrs lint` to run against.
-7. Triage the remaining freeform plans (check 12).
+8. Triage the remaining freeform plans (check 12).
 
 This is the full sequencing for this document's scope. YouTrack integration is
 a separate, follow-on layer on top of this model — see
