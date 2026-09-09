@@ -406,8 +406,9 @@ rather than through a separate classification skill.
 
 | Artifact | Disposition |
 |---|---|
-| `AIF-001`, `AIF-002`, `AIF-003` epics + their chunk plans | Done. Leave in place as history — no migration, no rename. |
-| `AIF-004` (Draft — planning redesign) | Superseded by this document. Still-valid pieces (one gate per Feature, tier-aware pipeline, terminology sweep) roll into the work above. Mark `Superseded`. |
+| `AIF-001`, `AIF-002` epics + their chunk plans | Done. Leave in place as history — no migration, no rename. |
+| `AIF-003` epic (decision-record amendment ladder) + its 8 chunk plans | **Abandoned mid-flight — will not be completed.** The ladder it implements is retired by this model. PRs #23/#24 closed unmerged 2026-09-09; four chunks (`001/003/004/005`) had already merged and need unwinding. Full teardown in checks 23–24. |
+| `AIF-004` (Draft — planning redesign) | Superseded by this document. Still-valid pieces (one gate per Feature, tier-aware pipeline, terminology sweep) roll into the work above. Mark `Deferred` and archive (see below — `Superseded` is not a legal Epic Plan status). |
 | `docs/plans/agent-consolidation-plan.md` (Draft) | Superseded by this document — its agent-roster content is merged into Agent roster above. Mark `Superseded`, leave in place as history. |
 | Freeform `docs/plans/*.md` (`cli-plan`, `ai-git-enforcement`, `commit-discipline-plan-gate`, `gmail-*`, `tech-lead-subagent-dispatch`, …) | Triage each: Done → move to `docs/plans/completed/`; real upcoming work → becomes a Feature; process/tooling change → fold into the skill/steering edit and delete; stale → delete. No new freeform plans after this. |
 | `ai-engineering-plan` skill / "Tier 3 plan" concept | Retired. Small work (product or AI-component) runs under `complexity-tiers` (1/2); larger becomes a Feature. |
@@ -415,10 +416,17 @@ rather than through a separate classification skill.
 | `agents/architect.yaml`, `software-engineer.yaml`, `engineering-manager.yaml`, `principal-engineer.yaml` | Modified per Agent roster above (tool grants, scope). |
 | `agents/engineering-researcher.yaml` | New. |
 | 15 decision records | Converted to MADR or rehomed per **Decision-record disposition** below. |
-| Open PRs #23, #24 (`AIF-003` amendment ladder) | **Close, do not merge.** #24 adds `last_amended`/`amendment_count` to the index `adrs` replaces; #23 documents the ladder MADR's supersede-only model removes. Merging them lands code that checks 6–7 immediately delete. The already-merged half of that epic (`AIF-003-001/003/004/005` — `Supersedes` parsing, the `## Amendments`/`## Errata` template sections, the `Amending` status, the steering de-enumeration) is reverted by the same sweep. |
 
 Archived records and plans move to an `archive/` subfolder with status noted — not
 deleted. Git plus a browsable trail is the audit record.
+
+**Retiring a plan uses `Deferred`.** Epic and Chunk Plans allow only
+`Draft`/`Approved`/`Done`/`Deferred` — `Superseded` is a Decision-Record-only value —
+so every plan retired here (`AIF-003`, `AIF-004`) moves to `Deferred` plus `archive/`.
+Do not add an `Abandoned` status: this model is shrinking the status surface, the
+`archive/` location already carries the finality, and the status only has to stop
+reading as live to a gate. Freeform `docs/plans/*.md` files are not governed by that
+vocabulary and can say whatever is clearest in their header.
 
 ### Decision-record disposition
 
@@ -496,15 +504,17 @@ Two related items that are *not* missing ADRs:
 | 20 | CI decision made and landed (`.github/` does not exist today): `adrs lint`, the hyphenated-`kind` grep guard, and the relative-link staleness check for `docs/architecture` + `docs/product` all run somewhere enforced. Guard regex validated against real `adrs`-generated frontmatter first. |
 | 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into their architecture docs (or the YouTrack plan for `007`) per Decision-record disposition; `ARCH-005/006` converted whole with nothing split. |
 | 22 | The three New ADRs to write are written in MADR form: no-TypeScript, `node:test`, MCP server credential handling. |
-| 23 | PRs #23 and #24 closed unmerged; the merged `AIF-003` amendment-ladder changes reverted — `## Amendments`/`## Errata` template sections, the `Amending` status in `plan-lifecycle/reference/status-vocabulary.md`, and the `Supersedes`-parse code that dies with `lib/decisions.js`. |
+| 23 | `AIF-003` torn down as abandoned work: the Epic Plan and all 8 chunk plans move to `Deferred` and into `archive/` (per Retiring a plan above), reason recorded once, with `chunks.json` and `orchestration-state.json` archived alongside them. Delete the two stale remote branches (`AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`) — their PRs are already closed. Three older strays deserve the same sweep: `AIF-001/003-epic-planning-ai-track`, `AIF-002/010-migrate-aif-006`, `AIF-002/015-backfill-decisions-index`. |
+| 24 | The merged half of `AIF-003` unwound — but only the part that does not already die elsewhere. `AIF-003-004`'s `Amending` status is the one real revert: remove it from `plan-lifecycle/reference/status-vocabulary.md` by hand. `AIF-003-003`'s `## Amendments`/`## Errata`/`Last Amended` template sections die with the `decision-record`/`decision-brief` skills (check 6), and `AIF-003-001`'s `Supersedes` parse dies with `lib/decisions.js` (check 19) — neither needs its own revert commit. `AIF-003-005`'s steering de-enumeration is **kept**: replacing an enumerated status list with a positive check against `Approved` is correct under MADR too, and reverting it would reintroduce a hardcoded list of statuses that no longer exist. |
 
 ---
 
 ## Sequencing
 
-1. Close PRs #23/#24 and revert the merged amendment-ladder changes (check 23).
-   First, because it is the only step with an outside dependency — two open PRs —
-   and every week they sit is more surface to revert later.
+1. Tear down `AIF-003` (check 23) — archive the epic and its chunks, delete the
+   stale branches. Independent of everything else and cheap, and it removes the
+   largest current source of confusion about what is still live. Its PRs are
+   already closed, so nothing here waits on anyone.
 2. Land the reference-doc structure + `aif index` extension + doc conventions
    (checks 1–2).
 3. Agent roster changes first (check 9) — everything else in this step derives
@@ -516,9 +526,12 @@ Two related items that are *not* missing ADRs:
    the ownership/convention records, retire the in-house indexer, and write the
    three missing ADRs (checks 11, 18–19, 21–22). Depends on step 2 — the
    architecture docs must exist before `Design` content can move into them.
-5. Land the CI decision and its guards (check 20), once there is a valid,
+5. Unwind what is left of the merged `AIF-003` half (check 24) — small by this
+   point, since steps 3 and 4 already delete most of it. Verify nothing survived,
+   and hand-revert the `Amending` status.
+6. Land the CI decision and its guards (check 20), once there is a valid,
    converted decision log for `adrs lint` to run against.
-6. Triage the remaining freeform plans (check 12).
+7. Triage the remaining freeform plans (check 12).
 
 This is the full sequencing for this document's scope. YouTrack integration is
 a separate, follow-on layer on top of this model — see
