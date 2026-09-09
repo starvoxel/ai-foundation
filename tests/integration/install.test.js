@@ -17,12 +17,19 @@ describe('integration: install command', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'x', tools: ['read'], approved_tools: ['read'], skills: [] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'x',
+          tools: ['read'],
+          approved_tools: ['read'],
+          skills: [],
+        },
       ],
       steering: { global: ['core.md'] },
-      bundles: [
-        { name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' },
-      ],
+      bundles: [{ name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' }],
     });
 
     const tempKiro = mkdtempSync(join(tmpdir(), 'aif-kiro-target-'));
@@ -44,8 +51,12 @@ describe('integration: install command', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('requires --bundle', () => {
@@ -59,17 +70,23 @@ describe('integration: install command', () => {
   });
 
   it('rejects unknown harness', () => {
-    const code = quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'bogus' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'bogus' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('rejects unknown bundle', () => {
-    const code = quiet(() => runInstall({ args: { bundle: 'nonexistent', harness: 'kiro' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runInstall({ args: { bundle: 'nonexistent', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('records manifest entry with version and file list', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const manifest = readManifest(repo);
     const entry = manifest.bundles['test-bundle_kiro'];
@@ -87,12 +104,19 @@ describe('integration: uninstall command', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'x', tools: ['read'], approved_tools: ['read'], skills: [] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'x',
+          tools: ['read'],
+          approved_tools: ['read'],
+          skills: [],
+        },
       ],
       steering: { global: ['core.md'] },
-      bundles: [
-        { name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' },
-      ],
+      bundles: [{ name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' }],
     });
 
     const tempKiro = mkdtempSync(join(tmpdir(), 'aif-kiro-target-'));
@@ -114,8 +138,12 @@ describe('integration: uninstall command', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('requires --bundle', () => {
@@ -124,18 +152,26 @@ describe('integration: uninstall command', () => {
   });
 
   it('requires --harness', () => {
-    const code = quiet(() => runUninstall({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('fails gracefully if bundle not installed', () => {
-    const code = quiet(() => runUninstall({ args: { bundle: 'nonexistent', harness: 'kiro' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runUninstall({ args: { bundle: 'nonexistent', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('removes manifest entry after uninstall', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
-    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const manifest = readManifest(repo);
     assert.equal(manifest.bundles['test-bundle_kiro'], undefined);

@@ -20,7 +20,7 @@ import { readFileSync } from 'node:fs';
  *   ]
  * }
  *
- * @param {object} data - Parsed JSON content
+ * @param {Record<string, any>|null|undefined} data - Parsed JSON content
  * @returns {{ chunks: Array<{ id: string, title: string, depends_on: string[], agents: string[] }>, errors: string[] }}
  */
 export function parseChunksFile(data) {
@@ -81,7 +81,7 @@ export function parseChunksFile(data) {
  * @returns {{ nodes: Set<string>, edges: Map<string, string[]> }}
  */
 export function buildGraph(chunks) {
-  const nodes = new Set(chunks.map(c => c.id));
+  const nodes = new Set(chunks.map((c) => c.id));
   const edges = new Map();
 
   for (const chunk of chunks) {
@@ -128,7 +128,7 @@ export function validate(graph) {
         forward.get(dep).push(node);
       }
     }
-    inDegree.set(node, deps.filter(d => nodes.has(d)).length);
+    inDegree.set(node, deps.filter((d) => nodes.has(d)).length);
   }
 
   const queue = [];
@@ -148,7 +148,7 @@ export function validate(graph) {
   }
 
   if (visited < nodes.size) {
-    const cycleNodes = [...nodes].filter(n => inDegree.get(n) > 0);
+    const cycleNodes = [...nodes].filter((n) => inDegree.get(n) > 0);
     errors.push(`Cycle detected involving chunks: ${cycleNodes.join(', ')}`);
   }
 
@@ -178,11 +178,11 @@ export function computeWaves(graph) {
         forward.get(dep).push(node);
       }
     }
-    inDegree.set(node, deps.filter(d => nodes.has(d)).length);
+    inDegree.set(node, deps.filter((d) => nodes.has(d)).length);
   }
 
   const waves = [];
-  let remaining = new Set(nodes);
+  const remaining = new Set(nodes);
 
   while (remaining.size > 0) {
     // Current wave: all nodes with in-degree 0 among remaining
@@ -273,7 +273,7 @@ export function dagComputeWaves(chunksPath) {
   const waves = computeWaves(graph);
   return {
     waves,
-    chunks: chunks.map(c => ({
+    chunks: chunks.map((c) => ({
       id: c.id,
       title: c.title,
       depends_on: c.depends_on,

@@ -45,9 +45,8 @@ describe('integration: kiro adapter', () => {
   });
 
   it('transforms a steering file with empty file_patterns', () => {
-    const steeringPath = join(repo, 'steering', 'global', 'core.md');
-    // Rewrite with frontmatter for testing
-    const content = '---\nname: "global-core"\nversion: "0.1.0"\ndescription: "Core rules."\nfile_patterns: []\n---\n# Core Rules\n- Rule 1\n';
+    const content =
+      '---\nname: "global-core"\nversion: "0.1.0"\ndescription: "Core rules."\nfile_patterns: []\n---\n# Core Rules\n- Rule 1\n';
     const result = transformSteering(content);
 
     assert.ok(result.includes('inclusion: always'));
@@ -58,6 +57,6 @@ describe('integration: kiro adapter', () => {
   it('gets skill files for a skill directory', () => {
     const files = getSkillFiles('test-skill', repo);
     assert.ok(files.length > 0);
-    assert.ok(files.some(f => f.relDest.includes('SKILL.md')));
+    assert.ok(files.some((f) => f.relDest.includes('SKILL.md')));
   });
 });

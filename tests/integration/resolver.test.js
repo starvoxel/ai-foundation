@@ -13,16 +13,56 @@ describe('integration: resolver', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'alpha', version: '0.1.0', domain: 'engineering', description: 'A', prompt: 'x', tools: ['file-read', '@git/git_status'], approved_tools: [], skills: ['skill/decision-record', 'skill/chunk-planning'] },
-        { name: 'beta', version: '0.1.0', domain: 'engineering', description: 'B', prompt: 'x', tools: ['@git/git_diff'], approved_tools: [], skills: ['skill/decision-record'] },
-        { name: 'gamma', version: '0.1.0', domain: 'product', description: 'C', prompt: 'x', tools: [], approved_tools: [], skills: [] },
+        {
+          name: 'alpha',
+          version: '0.1.0',
+          domain: 'engineering',
+          description: 'A',
+          prompt: 'x',
+          tools: ['file-read', '@git/git_status'],
+          approved_tools: [],
+          skills: ['skill/decision-record', 'skill/chunk-planning'],
+        },
+        {
+          name: 'beta',
+          version: '0.1.0',
+          domain: 'engineering',
+          description: 'B',
+          prompt: 'x',
+          tools: ['@git/git_diff'],
+          approved_tools: [],
+          skills: ['skill/decision-record'],
+        },
+        {
+          name: 'gamma',
+          version: '0.1.0',
+          domain: 'product',
+          description: 'C',
+          prompt: 'x',
+          tools: [],
+          approved_tools: [],
+          skills: [],
+        },
       ],
       skills: ['decision-record', 'chunk-planning'],
       steering: { global: ['core.md'], engineering: ['core.md', 'git-workflow.md'] },
       servers: ['git'],
       bundles: [
-        { name: 'engineering', version: '1.0.0', description: 'Engineering bundle', domain: 'engineering' },
-        { name: 'custom', version: '1.0.0', description: 'Custom', agents: ['gamma.yaml'], skills: ['chunk-planning'], steering: ['steering/global/core.md'], servers: ['git'] },
+        {
+          name: 'engineering',
+          version: '1.0.0',
+          description: 'Engineering bundle',
+          domain: 'engineering',
+        },
+        {
+          name: 'custom',
+          version: '1.0.0',
+          description: 'Custom',
+          agents: ['gamma.yaml'],
+          skills: ['chunk-planning'],
+          steering: ['steering/global/core.md'],
+          servers: ['git'],
+        },
       ],
     });
   });
@@ -33,10 +73,7 @@ describe('integration: resolver', () => {
 
   describe('resolveBundle()', () => {
     it('throws when bundle file does not exist', () => {
-      assert.throws(
-        () => resolveBundle('nonexistent', repo),
-        /Bundle not found: nonexistent/
-      );
+      assert.throws(() => resolveBundle('nonexistent', repo), /Bundle not found: nonexistent/);
     });
 
     it('throws when bundle has neither domain nor explicit lists', () => {
@@ -44,12 +81,12 @@ describe('integration: resolver', () => {
       writeFileSync(
         join(repo, 'bundles', 'empty', 'bundle.yaml'),
         YAML.stringify({ name: 'empty', version: '1.0.0', description: 'Empty' }),
-        'utf8'
+        'utf8',
       );
 
       assert.throws(
         () => resolveBundle('empty', repo),
-        /specifies neither a domain nor explicit component lists/
+        /specifies neither a domain nor explicit component lists/,
       );
     });
 
@@ -99,7 +136,7 @@ describe('integration: resolver', () => {
           agents: ['external.yaml'],
           servers: ['extra'],
         }),
-        'utf8'
+        'utf8',
       );
 
       const result = resolveBundle('eng-plus', repo);
@@ -120,11 +157,11 @@ describe('integration: resolver', () => {
           domain: 'engineering',
           agents: ['alpha.yaml'],
         }),
-        'utf8'
+        'utf8',
       );
 
       const result = resolveBundle('overlap', repo);
-      const alphaCount = result.agents.filter(a => a === 'alpha.yaml').length;
+      const alphaCount = result.agents.filter((a) => a === 'alpha.yaml').length;
       assert.equal(alphaCount, 1);
     });
   });
@@ -135,7 +172,7 @@ describe('integration: resolver', () => {
       writeFileSync(
         join(repo, 'bundles', '_template', 'bundle.yaml'),
         YAML.stringify({ name: 'template', version: '0.1.0', description: 'T' }),
-        'utf8'
+        'utf8',
       );
 
       const result = listBundles(repo);

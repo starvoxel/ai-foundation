@@ -53,7 +53,9 @@ function fakeGmailClient() {
   return {
     users: {
       messages: {
-        list: mock.fn(async () => ({ data: { messages: [{ id: 'm1', threadId: 't1', snippet: 'hi' }] } })),
+        list: mock.fn(async () => ({
+          data: { messages: [{ id: 'm1', threadId: 't1', snippet: 'hi' }] },
+        })),
         get: mock.fn(async () => ({
           data: {
             id: 'm1',
@@ -71,7 +73,9 @@ function fakeGmailClient() {
         delete: mock.fn(async () => ({ data: {} })),
         modify: mock.fn(async () => ({ data: { id: 'm1', labelIds: [] } })),
         trash: mock.fn(async () => ({ data: { id: 'm1', labelIds: ['TRASH'] } })),
-        attachments: { get: mock.fn(async () => ({ data: { data: encodeBase64Url('x'), size: 1 } })) },
+        attachments: {
+          get: mock.fn(async () => ({ data: { data: encodeBase64Url('x'), size: 1 } })),
+        },
         batchModify: mock.fn(async () => ({ data: {} })),
       },
       labels: {
@@ -81,15 +85,25 @@ function fakeGmailClient() {
       },
       drafts: {
         list: mock.fn(async () => ({ data: { drafts: [] } })),
-        get: mock.fn(async () => ({ data: { id: 'd1', message: { id: 'm2', payload: { headers: [] } } } })),
+        get: mock.fn(async () => ({
+          data: { id: 'd1', message: { id: 'm2', payload: { headers: [] } } },
+        })),
         create: mock.fn(async () => ({ data: { id: 'd1', message: { id: 'm2' } } })),
         send: mock.fn(async () => ({ data: { id: 'sent2', threadId: 't2' } })),
         delete: mock.fn(async () => ({ data: {} })),
       },
       settings: {
         filters: {
-          list: mock.fn(async () => ({ data: { filter: [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } }] } })),
-          create: mock.fn(async () => ({ data: { id: 'f2', criteria: { from: 'c@d.com' }, action: { addLabelIds: ['L2'] } } })),
+          list: mock.fn(async () => ({
+            data: {
+              filter: [
+                { id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } },
+              ],
+            },
+          })),
+          create: mock.fn(async () => ({
+            data: { id: 'f2', criteria: { from: 'c@d.com' }, action: { addLabelIds: ['L2'] } },
+          })),
           delete: mock.fn(async () => ({ data: {} })),
         },
       },
@@ -119,21 +133,24 @@ describe('mcp: gmail server protocol layer', () => {
 
   it('lists all 21 declared tools', async () => {
     const result = await client.listTools();
-    const names = result.tools.map(t => t.name).sort();
+    const names = result.tools.map((t) => t.name).sort();
     assert.deepEqual(names, ALL_TOOL_NAMES);
   });
 
   it('every tool has a non-trivial description', async () => {
     const result = await client.listTools();
     for (const tool of result.tools) {
-      assert.ok(tool.description && tool.description.length > 10, `Tool ${tool.name} should have a description`);
+      assert.ok(
+        tool.description && tool.description.length > 10,
+        `Tool ${tool.name} should have a description`,
+      );
     }
   });
 
   it('every gated (irreversible) tool description flags the approval requirement', async () => {
     const result = await client.listTools();
     for (const name of GATED_TOOL_NAMES) {
-      const tool = result.tools.find(t => t.name === name);
+      const tool = result.tools.find((t) => t.name === name);
       assert.ok(tool, `Expected gated tool ${name} to be registered`);
       assert.match(tool.description, /Irreversible action.*explicit human approval/i);
     }
@@ -143,19 +160,28 @@ describe('mcp: gmail server protocol layer', () => {
     const result = await client.listTools();
     for (const tool of result.tools) {
       if (!GATED_TOOL_NAMES.includes(tool.name)) {
-        assert.ok(!/Irreversible action/i.test(tool.description), `Tool ${tool.name} should not be marked irreversible`);
+        assert.ok(
+          !/Irreversible action/i.test(tool.description),
+          `Tool ${tool.name} should not be marked irreversible`,
+        );
       }
     }
   });
 
   it('invokes gmail-list-messages and returns shaped JSON', async () => {
-    const result = await client.callTool({ name: 'gmail-list-messages', arguments: { query: 'is:unread' } });
+    const result = await client.callTool({
+      name: 'gmail-list-messages',
+      arguments: { query: 'is:unread' },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed.messages, [{ id: 'm1', thread_id: 't1', snippet: 'hi' }]);
   });
 
   it('invokes gmail-get-message and returns shaped JSON', async () => {
-    const result = await client.callTool({ name: 'gmail-get-message', arguments: { message_id: 'm1' } });
+    const result = await client.callTool({
+      name: 'gmail-get-message',
+      arguments: { message_id: 'm1' },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.equal(parsed.id, 'm1');
     assert.equal(parsed.body_text, 'Body');
@@ -172,7 +198,10 @@ describe('mcp: gmail server protocol layer', () => {
   });
 
   it('invokes gmail-delete-label and returns confirmation', async () => {
-    const result = await client.callTool({ name: 'gmail-delete-label', arguments: { label_id: 'L1' } });
+    const result = await client.callTool({
+      name: 'gmail-delete-label',
+      arguments: { label_id: 'L1' },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed, { id: 'L1', deleted: true });
   });
@@ -180,7 +209,9 @@ describe('mcp: gmail server protocol layer', () => {
   it('invokes gmail-list-filters and returns shaped JSON', async () => {
     const result = await client.callTool({ name: 'gmail-list-filters', arguments: {} });
     const parsed = JSON.parse(result.content[0].text);
-    assert.deepEqual(parsed.filters, [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } }]);
+    assert.deepEqual(parsed.filters, [
+      { id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } },
+    ]);
   });
 
   it('invokes gmail-create-filter and returns the created filter', async () => {
@@ -189,12 +220,19 @@ describe('mcp: gmail server protocol layer', () => {
       arguments: { from: 'c@d.com', add_label_ids: ['L2'] },
     });
     const parsed = JSON.parse(result.content[0].text);
-    assert.deepEqual(parsed, { id: 'f2', criteria: { from: 'c@d.com' }, action: { add_label_ids: ['L2'] } });
+    assert.deepEqual(parsed, {
+      id: 'f2',
+      criteria: { from: 'c@d.com' },
+      action: { add_label_ids: ['L2'] },
+    });
     assert.equal(gmail.users.settings.filters.create.mock.calls.length, 1);
   });
 
   it('invokes gmail-delete-filter and returns confirmation', async () => {
-    const result = await client.callTool({ name: 'gmail-delete-filter', arguments: { filter_id: 'f1' } });
+    const result = await client.callTool({
+      name: 'gmail-delete-filter',
+      arguments: { filter_id: 'f1' },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed, { id: 'f1', deleted: true });
   });
@@ -210,11 +248,23 @@ describe('mcp: gmail server protocol layer', () => {
   });
 
   it('invokes gmail-sender-report and returns aggregated senders', async () => {
-    gmail.users.messages.list.mock.mockImplementationOnce(async () => ({ data: { messages: [{ id: 'm1' }] } }));
-    gmail.users.messages.get.mock.mockImplementationOnce(async () => ({
-      data: { payload: { headers: [{ name: 'From', value: 'a@b.com' }, { name: 'Subject', value: 'Hi' }] } },
+    gmail.users.messages.list.mock.mockImplementationOnce(async () => ({
+      data: { messages: [{ id: 'm1' }] },
     }));
-    const result = await client.callTool({ name: 'gmail-sender-report', arguments: { query: 'in:inbox' } });
+    gmail.users.messages.get.mock.mockImplementationOnce(async () => ({
+      data: {
+        payload: {
+          headers: [
+            { name: 'From', value: 'a@b.com' },
+            { name: 'Subject', value: 'Hi' },
+          ],
+        },
+      },
+    }));
+    const result = await client.callTool({
+      name: 'gmail-sender-report',
+      arguments: { query: 'in:inbox' },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed, {
       senders: [{ sender: 'a@b.com', domain: 'b.com', count: 1, sample_subjects: ['Hi'] }],
@@ -226,7 +276,10 @@ describe('mcp: gmail server protocol layer', () => {
     gmail.users.messages.get.mock.mockImplementationOnce(async () => {
       throw new Error('simulated API failure');
     });
-    const result = await client.callTool({ name: 'gmail-get-message', arguments: { message_id: 'missing' } });
+    const result = await client.callTool({
+      name: 'gmail-get-message',
+      arguments: { message_id: 'missing' },
+    });
     assert.equal(result.isError, true);
     const parsed = JSON.parse(result.content[0].text);
     assert.match(parsed.error, /simulated API failure/);

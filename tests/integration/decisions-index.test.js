@@ -22,7 +22,14 @@ import { tmpdir } from 'node:os';
 import { runIndex, resolveDecisionsPath } from '../../lib/commands/index.js';
 import { parseArgs } from '../../bin/aif.js';
 
-function decisionFixture({ id, tier = 'A', domain = 'architecture', status = 'Approved', references = '—', title }) {
+function decisionFixture({
+  id,
+  tier = 'A',
+  domain = 'architecture',
+  status = 'Approved',
+  references = '—',
+  title,
+}) {
   return `# Decision Record: ${title}
 
 ## Metadata
@@ -122,67 +129,74 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    return quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot)).then(({ code }) => {
+    return quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot)).then(
+      ({ code }) => {
+        assert.equal(code, 0);
+        const indexPath = join(decisionsDir, 'index.json');
+        assert.ok(existsSync(indexPath));
+        const index = JSON.parse(readFileSync(indexPath, 'utf8'));
+        assert.equal(index.entries.length, 2);
+        const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+        assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
+        assert.deepEqual(byId['AIF-ARCH-002'].references, ['AIF-ARCH-001']);
+      },
+    );
+  });
+
+  it(
+    'DEC-IT01b: legacy records missing Tier/Domain do not halt the scan and ' +
+      'produce a complete, correct index alongside fully-tagged records',
+    async () => {
+      const decisionsDir = join(projectRoot, 'docs', 'decisions');
+      mkdirSync(decisionsDir, { recursive: true });
+      writeFileSync(
+        join(projectRoot, '.aiconfig.json'),
+        JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
+        'utf8',
+      );
+      // Fully-tagged record.
+      writeFileSync(
+        join(decisionsDir, 'AIF-002-001.decision.md'),
+        decisionFixture({ id: 'AIF-002-001', title: 'Fully Tagged Decision' }),
+        'utf8',
+      );
+      // Legacy records missing Tier/Domain, one referencing the other.
+      writeFileSync(
+        join(decisionsDir, 'AIF-ARCH-001.decision.md'),
+        legacyDecisionFixture({ id: 'AIF-ARCH-001', title: 'Legacy Decision One' }),
+        'utf8',
+      );
+      writeFileSync(
+        join(decisionsDir, 'AIF-ARCH-002.decision.md'),
+        legacyDecisionFixture({
+          id: 'AIF-ARCH-002',
+          title: 'Legacy Decision Two',
+          references: 'AIF-ARCH-001',
+        }),
+        'utf8',
+      );
+
+      const { code } = await quiet(() =>
+        runIndex({ args: { d: true }, positional: [] }, projectRoot),
+      );
       assert.equal(code, 0);
+
       const indexPath = join(decisionsDir, 'index.json');
       assert.ok(existsSync(indexPath));
       const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-      assert.equal(index.entries.length, 2);
+      assert.equal(index.entries.length, 3);
+
       const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
+      assert.equal(byId['AIF-002-001'].tier, 'A');
+      assert.equal(byId['AIF-002-001'].domain, 'architecture');
+      assert.equal(byId['AIF-ARCH-001'].tier, null);
+      assert.equal(byId['AIF-ARCH-001'].domain, null);
+      assert.equal(byId['AIF-ARCH-002'].tier, null);
+      assert.equal(byId['AIF-ARCH-002'].domain, null);
       assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
       assert.deepEqual(byId['AIF-ARCH-002'].references, ['AIF-ARCH-001']);
-    });
-  });
-
-  it('DEC-IT01b: legacy records missing Tier/Domain do not halt the scan and '
-    + 'produce a complete, correct index alongside fully-tagged records', async () => {
-    const decisionsDir = join(projectRoot, 'docs', 'decisions');
-    mkdirSync(decisionsDir, { recursive: true });
-    writeFileSync(
-      join(projectRoot, '.aiconfig.json'),
-      JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
-      'utf8',
-    );
-    // Fully-tagged record.
-    writeFileSync(
-      join(decisionsDir, 'AIF-002-001.decision.md'),
-      decisionFixture({ id: 'AIF-002-001', title: 'Fully Tagged Decision' }),
-      'utf8',
-    );
-    // Legacy records missing Tier/Domain, one referencing the other.
-    writeFileSync(
-      join(decisionsDir, 'AIF-ARCH-001.decision.md'),
-      legacyDecisionFixture({ id: 'AIF-ARCH-001', title: 'Legacy Decision One' }),
-      'utf8',
-    );
-    writeFileSync(
-      join(decisionsDir, 'AIF-ARCH-002.decision.md'),
-      legacyDecisionFixture({
-        id: 'AIF-ARCH-002',
-        title: 'Legacy Decision Two',
-        references: 'AIF-ARCH-001',
-      }),
-      'utf8',
-    );
-
-    const { code } = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
-    assert.equal(code, 0);
-
-    const indexPath = join(decisionsDir, 'index.json');
-    assert.ok(existsSync(indexPath));
-    const index = JSON.parse(readFileSync(indexPath, 'utf8'));
-    assert.equal(index.entries.length, 3);
-
-    const byId = Object.fromEntries(index.entries.map((e) => [e.id, e]));
-    assert.equal(byId['AIF-002-001'].tier, 'A');
-    assert.equal(byId['AIF-002-001'].domain, 'architecture');
-    assert.equal(byId['AIF-ARCH-001'].tier, null);
-    assert.equal(byId['AIF-ARCH-001'].domain, null);
-    assert.equal(byId['AIF-ARCH-002'].tier, null);
-    assert.equal(byId['AIF-ARCH-002'].domain, null);
-    assert.deepEqual(byId['AIF-ARCH-001'].referenced_by, ['AIF-ARCH-002']);
-    assert.deepEqual(byId['AIF-ARCH-002'].references, ['AIF-ARCH-001']);
-  });
+    },
+  );
 
   it('DEC-IT02: no -k/-d flag is a usage error, not an implicit -k', async () => {
     const { code, output } = await quiet(() => runIndex({ args: {}, positional: [] }, projectRoot));
@@ -208,7 +222,9 @@ describe('integration: decision index', () => {
     const gen = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
     assert.equal(gen.code, 0);
 
-    const check = await quiet(() => runIndex({ args: { d: true, check: true }, positional: [] }, projectRoot));
+    const check = await quiet(() =>
+      runIndex({ args: { d: true, check: true }, positional: [] }, projectRoot),
+    );
     assert.equal(check.code, 0);
   });
 
@@ -221,7 +237,11 @@ describe('integration: decision index', () => {
       'utf8',
     );
     const fixturePath = join(decisionsDir, 'AIF-ARCH-001.decision.md');
-    writeFileSync(fixturePath, decisionFixture({ id: 'AIF-ARCH-001', title: 'First Decision' }), 'utf8');
+    writeFileSync(
+      fixturePath,
+      decisionFixture({ id: 'AIF-ARCH-001', title: 'First Decision' }),
+      'utf8',
+    );
 
     const gen = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
     assert.equal(gen.code, 0);
@@ -233,7 +253,9 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    const check = await quiet(() => runIndex({ args: { d: true, check: true }, positional: [] }, projectRoot));
+    const check = await quiet(() =>
+      runIndex({ args: { d: true, check: true }, positional: [] }, projectRoot),
+    );
     assert.equal(check.code, 1);
     assert.ok(check.output.some((line) => /AIF-ARCH-001/.test(line)));
   });
@@ -257,56 +279,61 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    const { code, output } = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
+    const { code, output } = await quiet(() =>
+      runIndex({ args: { d: true }, positional: [] }, projectRoot),
+    );
     assert.equal(code, 1);
     assert.ok(output.some((line) => /broken\.decision\.md/.test(line)));
     assert.ok(!existsSync(join(decisionsDir, 'index.json')));
   });
 
   it('DEC-IT06: both -k and -d together exits non-zero with a usage error', async () => {
-    const { code, output } = await quiet(
-      () => runIndex({ args: { k: true, d: true }, positional: [] }, projectRoot),
+    const { code, output } = await quiet(() =>
+      runIndex({ args: { k: true, d: true }, positional: [] }, projectRoot),
     );
     assert.equal(code, 1);
     assert.ok(output.length > 0);
   });
 
-  it('end-to-end: `aif index -d` (short flag, via the real bin/aif.js parseArgs) '
-    + 'is recognized the same way `--decision` is (Test-Engineer gap coverage, '
-    + 'added post-implementation — see AIF-002-014 Test Results Report)', async () => {
-    const decisionsDir = join(projectRoot, 'docs', 'decisions');
-    mkdirSync(decisionsDir, { recursive: true });
-    writeFileSync(
-      join(projectRoot, '.aiconfig.json'),
-      JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
-      'utf8',
-    );
-    writeFileSync(
-      join(decisionsDir, 'AIF-ARCH-001.decision.md'),
-      decisionFixture({ id: 'AIF-ARCH-001', title: 'First Decision' }),
-      'utf8',
-    );
+  it(
+    'end-to-end: `aif index -d` (short flag, via the real bin/aif.js parseArgs) ' +
+      'is recognized the same way `--decision` is (Test-Engineer gap coverage, ' +
+      'added post-implementation — see AIF-002-014 Test Results Report)',
+    async () => {
+      const decisionsDir = join(projectRoot, 'docs', 'decisions');
+      mkdirSync(decisionsDir, { recursive: true });
+      writeFileSync(
+        join(projectRoot, '.aiconfig.json'),
+        JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
+        'utf8',
+      );
+      writeFileSync(
+        join(decisionsDir, 'AIF-ARCH-001.decision.md'),
+        decisionFixture({ id: 'AIF-ARCH-001', title: 'First Decision' }),
+        'utf8',
+      );
 
-    // This mirrors exactly what a real user typing `aif index -d` triggers:
-    // bin/aif.js's parseArgs(process.argv.slice(2)) feeding runIndex's
-    // `parsed` argument — not a hand-built { args: { d: true } } object like
-    // every other test in this file uses.
-    const parsed = parseArgs(['index', '-d']);
-    const { code } = await quiet(() => runIndex(parsed, projectRoot));
+      // This mirrors exactly what a real user typing `aif index -d` triggers:
+      // bin/aif.js's parseArgs(process.argv.slice(2)) feeding runIndex's
+      // `parsed` argument — not a hand-built { args: { d: true } } object like
+      // every other test in this file uses.
+      const parsed = parseArgs(['index', '-d']);
+      const { code } = await quiet(() => runIndex(parsed, projectRoot));
 
-    assert.equal(
-      code,
-      0,
-      'Expected `aif index -d` (short flag) to generate the decision index, '
-      + 'same as `--decision` does. bin/aif.js\'s parseArgs() only recognizes '
-      + 'double-dash (--decision/--knowledge) flags — single-dash short flags '
-      + '(-d/-k) are captured as positional arguments instead of args.d/args.k, '
-      + 'so parsed.args.d is undefined and runIndex() falls through to the '
-      + 'no-flag usage error. Every other test in this file bypasses this bug '
-      + 'by hand-constructing `{ args: { d: true } }` directly, never going '
-      + 'through the real CLI argument parser end-to-end.',
-    );
-  });
+      assert.equal(
+        code,
+        0,
+        'Expected `aif index -d` (short flag) to generate the decision index, ' +
+          "same as `--decision` does. bin/aif.js's parseArgs() only recognizes " +
+          'double-dash (--decision/--knowledge) flags — single-dash short flags ' +
+          '(-d/-k) are captured as positional arguments instead of args.d/args.k, ' +
+          'so parsed.args.d is undefined and runIndex() falls through to the ' +
+          'no-flag usage error. Every other test in this file bypasses this bug ' +
+          'by hand-constructing `{ args: { d: true } }` directly, never going ' +
+          'through the real CLI argument parser end-to-end.',
+      );
+    },
+  );
 
   describe('DEC-IT07: resolveDecisionsPath fallback derivation', () => {
     it('(a) paths.knowledge configured non-default, paths.decisions unset -> {knowledge}/decisions', () => {

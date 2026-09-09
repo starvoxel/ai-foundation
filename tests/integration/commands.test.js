@@ -12,12 +12,25 @@ describe('integration: list command', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'alpha', version: '0.1.0', domain: 'engineering', description: 'Alpha agent.', prompt: 'x', tools: [], approved_tools: [] },
+        {
+          name: 'alpha',
+          version: '0.1.0',
+          domain: 'engineering',
+          description: 'Alpha agent.',
+          prompt: 'x',
+          tools: [],
+          approved_tools: [],
+        },
       ],
       skills: ['decision-record'],
       servers: ['git'],
       bundles: [
-        { name: 'engineering', version: '1.0.0', description: 'Engineering bundle.', domain: 'engineering' },
+        {
+          name: 'engineering',
+          version: '1.0.0',
+          description: 'Engineering bundle.',
+          domain: 'engineering',
+        },
       ],
     });
   });
@@ -44,7 +57,7 @@ describe('integration: list command', () => {
 
   it('lists bundles', () => {
     const { code, output } = captureOutput(() =>
-      runList({ args: {}, positional: ['bundles'] }, repo)
+      runList({ args: {}, positional: ['bundles'] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.includes('engineering'));
@@ -52,7 +65,7 @@ describe('integration: list command', () => {
 
   it('lists agents', () => {
     const { code, output } = captureOutput(() =>
-      runList({ args: {}, positional: ['agents'] }, repo)
+      runList({ args: {}, positional: ['agents'] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.includes('alpha'));
@@ -63,10 +76,10 @@ describe('integration: list command', () => {
     writeFileSync(
       join(repo, 'skills', 'decision-record', 'SKILL.md'),
       '---\nname: "decision-record"\nversion: "0.1.0"\ndescription: "Produces a Decision Record."\n---\n# DR\n',
-      'utf8'
+      'utf8',
     );
     const { code, output } = captureOutput(() =>
-      runList({ args: {}, positional: ['skills'] }, repo)
+      runList({ args: {}, positional: ['skills'] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.includes('decision-record'));
@@ -74,23 +87,21 @@ describe('integration: list command', () => {
 
   it('lists servers', () => {
     const { code, output } = captureOutput(() =>
-      runList({ args: {}, positional: ['servers'] }, repo)
+      runList({ args: {}, positional: ['servers'] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.includes('git'));
   });
 
   it('returns error for missing target', () => {
-    const { code, output } = captureOutput(() =>
-      runList({ args: {}, positional: [] }, repo)
-    );
+    const { code, output } = captureOutput(() => runList({ args: {}, positional: [] }, repo));
     assert.equal(code, 1);
     assert.ok(output.includes('Usage'));
   });
 
   it('returns error for unknown target', () => {
     const { code, output } = captureOutput(() =>
-      runList({ args: {}, positional: ['widgets'] }, repo)
+      runList({ args: {}, positional: ['widgets'] }, repo),
     );
     assert.equal(code, 1);
     assert.ok(output.includes('Unknown list target'));

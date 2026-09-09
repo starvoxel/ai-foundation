@@ -1,10 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
-  SOURCE_DIRS,
-  manifestKey,
-} from '../../lib/constants.js';
+import { SOURCE_DIRS, manifestKey } from '../../lib/constants.js';
 
 describe('lib/constants', () => {
   describe('SOURCE_DIRS', () => {

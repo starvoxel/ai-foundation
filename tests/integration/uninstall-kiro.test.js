@@ -17,12 +17,19 @@ describe('integration: uninstall (kiro-specific)', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'x', tools: ['read'], approved_tools: ['read'], skills: [] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'x',
+          tools: ['read'],
+          approved_tools: ['read'],
+          skills: [],
+        },
       ],
       steering: { global: ['core.md'] },
-      bundles: [
-        { name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' },
-      ],
+      bundles: [{ name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' }],
     });
 
     const tempKiro = mkdtempSync(join(tmpdir(), 'aif-kiro-target-'));
@@ -44,35 +51,51 @@ describe('integration: uninstall (kiro-specific)', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('deletes agent JSON from Kiro target', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     const agentPath = join(TARGETS.agents, 'test-agent.json');
     assert.ok(existsSync(agentPath), 'precondition: file exists');
 
-    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.ok(!existsSync(agentPath));
   });
 
   it('deletes steering files from Kiro target', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     const steeringPath = join(TARGETS.steering, 'global-core.md');
     assert.ok(existsSync(steeringPath), 'precondition: file exists');
 
-    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.ok(!existsSync(steeringPath));
   });
 
   it('handles already-deleted target files gracefully', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const agentPath = join(TARGETS.agents, 'test-agent.json');
     if (existsSync(agentPath)) unlinkSync(agentPath);
 
-    const code = quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
   });
 });

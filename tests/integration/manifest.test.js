@@ -39,7 +39,11 @@ describe('lib/manifest', () => {
     });
 
     it('reads and parses existing YAML manifest', () => {
-      const data = { bundles: { engineering_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const data = {
+        bundles: { engineering_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       writeManifest(repo, data);
 
       const result = readManifest(repo);
@@ -49,15 +53,27 @@ describe('lib/manifest', () => {
 
   describe('writeManifest()', () => {
     it('creates the file if it does not exist', () => {
-      writeManifest(repo, { bundles: { test_kiro: { version: '0.1.0', files: [] } }, servers: {}, hooks: {} });
+      writeManifest(repo, {
+        bundles: { test_kiro: { version: '0.1.0', files: [] } },
+        servers: {},
+        hooks: {},
+      });
 
       const content = readFileSync(manifestPath(repo), 'utf8');
       assert.ok(content.includes('test_kiro'));
     });
 
     it('overwrites existing content', () => {
-      writeManifest(repo, { bundles: { first: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} });
-      writeManifest(repo, { bundles: { second: { version: '2.0.0', files: [] } }, servers: {}, hooks: {} });
+      writeManifest(repo, {
+        bundles: { first: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      });
+      writeManifest(repo, {
+        bundles: { second: { version: '2.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      });
 
       const result = readManifest(repo);
       assert.equal(result.bundles.first, undefined);

@@ -7,7 +7,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { diffSnapshot, isRuntimeFile, isFreshnessCurrent, resolveExplicitTargets } from '../../lib/snapshot/pure.js';
+import {
+  diffSnapshot,
+  isRuntimeFile,
+  isFreshnessCurrent,
+  resolveExplicitTargets,
+} from '../../lib/snapshot/pure.js';
 
 // ── isRuntimeFile ────────────────────────────────────────────────────────────
 
@@ -26,7 +31,7 @@ describe('unit: snapshot/isRuntimeFile', () => {
     assert.equal(isRuntimeFile('lib/logic.js'), true);
   });
 
-  it('excludes the resource\'s own snapshot.json to avoid self-reference', () => {
+  it("excludes the resource's own snapshot.json to avoid self-reference", () => {
     assert.equal(isRuntimeFile('snapshot.json'), false);
   });
 });
@@ -220,7 +225,9 @@ describe('unit: snapshot/isFreshnessCurrent', () => {
 
   it('returns false when the fresh snapshot has an added source', () => {
     const stored = { 'agents/foo.yaml': 'sha256:aaa' };
-    const snapshot = { sources: { 'agents/foo.yaml': 'sha256:aaa', 'agents/bar.yaml': 'sha256:bbb' } };
+    const snapshot = {
+      sources: { 'agents/foo.yaml': 'sha256:aaa', 'agents/bar.yaml': 'sha256:bbb' },
+    };
     assert.equal(isFreshnessCurrent(stored, snapshot), false);
   });
 

@@ -16,7 +16,16 @@ describe('integration: install (kiro-specific)', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'You are test.', tools: ['read', 'grep'], approved_tools: ['read'], skills: ['skill/test-skill'] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'You are test.',
+          tools: ['read', 'grep'],
+          approved_tools: ['read'],
+          skills: ['skill/test-skill'],
+        },
       ],
       skills: ['test-skill'],
       steering: { global: ['core.md'], eng: ['rules.md'] },
@@ -45,12 +54,18 @@ describe('integration: install (kiro-specific)', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('transforms agents to JSON with mapped tools and resources', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const agentPath = join(TARGETS.agents, 'test-agent.json');
     assert.ok(existsSync(agentPath));
@@ -63,7 +78,9 @@ describe('integration: install (kiro-specific)', () => {
   });
 
   it('flattens steering paths and installs to Kiro steering dir', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     // steering/global/core.md → global-core.md
     assert.ok(existsSync(join(TARGETS.steering, 'global-core.md')));
@@ -72,7 +89,9 @@ describe('integration: install (kiro-specific)', () => {
   });
 
   it('installs skill files to Kiro skills dir', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const skillFile = join(TARGETS.skills, 'test-skill', 'SKILL.md');
     assert.ok(existsSync(skillFile));

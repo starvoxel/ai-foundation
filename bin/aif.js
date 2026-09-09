@@ -136,7 +136,7 @@ function printHelp() {
 
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { resolve, join } from 'node:path';
+import { resolve } from 'node:path';
 
 import { runInstall } from '../lib/commands/install.js';
 import { runUninstall } from '../lib/commands/uninstall.js';

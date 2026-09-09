@@ -49,7 +49,6 @@ import {
  */
 function findAiConfig() {
   let dir = process.cwd();
-  const root = resolve(dir, '/');
 
   while (true) {
     const configPath = join(dir, '.aiconfig.json');
@@ -145,7 +144,7 @@ function runGh(command, args, identity) {
   });
 
   if (result.error) {
-    if (result.error.code === 'ENOENT') {
+    if ('code' in result.error && result.error.code === 'ENOENT') {
       console.error('ERROR: gh CLI is not installed.');
       console.error('Install from: https://cli.github.com/');
       return 1;

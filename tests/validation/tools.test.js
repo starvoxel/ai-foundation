@@ -50,7 +50,7 @@ describe('tool availability', () => {
           if (!Array.isArray(parsed.tools)) return;
           if (serverTools.size === 0) return;
 
-          const undocumented = parsed.tools.filter(t => {
+          const undocumented = parsed.tools.filter((t) => {
             if (BUILTIN_TOOLS.has(t)) return false;
             // @server/tool_name format — validate server owns this tool
             const match = t.match(/^@([^/]+)\/(.+)$/);
@@ -61,8 +61,11 @@ describe('tool availability', () => {
             }
             return !serverTools.has(t);
           });
-          assert.deepEqual(undocumented, [],
-            `Tools not found in any server definition: ${undocumented.join(', ')}`);
+          assert.deepEqual(
+            undocumented,
+            [],
+            `Tools not found in any server definition: ${undocumented.join(', ')}`,
+          );
         });
       });
     }

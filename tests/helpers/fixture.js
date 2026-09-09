@@ -45,11 +45,7 @@ export function createTempRepo(options) {
   mkdirSync(join(root, 'bundles'), { recursive: true });
 
   for (const agent of agents) {
-    writeFileSync(
-      join(root, 'agents', `${agent.name}.yaml`),
-      YAML.stringify(agent),
-      'utf8'
-    );
+    writeFileSync(join(root, 'agents', `${agent.name}.yaml`), YAML.stringify(agent), 'utf8');
   }
 
   for (const skill of skills) {
@@ -79,18 +75,14 @@ export function createTempRepo(options) {
         description: `${server} server`,
         tools: [],
       }),
-      'utf8'
+      'utf8',
     );
   }
 
   for (const bundle of bundles) {
     const bundleDir = join(root, 'bundles', bundle.name);
     mkdirSync(bundleDir, { recursive: true });
-    writeFileSync(
-      join(bundleDir, 'bundle.yaml'),
-      YAML.stringify(bundle),
-      'utf8'
-    );
+    writeFileSync(join(bundleDir, 'bundle.yaml'), YAML.stringify(bundle), 'utf8');
   }
 
   return root;

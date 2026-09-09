@@ -23,12 +23,19 @@ describe('integration: install freshness', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'x', tools: ['read'], approved_tools: ['read'], skills: [] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'x',
+          tools: ['read'],
+          approved_tools: ['read'],
+          skills: [],
+        },
       ],
       steering: { global: ['core.md'] },
-      bundles: [
-        { name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' },
-      ],
+      bundles: [{ name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' }],
     });
 
     const tempKiro = mkdtempSync(join(tmpdir(), 'aif-kiro-target-'));
@@ -51,32 +58,44 @@ describe('integration: install freshness', () => {
     const output = [];
     console.log = (...args) => output.push(args.join(' '));
     console.error = (...args) => output.push(args.join(' '));
-    try { return { code: fn(), output }; }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return { code: fn(), output };
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('skips install when bundle is already current', () => {
     // Generate snapshot, then install
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     // Second install should skip
-    const { code, output } = quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    const { code, output } = quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
-    assert.ok(output.some(line => line.includes('already current')));
+    assert.ok(output.some((line) => line.includes('already current')));
   });
 
   it('installs when no snapshot exists (no freshness data)', () => {
     // Install without snapshot — should proceed
-    const { code, output } = quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    const { code, output } = quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
-    assert.ok(output.some(line => line.includes('Installed')));
+    assert.ok(output.some((line) => line.includes('Installed')));
   });
 
   it('reinstalls when source changes after snapshot update', () => {
     // Generate snapshot, install
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     // Modify a source file
     const agentPath = join(repo, 'agents', 'test-agent.yaml');
@@ -87,27 +106,35 @@ describe('integration: install freshness', () => {
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
 
     // Now install should proceed (source hashes differ)
-    const { code, output } = quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    const { code, output } = quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
-    assert.ok(output.some(line => line.includes('Installed')));
+    assert.ok(output.some((line) => line.includes('Installed')));
   });
 
   it('--update skips current bundles', () => {
     // Generate snapshot, install
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     // Update should skip
-    const { code, output } = quiet(() => runInstall({ args: { update: true }, positional: [] }, repo));
+    const { code, output } = quiet(() =>
+      runInstall({ args: { update: true }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
-    assert.ok(output.some(line => line.includes('already current')));
-    assert.ok(output.some(line => line.includes('0 updated, 1 current')));
+    assert.ok(output.some((line) => line.includes('already current')));
+    assert.ok(output.some((line) => line.includes('0 updated, 1 current')));
   });
 
   it('--update reinstalls stale bundles', () => {
     // Generate snapshot, install
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     // Modify source and regenerate snapshot
     const agentPath = join(repo, 'agents', 'test-agent.yaml');
@@ -116,31 +143,39 @@ describe('integration: install freshness', () => {
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
 
     // Update should reinstall
-    const { code, output } = quiet(() => runInstall({ args: { update: true }, positional: [] }, repo));
+    const { code, output } = quiet(() =>
+      runInstall({ args: { update: true }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
-    assert.ok(output.some(line => line.includes('updating')));
-    assert.ok(output.some(line => line.includes('1 updated, 0 current')));
+    assert.ok(output.some((line) => line.includes('updating')));
+    assert.ok(output.some((line) => line.includes('1 updated, 0 current')));
   });
 
   it('--update reports nothing when nothing is installed', () => {
-    const { code, output } = quiet(() => runInstall({ args: { update: true }, positional: [] }, repo));
+    const { code, output } = quiet(() =>
+      runInstall({ args: { update: true }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
-    assert.ok(output.some(line => line.includes('Nothing installed')));
+    assert.ok(output.some((line) => line.includes('Nothing installed')));
   });
 
   it('stores sourceHashes in manifest when snapshot exists', () => {
     quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const manifest = readManifest(repo);
     const entry = manifest.bundles['test-bundle_kiro'];
     assert.ok(entry.sourceHashes);
     assert.ok(Object.keys(entry.sourceHashes).length > 0);
-    assert.ok(Object.values(entry.sourceHashes).every(h => h.startsWith('sha256:')));
+    assert.ok(Object.values(entry.sourceHashes).every((h) => h.startsWith('sha256:')));
   });
 
   it('does not store sourceHashes when no snapshot exists', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const manifest = readManifest(repo);
     const entry = manifest.bundles['test-bundle_kiro'];

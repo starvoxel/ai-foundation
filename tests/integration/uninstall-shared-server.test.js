@@ -52,8 +52,12 @@ describe('integration: uninstall (shared MCP server across bundles)', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   function serverDir() {
@@ -67,8 +71,12 @@ describe('integration: uninstall (shared MCP server across bundles)', () => {
   }
 
   it('records both bundles as owners of the shared server after both install', () => {
-    quiet(() => runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const manifest = readManifest(repo);
     const serverEntry = manifest.servers['git_kiro'];
@@ -79,10 +87,16 @@ describe('integration: uninstall (shared MCP server across bundles)', () => {
   });
 
   it('keeps the server installed and registered when only one owner uninstalls', () => {
-    quiet(() => runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo),
+    );
 
-    quiet(() => runUninstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     // Server survives — bundle-b still depends on it.
     assert.ok(existsSync(serverDir()));
@@ -95,11 +109,19 @@ describe('integration: uninstall (shared MCP server across bundles)', () => {
   });
 
   it('removes the server and its MCP registration once the last owner uninstalls', () => {
-    quiet(() => runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo),
+    );
 
-    quiet(() => runUninstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
-    quiet(() => runUninstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runUninstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     assert.ok(!existsSync(serverDir()));
     assert.ok(!mcpRegistered());
@@ -109,13 +131,21 @@ describe('integration: uninstall (shared MCP server across bundles)', () => {
   });
 
   it('is order-independent — uninstalling in either order yields the same end state', () => {
-    quiet(() => runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runInstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo),
+    );
 
-    quiet(() => runUninstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'bundle-b', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.ok(existsSync(serverDir()));
 
-    quiet(() => runUninstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'bundle-a', harness: 'kiro' }, positional: [] }, repo),
+    );
     assert.ok(!existsSync(serverDir()));
   });
 });

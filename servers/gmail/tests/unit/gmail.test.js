@@ -231,7 +231,11 @@ describe('unit: shapeFullMessage / shapeMessageSummary / shapeFullDraft', () => 
   });
 
   it('shapeMessageSummary extracts id/thread_id/snippet only', () => {
-    assert.deepEqual(shapeMessageSummary(rawMessage), { id: 'm1', thread_id: 't1', snippet: 'Hi there...' });
+    assert.deepEqual(shapeMessageSummary(rawMessage), {
+      id: 'm1',
+      thread_id: 't1',
+      snippet: 'Hi there...',
+    });
   });
 
   it('shapeFullDraft extracts draft/message ids, headers, and body', () => {
@@ -278,7 +282,11 @@ describe('unit: buildFilterCriteria / buildFilterAction', () => {
   });
 
   it('maps action fields to the API camelCase shape', () => {
-    const action = buildFilterAction({ add_label_ids: ['L1'], remove_label_ids: ['L2'], forward: 'x@y.com' });
+    const action = buildFilterAction({
+      add_label_ids: ['L1'],
+      remove_label_ids: ['L2'],
+      forward: 'x@y.com',
+    });
     assert.deepEqual(action, { addLabelIds: ['L1'], removeLabelIds: ['L2'], forward: 'x@y.com' });
   });
 
@@ -290,7 +298,11 @@ describe('unit: buildFilterCriteria / buildFilterAction', () => {
 
 describe('unit: shapeFilterCriteriaOut / shapeFilterActionOut / shapeFilter', () => {
   it('shapes API criteria back to snake_case', () => {
-    const out = shapeFilterCriteriaOut({ from: 'a@b.com', hasAttachment: true, sizeComparison: 'larger' });
+    const out = shapeFilterCriteriaOut({
+      from: 'a@b.com',
+      hasAttachment: true,
+      sizeComparison: 'larger',
+    });
     assert.deepEqual(out, { from: 'a@b.com', has_attachment: true, size_comparison: 'larger' });
   });
 
@@ -305,8 +317,16 @@ describe('unit: shapeFilterCriteriaOut / shapeFilterActionOut / shapeFilter', ()
   });
 
   it('shapeFilter composes id + shaped criteria + shaped action', () => {
-    const filter = shapeFilter({ id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } });
-    assert.deepEqual(filter, { id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } });
+    const filter = shapeFilter({
+      id: 'f1',
+      criteria: { from: 'a@b.com' },
+      action: { addLabelIds: ['L1'] },
+    });
+    assert.deepEqual(filter, {
+      id: 'f1',
+      criteria: { from: 'a@b.com' },
+      action: { add_label_ids: ['L1'] },
+    });
   });
 });
 
@@ -314,7 +334,10 @@ describe('unit: shapeFilterCriteriaOut / shapeFilterActionOut / shapeFilter', ()
 
 describe('unit: chunkMessageIds', () => {
   it('splits into exact-multiple chunks', () => {
-    assert.deepEqual(chunkMessageIds(['a', 'b', 'c', 'd'], 2), [['a', 'b'], ['c', 'd']]);
+    assert.deepEqual(chunkMessageIds(['a', 'b', 'c', 'd'], 2), [
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
   });
 
   it('handles a remainder in the last chunk', () => {
@@ -337,11 +360,19 @@ describe('unit: chunkMessageIds', () => {
 describe('unit: summarizeBatchModify', () => {
   it('sums modified_count across chunks and echoes the label id arrays', () => {
     const summary = summarizeBatchModify([['a', 'b'], ['c']], ['L1'], ['L2']);
-    assert.deepEqual(summary, { modified_count: 3, label_ids_added: ['L1'], label_ids_removed: ['L2'] });
+    assert.deepEqual(summary, {
+      modified_count: 3,
+      label_ids_added: ['L1'],
+      label_ids_removed: ['L2'],
+    });
   });
 
   it('handles no chunks', () => {
-    assert.deepEqual(summarizeBatchModify([]), { modified_count: 0, label_ids_added: [], label_ids_removed: [] });
+    assert.deepEqual(summarizeBatchModify([]), {
+      modified_count: 0,
+      label_ids_added: [],
+      label_ids_removed: [],
+    });
   });
 });
 
@@ -356,7 +387,10 @@ describe('unit: parseFromHeader', () => {
   });
 
   it('handles a bare email address with no display name', () => {
-    assert.deepEqual(parseFromHeader('someone@example.com'), { email: 'someone@example.com', domain: 'example.com' });
+    assert.deepEqual(parseFromHeader('someone@example.com'), {
+      email: 'someone@example.com',
+      domain: 'example.com',
+    });
   });
 
   it('lowercases the email address', () => {
@@ -371,12 +405,15 @@ describe('unit: parseFromHeader', () => {
 
 describe('unit: aggregateBySender', () => {
   it('groups by sender, counts messages, and sorts by count descending', () => {
-    const result = aggregateBySender([
-      { from: 'a@b.com', subject: 's1' },
-      { from: 'c@d.com', subject: 's2' },
-      { from: 'a@b.com', subject: 's3' },
-      { from: 'a@b.com', subject: 's4' },
-    ], 50);
+    const result = aggregateBySender(
+      [
+        { from: 'a@b.com', subject: 's1' },
+        { from: 'c@d.com', subject: 's2' },
+        { from: 'a@b.com', subject: 's3' },
+        { from: 'a@b.com', subject: 's4' },
+      ],
+      50,
+    );
     assert.equal(result[0].sender, 'a@b.com');
     assert.equal(result[0].count, 3);
     assert.equal(result[1].sender, 'c@d.com');
@@ -390,11 +427,14 @@ describe('unit: aggregateBySender', () => {
   });
 
   it('shows multiple distinct subjects for a sender spanning categories', () => {
-    const result = aggregateBySender([
-      { from: 'invest@firm.com', subject: 'Your 2025 tax slip' },
-      { from: 'invest@firm.com', subject: 'Quarterly account report' },
-      { from: 'invest@firm.com', subject: 'New promotion for you' },
-    ], 50);
+    const result = aggregateBySender(
+      [
+        { from: 'invest@firm.com', subject: 'Your 2025 tax slip' },
+        { from: 'invest@firm.com', subject: 'Quarterly account report' },
+        { from: 'invest@firm.com', subject: 'New promotion for you' },
+      ],
+      50,
+    );
     assert.deepEqual(result[0].sample_subjects, [
       'Your 2025 tax slip',
       'Quarterly account report',

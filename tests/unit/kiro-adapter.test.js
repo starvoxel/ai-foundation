@@ -14,17 +14,24 @@ describe('unit: kiro adapter', () => {
   describe('TARGETS', () => {
     it('all paths are under ~/.kiro', () => {
       for (const [key, value] of Object.entries(TARGETS)) {
-        assert.ok(
-          value.includes('.kiro'),
-          `TARGETS.${key} should be under ~/.kiro, got ${value}`
-        );
+        assert.ok(value.includes('.kiro'), `TARGETS.${key} should be under ~/.kiro, got ${value}`);
       }
     });
   });
 
   describe('TOOL_MAP', () => {
     it('contains all standard tool names', () => {
-      const expected = ['read', 'write', 'shell', 'web_search', 'web_fetch', 'grep', 'glob', 'code', 'subagent'];
+      const expected = [
+        'read',
+        'write',
+        'shell',
+        'web_search',
+        'web_fetch',
+        'grep',
+        'glob',
+        'code',
+        'subagent',
+      ];
       for (const name of expected) {
         assert.ok(name in TOOL_MAP, `missing ${name}`);
       }
@@ -116,9 +123,7 @@ describe('unit: kiro adapter', () => {
       const withBlocked = { ...agent, blocked_commands: ['git *', 'gh *'] };
       const result = transformAgent(withBlocked);
       assert.deepEqual(result.permissions, {
-        rules: [
-          { capability: 'shell', match: ['git *', 'gh *'], effect: 'deny' },
-        ],
+        rules: [{ capability: 'shell', match: ['git *', 'gh *'], effect: 'deny' }],
       });
     });
 
@@ -180,7 +185,8 @@ describe('unit: kiro adapter', () => {
     });
 
     it('strips framework fields from output', () => {
-      const input = '---\nname: "test"\nversion: "0.1.0"\ndescription: "Desc"\nfile_patterns: []\n---\n# Body\n';
+      const input =
+        '---\nname: "test"\nversion: "0.1.0"\ndescription: "Desc"\nfile_patterns: []\n---\n# Body\n';
       const result = transformSteering(input);
       assert.ok(!result.includes('name:'));
       assert.ok(!result.includes('version:'));

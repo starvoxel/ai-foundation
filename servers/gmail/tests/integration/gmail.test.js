@@ -41,12 +41,7 @@ import {
   senderReport,
 } from '../../logic.js';
 
-import {
-  loadTokenFile,
-  saveTokenFile,
-  buildOAuth2Client,
-  validateTokenShape,
-} from '../../auth.js';
+import { loadTokenFile, saveTokenFile, buildOAuth2Client, validateTokenShape } from '../../auth.js';
 
 // ── Fake Gmail API client ───────────────────────────────────────────────────
 
@@ -54,7 +49,9 @@ function fakeGmailClient() {
   return {
     users: {
       messages: {
-        list: mock.fn(async () => ({ data: { messages: [{ id: 'm1', threadId: 't1', snippet: 'hi' }], nextPageToken: 'np1' } })),
+        list: mock.fn(async () => ({
+          data: { messages: [{ id: 'm1', threadId: 't1', snippet: 'hi' }], nextPageToken: 'np1' },
+        })),
         get: mock.fn(async () => ({
           data: {
             id: 'm1',
@@ -81,19 +78,29 @@ function fakeGmailClient() {
         batchModify: mock.fn(async () => ({ data: {} })),
       },
       labels: {
-        list: mock.fn(async () => ({ data: { labels: [{ id: 'L1', name: 'Work', type: 'user' }] } })),
+        list: mock.fn(async () => ({
+          data: { labels: [{ id: 'L1', name: 'Work', type: 'user' }] },
+        })),
         create: mock.fn(async () => ({ data: { id: 'L2', name: 'New Label' } })),
         delete: mock.fn(async () => ({ data: {} })),
       },
       drafts: {
-        list: mock.fn(async () => ({ data: { drafts: [{ id: 'd1', message: { id: 'm2', snippet: 'draft snip' } }], nextPageToken: null } })),
+        list: mock.fn(async () => ({
+          data: {
+            drafts: [{ id: 'd1', message: { id: 'm2', snippet: 'draft snip' } }],
+            nextPageToken: null,
+          },
+        })),
         get: mock.fn(async () => ({
           data: {
             id: 'd1',
             message: {
               id: 'm2',
               payload: {
-                headers: [{ name: 'To', value: 'x@example.com' }, { name: 'Subject', value: 'Draft subj' }],
+                headers: [
+                  { name: 'To', value: 'x@example.com' },
+                  { name: 'Subject', value: 'Draft subj' },
+                ],
                 mimeType: 'text/plain',
                 body: { data: encodeBase64Url('draft body') },
               },
@@ -106,8 +113,16 @@ function fakeGmailClient() {
       },
       settings: {
         filters: {
-          list: mock.fn(async () => ({ data: { filter: [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } }] } })),
-          create: mock.fn(async () => ({ data: { id: 'f2', criteria: { subject: 'Invoice' }, action: { addLabelIds: ['L2'] } } })),
+          list: mock.fn(async () => ({
+            data: {
+              filter: [
+                { id: 'f1', criteria: { from: 'a@b.com' }, action: { addLabelIds: ['L1'] } },
+              ],
+            },
+          })),
+          create: mock.fn(async () => ({
+            data: { id: 'f2', criteria: { subject: 'Invoice' }, action: { addLabelIds: ['L2'] } },
+          })),
           delete: mock.fn(async () => ({ data: {} })),
         },
       },
@@ -125,14 +140,22 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
   });
 
   it('listMessages passes query/labels/pagination and shapes results', async () => {
-    const result = await listMessages(gmail, { query: 'is:unread', label_ids: ['INBOX'], max_results: 10, page_token: 'pt' });
+    const result = await listMessages(gmail, {
+      query: 'is:unread',
+      label_ids: ['INBOX'],
+      max_results: 10,
+      page_token: 'pt',
+    });
     assert.equal(gmail.users.messages.list.mock.calls.length, 1);
     const callArgs = gmail.users.messages.list.mock.calls[0].arguments[0];
     assert.equal(callArgs.q, 'is:unread');
     assert.deepEqual(callArgs.labelIds, ['INBOX']);
     assert.equal(callArgs.maxResults, 10);
     assert.equal(callArgs.pageToken, 'pt');
-    assert.deepEqual(result, { messages: [{ id: 'm1', thread_id: 't1', snippet: 'hi' }], next_page_token: 'np1' });
+    assert.deepEqual(result, {
+      messages: [{ id: 'm1', thread_id: 't1', snippet: 'hi' }],
+      next_page_token: 'np1',
+    });
   });
 
   it('getMessage fetches and shapes a full message', async () => {
@@ -154,7 +177,10 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
 
   it('listDrafts shapes draft list', async () => {
     const result = await listDrafts(gmail);
-    assert.deepEqual(result, { drafts: [{ draft_id: 'd1', message_id: 'm2', snippet: 'draft snip' }], next_page_token: null });
+    assert.deepEqual(result, {
+      drafts: [{ draft_id: 'd1', message_id: 'm2', snippet: 'draft snip' }],
+      next_page_token: null,
+    });
   });
 
   it('getDraft shapes a full draft', async () => {
@@ -165,9 +191,16 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
   });
 
   it('modifyLabels passes add/remove label ids', async () => {
-    const result = await modifyLabels(gmail, { message_id: 'm1', add_label_ids: ['STARRED'], remove_label_ids: ['UNREAD'] });
+    const result = await modifyLabels(gmail, {
+      message_id: 'm1',
+      add_label_ids: ['STARRED'],
+      remove_label_ids: ['UNREAD'],
+    });
     const callArgs = gmail.users.messages.modify.mock.calls[0].arguments[0];
-    assert.deepEqual(callArgs.requestBody, { addLabelIds: ['STARRED'], removeLabelIds: ['UNREAD'] });
+    assert.deepEqual(callArgs.requestBody, {
+      addLabelIds: ['STARRED'],
+      removeLabelIds: ['UNREAD'],
+    });
     assert.deepEqual(result, { id: 'm1', label_ids: ['INBOX', 'STARRED'] });
   });
 
@@ -186,7 +219,10 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
 
   it('createLabel passes the label name', async () => {
     const result = await createLabel(gmail, { name: 'New Label' });
-    assert.equal(gmail.users.labels.create.mock.calls[0].arguments[0].requestBody.name, 'New Label');
+    assert.equal(
+      gmail.users.labels.create.mock.calls[0].arguments[0].requestBody.name,
+      'New Label',
+    );
     assert.deepEqual(result, { id: 'L2', name: 'New Label' });
   });
 
@@ -230,14 +266,23 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
 
   it('listFilters shapes the filter list to snake_case', async () => {
     const result = await listFilters(gmail);
-    assert.deepEqual(result, { filters: [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } }] });
+    assert.deepEqual(result, {
+      filters: [{ id: 'f1', criteria: { from: 'a@b.com' }, action: { add_label_ids: ['L1'] } }],
+    });
   });
 
   it('createFilter builds criteria/action and shapes the created filter', async () => {
     const result = await createFilter(gmail, { subject: 'Invoice', add_label_ids: ['L2'] });
     const callArgs = gmail.users.settings.filters.create.mock.calls[0].arguments[0];
-    assert.deepEqual(callArgs.requestBody, { criteria: { subject: 'Invoice' }, action: { addLabelIds: ['L2'] } });
-    assert.deepEqual(result, { id: 'f2', criteria: { subject: 'Invoice' }, action: { add_label_ids: ['L2'] } });
+    assert.deepEqual(callArgs.requestBody, {
+      criteria: { subject: 'Invoice' },
+      action: { addLabelIds: ['L2'] },
+    });
+    assert.deepEqual(result, {
+      id: 'f2',
+      criteria: { subject: 'Invoice' },
+      action: { add_label_ids: ['L2'] },
+    });
   });
 
   it('deleteFilter calls the delete API and returns confirmation', async () => {
@@ -247,18 +292,34 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
   });
 
   it('batchModifyLabels sends a single batchModify call for message counts under the chunk limit', async () => {
-    const result = await batchModifyLabels(gmail, { message_ids: ['m1', 'm2'], add_label_ids: ['L1'] });
+    const result = await batchModifyLabels(gmail, {
+      message_ids: ['m1', 'm2'],
+      add_label_ids: ['L1'],
+    });
     assert.equal(gmail.users.messages.batchModify.mock.calls.length, 1);
     assert.deepEqual(result, { modified_count: 2, label_ids_added: ['L1'], label_ids_removed: [] });
   });
 
   it('batchModifyLabels chunks across the 1000-id API limit', async () => {
     const messageIds = Array.from({ length: 1500 }, (_, i) => `m${i}`);
-    const result = await batchModifyLabels(gmail, { message_ids: messageIds, remove_label_ids: ['UNREAD'] });
+    const result = await batchModifyLabels(gmail, {
+      message_ids: messageIds,
+      remove_label_ids: ['UNREAD'],
+    });
     assert.equal(gmail.users.messages.batchModify.mock.calls.length, 2);
-    assert.equal(gmail.users.messages.batchModify.mock.calls[0].arguments[0].requestBody.ids.length, 1000);
-    assert.equal(gmail.users.messages.batchModify.mock.calls[1].arguments[0].requestBody.ids.length, 500);
-    assert.deepEqual(result, { modified_count: 1500, label_ids_added: [], label_ids_removed: ['UNREAD'] });
+    assert.equal(
+      gmail.users.messages.batchModify.mock.calls[0].arguments[0].requestBody.ids.length,
+      1000,
+    );
+    assert.equal(
+      gmail.users.messages.batchModify.mock.calls[1].arguments[0].requestBody.ids.length,
+      500,
+    );
+    assert.deepEqual(result, {
+      modified_count: 1500,
+      label_ids_added: [],
+      label_ids_removed: ['UNREAD'],
+    });
   });
 
   it('senderReport pages messages, fetches metadata-only, and aggregates by sender', async () => {
@@ -282,7 +343,9 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
       assert.deepEqual(call.arguments[0].metadataHeaders, ['From', 'Subject']);
     }
     assert.deepEqual(result, {
-      senders: [{ sender: 'a@b.com', domain: 'b.com', count: 2, sample_subjects: ['Tax slip', 'Promo'] }],
+      senders: [
+        { sender: 'a@b.com', domain: 'b.com', count: 2, sample_subjects: ['Tax slip', 'Promo'] },
+      ],
       truncated: false,
     });
   });
@@ -299,7 +362,16 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
         err.code = 429;
         throw err;
       }
-      return { data: { payload: { headers: [{ name: 'From', value: 'a@b.com' }, { name: 'Subject', value: 'x' }] } } };
+      return {
+        data: {
+          payload: {
+            headers: [
+              { name: 'From', value: 'a@b.com' },
+              { name: 'Subject', value: 'x' },
+            ],
+          },
+        },
+      };
     });
     const result = await senderReport(gmail, { query: 'in:inbox' });
     assert.equal(attempts, 2);
@@ -314,7 +386,14 @@ describe('integration: gmail logic I/O layer (fake client)', () => {
       return { data: { messages, nextPageToken: 'always-more' } }; // simulates an unbounded query
     });
     gmail.users.messages.get = mock.fn(async ({ id }) => ({
-      data: { payload: { headers: [{ name: 'From', value: `${id}@example.com` }, { name: 'Subject', value: 'x' }] } },
+      data: {
+        payload: {
+          headers: [
+            { name: 'From', value: `${id}@example.com` },
+            { name: 'Subject', value: 'x' },
+          ],
+        },
+      },
     }));
     const result = await senderReport(gmail, { query: '', max_senders: 5 });
     assert.equal(result.truncated, true);
@@ -329,7 +408,10 @@ describe('integration: gmail auth token store (real filesystem)', () => {
   let tokenPath;
 
   beforeEach(() => {
-    tempDir = join(tmpdir(), 'gmail-auth-test-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+    tempDir = join(
+      tmpdir(),
+      'gmail-auth-test-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+    );
     tokenPath = join(tempDir, 'nested', 'gmail-token.json');
   });
 
@@ -367,7 +449,13 @@ describe('integration: gmail auth token store (real filesystem)', () => {
   });
 
   it('buildOAuth2Client builds a client with the stored credentials', () => {
-    saveTokenFile(tokenPath, { client_id: 'cid', client_secret: 'csecret', refresh_token: 'rtok', access_token: 'atok', expiry_date: 123 });
+    saveTokenFile(tokenPath, {
+      client_id: 'cid',
+      client_secret: 'csecret',
+      refresh_token: 'rtok',
+      access_token: 'atok',
+      expiry_date: 123,
+    });
     const client = buildOAuth2Client(tokenPath);
     assert.equal(client._clientId, 'cid');
     assert.equal(client.credentials.refresh_token, 'rtok');
@@ -383,7 +471,7 @@ describe('integration: gmail auth token store (real filesystem)', () => {
     assert.equal(reloaded.refresh_token, 'rtok'); // unchanged, since rotation didn't include a new one
   });
 
-  it('validateTokenShape is consistent with loadTokenFile\'s acceptance criteria', () => {
+  it("validateTokenShape is consistent with loadTokenFile's acceptance criteria", () => {
     saveTokenFile(tokenPath, { client_id: 'a', client_secret: 'b', refresh_token: 'c' });
     const data = JSON.parse(readFileSync(tokenPath, 'utf-8'));
     assert.equal(validateTokenShape(data).valid, true);
