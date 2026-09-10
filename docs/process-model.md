@@ -59,13 +59,28 @@ only what is binding and current.
 
 ### Reference docs (current truth, not history)
 
-- `docs/architecture/*` — one file per long-lived technical subsystem. Stable set.
+- `docs/architecture/` — **one single arc42-structured document for the whole
+  system** (e.g. `docs/architecture/arc42.md`), not one file per subsystem.
+  Subsystem-level detail lives as subsections within arc42's standard sections
+  (e.g. each subsystem gets its own entry under Building Block View) — arc42's
+  own section/subsection names are the navigation. No page cap here: arc42 is
+  a comprehensive template by design, and a single system-wide document is
+  expected to run longer than any one subsystem's old ~1-page file would have.
+  Agents load the relevant section(s) on demand, not the whole document by
+  default — same discipline as ADRs (Context rules, below).
 - `docs/product/*` — one file per product area. Stable set; archived manually when
-  a product area is retired.
-- Each ~1 page. Outgrowing a page means the subsystem/product area should split.
-- `aif index` generates a nav index for both, scoped like `knowledge/index.json`.
-- Updating the affected doc is an acceptance criterion of any Feature that changes
-  behavior, checked in review alongside tests.
+  a product area is retired. Each ~1 page; outgrowing a page means the product
+  area should split. (This page cap is unchanged from the original design —
+  it no longer applies to architecture, per above, but still applies here.)
+- **Discovery, no generated index for either.** `docs/product/*` is scanned
+  the same way `agents/`/`skills/`/`steering/` already are (AGENTS.md's
+  "Discovering Components": scan directories, don't maintain a roster) — a
+  small, stable, self-describing file set doesn't need one. `docs/architecture/`
+  needs neither a scan nor an index: it's one file at a known path, referenced
+  directly (the same way `AGENTS.md` itself is), with arc42's own section
+  names doing the internal navigation a nav index would otherwise provide.
+- Updating the affected doc/section is an acceptance criterion of any Feature
+  that changes behavior, checked in review alongside tests.
 - Bodies stay in git. Owners: Software-Engineer (architecture — absorbed from the
   former `engineering-tech-writer`, written at implementation time rather than as a
   separate after-the-fact pass), **product: no owner yet** — no product-facing
@@ -87,7 +102,10 @@ only what is binding and current.
 
 - ADR scoped to one Feature is archived with it (moved into the Feature's own
   folder once the Feature is archived); foundational or cross-cutting ADRs
-  attach to an architecture subsystem so they outlive any one Feature.
+  are summarized/linked from the single arc42 document's own **Architecture
+  Decisions** section (arc42 already has a standard section for exactly this)
+  so they outlive any one Feature — the ADR itself still lives in
+  `docs/decisions/`, arc42's section just points to it rather than duplicating it.
 - `complexity-tiers` and `plan-lifecycle` stay (trimmed). `decision-record` shrinks to
   the ADR-only format: the current `{paths.decisions}/{domain-folder}/` directory
   structure flattens to `{paths.decisions}/` directly (no more `architecture/`,
