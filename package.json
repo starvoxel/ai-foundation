@@ -17,7 +17,8 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"**/*.js\"",
     "format:check": "prettier --check \"**/*.js\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate": "node bin/aif.js validate"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
