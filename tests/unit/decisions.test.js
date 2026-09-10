@@ -92,7 +92,10 @@ Test fixture. This decision predates the AIF-META-001 Tier x Domain model.
 
 describe('unit: decisions/parseDecisionRecord', () => {
   it('extracts all fields from a well-formed Metadata table (DEC-T01)', () => {
-    const content = wellFormedRecord({ references: 'AIF-ARCH-002', tags: 'orchestration, dispatch' });
+    const content = wellFormedRecord({
+      references: 'AIF-ARCH-002',
+      tags: 'orchestration, dispatch',
+    });
     const result = parseDecisionRecord(content, 'AIF-ARCH-001.decision.md');
 
     assert.ok(result.record, 'expected a record, got error: ' + result.error);
@@ -209,9 +212,36 @@ Test fixture.
 describe('unit: decisions/buildDecisionIndex', () => {
   it('computes referenced_by correctly by inversion across 3+ records (DEC-T06)', () => {
     const records = [
-      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: ['B'], tags: [] },
-      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: ['C'], tags: [] },
-      { id: 'C', tier: 'A', domain: 'architecture', title: 'C', status: 'Approved', path: 'c.decision.md', references: ['B'], tags: [] },
+      {
+        id: 'A',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'A',
+        status: 'Approved',
+        path: 'a.decision.md',
+        references: ['B'],
+        tags: [],
+      },
+      {
+        id: 'B',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'B',
+        status: 'Approved',
+        path: 'b.decision.md',
+        references: ['C'],
+        tags: [],
+      },
+      {
+        id: 'C',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'C',
+        status: 'Approved',
+        path: 'c.decision.md',
+        references: ['B'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -224,8 +254,26 @@ describe('unit: decisions/buildDecisionIndex', () => {
 
   it('produces null tier/domain index entries for legacy records, inversion still works (DEC-T12)', () => {
     const records = [
-      { id: 'AIF-ARCH-001', tier: null, domain: null, title: 'Legacy A', status: 'Approved', path: 'a.decision.md', references: [], tags: [] },
-      { id: 'AIF-ARCH-002', tier: null, domain: null, title: 'Legacy B', status: 'Approved', path: 'b.decision.md', references: ['AIF-ARCH-001'], tags: [] },
+      {
+        id: 'AIF-ARCH-001',
+        tier: null,
+        domain: null,
+        title: 'Legacy A',
+        status: 'Approved',
+        path: 'a.decision.md',
+        references: [],
+        tags: [],
+      },
+      {
+        id: 'AIF-ARCH-002',
+        tier: null,
+        domain: null,
+        title: 'Legacy B',
+        status: 'Approved',
+        path: 'b.decision.md',
+        references: ['AIF-ARCH-001'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -244,8 +292,28 @@ describe('unit: decisions/buildDecisionIndex', () => {
 
   it('inverts supersedes into superseded_by: B supersedes A (001-T05)', () => {
     const records = [
-      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: [], supersedes: [], tags: [] },
-      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: [], supersedes: ['A'], tags: [] },
+      {
+        id: 'A',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'A',
+        status: 'Approved',
+        path: 'a.decision.md',
+        references: [],
+        supersedes: [],
+        tags: [],
+      },
+      {
+        id: 'B',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'B',
+        status: 'Approved',
+        path: 'b.decision.md',
+        references: [],
+        supersedes: ['A'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -258,7 +326,17 @@ describe('unit: decisions/buildDecisionIndex', () => {
 
   it('does not throw on a dangling Supersedes ID and contributes no superseded_by (001-T06)', () => {
     const records = [
-      { id: 'C', tier: 'A', domain: 'architecture', title: 'C', status: 'Approved', path: 'c.decision.md', references: [], supersedes: ['AIF-ARCH-999'], tags: [] },
+      {
+        id: 'C',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'C',
+        status: 'Approved',
+        path: 'c.decision.md',
+        references: [],
+        supersedes: ['AIF-ARCH-999'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -272,9 +350,39 @@ describe('unit: decisions/buildDecisionIndex', () => {
 
   it('accumulates superseded_by from two records superseding the same predecessor (001-T07)', () => {
     const records = [
-      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: [], supersedes: [], tags: [] },
-      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: [], supersedes: ['A'], tags: [] },
-      { id: 'C', tier: 'A', domain: 'architecture', title: 'C', status: 'Approved', path: 'c.decision.md', references: [], supersedes: ['A'], tags: [] },
+      {
+        id: 'A',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'A',
+        status: 'Approved',
+        path: 'a.decision.md',
+        references: [],
+        supersedes: [],
+        tags: [],
+      },
+      {
+        id: 'B',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'B',
+        status: 'Approved',
+        path: 'b.decision.md',
+        references: [],
+        supersedes: ['A'],
+        tags: [],
+      },
+      {
+        id: 'C',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'C',
+        status: 'Approved',
+        path: 'c.decision.md',
+        references: [],
+        supersedes: ['A'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -285,7 +393,17 @@ describe('unit: decisions/buildDecisionIndex', () => {
 
   it('excludes self-reference when a record names itself in Supersedes (001-T08)', () => {
     const records = [
-      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: [], supersedes: ['A'], tags: [] },
+      {
+        id: 'A',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'A',
+        status: 'Approved',
+        path: 'a.decision.md',
+        references: [],
+        supersedes: ['A'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -297,8 +415,28 @@ describe('unit: decisions/buildDecisionIndex', () => {
 
   it('computes references/referenced_by correctly alongside supersedes/superseded_by (001-T09)', () => {
     const records = [
-      { id: 'A', tier: 'A', domain: 'architecture', title: 'A', status: 'Approved', path: 'a.decision.md', references: ['B'], supersedes: [], tags: [] },
-      { id: 'B', tier: 'A', domain: 'architecture', title: 'B', status: 'Approved', path: 'b.decision.md', references: [], supersedes: ['A'], tags: [] },
+      {
+        id: 'A',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'A',
+        status: 'Approved',
+        path: 'a.decision.md',
+        references: ['B'],
+        supersedes: [],
+        tags: [],
+      },
+      {
+        id: 'B',
+        tier: 'A',
+        domain: 'architecture',
+        title: 'B',
+        status: 'Approved',
+        path: 'b.decision.md',
+        references: [],
+        supersedes: ['A'],
+        tags: [],
+      },
     ];
 
     const index = buildDecisionIndex(records);
@@ -347,7 +485,10 @@ describe('unit: decisions/diffDecisionIndex', () => {
   });
 
   it('returns stale: true with a non-empty summary when an entry is added', () => {
-    const computed = { generated_at: 'now', entries: [{ ...baseEntry }, { ...baseEntry, id: 'B' }] };
+    const computed = {
+      generated_at: 'now',
+      entries: [{ ...baseEntry }, { ...baseEntry, id: 'B' }],
+    };
     const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
 
     const diff = diffDecisionIndex(computed, existing);

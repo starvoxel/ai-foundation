@@ -52,13 +52,16 @@ export function runAuthorizeFlow({ clientId, clientSecret }) {
         const code = url.searchParams.get('code');
         const error = url.searchParams.get('error');
         if (error) {
-          res.writeHead(400, { 'Content-Type': 'text/plain' }).end(`Authorization failed: ${error}`);
+          res
+            .writeHead(400, { 'Content-Type': 'text/plain' })
+            .end(`Authorization failed: ${error}`);
           server.close();
           reject(new Error(`Google returned an error: ${error}`));
           return;
         }
         const { tokens } = await oauth2Client.getToken(code);
-        res.writeHead(200, { 'Content-Type': 'text/plain' })
+        res
+          .writeHead(200, { 'Content-Type': 'text/plain' })
           .end('Gmail authorization complete. You can close this tab and return to the terminal.');
         server.close();
         resolve({
@@ -69,7 +72,9 @@ export function runAuthorizeFlow({ clientId, clientSecret }) {
           expiry_date: tokens.expiry_date,
         });
       } catch (err) {
-        res.writeHead(500, { 'Content-Type': 'text/plain' }).end('Authorization failed. See terminal.');
+        res
+          .writeHead(500, { 'Content-Type': 'text/plain' })
+          .end('Authorization failed. See terminal.');
         server.close();
         reject(err);
       }
@@ -78,7 +83,9 @@ export function runAuthorizeFlow({ clientId, clientSecret }) {
     server.listen(LOOPBACK_PORT, () => {
       console.log('Open this URL in your browser to authorize Gmail access:\n');
       console.log(authUrl);
-      console.log(`\nWaiting for you to complete the consent flow (listening on ${REDIRECT_URI})...`);
+      console.log(
+        `\nWaiting for you to complete the consent flow (listening on ${REDIRECT_URI})...`,
+      );
     });
   });
 }
@@ -90,7 +97,7 @@ async function main() {
   if (!clientId || !clientSecret) {
     console.error(
       'Missing GMAIL_CLIENT_ID and/or GMAIL_CLIENT_SECRET environment variables.\n' +
-      'Create an OAuth "Desktop app" client in Google Cloud Console first — see servers/gmail/README.md.'
+        'Create an OAuth "Desktop app" client in Google Cloud Console first — see servers/gmail/README.md.',
     );
     process.exit(1);
   }
@@ -99,7 +106,7 @@ async function main() {
   if (!tokenData.refresh_token) {
     console.error(
       'Google did not return a refresh_token. This usually means a token already exists for this ' +
-      'client/account. Revoke access at https://myaccount.google.com/permissions and re-run this script.'
+        'client/account. Revoke access at https://myaccount.google.com/permissions and re-run this script.',
     );
     process.exit(1);
   }

@@ -45,8 +45,11 @@ describe('server schemas', () => {
       });
 
       it('folder name matches definition name', () => {
-        assert.equal(parsed.name, folder,
-          `Folder "${folder}" does not match definition name "${parsed.name}"`);
+        assert.equal(
+          parsed.name,
+          folder,
+          `Folder "${folder}" does not match definition name "${parsed.name}"`,
+        );
       });
 
       it('has required top-level fields', () => {
@@ -88,25 +91,33 @@ describe('server schemas', () => {
 
       it('hosted, if present, is "self" or "vendor"', () => {
         if (parsed.hosted === undefined) return;
-        assert.ok(['self', 'vendor'].includes(parsed.hosted),
-          `hosted must be "self" or "vendor", got "${parsed.hosted}"`);
+        assert.ok(
+          ['self', 'vendor'].includes(parsed.hosted),
+          `hosted must be "self" or "vendor", got "${parsed.hosted}"`,
+        );
       });
 
       it('vendor-hosted servers have no local implementation files', () => {
         if (parsed.hosted !== 'vendor') return;
         const serverDir = join(SERVERS_DIR, folder);
         for (const forbidden of ['index.js', 'logic.js', 'package.json', 'tests']) {
-          assert.ok(!existsSync(join(serverDir, forbidden)),
-            `hosted: vendor server "${folder}" should not have ${forbidden} (vendor implements/runs this server, not us)`);
+          assert.ok(
+            !existsSync(join(serverDir, forbidden)),
+            `hosted: vendor server "${folder}" should not have ${forbidden} (vendor implements/runs this server, not us)`,
+          );
         }
       });
 
       it('http transport has a literal url; vendor-hosted url is not a secret placeholder', () => {
         if (parsed.transport !== 'http') return;
-        assert.ok(typeof parsed.url === 'string' && parsed.url.length > 0,
-          `Server "${folder}" has transport: http but no url field`);
-        assert.ok(!/\$\{[A-Z0-9_]+\}/.test(parsed.url),
-          `Server "${folder}" url should be a literal value, not a placeholder — urls are not secret`);
+        assert.ok(
+          typeof parsed.url === 'string' && parsed.url.length > 0,
+          `Server "${folder}" has transport: http but no url field`,
+        );
+        assert.ok(
+          !/\$\{[A-Z0-9_]+\}/.test(parsed.url),
+          `Server "${folder}" url should be a literal value, not a placeholder — urls are not secret`,
+        );
       });
 
       it('headers, if present, never contain a literal secret-shaped value', () => {
@@ -114,8 +125,10 @@ describe('server schemas', () => {
         for (const [key, value] of Object.entries(parsed.headers)) {
           if (typeof value !== 'string') continue;
           const looksLikeBearerWithoutPlaceholder = /^Bearer\s+(?!\$\{)\S+/.test(value);
-          assert.ok(!looksLikeBearerWithoutPlaceholder,
-            `Server "${folder}" header "${key}" looks like a literal secret — use a \${ENV_VAR_NAME} placeholder instead`);
+          assert.ok(
+            !looksLikeBearerWithoutPlaceholder,
+            `Server "${folder}" header "${key}" looks like a literal secret — use a \${ENV_VAR_NAME} placeholder instead`,
+          );
         }
       });
     });
@@ -151,7 +164,15 @@ describe('agent schemas', () => {
       });
 
       it('has required top-level fields', () => {
-        const required = ['name', 'version', 'domain', 'description', 'prompt', 'tools', 'approved_tools'];
+        const required = [
+          'name',
+          'version',
+          'domain',
+          'description',
+          'prompt',
+          'tools',
+          'approved_tools',
+        ];
         for (const field of required) {
           assert.ok(parsed[field] !== undefined, `Missing required field: ${field}`);
         }
@@ -177,7 +198,11 @@ describe('agent schemas', () => {
         if (parsed.blocked_commands === undefined) return;
         assert.ok(Array.isArray(parsed.blocked_commands), 'blocked_commands must be an array');
         for (const cmd of parsed.blocked_commands) {
-          assert.equal(typeof cmd, 'string', `blocked_commands entry must be a string, got: ${typeof cmd}`);
+          assert.equal(
+            typeof cmd,
+            'string',
+            `blocked_commands entry must be a string, got: ${typeof cmd}`,
+          );
         }
       });
     });

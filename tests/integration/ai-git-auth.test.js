@@ -47,7 +47,7 @@ function setUpRepo() {
         git_token_env: 'AI_GIT_TOKEN_TEST',
       },
     }),
-    'utf8'
+    'utf8',
   );
 
   runGit(root, ['init', '-q']);
@@ -59,7 +59,12 @@ function setUpRepo() {
   runGit(root, ['branch', '-M', 'main']);
   // A remote that resolves DNS-wise but will fail auth/connect — that's
   // fine, we only care that nothing leaks before/during that failure.
-  runGit(root, ['remote', 'add', 'origin', 'https://github.com/nonexistent-org/nonexistent-repo.git']);
+  runGit(root, [
+    'remote',
+    'add',
+    'origin',
+    'https://github.com/nonexistent-org/nonexistent-repo.git',
+  ]);
 
   return root;
 }
@@ -112,31 +117,22 @@ describe('integration: ai-git push auth injection', () => {
     it(`never leaks the token to stdout/stderr for: ai-git ${args.join(' ')}`, () => {
       const result = runAiGit(repo, args);
 
-      assert.ok(
-        !result.stdout.includes(FAKE_TOKEN),
-        `token leaked to stdout: ${result.stdout}`
-      );
-      assert.ok(
-        !result.stderr.includes(FAKE_TOKEN),
-        `token leaked to stderr: ${result.stderr}`
-      );
+      assert.ok(!result.stdout.includes(FAKE_TOKEN), `token leaked to stdout: ${result.stdout}`);
+      assert.ok(!result.stderr.includes(FAKE_TOKEN), `token leaked to stderr: ${result.stderr}`);
     });
 
     it(`never persists the token into .git/config for: ai-git ${args.join(' ')}`, () => {
       runAiGit(repo, args);
 
       const gitConfig = readFileSync(join(repo, '.git', 'config'), 'utf8');
-      assert.ok(
-        !gitConfig.includes(FAKE_TOKEN),
-        `token leaked into .git/config: ${gitConfig}`
-      );
+      assert.ok(!gitConfig.includes(FAKE_TOKEN), `token leaked into .git/config: ${gitConfig}`);
 
       // Also guard the specific historical failure mode: branch.<name>.remote
       // must remain the literal remote name "origin", never a URL.
       if (gitConfig.includes('[branch "main"]')) {
         assert.ok(
           !/remote = https?:\/\//.test(gitConfig),
-          `branch.main.remote was set to a URL instead of a remote name: ${gitConfig}`
+          `branch.main.remote was set to a URL instead of a remote name: ${gitConfig}`,
         );
       }
     });

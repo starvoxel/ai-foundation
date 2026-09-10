@@ -60,7 +60,10 @@ describe('unit: ai-git', () => {
     });
 
     it('preserves base env vars', () => {
-      const env = buildGitEnv({ name: 'Bot', email: 'bot@test.com' }, { PATH: '/usr/bin', HOME: '/home/user' });
+      const env = buildGitEnv(
+        { name: 'Bot', email: 'bot@test.com' },
+        { PATH: '/usr/bin', HOME: '/home/user' },
+      );
       assert.equal(env.PATH, '/usr/bin');
       assert.equal(env.HOME, '/home/user');
       assert.equal(env.GIT_AUTHOR_NAME, 'Bot');
@@ -198,11 +201,18 @@ describe('unit: ai-git', () => {
     });
 
     it('returns [] for non-GitHub HTTPS remotes', () => {
-      assert.deepEqual(buildAuthConfigArgs('https://gitlab.com/org/repo.git', 'token123', 'Bot'), []);
+      assert.deepEqual(
+        buildAuthConfigArgs('https://gitlab.com/org/repo.git', 'token123', 'Bot'),
+        [],
+      );
     });
 
     it('never includes the raw token in plaintext in the returned args', () => {
-      const args = buildAuthConfigArgs('https://github.com/org/repo.git', 'super-secret-token', 'Bot');
+      const args = buildAuthConfigArgs(
+        'https://github.com/org/repo.git',
+        'super-secret-token',
+        'Bot',
+      );
       assert.ok(!args.join(' ').includes('super-secret-token'));
     });
   });
@@ -248,7 +258,7 @@ describe('unit: ai-git', () => {
         const authConfigArgs = buildAuthConfigArgs(
           'https://github.com/org/repo.git',
           'super-secret-token',
-          'Bot'
+          'Bot',
         );
 
         // Auth is injected as a prepended -c override; the caller's own

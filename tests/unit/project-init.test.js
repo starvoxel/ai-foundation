@@ -146,18 +146,15 @@ describe('unit: project-init/applyProjectName', () => {
 
 describe('unit: project-init/applyProjectConfig ProjectShortName substitution', () => {
   it('replaces {ProjectShortName} with projectShortname when provided', () => {
-    const result = applyProjectConfig(
-      'Epic: {ProjectShortName}-001',
-      { projectName: 'my-app', projectShortname: 'myapp' }
-    );
+    const result = applyProjectConfig('Epic: {ProjectShortName}-001', {
+      projectName: 'my-app',
+      projectShortname: 'myapp',
+    });
     assert.equal(result, 'Epic: myapp-001');
   });
 
   it('falls back to projectName when projectShortname is not provided', () => {
-    const result = applyProjectConfig(
-      'Epic: {ProjectShortName}-001',
-      { projectName: 'my-app' }
-    );
+    const result = applyProjectConfig('Epic: {ProjectShortName}-001', { projectName: 'my-app' });
     assert.equal(result, 'Epic: my-app-001');
   });
 

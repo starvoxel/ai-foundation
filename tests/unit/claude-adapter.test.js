@@ -24,7 +24,7 @@ describe('unit: claude adapter', () => {
       for (const [key, value] of Object.entries(componentTargets)) {
         assert.ok(
           value.startsWith(claudeBase),
-          `TARGETS.${key} should be under ${claudeBase}, got ${value}`
+          `TARGETS.${key} should be under ${claudeBase}, got ${value}`,
         );
       }
     });
@@ -72,10 +72,7 @@ describe('unit: claude adapter', () => {
     });
 
     it('maps other tools normally alongside an expanded write', () => {
-      assert.deepEqual(
-        mapAgentTools(['read', 'write', 'grep']),
-        ['Read', 'Write', 'Edit', 'Grep']
-      );
+      assert.deepEqual(mapAgentTools(['read', 'write', 'grep']), ['Read', 'Write', 'Edit', 'Grep']);
     });
 
     it('returns an empty list for an empty input', () => {
@@ -171,7 +168,8 @@ describe('unit: claude adapter', () => {
 
   describe('transformSteering()', () => {
     it('strips frontmatter for always-loaded rules (empty file_patterns)', () => {
-      const input = '---\nname: "test"\nversion: "0.1.0"\nfile_patterns: []\n---\n# Rules\nContent here.\n';
+      const input =
+        '---\nname: "test"\nversion: "0.1.0"\nfile_patterns: []\n---\n# Rules\nContent here.\n';
       const result = transformSteering(input);
       assert.ok(!result.includes('---'));
       assert.ok(result.includes('# Rules'));
@@ -179,7 +177,8 @@ describe('unit: claude adapter', () => {
     });
 
     it('emits paths frontmatter for conditional rules', () => {
-      const input = '---\nname: "test"\nfile_patterns:\n  - "**/*.ts"\n  - "src/**"\n---\n# TS Rules\n';
+      const input =
+        '---\nname: "test"\nfile_patterns:\n  - "**/*.ts"\n  - "src/**"\n---\n# TS Rules\n';
       const result = transformSteering(input);
       assert.ok(result.includes('paths:'));
       assert.ok(result.includes('**/*.ts'));
@@ -188,7 +187,8 @@ describe('unit: claude adapter', () => {
     });
 
     it('strips framework fields from output', () => {
-      const input = '---\nname: "test"\nversion: "0.1.0"\ndescription: "Desc"\nfile_patterns:\n  - "**/*.ts"\n---\n# Body\n';
+      const input =
+        '---\nname: "test"\nversion: "0.1.0"\ndescription: "Desc"\nfile_patterns:\n  - "**/*.ts"\n---\n# Body\n';
       const result = transformSteering(input);
       assert.ok(!result.includes('name:'));
       assert.ok(!result.includes('version:'));
@@ -233,7 +233,7 @@ describe('unit: claude adapter', () => {
     it('resolves a ${VAR} placeholder from the given env map', () => {
       const result = resolveHeaderPlaceholders(
         { Authorization: 'Bearer ${MY_TOKEN}' },
-        { MY_TOKEN: 'secret-value' }
+        { MY_TOKEN: 'secret-value' },
       );
       assert.deepEqual(result, { Authorization: 'Bearer secret-value' });
     });
@@ -241,7 +241,7 @@ describe('unit: claude adapter', () => {
     it('resolves multiple placeholders across multiple headers', () => {
       const result = resolveHeaderPlaceholders(
         { A: '${X}', B: 'prefix-${Y}-suffix' },
-        { X: '1', Y: '2' }
+        { X: '1', Y: '2' },
       );
       assert.deepEqual(result, { A: '1', B: 'prefix-2-suffix' });
     });
@@ -259,7 +259,7 @@ describe('unit: claude adapter', () => {
     it('throws when the referenced env var is unset', () => {
       assert.throws(
         () => resolveHeaderPlaceholders({ Authorization: 'Bearer ${MISSING}' }, {}),
-        /MISSING/
+        /MISSING/,
       );
     });
 

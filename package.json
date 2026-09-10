@@ -1,22 +1,37 @@
 {
   "name": "ai-foundation",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Portable, harness-agnostic framework for AI-assisted software development",
   "type": "module",
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.0.0"
   },
   "bin": {
     "aif": "./bin/aif.js",
     "ai-git": "./bin/ai-git.js"
   },
   "scripts": {
-    "test": "node --test \"**/*.test.js\" --test-reporter spec"
+    "test": "node --test \"**/*.test.js\" --test-reporter spec",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.js\"",
+    "format:check": "prettier --check \"**/*.js\"",
+    "typecheck": "tsc --noEmit",
+    "validate": "node bin/aif.js validate"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
     "googleapis": "176.0.0",
     "yaml": "2.9.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.5.0",
+    "eslint": "10.10.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.12.0",
+    "prettier": "3.9.6",
+    "typescript": "7.0.2"
   }
 }

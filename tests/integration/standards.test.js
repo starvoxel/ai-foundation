@@ -22,18 +22,33 @@ describe('integration: standards installation', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'x', tools: ['read'], approved_tools: ['read'], skills: [] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'x',
+          tools: ['read'],
+          approved_tools: ['read'],
+          skills: [],
+        },
       ],
       steering: { global: ['core.md'] },
-      bundles: [
-        { name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' },
-      ],
+      bundles: [{ name: 'test-bundle', version: '1.0.0', description: 'Test.', domain: 'eng' }],
     });
 
     // Create a standards file in the temp repo
     mkdirSync(join(repo, 'standards'), { recursive: true });
-    writeFileSync(join(repo, 'standards', 'typescript-node.md'), '# TypeScript Node Standards\n\nRules here.\n', 'utf8');
-    writeFileSync(join(repo, 'standards', 'api-design.md'), '# API Design Standards\n\nMore rules.\n', 'utf8');
+    writeFileSync(
+      join(repo, 'standards', 'typescript-node.md'),
+      '# TypeScript Node Standards\n\nRules here.\n',
+      'utf8',
+    );
+    writeFileSync(
+      join(repo, 'standards', 'api-design.md'),
+      '# API Design Standards\n\nMore rules.\n',
+      'utf8',
+    );
     writeFileSync(join(repo, 'standards', 'README.md'), '# Standards\n\nNot a standard.\n', 'utf8');
 
     tempKiro = mkdtempSync(join(tmpdir(), 'aif-kiro-target-'));
@@ -56,8 +71,12 @@ describe('integration: standards installation', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('listStandards discovers .md files excluding README and _template', () => {
@@ -73,7 +92,9 @@ describe('integration: standards installation', () => {
   });
 
   it('install copies standards files to harness standards directory', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     assert.ok(existsSync(join(TARGETS.standards, 'typescript-node.md')));
     assert.ok(existsSync(join(TARGETS.standards, 'api-design.md')));
@@ -82,7 +103,9 @@ describe('integration: standards installation', () => {
   });
 
   it('installed standards content matches source', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const installed = readFileSync(join(TARGETS.standards, 'typescript-node.md'), 'utf8');
     const source = readFileSync(join(repo, 'standards', 'typescript-node.md'), 'utf8');

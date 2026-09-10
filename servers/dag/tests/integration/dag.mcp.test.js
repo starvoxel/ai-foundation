@@ -26,31 +26,39 @@ function createDagServer() {
     version: '0.2.0',
   });
 
-  server.registerTool('dag-validate', {
-    description:
-      'Validates that a chunks.json file forms a valid DAG (acyclic, no missing refs, correct schema).',
-    inputSchema: {
-      chunks_path: z.string().describe('Path to the chunks.json file'),
+  server.registerTool(
+    'dag-validate',
+    {
+      description:
+        'Validates that a chunks.json file forms a valid DAG (acyclic, no missing refs, correct schema).',
+      inputSchema: {
+        chunks_path: z.string().describe('Path to the chunks.json file'),
+      },
     },
-  }, async ({ chunks_path }) => {
-    const result = dagValidate(chunks_path);
-    return {
-      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-    };
-  });
+    async ({ chunks_path }) => {
+      const result = dagValidate(chunks_path);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    },
+  );
 
-  server.registerTool('dag-compute-waves', {
-    description:
-      'Computes execution waves from a chunks.json dependency graph via topological sort.',
-    inputSchema: {
-      chunks_path: z.string().describe('Path to the chunks.json file'),
+  server.registerTool(
+    'dag-compute-waves',
+    {
+      description:
+        'Computes execution waves from a chunks.json dependency graph via topological sort.',
+      inputSchema: {
+        chunks_path: z.string().describe('Path to the chunks.json file'),
+      },
     },
-  }, async ({ chunks_path }) => {
-    const result = dagComputeWaves(chunks_path);
-    return {
-      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-    };
-  });
+    async ({ chunks_path }) => {
+      const result = dagComputeWaves(chunks_path);
+      return {
+        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+      };
+    },
+  );
 
   return server;
 }
@@ -78,7 +86,10 @@ const CYCLIC_CHUNKS = {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function writeTempChunks(data) {
-  const dir = join(tmpdir(), 'dag-mcp-test-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+  const dir = join(
+    tmpdir(),
+    'dag-mcp-test-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+  );
   mkdirSync(dir, { recursive: true });
   const path = join(dir, 'chunks.json');
   writeFileSync(path, JSON.stringify(data, null, 2), 'utf-8');
@@ -112,7 +123,7 @@ describe('mcp: dag server protocol layer', () => {
 
   it('lists both tools with correct names', async () => {
     const result = await client.listTools();
-    const names = result.tools.map(t => t.name).sort();
+    const names = result.tools.map((t) => t.name).sort();
     assert.deepEqual(names, ['dag-compute-waves', 'dag-validate']);
   });
 
@@ -130,7 +141,7 @@ describe('mcp: dag server protocol layer', () => {
       assert.ok(tool.inputSchema, `Tool ${tool.name} should have inputSchema`);
       assert.ok(
         tool.inputSchema.properties?.chunks_path,
-        `Tool ${tool.name} should require chunks_path`
+        `Tool ${tool.name} should require chunks_path`,
       );
     }
   });
@@ -139,7 +150,10 @@ describe('mcp: dag server protocol layer', () => {
     const { path, dir } = writeTempChunks(VALID_CHUNKS);
     tempDirs.push(dir);
 
-    const result = await client.callTool({ name: 'dag-validate', arguments: { chunks_path: path } });
+    const result = await client.callTool({
+      name: 'dag-validate',
+      arguments: { chunks_path: path },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.equal(parsed.valid, true);
     assert.deepEqual(parsed.errors, []);
@@ -149,17 +163,23 @@ describe('mcp: dag server protocol layer', () => {
     const { path, dir } = writeTempChunks(CYCLIC_CHUNKS);
     tempDirs.push(dir);
 
-    const result = await client.callTool({ name: 'dag-validate', arguments: { chunks_path: path } });
+    const result = await client.callTool({
+      name: 'dag-validate',
+      arguments: { chunks_path: path },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.equal(parsed.valid, false);
-    assert.ok(parsed.errors.some(e => e.includes('Cycle')));
+    assert.ok(parsed.errors.some((e) => e.includes('Cycle')));
   });
 
   it('dag-compute-waves returns correct waves', async () => {
     const { path, dir } = writeTempChunks(VALID_CHUNKS);
     tempDirs.push(dir);
 
-    const result = await client.callTool({ name: 'dag-compute-waves', arguments: { chunks_path: path } });
+    const result = await client.callTool({
+      name: 'dag-compute-waves',
+      arguments: { chunks_path: path },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.equal(parsed.waves.length, 3);
     assert.deepEqual(parsed.waves[0], ['001', '002']);
@@ -172,7 +192,10 @@ describe('mcp: dag server protocol layer', () => {
     const { path, dir } = writeTempChunks(CYCLIC_CHUNKS);
     tempDirs.push(dir);
 
-    const result = await client.callTool({ name: 'dag-compute-waves', arguments: { chunks_path: path } });
+    const result = await client.callTool({
+      name: 'dag-compute-waves',
+      arguments: { chunks_path: path },
+    });
     const parsed = JSON.parse(result.content[0].text);
     assert.deepEqual(parsed.waves, []);
     assert.ok(parsed.errors.length > 0);
@@ -185,6 +208,6 @@ describe('mcp: dag server protocol layer', () => {
     });
     const parsed = JSON.parse(result.content[0].text);
     assert.equal(parsed.valid, false);
-    assert.ok(parsed.errors.some(e => e.includes('Failed to read file')));
+    assert.ok(parsed.errors.some((e) => e.includes('Failed to read file')));
   });
 });

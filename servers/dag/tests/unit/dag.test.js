@@ -7,12 +7,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
-  parseChunksFile,
-  buildGraph,
-  validate,
-  computeWaves,
-} from '../../logic.js';
+import { parseChunksFile, buildGraph, validate, computeWaves } from '../../logic.js';
 
 // ── parseChunksFile ──────────────────────────────────────────────────────────
 
@@ -33,7 +28,12 @@ describe('unit: dag/parseChunksFile', () => {
   it('extracts chunk fields correctly', () => {
     const data = {
       chunks: [
-        { id: '003', title: 'Integration', depends_on: ['001', '002'], agents: ['Software-Engineer', 'Test-Engineer'] },
+        {
+          id: '003',
+          title: 'Integration',
+          depends_on: ['001', '002'],
+          agents: ['Software-Engineer', 'Test-Engineer'],
+        },
       ],
     };
     const { chunks } = parseChunksFile(data);
@@ -64,25 +64,25 @@ describe('unit: dag/parseChunksFile', () => {
   it('returns error for chunk without id', () => {
     const data = { chunks: [{ title: 'No ID', depends_on: [], agents: [] }] };
     const { errors } = parseChunksFile(data);
-    assert.ok(errors.some(e => e.includes('missing or invalid "id"')));
+    assert.ok(errors.some((e) => e.includes('missing or invalid "id"')));
   });
 
   it('returns error for chunk without title', () => {
     const data = { chunks: [{ id: '001', depends_on: [], agents: [] }] };
     const { errors } = parseChunksFile(data);
-    assert.ok(errors.some(e => e.includes('missing or invalid "title"')));
+    assert.ok(errors.some((e) => e.includes('missing or invalid "title"')));
   });
 
   it('returns error when depends_on is not an array', () => {
     const data = { chunks: [{ id: '001', title: 'Test', depends_on: 'bad', agents: [] }] };
     const { errors } = parseChunksFile(data);
-    assert.ok(errors.some(e => e.includes('"depends_on" must be an array')));
+    assert.ok(errors.some((e) => e.includes('"depends_on" must be an array')));
   });
 
   it('returns error when agents is not an array', () => {
     const data = { chunks: [{ id: '001', title: 'Test', depends_on: [], agents: 'bad' }] };
     const { errors } = parseChunksFile(data);
-    assert.ok(errors.some(e => e.includes('"agents" must be an array')));
+    assert.ok(errors.some((e) => e.includes('"agents" must be an array')));
   });
 
   it('still collects valid chunks when some are invalid', () => {
@@ -107,7 +107,7 @@ describe('unit: dag/parseChunksFile', () => {
     };
     const { chunks, errors } = parseChunksFile(data);
     assert.equal(chunks.length, 1);
-    assert.ok(errors.some(e => e.includes('duplicate chunk id "001"')));
+    assert.ok(errors.some((e) => e.includes('duplicate chunk id "001"')));
   });
 });
 
@@ -178,7 +178,7 @@ describe('unit: dag/validate', () => {
     ]);
     const result = validate(graph);
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('Cycle detected')));
+    assert.ok(result.errors.some((e) => e.includes('Cycle detected')));
   });
 
   it('detects a longer cycle (A→B→C→A)', () => {
@@ -189,7 +189,7 @@ describe('unit: dag/validate', () => {
     ]);
     const result = validate(graph);
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('Cycle detected')));
+    assert.ok(result.errors.some((e) => e.includes('Cycle detected')));
   });
 
   it('detects cycle even with valid nodes present', () => {
@@ -200,8 +200,8 @@ describe('unit: dag/validate', () => {
     ]);
     const result = validate(graph);
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('002')));
-    assert.ok(result.errors.some(e => e.includes('003')));
+    assert.ok(result.errors.some((e) => e.includes('002')));
+    assert.ok(result.errors.some((e) => e.includes('003')));
   });
 
   it('reports both missing refs and cycles', () => {
@@ -212,8 +212,8 @@ describe('unit: dag/validate', () => {
     ]);
     const result = validate(graph);
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('999')));
-    assert.ok(result.errors.some(e => e.includes('Cycle')));
+    assert.ok(result.errors.some((e) => e.includes('999')));
+    assert.ok(result.errors.some((e) => e.includes('Cycle')));
   });
 });
 
@@ -288,9 +288,7 @@ describe('unit: dag/computeWaves', () => {
   });
 
   it('handles a single-chunk graph', () => {
-    const graph = buildGraph([
-      { id: '001', depends_on: [] },
-    ]);
+    const graph = buildGraph([{ id: '001', depends_on: [] }]);
     const waves = computeWaves(graph);
     assert.equal(waves.length, 1);
     assert.deepEqual(waves[0], ['001']);

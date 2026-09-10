@@ -85,22 +85,28 @@ describe('integration: init command', () => {
 
   it('fails if directory already exists without --force', async () => {
     mkdirSync(join(workDir, 'existing'));
-    const { code, output } = await quiet(() => runInit({ args: { name: 'existing' }, positional: [] }));
+    const { code, output } = await quiet(() =>
+      runInit({ args: { name: 'existing' }, positional: [] }),
+    );
     assert.equal(code, 1);
-    assert.ok(output.some(l => l.includes('already exists')));
+    assert.ok(output.some((l) => l.includes('already exists')));
   });
 
   it('succeeds with --force when directory exists', async () => {
     mkdirSync(join(workDir, 'existing'));
-    const { code } = await quiet(() => runInit({ args: { name: 'existing', force: true }, positional: [] }));
+    const { code } = await quiet(() =>
+      runInit({ args: { name: 'existing', force: true }, positional: [] }),
+    );
     assert.equal(code, 0);
     assert.ok(existsSync(join(workDir, 'existing', '.aiconfig.json')));
   });
 
   it('rejects invalid project names', async () => {
-    const { code, output } = await quiet(() => runInit({ args: { name: '.bad-name' }, positional: [] }));
+    const { code, output } = await quiet(() =>
+      runInit({ args: { name: '.bad-name' }, positional: [] }),
+    );
     assert.equal(code, 1);
-    assert.ok(output.some(l => l.includes('Invalid')));
+    assert.ok(output.some((l) => l.includes('Invalid')));
   });
 
   it('sets project_shortname and worktrees path when --shortname provided', async () => {
@@ -119,9 +125,9 @@ describe('integration: init command', () => {
 
   it('rejects a project short name over 5 characters', async () => {
     const { code, output } = await quiet(() =>
-      runInit({ args: { name: 'my-app', shortname: 'toolongname' }, positional: [] })
+      runInit({ args: { name: 'my-app', shortname: 'toolongname' }, positional: [] }),
     );
     assert.equal(code, 1);
-    assert.ok(output.some(l => l.includes('Invalid project short name')));
+    assert.ok(output.some((l) => l.includes('Invalid project short name')));
   });
 });

@@ -48,7 +48,11 @@ describe('unit: manifest', () => {
 
   describe('serializeManifest()', () => {
     it('produces valid YAML string with all sections', () => {
-      const data = { bundles: { test_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const data = {
+        bundles: { test_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       const result = serializeManifest(data);
       assert.ok(result.includes('bundles'));
       assert.ok(result.includes('test_kiro'));
@@ -117,7 +121,11 @@ describe('unit: manifest', () => {
     });
 
     it('adds a new entry without affecting existing ones', () => {
-      const existing = { bundles: { a_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const existing = {
+        bundles: { a_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       const entry = { version: '2.0.0', files: [] };
       const result = setSectionEntry(existing, 'bundles', 'b_kiro', entry);
       assert.deepEqual(result.bundles.a_kiro, { version: '1.0.0', files: [] });
@@ -125,21 +133,36 @@ describe('unit: manifest', () => {
     });
 
     it('overwrites an existing entry', () => {
-      const existing = { bundles: { a_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const existing = {
+        bundles: { a_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       const updated = { version: '1.1.0', files: [{ path: '/x', hash: 'y' }] };
       const result = setSectionEntry(existing, 'bundles', 'a_kiro', updated);
       assert.deepEqual(result.bundles.a_kiro, updated);
     });
 
     it('writes into the servers section independently of bundles', () => {
-      const existing = { bundles: { a_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
-      const result = setSectionEntry(existing, 'servers', 'git_kiro', { files: [], installedBy: ['a'] });
+      const existing = {
+        bundles: { a_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
+      const result = setSectionEntry(existing, 'servers', 'git_kiro', {
+        files: [],
+        installedBy: ['a'],
+      });
       assert.deepEqual(result.servers.git_kiro, { files: [], installedBy: ['a'] });
       assert.deepEqual(result.bundles.a_kiro, { version: '1.0.0', files: [] });
     });
 
     it('does not mutate the original manifest', () => {
-      const existing = { bundles: { a_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const existing = {
+        bundles: { a_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       setSectionEntry(existing, 'bundles', 'b_kiro', { version: '2.0.0', files: [] });
       assert.equal(existing.bundles.b_kiro, undefined);
     });
@@ -148,7 +171,10 @@ describe('unit: manifest', () => {
   describe('removeSectionEntry()', () => {
     it('removes an existing key and returns removed: true', () => {
       const manifest = {
-        bundles: { a_kiro: { version: '1.0.0', files: [] }, b_kiro: { version: '2.0.0', files: [] } },
+        bundles: {
+          a_kiro: { version: '1.0.0', files: [] },
+          b_kiro: { version: '2.0.0', files: [] },
+        },
         servers: {},
         hooks: {},
       };
@@ -159,7 +185,11 @@ describe('unit: manifest', () => {
     });
 
     it('returns removed: false for a missing key', () => {
-      const manifest = { bundles: { a_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const manifest = {
+        bundles: { a_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       const result = removeSectionEntry(manifest, 'bundles', 'nonexistent');
       assert.equal(result.removed, false);
       assert.deepEqual(result.manifest, manifest);
@@ -171,7 +201,11 @@ describe('unit: manifest', () => {
     });
 
     it('does not mutate the original manifest', () => {
-      const manifest = { bundles: { a_kiro: { version: '1.0.0', files: [] } }, servers: {}, hooks: {} };
+      const manifest = {
+        bundles: { a_kiro: { version: '1.0.0', files: [] } },
+        servers: {},
+        hooks: {},
+      };
       removeSectionEntry(manifest, 'bundles', 'a_kiro');
       assert.ok('a_kiro' in manifest.bundles);
     });

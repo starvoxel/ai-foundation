@@ -50,9 +50,7 @@ export function buildMimeMessage({ to, subject, body, cc = [], bcc = [], inReply
   if (!Array.isArray(to) || to.length === 0) {
     throw new Error('"to" must be a non-empty array of email addresses');
   }
-  const headers = [
-    `To: ${to.join(', ')}`,
-  ];
+  const headers = [`To: ${to.join(', ')}`];
   if (cc.length) headers.push(`Cc: ${cc.join(', ')}`);
   if (bcc.length) headers.push(`Bcc: ${bcc.join(', ')}`);
   headers.push(`Subject: ${subject || ''}`);
@@ -86,19 +84,19 @@ export function buildReplySubject(originalSubject = '') {
 /**
  * Find a header value by name (case-insensitive) from a Gmail payload's
  * headers array.
- * @param {{ name: string, value: string }[]} headers
+ * @param {import('googleapis').gmail_v1.Schema$MessagePartHeader[]} headers
  * @param {string} name
  * @returns {string}
  */
 export function getHeader(headers = [], name) {
-  const found = headers.find(h => h.name?.toLowerCase() === name.toLowerCase());
+  const found = headers.find((h) => h.name?.toLowerCase() === name.toLowerCase());
   return found ? found.value : '';
 }
 
 /**
  * Recursively walk a Gmail message payload to extract plain-text body,
  * HTML body, and attachment metadata.
- * @param {object} payload - Gmail API message.payload
+ * @param {import('googleapis').gmail_v1.Schema$MessagePart} payload - Gmail API message.payload
  * @returns {{ body_text: string, body_html: string, attachments: { attachment_id: string, filename: string, mime_type: string, size: number }[] }}
  */
 export function extractBodyAndAttachments(payload) {
@@ -153,7 +151,15 @@ export function base64UrlToUtf8(base64url) {
  * @returns {object}
  */
 export function buildFilterCriteria({
-  from, to, subject, query, negated_query, has_attachment, exclude_chats, size, size_comparison,
+  from,
+  to,
+  subject,
+  query,
+  negated_query,
+  has_attachment,
+  exclude_chats,
+  size,
+  size_comparison,
 } = {}) {
   const criteria = {};
   if (from !== undefined) criteria.from = from;
@@ -183,7 +189,7 @@ export function buildFilterAction({ add_label_ids, remove_label_ids, forward } =
 
 /**
  * Shape a Gmail API `criteria` object back to the tool's snake_case output.
- * @param {object} criteria
+ * @param {import('googleapis').gmail_v1.Schema$FilterCriteria} [criteria]
  * @returns {object}
  */
 export function shapeFilterCriteriaOut(criteria = {}) {
@@ -202,7 +208,7 @@ export function shapeFilterCriteriaOut(criteria = {}) {
 
 /**
  * Shape a Gmail API `action` object back to the tool's snake_case output.
- * @param {object} action
+ * @param {import('googleapis').gmail_v1.Schema$FilterAction} [action]
  * @returns {object}
  */
 export function shapeFilterActionOut(action = {}) {
@@ -215,7 +221,7 @@ export function shapeFilterActionOut(action = {}) {
 
 /**
  * Shape a full Gmail API filter resource into the tool's documented output.
- * @param {{ id: string, criteria?: object, action?: object }} filter
+ * @param {import('googleapis').gmail_v1.Schema$Filter} filter
  * @returns {{ id: string, criteria: object, action: object }}
  */
 export function shapeFilter(filter) {
@@ -297,9 +303,7 @@ export function aggregateBySender(messages = [], maxSenders = 50) {
       entry.sample_subjects.push(subj);
     }
   }
-  return [...bySender.values()]
-    .sort((a, b) => b.count - a.count)
-    .slice(0, maxSenders);
+  return [...bySender.values()].sort((a, b) => b.count - a.count).slice(0, maxSenders);
 }
 
 // ── Pure Logic: rate-limit backoff ──────────────────────────────────────────
@@ -327,7 +331,7 @@ export function isRateLimitError(err) {
 
 /**
  * Shape a full Gmail message resource into the tool's documented output.
- * @param {object} msg - Gmail API messages.get response (format=full)
+ * @param {import('googleapis').gmail_v1.Schema$Message} msg - Gmail API messages.get response (format=full)
  * @returns {object}
  */
 export function shapeFullMessage(msg) {
@@ -351,7 +355,7 @@ export function shapeFullMessage(msg) {
 
 /**
  * Shape a message list-item into the tool's documented summary output.
- * @param {object} msg
+ * @param {import('googleapis').gmail_v1.Schema$Message} msg
  * @returns {{ id: string, thread_id: string, snippet: string }}
  */
 export function shapeMessageSummary(msg) {
@@ -360,7 +364,7 @@ export function shapeMessageSummary(msg) {
 
 /**
  * Shape a draft resource into the tool's documented output.
- * @param {object} draft - Gmail API drafts.get response
+ * @param {import('googleapis').gmail_v1.Schema$Draft} draft - Gmail API drafts.get response
  * @returns {object}
  */
 export function shapeFullDraft(draft) {
@@ -383,7 +387,10 @@ export function shapeFullDraft(draft) {
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ query?: string, label_ids?: string[], max_results?: number, page_token?: string }} params
  */
-export async function listMessages(gmail, { query = '', label_ids, max_results = 25, page_token } = {}) {
+export async function listMessages(
+  gmail,
+  { query = '', label_ids, max_results = 25, page_token } = {},
+) {
   const { data } = await gmail.users.messages.list({
     userId: 'me',
     q: query,
@@ -415,10 +422,18 @@ export async function getMessage(gmail, { message_id, format = 'full' }) {
 export async function getAttachment(gmail, { message_id, attachment_id }) {
   const [{ data: msg }, { data: attachment }] = await Promise.all([
     gmail.users.messages.get({ userId: 'me', id: message_id, format: 'full' }),
-    gmail.users.messages.attachments.get({ userId: 'me', messageId: message_id, id: attachment_id }),
+    gmail.users.messages.attachments.get({
+      userId: 'me',
+      messageId: message_id,
+      id: attachment_id,
+    }),
   ]);
   const { attachments } = extractBodyAndAttachments(msg.payload);
-  const meta = attachments.find(a => a.attachment_id === attachment_id) || {};
+  const meta = attachments.find((a) => a.attachment_id === attachment_id) || {
+    filename: '',
+    mime_type: '',
+    size: 0,
+  };
   return {
     filename: meta.filename || '',
     mime_type: meta.mime_type || '',
@@ -434,7 +449,7 @@ export async function getAttachment(gmail, { message_id, attachment_id }) {
 export async function listLabels(gmail) {
   const { data } = await gmail.users.labels.list({ userId: 'me' });
   return {
-    labels: (data.labels || []).map(l => ({ id: l.id, name: l.name, type: l.type })),
+    labels: (data.labels || []).map((l) => ({ id: l.id, name: l.name, type: l.type })),
   };
 }
 
@@ -444,9 +459,13 @@ export async function listLabels(gmail) {
  * @param {{ max_results?: number, page_token?: string }} params
  */
 export async function listDrafts(gmail, { max_results = 25, page_token } = {}) {
-  const { data } = await gmail.users.drafts.list({ userId: 'me', maxResults: max_results, pageToken: page_token });
+  const { data } = await gmail.users.drafts.list({
+    userId: 'me',
+    maxResults: max_results,
+    pageToken: page_token,
+  });
   return {
-    drafts: (data.drafts || []).map(d => ({
+    drafts: (data.drafts || []).map((d) => ({
       draft_id: d.id,
       message_id: d.message?.id,
       snippet: d.message?.snippet || '',
@@ -470,7 +489,10 @@ export async function getDraft(gmail, { draft_id }) {
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, add_label_ids?: string[], remove_label_ids?: string[] }} params
  */
-export async function modifyLabels(gmail, { message_id, add_label_ids = [], remove_label_ids = [] }) {
+export async function modifyLabels(
+  gmail,
+  { message_id, add_label_ids = [], remove_label_ids = [] },
+) {
   const { data } = await gmail.users.messages.modify({
     userId: 'me',
     id: message_id,
@@ -496,7 +518,10 @@ export async function trashMessage(gmail, { message_id }) {
  */
 export async function createDraft(gmail, params) {
   const raw = buildRawMessage(params);
-  const { data } = await gmail.users.drafts.create({ userId: 'me', requestBody: { message: { raw } } });
+  const { data } = await gmail.users.drafts.create({
+    userId: 'me',
+    requestBody: { message: { raw } },
+  });
   return { draft_id: data.id, message_id: data.message?.id };
 }
 
@@ -539,7 +564,11 @@ export async function sendDraft(gmail, { draft_id }) {
  * @param {{ message_id: string, body: string, reply_all?: boolean }} params
  */
 export async function replyMessage(gmail, { message_id, body, reply_all = false }) {
-  const { data: original } = await gmail.users.messages.get({ userId: 'me', id: message_id, format: 'full' });
+  const { data: original } = await gmail.users.messages.get({
+    userId: 'me',
+    id: message_id,
+    format: 'full',
+  });
   const headers = original.payload?.headers || [];
   const fromHeader = getHeader(headers, 'From');
   const toHeader = getHeader(headers, 'To');
@@ -550,7 +579,10 @@ export async function replyMessage(gmail, { message_id, body, reply_all = false 
 
   const to = [fromHeader].filter(Boolean);
   const cc = reply_all
-    ? [toHeader, ccHeader].filter(Boolean).flatMap(v => v.split(',').map(s => s.trim())).filter(Boolean)
+    ? [toHeader, ccHeader]
+        .filter(Boolean)
+        .flatMap((v) => v.split(',').map((s) => s.trim()))
+        .filter(Boolean)
     : [];
 
   const raw = buildRawMessage({
@@ -645,7 +677,10 @@ export async function deleteFilter(gmail, { filter_id }) {
  * @param {import('googleapis').gmail_v1.Gmail} gmail
  * @param {{ message_ids: string[], add_label_ids?: string[], remove_label_ids?: string[] }} params
  */
-export async function batchModifyLabels(gmail, { message_ids = [], add_label_ids = [], remove_label_ids = [] }) {
+export async function batchModifyLabels(
+  gmail,
+  { message_ids = [], add_label_ids = [], remove_label_ids = [] },
+) {
   const chunks = chunkMessageIds(message_ids, 1000);
   for (const chunk of chunks) {
     if (chunk.length === 0) continue;
@@ -677,9 +712,12 @@ const SENDER_REPORT_MAX_SCAN = 5000;
  * @param {{ retries?: number, baseDelayMs?: number }} [opts]
  * @returns {Promise<{ from: string, subject: string }>}
  */
-async function getMessageMetadataForReport(gmail, messageId, { retries = 3, baseDelayMs = 500 } = {}) {
+async function getMessageMetadataForReport(
+  gmail,
+  messageId,
+  { retries = 3, baseDelayMs = 500 } = {},
+) {
   let attempt = 0;
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     try {
       const { data } = await gmail.users.messages.get({

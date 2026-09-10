@@ -33,7 +33,9 @@ describe('integration: knowledge index', () => {
   });
 
   it('indexes a valid knowledge file', () => {
-    writeFileSync(join(dir, 'api-schema.md'), `---
+    writeFileSync(
+      join(dir, 'api-schema.md'),
+      `---
 name: "api-schema"
 type: "api"
 tags: ["api", "rest"]
@@ -42,7 +44,9 @@ description: "REST API schema."
 ---
 
 ## Endpoints
-`, 'utf8');
+`,
+      'utf8',
+    );
 
     const index = buildKnowledgeIndex(dir);
     assert.equal(index.entries.length, 1);
@@ -53,12 +57,16 @@ description: "REST API schema."
 
   it('skips files without valid frontmatter', () => {
     writeFileSync(join(dir, 'no-front.md'), '# Just markdown\n', 'utf8');
-    writeFileSync(join(dir, 'no-name.md'), `---
+    writeFileSync(
+      join(dir, 'no-name.md'),
+      `---
 type: "reference"
 ---
 
 Missing name.
-`, 'utf8');
+`,
+      'utf8',
+    );
 
     const index = buildKnowledgeIndex(dir);
     assert.equal(index.entries.length, 0);
@@ -66,7 +74,9 @@ Missing name.
 
   it('includes files in subdirectories with correct paths', () => {
     mkdirSync(join(dir, 'decisions'));
-    writeFileSync(join(dir, 'decisions', 'auth.md'), `---
+    writeFileSync(
+      join(dir, 'decisions', 'auth.md'),
+      `---
 name: "auth-decision"
 type: "decision"
 tags: ["auth"]
@@ -75,7 +85,9 @@ status: "Confirmed"
 ---
 
 Content.
-`, 'utf8');
+`,
+      'utf8',
+    );
 
     const index = buildKnowledgeIndex(dir);
     assert.equal(index.entries.length, 1);
@@ -84,31 +96,43 @@ Content.
   });
 
   it('skips underscore-prefixed files', () => {
-    writeFileSync(join(dir, '_draft.md'), `---
+    writeFileSync(
+      join(dir, '_draft.md'),
+      `---
 name: "draft"
 type: "reference"
 tags: ["draft"]
 description: "Should be skipped."
 ---
-`, 'utf8');
+`,
+      'utf8',
+    );
 
     const index = buildKnowledgeIndex(dir);
     assert.equal(index.entries.length, 0);
   });
 
   it('indexes multiple files', () => {
-    writeFileSync(join(dir, 'one.md'), `---
+    writeFileSync(
+      join(dir, 'one.md'),
+      `---
 name: "one"
 tags: ["a"]
 description: "First."
 ---
-`, 'utf8');
-    writeFileSync(join(dir, 'two.md'), `---
+`,
+      'utf8',
+    );
+    writeFileSync(
+      join(dir, 'two.md'),
+      `---
 name: "two"
 tags: ["b"]
 description: "Second."
 ---
-`, 'utf8');
+`,
+      'utf8',
+    );
 
     const index = buildKnowledgeIndex(dir);
     assert.equal(index.entries.length, 2);

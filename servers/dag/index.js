@@ -20,31 +20,39 @@ const server = new McpServer({
   version: '0.2.0',
 });
 
-server.registerTool('dag-validate', {
-  description:
-    'Validates that a chunks.json file forms a valid DAG (acyclic, no missing refs, correct schema).',
-  inputSchema: {
-    chunks_path: z.string().describe('Path to the chunks.json file'),
+server.registerTool(
+  'dag-validate',
+  {
+    description:
+      'Validates that a chunks.json file forms a valid DAG (acyclic, no missing refs, correct schema).',
+    inputSchema: {
+      chunks_path: z.string().describe('Path to the chunks.json file'),
+    },
   },
-}, async ({ chunks_path }) => {
-  const result = dagValidate(chunks_path);
-  return {
-    content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-  };
-});
+  async ({ chunks_path }) => {
+    const result = dagValidate(chunks_path);
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+    };
+  },
+);
 
-server.registerTool('dag-compute-waves', {
-  description:
-    'Computes execution waves from a chunks.json dependency graph via topological sort.',
-  inputSchema: {
-    chunks_path: z.string().describe('Path to the chunks.json file'),
+server.registerTool(
+  'dag-compute-waves',
+  {
+    description:
+      'Computes execution waves from a chunks.json dependency graph via topological sort.',
+    inputSchema: {
+      chunks_path: z.string().describe('Path to the chunks.json file'),
+    },
   },
-}, async ({ chunks_path }) => {
-  const result = dagComputeWaves(chunks_path);
-  return {
-    content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-  };
-});
+  async ({ chunks_path }) => {
+    const result = dagComputeWaves(chunks_path);
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+    };
+  },
+);
 
 async function main() {
   const transport = new StdioServerTransport();

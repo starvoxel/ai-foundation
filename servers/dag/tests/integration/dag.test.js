@@ -83,7 +83,7 @@ describe('integration: dag/dag-validate', () => {
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('Cycle')));
+      assert.ok(result.errors.some((e) => e.includes('Cycle')));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -94,7 +94,7 @@ describe('integration: dag/dag-validate', () => {
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('999')));
+      assert.ok(result.errors.some((e) => e.includes('999')));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -116,22 +116,25 @@ describe('integration: dag/dag-validate', () => {
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('title')));
-      assert.ok(result.errors.some(e => e.includes('"id"')));
+      assert.ok(result.errors.some((e) => e.includes('title')));
+      assert.ok(result.errors.some((e) => e.includes('"id"')));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it('returns error for invalid JSON content', () => {
-    const dir = join(tmpdir(), 'dag-test-' + Date.now() + '-' + Math.random().toString(36).slice(2));
+    const dir = join(
+      tmpdir(),
+      'dag-test-' + Date.now() + '-' + Math.random().toString(36).slice(2),
+    );
     mkdirSync(dir, { recursive: true });
     const path = join(dir, 'bad.json');
     writeFileSync(path, 'not valid json {{{', 'utf-8');
     try {
       const result = dagValidate(path);
       assert.equal(result.valid, false);
-      assert.ok(result.errors.some(e => e.includes('Invalid JSON')));
+      assert.ok(result.errors.some((e) => e.includes('Invalid JSON')));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
@@ -140,7 +143,7 @@ describe('integration: dag/dag-validate', () => {
   it('returns error for non-existent file', () => {
     const result = dagValidate('/tmp/does-not-exist-' + Date.now() + '.json');
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('Failed to read file')));
+    assert.ok(result.errors.some((e) => e.includes('Failed to read file')));
   });
 });
 

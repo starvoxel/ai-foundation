@@ -16,7 +16,16 @@ describe('integration: status command', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test.', prompt: 'You are test.', tools: ['read'], approved_tools: ['read'], skills: [] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test.',
+          prompt: 'You are test.',
+          tools: ['read'],
+          approved_tools: ['read'],
+          skills: [],
+        },
       ],
       skills: [],
       steering: { global: ['core.md'] },
@@ -45,16 +54,23 @@ describe('integration: status command', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   function captureLog(fn) {
     const lines = [];
     const origLog = console.log;
     console.log = (...args) => lines.push(args.join(' '));
-    try { return { code: fn(), output: lines.join('\n') }; }
-    finally { console.log = origLog; }
+    try {
+      return { code: fn(), output: lines.join('\n') };
+    } finally {
+      console.log = origLog;
+    }
   }
 
   it('reports nothing when no installs exist', () => {
@@ -64,7 +80,9 @@ describe('integration: status command', () => {
   });
 
   it('reports installed bundle with file counts', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
 
     const { code, output } = captureLog(() => runStatus({ args: {}, positional: [] }, repo));
     assert.equal(code, 0);

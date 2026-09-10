@@ -40,7 +40,7 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
       description: 'Test.',
     });
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('name')));
+    assert.ok(result.errors.some((e) => e.includes('name')));
   });
 
   it('requires description field', () => {
@@ -49,7 +49,7 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
       tags: ['test'],
     });
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('description')));
+    assert.ok(result.errors.some((e) => e.includes('description')));
   });
 
   it('requires tags as non-empty array', () => {
@@ -59,7 +59,7 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
       tags: [],
     });
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('tags')));
+    assert.ok(result.errors.some((e) => e.includes('tags')));
   });
 
   it('requires tags to be an array', () => {
@@ -69,7 +69,7 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
       tags: 'not-array',
     });
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('tags')));
+    assert.ok(result.errors.some((e) => e.includes('tags')));
   });
 
   it('rejects invalid type', () => {
@@ -80,7 +80,7 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
       description: 'Test.',
     });
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('Invalid type')));
+    assert.ok(result.errors.some((e) => e.includes('Invalid type')));
   });
 
   it('accepts all valid types', () => {
@@ -122,7 +122,7 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
       scope: ['array'],
     });
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('scope')));
+    assert.ok(result.errors.some((e) => e.includes('scope')));
   });
 
   it('reports multiple errors at once', () => {
@@ -138,13 +138,16 @@ describe('unit: knowledge/validateKnowledgeFrontmatter', () => {
 
 describe('unit: knowledge/buildIndexEntry', () => {
   it('builds a complete entry from full frontmatter', () => {
-    const entry = buildIndexEntry({
-      name: 'api-schema',
-      type: 'api',
-      tags: ['api', 'rest'],
-      scope: 'software-engineer',
-      description: 'REST API schema.',
-    }, 'api-schema.md');
+    const entry = buildIndexEntry(
+      {
+        name: 'api-schema',
+        type: 'api',
+        tags: ['api', 'rest'],
+        scope: 'software-engineer',
+        description: 'REST API schema.',
+      },
+      'api-schema.md',
+    );
 
     assert.deepEqual(entry, {
       path: 'api-schema.md',
@@ -157,44 +160,56 @@ describe('unit: knowledge/buildIndexEntry', () => {
   });
 
   it('defaults type to reference', () => {
-    const entry = buildIndexEntry({
-      name: 'test',
-      tags: ['x'],
-      description: 'Test.',
-    }, 'test.md');
+    const entry = buildIndexEntry(
+      {
+        name: 'test',
+        tags: ['x'],
+        description: 'Test.',
+      },
+      'test.md',
+    );
 
     assert.equal(entry.type, 'reference');
   });
 
   it('defaults scope to all', () => {
-    const entry = buildIndexEntry({
-      name: 'test',
-      tags: ['x'],
-      description: 'Test.',
-    }, 'test.md');
+    const entry = buildIndexEntry(
+      {
+        name: 'test',
+        tags: ['x'],
+        description: 'Test.',
+      },
+      'test.md',
+    );
 
     assert.equal(entry.scope, 'all');
   });
 
   it('includes status when present (for decisions)', () => {
-    const entry = buildIndexEntry({
-      name: 'auth-decision',
-      type: 'decision',
-      tags: ['auth'],
-      description: 'Auth approach.',
-      status: 'Confirmed',
-    }, 'decisions/auth.md');
+    const entry = buildIndexEntry(
+      {
+        name: 'auth-decision',
+        type: 'decision',
+        tags: ['auth'],
+        description: 'Auth approach.',
+        status: 'Confirmed',
+      },
+      'decisions/auth.md',
+    );
 
     assert.equal(entry.status, 'Confirmed');
     assert.equal(entry.path, 'decisions/auth.md');
   });
 
   it('omits status when not present', () => {
-    const entry = buildIndexEntry({
-      name: 'test',
-      tags: ['x'],
-      description: 'Test.',
-    }, 'test.md');
+    const entry = buildIndexEntry(
+      {
+        name: 'test',
+        tags: ['x'],
+        description: 'Test.',
+      },
+      'test.md',
+    );
 
     assert.equal(entry.status, undefined);
     assert.ok(!('status' in entry));

@@ -5,7 +5,10 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { globToRegex, matchesBlockedCommand } from '../../lib/harnesses/assets/block-command/logic.js';
+import {
+  globToRegex,
+  matchesBlockedCommand,
+} from '../../lib/harnesses/assets/block-command/logic.js';
 
 describe('unit: block-command/globToRegex', () => {
   it('converts a trailing wildcard pattern', () => {

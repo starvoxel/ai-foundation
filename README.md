@@ -131,7 +131,7 @@ aif test integration   # Filesystem tests
 aif test validation    # Real repo checks
 ```
 
-Requires Node.js 20+. Install dependencies: `npm install`.
+Requires Node.js 22+. Install dependencies: `npm install`.
 
 ---
 

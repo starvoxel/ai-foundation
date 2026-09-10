@@ -18,8 +18,26 @@ describe('integration: install (claude-specific)', () => {
   beforeEach(() => {
     repo = createTempRepo({
       agents: [
-        { name: 'test-agent', version: '0.1.0', domain: 'eng', description: 'Test agent.', prompt: 'You are a test agent.', tools: ['read', 'grep', 'shell'], approved_tools: ['read'], skills: ['skill/test-skill'] },
-        { name: 'blocked-agent', version: '0.1.0', domain: 'eng', description: 'Agent with blocked commands.', prompt: 'You are a restricted agent.', tools: ['read', 'shell'], approved_tools: ['read'], blocked_commands: ['git *', 'gh *'] },
+        {
+          name: 'test-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Test agent.',
+          prompt: 'You are a test agent.',
+          tools: ['read', 'grep', 'shell'],
+          approved_tools: ['read'],
+          skills: ['skill/test-skill'],
+        },
+        {
+          name: 'blocked-agent',
+          version: '0.1.0',
+          domain: 'eng',
+          description: 'Agent with blocked commands.',
+          prompt: 'You are a restricted agent.',
+          tools: ['read', 'shell'],
+          approved_tools: ['read'],
+          blocked_commands: ['git *', 'gh *'],
+        },
       ],
       skills: ['test-skill'],
       steering: { global: ['core.md'], eng: ['rules.md'] },
@@ -50,12 +68,18 @@ describe('integration: install (claude-specific)', () => {
     const origErr = console.error;
     console.log = () => {};
     console.error = () => {};
-    try { return fn(); }
-    finally { console.log = origLog; console.error = origErr; }
+    try {
+      return fn();
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
   }
 
   it('transforms agents to markdown with Claude Code tool names', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     const agentPath = join(TARGETS.agents, 'test-agent.md');
     assert.ok(existsSync(agentPath));
@@ -66,14 +90,18 @@ describe('integration: install (claude-specific)', () => {
   });
 
   it('installs steering as rules in .claude/rules/', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     assert.ok(existsSync(join(TARGETS.rules, 'global-core.md')));
     assert.ok(existsSync(join(TARGETS.rules, 'eng-rules.md')));
   });
 
   it('installs skills as SKILL.md in a per-skill directory under .claude/skills/', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     const skillPath = join(TARGETS.skills, 'test-skill', 'SKILL.md');
     assert.ok(existsSync(skillPath));
@@ -84,7 +112,9 @@ describe('integration: install (claude-specific)', () => {
     mkdirSync(refDir, { recursive: true });
     writeFileSync(join(refDir, 'notes.md'), '# notes\n', 'utf8');
 
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     const refPath = join(TARGETS.skills, 'test-skill', 'reference', 'notes.md');
     assert.ok(existsSync(refPath));
@@ -92,12 +122,16 @@ describe('integration: install (claude-specific)', () => {
   });
 
   it('records manifest and uninstall works', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     const manifest = readManifest(repo);
     assert.ok(manifest.bundles['test-bundle_claude']);
 
-    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     const after = readManifest(repo);
     assert.equal(after.bundles['test-bundle_claude'], undefined);
@@ -105,7 +139,9 @@ describe('integration: install (claude-specific)', () => {
   });
 
   it('installs the shared block-command hook script (bundle has a blocked_commands agent)', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'logic.js')));
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
@@ -117,7 +153,9 @@ describe('integration: install (claude-specific)', () => {
   });
 
   it('wires a PreToolUse hook for an agent with blocked_commands', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     const agentPath = join(TARGETS.agents, 'blocked-agent.md');
     const content = readFileSync(agentPath, 'utf8');
@@ -127,8 +165,12 @@ describe('integration: install (claude-specific)', () => {
   });
 
   it('removes the shared hook script when the last depending bundle is uninstalled', () => {
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
-    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     assert.ok(!existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
 
@@ -144,23 +186,34 @@ describe('integration: install (claude-specific)', () => {
     writeFileSync(
       join(secondBundleDir, 'bundle.yaml'),
       'name: other-bundle\nversion: "1.0.0"\ndescription: Other bundle.\nagents:\n  - blocked-agent.yaml\n',
-      'utf8'
+      'utf8',
     );
 
-    quiet(() => runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
-    quiet(() => runInstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
+    quiet(() =>
+      runInstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     let manifest = readManifest(repo);
-    assert.deepEqual(manifest.hooks['block-command_claude'].installedBy.sort(), ['other-bundle', 'test-bundle']);
+    assert.deepEqual(manifest.hooks['block-command_claude'].installedBy.sort(), [
+      'other-bundle',
+      'test-bundle',
+    ]);
 
-    quiet(() => runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     // Hook script stays installed — other-bundle still depends on it.
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
     manifest = readManifest(repo);
     assert.deepEqual(manifest.hooks['block-command_claude'].installedBy, ['other-bundle']);
 
-    quiet(() => runUninstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo));
+    quiet(() =>
+      runUninstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
 
     // Now removed — no bundle depends on it anymore.
     assert.ok(!existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));

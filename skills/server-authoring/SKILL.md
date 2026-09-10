@@ -105,7 +105,7 @@ The server's `package.json` declares dependencies needed for standalone installa
   "private": true,
   "type": "module",
   "description": "Brief description matching the YAML.",
-  "engines": { "node": ">=20.0.0" },
+  "engines": { "node": ">=22.0.0" },
   "dependencies": {
     // Protocol SDK + any runtime-only deps
   }

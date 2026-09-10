@@ -87,26 +87,30 @@ export function loadTokenFile(tokenPath) {
   if (!existsSync(tokenPath)) {
     throw new Error(
       `No Gmail OAuth token found at ${tokenPath}. Run "node servers/gmail/scripts/authorize.js" ` +
-      `once to authorize this server (see servers/gmail/README.md).`
+        `once to authorize this server (see servers/gmail/README.md).`,
     );
   }
   let raw;
   try {
     raw = readFileSync(tokenPath, 'utf-8');
   } catch (err) {
-    throw new Error(`Failed to read Gmail token file at ${tokenPath}: ${err.message}`);
+    throw new Error(`Failed to read Gmail token file at ${tokenPath}: ${err.message}`, {
+      cause: err,
+    });
   }
   let data;
   try {
     data = JSON.parse(raw);
   } catch (err) {
-    throw new Error(`Gmail token file at ${tokenPath} is not valid JSON: ${err.message}`);
+    throw new Error(`Gmail token file at ${tokenPath} is not valid JSON: ${err.message}`, {
+      cause: err,
+    });
   }
   const { valid, errors } = validateTokenShape(data);
   if (!valid) {
     throw new Error(
       `Gmail token file at ${tokenPath} is invalid: ${errors.join('; ')}. ` +
-      `Re-run "node servers/gmail/scripts/authorize.js" to regenerate it.`
+        `Re-run "node servers/gmail/scripts/authorize.js" to regenerate it.`,
     );
   }
   return data;
