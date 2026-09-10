@@ -199,43 +199,27 @@ That single property retires the `Amending` status and the Errata/Amendments lad
 wholesale — they exist only to make editing an approved record safe, which MADR
 removes the need for.
 
-### ADR tooling — none, deliberately, for now
+### ADR tooling — not needed for the proof of concept
 
 Architect writes MADR files by hand with plain `write`. No CLI, no MCP server, no
 adopted binary. The format above is the whole specification; the conventions are
 enforced by the template and by Principal-Engineer review, not by a linter.
 
-This manual-authoring state is Phase 0.5 of `docs/plans/adr-kit-plan.md`'s phased
-build-out: the same fields and format later phases automate, written by hand first so
-the format gets validated before any tooling is built. Having a phased plan on file
-does not preempt the deferred decision below — whether to move past Phase 0.5 at all
-is still open.
+This manual-authoring phase **is** Phase 0.5 of `docs/plans/adr-kit-plan.md`'s phased
+build-out, and it is itself the proof of concept: it validates that the format works
+by using it, before any tooling gets built around it. Tooling isn't required to prove
+the format out, so none is built yet.
 
-This is a deferral, not a rejection. Choosing tooling is a real decision with real
-consequences — `adrs` is a Rust binary with no npm package, which lands awkwardly in a
-Node project that supports Windows and installs itself into other people's repos, and
-`ARCH-001` chose Node precisely for "portable, minimal dependencies". None of that needs
-answering to start writing MADR records, and answering it first would gate the whole
-conversion behind a question the conversion does not depend on.
+`docs/plans/adr-kit-plan.md` already scopes what tooling would look like if and when
+it's built — an in-repo JS CLI + MCP server, in phases — over a pinned Rust `adrs`
+binary, since `adrs` has no npm-friendly distribution path (Cargo/Homebrew, not
+Windows) and `ARCH-001` chose Node precisely for portable, minimal-dependency tooling.
+That reasoning is settled. What's still open, and revisited with Architect once Phase
+0.5 has enough real volume to judge by, is whether adr-kit is actually needed at all
+and how much of its scoped phases (1 through 3) are worth building — a scope-and-need
+question, not an implementation-approach one.
 
-**Architect writes the ADR tooling decision itself, later** — Rust CLI vs. an in-repo JS
-implementation vs. staying manual — once there is enough hand-written volume to know
-whether the manual path actually hurts. Research already gathered for that record:
-
-| Option | Distribution cost | Maintenance |
-|---|---|---|
-| Pinned `adrs` binary from GitHub releases | Binary on every dev machine and CI runner, here *and* in every consuming project. Cross-platform, but no npm path; Homebrew is not Windows and Cargo needs a Rust toolchain | Upstream |
-| Own npm wrapper around that binary (per-platform `optionalDependencies`) | Clean `npm install` for consumers | Upstream, plus a wrapper republished on every upstream release |
-| In-repo JS implementation, optionally fronted by an MCP server | None — already Node, already has the SDK and `skill/server-authoring`'s pattern | Yours |
-| Stay manual | None | None |
-
-An MCP server is available under the middle two options and is not a differentiator:
-`adrs` ships one, and an in-repo implementation would build one to the `servers/dag`
-shape. `ARCH-005`'s guidance (cross-harness + deterministic + multi-agent → default to
-MCP) and `ARCH-006`'s counter-test (fixed, enumerable operation set) both point that way
-if tooling is ever adopted.
-
-What staying manual costs, stated plainly so the future record can weigh it: no
+What staying manual costs, stated plainly so that future revisit can weigh it: no
 scaffolding, no automatic reverse edge on `links.supersedes`, and no structural lint. The
 first two are cheap at this volume — a template covers scaffolding, and the reverse edge
 is *computed*, not authored, by the index (below). Structural lint is the real loss, and
