@@ -665,7 +665,7 @@ records during the conversion, not after.
 
 | ADR | Evidence it's undocumented |
 |---|---|
-| Plain JavaScript + JSDoc, no TypeScript | No `tsconfig*.json` anywhere, despite `lib/` and `servers/` leaning on JSDoc typedefs plus runtime `zod` validation. The "why not TS" question is answered nowhere. |
+| Plain JavaScript + JSDoc, no TypeScript | `tsconfig.json` exists (`allowJs`/`checkJs`, feeding `npm run typecheck` in CI) — but only to typecheck JSDoc-annotated `.js` files; there is still no `.ts` source anywhere, despite `lib/` and `servers/` leaning on JSDoc typedefs plus runtime `zod` validation. That split — typecheck JSDoc, never compile actual TypeScript — is itself the undocumented decision; the "why JSDoc over TS" question is answered nowhere. (Earlier drafts of this row cited "no `tsconfig*.json` anywhere" as the evidence — stale for the same reason as the CI note above: this document's branch predates the tooling PR that added it.) |
 | `node:test` over Jest/Vitest/Mocha | None of the three appear in `package-lock.json`, despite a unit/integration/validation suite. Worth recording *because* it's the less common choice. |
 | MCP server credential handling | `servers/gmail` uses an OAuth flow (`auth.js`, `scripts/authorize.js`); `servers/youtrack` uses a static token in YAML. Two patterns, no unifying record — though `ARCH-006` already established that this repo treats credential-boundary questions as ADR-worthy. Strongest of the three. |
 
@@ -673,10 +673,12 @@ Two related items that are *not* missing ADRs:
 
 - **ESM-only** (`"type": "module"`) — real but low-stakes; a line in the architecture
   doc, not a record.
-- **No CI at all** (`.github/` does not exist) — an undecided question, not an
-  undocumented decision. The relative-link staleness check and the index-freshness check
-  both assume a CI to run in, so that decision has to be made *as part of* this work
-  rather than documented after it.
+- **CI already exists** (`.github/workflows/ci.yml`: lint, typecheck, format check,
+  validate, test on Node 22.x/26.x) — landed via a sibling PR that merged into `main`
+  before this document did; this document's own branch predates it and was never
+  rebased, which is why earlier drafts of this section described `.github/` as absent.
+  Not an open question this work resolves — check 20 below adds the new doc/decision
+  staleness guards to that existing workflow rather than building one from scratch.
 
 ---
 
@@ -706,7 +708,7 @@ Two related items that are *not* missing ADRs:
 | 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
 | 18 | `docs/decisions/` flattened (domain subfolders removed, flat `AIF-ADR-nnn` counter) and every surviving record rewritten by hand into MADR within the word budget. The format conventions live in the record template and are checked at Principal-Engineer review — there is no linter for them. |
 | 19 | `lib/decisions.js` **retargeted, not deleted**: its parser moves from the `## Metadata` markdown table to MADR YAML frontmatter, keeping index generation and the `supersedes` → `superseded_by` inversion it already performs. `aif index -d` and `docs/decisions/index.json` stay. `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` are updated to the new fixtures rather than removed. |
-| 20 | CI decision made and landed (`.github/` does not exist today): the `key_files`-vs-`last_verified` staleness check (has any listed file changed since that commit?), relative-link resolution across `docs/architecture`, and `aif index --check` so no committed index can go stale again the way the decision index has on `main`. No `adrs lint` and no hyphenated-`kind` guard — both were `adrs`-specific and are moot while ADRs are hand-written. |
+| 20 | New guards added to the **existing** CI workflow (`.github/workflows/ci.yml` already runs lint/typecheck/format/validate/test — see New ADRs to write above; this document's earlier drafts incorrectly described `.github/` as absent, a staleness from branching before that workflow merged): the `key_files`-vs-`last_verified` staleness check (has any listed file changed since that commit?), relative-link resolution across `docs/architecture`, and `aif index --check` so no committed index can go stale again the way the decision index has on `main`. No `adrs lint` and no hyphenated-`kind` guard — both were `adrs`-specific and are moot while ADRs are hand-written. |
 | 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into the arc42 sections they belong to (or the YouTrack plan for `007`) per Decision-record disposition; `ARCH-005/006` converted whole with nothing split. Each split populates a real section — this is what seeds `docs/architecture/` rather than scaffolding it empty. |
 | 22 | The three New ADRs to write are written in MADR form: no-TypeScript, `node:test`, MCP server credential handling. |
 | 23 | `AIF-003` torn down as abandoned work: the Epic Plan and all 8 chunk plans move to `Deferred` and into `archive/` (per Retiring a plan above), reason recorded once, with `chunks.json` and `orchestration-state.json` archived alongside them. Delete the two stale remote branches (`AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`) — their PRs are already closed. Three older strays deserve the same sweep: `AIF-001/003-epic-planning-ai-track`, `AIF-002/010-migrate-aif-006`, `AIF-002/015-backfill-decisions-index`. |
@@ -742,8 +744,8 @@ Two related items that are *not* missing ADRs:
 5. Unwind what is left of the merged `AIF-003` half (check 24) — small by this
    point, since steps 3 and 4 already delete most of it. Verify nothing survived,
    and hand-revert the `Amending` status.
-6. Land the CI decision and its guards (check 20), once there is a converted
-   decision log and populated arc42 sections for them to run against.
+6. Add the new guards to the existing CI workflow (check 20), once there is a
+   converted decision log and populated arc42 sections for them to run against.
 7. Triage the remaining freeform plans (check 12).
 
 Check 27 (the ADR-tooling decision) is deliberately absent from this sequence — it
