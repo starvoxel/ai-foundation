@@ -79,18 +79,24 @@ Config at the consuming project's root, `.adr-kit.json`:
 
 ## `lib/adr-kit/core.js` — pure logic
 
-- `parseAdrFile(content, relPath)` → `{record}`/`{error}` — parses frontmatter, validates `title` (H1) and `status`; derives `id` from `relPath`'s `NNNN-` prefix
-- `buildIndex(records)` → `{generated_at, entries}` — inverts `supersedes`→`superseded_by`, `amends`→`amended_by` (directional), merges `related` symmetrically (extends `lib/decisions.js`'s inversion pattern)
-- `searchByQuery(index, {text, tags})` — matches title/id and tags
-- `findByFile(index, filePath)` — matches `affects` patterns; small internal glob matcher (`*`, `**`, exact paths), no dependency
-- `nextId(index, idPrefix)` — next sequential id
-- `renderAdrTemplate({id, title, tags, links, affects}, template)` — new file content
+Each exported function is here because a real CLI command or MCP tool calls
+it directly — not speculative API surface.
+
+**Exported (wrapper-facing)**:
+- `parseAdrFile(content, relPath)` → `{record}`/`{error}` — parses frontmatter, validates `title` (H1) and `status`, derives `id` from `relPath`'s `NNNN-` prefix. Used by `link` (read the target file's current frontmatter before patching it) as well as internally during index build.
+- `searchByQuery(index, {text, tags})` — used by `search` / `adr_search`
+- `findByFile(index, filePath)` — used by `affects` / `adr_affects`; small internal glob matcher (`*`, `**`, exact paths), no dependency
+- `nextId(index, idPrefix)` — used by `new` / `adr_create`
+- `renderAdrTemplate({id, title, tags, links, affects}, template)` — used by `new` / `adr_create`
+
+**Exported out of necessity, not API** (`@internal` JSDoc tag):
+- `buildIndex(records)` → `{generated_at, entries}` — inverts `supersedes`→`superseded_by`, `amends`→`amended_by`, merges `related` symmetrically (extends `lib/decisions.js`'s inversion pattern). Called only by `io.js`'s private `buildIndexForDir`. Must stay `export`ed since core.js and io.js are separate files — plain JS has no file-local-but-cross-module privacy — but it's not part of the intended wrapper API and is tagged accordingly so consumers know not to rely on it directly.
 
 ## `lib/adr-kit/io.js` — io wrappers
 
-**Exported**: `collectAdrFiles(dir)`, `writeAdrFile(dir, record, content)`, `readConfig(projectRoot)` (defaults: `docs/adr` / prefix `ADR`), `loadOrBuildIndex(dir)` — the only way to get an index.
+**Exported (wrapper-facing)**: `writeAdrFile(dir, record, content)` (used by `new`, `link`), `readConfig(projectRoot)` (used by every command — resolves ADR dir + idPrefix, defaults `docs/adr`/`ADR`), `loadOrBuildIndex(dir)` (the only way to get an index — used by every query/mutation command).
 
-**Module-private** (called only by `loadOrBuildIndex`): `buildIndexForDir(dir)` (full frontmatter parse — expensive), `fingerprintDir(dir)` (`{path, mtimeMs}[]` via `readdirSync`/`statSync` — cheap, no content reads). Unexported deliberately: a wrapper built on `io.js` can only reach the index through the cached path, so there's no expensive function to reach for by mistake.
+**Module-private** (plain, unexported — true same-file-only privacy, reachable solely from `loadOrBuildIndex` in this file): `collectAdrFiles(dir)` (lists ADR files — no command needs a raw file list on its own), `buildIndexForDir(dir)` (full frontmatter parse — the expensive path: `collectAdrFiles` → `parseAdrFile` per file → `buildIndex`), `fingerprintDir(dir)` (`{path, mtimeMs}[]` via `readdirSync`/`statSync` — cheap, no content reads). None of these three are called by any CLI command or MCP tool directly, so none are exported.
 
 `loadOrBuildIndex(dir)`: compares a fresh `fingerprintDir(dir)` against the fingerprint stored in `{dir}/index.json`; returns the cache unchanged on a match, otherwise rebuilds via `buildIndexForDir`, writes `{generated_at, fingerprint, entries}`, and returns it.
 
