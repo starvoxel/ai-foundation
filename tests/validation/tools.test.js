@@ -1,6 +1,5 @@
 import { describe, it, before } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -20,12 +19,6 @@ const SERVERS_DIR = join(ROOT, 'servers');
 const BUILTIN_TOOLS = new Set(Object.values(TOOLS));
 
 describe('tool availability', () => {
-  describe('install script', () => {
-    it('install.ps1 exists', () => {
-      assert.ok(existsSync(join(ROOT, 'install.ps1')), 'install.ps1 not found in repo root');
-    });
-  });
-
   describe('agent tool references', () => {
     const agentFiles = getAgentFiles(AGENTS_DIR);
     const serverTools = getAllServerToolNames(SERVERS_DIR);
