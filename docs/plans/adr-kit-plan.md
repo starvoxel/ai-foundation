@@ -4,10 +4,14 @@
 
 We want ADR (decision-record) tooling — search by name/tags, typed links
 (related/supersedes/amends), reverse file-lookup, a CLI, and an MCP server on
-top — usable by both humans and agents. Evaluated adr-tools and log4brains;
-neither covers typed links or reverse file-lookup, so we'd be building that
-layer regardless of which base tool we started from. Decided to build it
-ourselves rather than adopt either dependency.
+top — usable by both humans and agents. Before this session, adrs-core was
+evaluated and fit well from a feature standpoint but is written in Rust —
+a poor fit for this Node.js codebase, so it was ruled out on tech-stack
+grounds rather than features. That prompted a look at Node-ecosystem
+alternatives: evaluated adr-tools and log4brains; neither covers typed
+links or reverse file-lookup, so we'd be building that layer regardless of
+which base tool we started from. Decided to build it ourselves rather than
+adopt any of the three.
 
 Discussed where it should live: ai-foundation isn't published to npm itself
 (`"private": true`, distributed via its own install/bundle pipeline), and
