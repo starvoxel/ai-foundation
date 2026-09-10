@@ -16,16 +16,13 @@
 `docs/process-model.md`'s "ADR format — MADR" section is the source of truth for
 ai-foundation's own decision-record format; this plan's data model matches it exactly
 — `decision-makers`/`consulted`/`informed`, `links.supersedes`, `affects`, flat
-`docs/decisions/` directory with `tags` carrying categorization instead of subfolders.
-`links.related`/`links.amends` are reserved in both documents, populated starting
-Phase 3 below.
+`docs/decisions/` directory with `tags` carrying categorization instead of subfolders,
+and the bare MADR filename-number ID (`0007-slug.md`, no project prefix). `idPrefix`
+in `.adr-kit.json` stays purely display-only (a consumer can render "ADR-0007" in CLI
+output) — the stored/referenced ID is never prefixed. `links.related`/`links.amends`
+are reserved in both documents, populated starting Phase 3 below.
 
-One deliberate difference, not yet reconciled: process-model.md keeps ai-foundation's
-existing `AIF-ADR-{nnn}` project-prefixed ID scheme; adr-kit's ID is the bare MADR
-filename number (`0002-slug.md`), since a generic tool shouldn't assume a project
-prefix. When adr-kit is eventually pointed at `docs/decisions/`, either adr-kit grows
-a configurable ID pattern (beyond today's display-only `idPrefix`) or process-model.md
-drops its prefix — not decided, doesn't block Phase 1/2.
+No remaining discrepancies between the two documents' formats.
 
 ---
 

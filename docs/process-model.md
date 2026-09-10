@@ -260,9 +260,12 @@ The committed `docs/decisions/index.json` is stale on `main` today
 regeneration. That is a CI gap, not a reason to retire the indexer — see check 20.
 
 Flat directory, single counter: `docs/decisions/` — no subfolders at all, not even by
-type. IDs stay a single flat `AIF-ADR-{nnn}` counter. Frontmatter `tags` carry all
-categorization (e.g. `architecture`, `process`, `meta-process`) that the old domain
-subfolders used to encode structurally.
+type. IDs drop the `AIF-ADR-` project prefix and use MADR's own convention: the
+filename's bare zero-padded number (`0007-use-postgresql.md`), one flat counter across
+the whole directory. This matches adr-kit's ID scheme exactly (see
+`docs/plans/adr-kit-plan.md`), so adopting adr-kit later needs no ID migration.
+Frontmatter `tags` carry all categorization (e.g. `architecture`, `process`,
+`meta-process`) that the old domain subfolders used to encode structurally.
 
 ### Architecture docs — arc42 + C4
 
@@ -691,7 +694,7 @@ Two related items that are *not* missing ADRs:
 | 15 | `README.md`, `PLAN.md`, `AGENTS.md`, `install.ps1`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` specifically enumerates agent files for install — retired names must be removed there as a real code change. |
 | 16 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
 | 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
-| 18 | `docs/decisions/` flattened (domain subfolders removed, flat `AIF-ADR-nnn` counter) and every surviving record rewritten by hand into MADR within the word budget. The format conventions live in the record template and are checked at Principal-Engineer review — there is no linter for them. |
+| 18 | `docs/decisions/` flattened (domain subfolders removed, flat bare-number MADR counter — `0007-slug.md`, no `AIF-ADR-` prefix) and every surviving record rewritten by hand into MADR within the word budget, renumbered onto the new counter. The format conventions live in the record template and are checked at Principal-Engineer review — there is no linter for them. |
 | 19 | `lib/decisions.js` **retargeted, not deleted**: its parser moves from the `## Metadata` markdown table to MADR YAML frontmatter, keeping index generation and the `supersedes` → `superseded_by` inversion it already performs. `aif index -d` and `docs/decisions/index.json` stay. `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` are updated to the new fixtures rather than removed. |
 | 20 | CI decision made and landed (`.github/` does not exist today): the `key_files`-vs-`last_verified` staleness check (has any listed file changed since that commit?), relative-link resolution across `docs/architecture`, and `aif index --check` so no committed index can go stale again the way the decision index has on `main`. No `adrs lint` and no hyphenated-`kind` guard — both were `adrs`-specific and are moot while ADRs are hand-written. |
 | 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into the arc42 sections they belong to (or the YouTrack plan for `007`) per Decision-record disposition; `ARCH-005/006` converted whole with nothing split. Each split populates a real section — this is what seeds `docs/architecture/` rather than scaffolding it empty. |
