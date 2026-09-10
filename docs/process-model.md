@@ -162,9 +162,15 @@ Standard MADR, replacing the in-house options-exploration template. An ADR recor
 *that* a decision was made and *why* — not the research trail behind it.
 
 Frontmatter: `status` (`proposed`/`accepted`/`rejected`/`deprecated`/`superseded`),
-`date`, `deciders`, `tags`. Sections: Context and Problem Statement → Decision Drivers
-→ Considered Options → Decision Outcome (+ Consequences) → optional Pros and Cons of
-the Options → optional More Information.
+`date`, `decision-makers`, `tags`, plus optional `consulted`/`informed` (both per MADR).
+Two structured fields beyond vanilla MADR: `links.supersedes` (array of IDs — the
+reverse edge, `superseded_by`, is computed by the indexer below, never stored) and
+`affects` (file globs/paths the decision binds, for "what ADRs touch this file"
+lookup). `links.related`/`links.amends` are reserved, not yet populated — see
+`docs/plans/adr-kit-plan.md`'s Phase 3 — the `links:` key exists now so adding them
+later isn't a frontmatter migration. Sections: Context and Problem Statement →
+Decision Drivers → Considered Options → Decision Outcome (+ Consequences) → optional
+Pros and Cons of the Options → optional More Information.
 
 **Budget: 150–350 words excluding frontmatter.** Nothing enforces this mechanically —
 the caps live in the record template and are checked at Principal-Engineer review, which
@@ -188,8 +194,8 @@ and open questions about how the system will work.
 won over another*? Only the second belongs in the ADR. Every current ARCH record fails
 this test in its `Design` section — see Decision-record disposition.
 
-An accepted ADR is never edited; a reversal is a new ADR with `supersedes:` set. That
-single property retires the `Amending` status and the Errata/Amendments ladder
+An accepted ADR is never edited; a reversal is a new ADR with `links.supersedes` set.
+That single property retires the `Amending` status and the Errata/Amendments ladder
 wholesale — they exist only to make editing an approved record safe, which MADR
 removes the need for.
 
@@ -198,6 +204,12 @@ removes the need for.
 Architect writes MADR files by hand with plain `write`. No CLI, no MCP server, no
 adopted binary. The format above is the whole specification; the conventions are
 enforced by the template and by Principal-Engineer review, not by a linter.
+
+This manual-authoring state is Phase 0.5 of `docs/plans/adr-kit-plan.md`'s phased
+build-out: the same fields and format later phases automate, written by hand first so
+the format gets validated before any tooling is built. Having a phased plan on file
+does not preempt the deferred decision below — whether to move past Phase 0.5 at all
+is still open.
 
 This is a deferral, not a rejection. Choosing tooling is a real decision with real
 consequences — `adrs` is a Rust binary with no npm package, which lands awkwardly in a
@@ -224,7 +236,7 @@ MCP) and `ARCH-006`'s counter-test (fixed, enumerable operation set) both point 
 if tooling is ever adopted.
 
 What staying manual costs, stated plainly so the future record can weigh it: no
-scaffolding, no automatic reverse edge on `supersedes:`, and no structural lint. The
+scaffolding, no automatic reverse edge on `links.supersedes`, and no structural lint. The
 first two are cheap at this volume — a template covers scaffolding, and the reverse edge
 is *computed*, not authored, by the index (below). Structural lint is the real loss, and
 it is what Principal-Engineer review has to cover in the meantime.
@@ -234,8 +246,10 @@ it is what Principal-Engineer review has to cover in the meantime.
 Without a CLI there is no `adrs` MCP server to query, so discovery stays with `aif`.
 `lib/decisions.js` already does this job: parse each record, build an index, and invert
 `Supersedes` into `superseded_by` across the set. Retarget its parser from the
-`## Metadata` markdown table to MADR's YAML frontmatter and it serves the new format
-unchanged in shape.
+`## Metadata` markdown table to MADR's YAML frontmatter — reading `links.supersedes`
+instead of the old `Supersedes` table row — and it serves the new format unchanged in
+shape. `affects`-based reverse file-lookup is out of scope for this retargeted
+indexer; that arrives with adr-kit tooling, not before.
 
 That is meaningfully less work than deleting it and rebuilding, and it means the one
 capability lost with typed links — the reverse edge — is not lost at all, because the
@@ -245,9 +259,10 @@ The committed `docs/decisions/index.json` is stale on `main` today
 (`aif index -d --check` → `✗ stale: Removed: AIF-PLAN-001`) because nothing enforces
 regeneration. That is a CI gap, not a reason to retire the indexer — see check 20.
 
-Flat directory, single counter: `docs/decisions/{architecture,process,meta-process}/`
-flattens because domains are retired, and IDs stay `AIF-ADR-001`. Frontmatter `tags`
-carry any categorization still wanted.
+Flat directory, single counter: `docs/decisions/` — no subfolders at all, not even by
+type. IDs stay a single flat `AIF-ADR-{nnn}` counter. Frontmatter `tags` carry all
+categorization (e.g. `architecture`, `process`, `meta-process`) that the old domain
+subfolders used to encode structurally.
 
 ### Architecture docs — arc42 + C4
 
