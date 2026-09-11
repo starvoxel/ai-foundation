@@ -309,7 +309,7 @@ shape from MADR above.
 ---
 section: "05.01"
 title: "Bundle resolution"
-freshness: current               # current | draft — "stale" is computed, never authored
+lifecycle: published             # draft | published — staleness is not a value here, see below
 last_verified: 8f3c2a1           # commit SHA, not a date — see staleness below
 tags: [install, bundles]
 key_files:
@@ -320,15 +320,17 @@ key_files:
 
 - `section` makes the arc42 role machine-readable, so routing ("I need runtime
   behaviour") does not depend on parsing filenames.
-- **Named `freshness`, not `status`** — MADR's ADR frontmatter also has a `status`
+- **Named `lifecycle`, not `status`** — MADR's ADR frontmatter also has a `status`
   field (`proposed`/`accepted`/.../`superseded`), a different vocabulary for a
-  different purpose (decision lifecycle vs. living-doc currency). Reusing the same
-  name for both was the earlier-flagged ambiguity; separate names remove it. **Only
-  `current`/`draft` are authored** — `draft` means still being written, `current`
-  means the author believes it's accurate as of writing. `stale` is never a value an
-  author types in: it's computed by the staleness check below (has anything in
-  `key_files` changed since `last_verified`) and reported by `aif index`/CI, not
-  stored as a claim in the frontmatter that nobody re-verifies.
+  different purpose; reusing the name was the earlier-flagged ambiguity, so this field
+  gets its own name. `lifecycle: draft | published` is the *only* value an author
+  writes — whether the doc is still being written. That's a completion axis, not a
+  currency one, so "current"/"stale" don't belong in it as values at all — a doc's
+  currency is never authored, only computed (see the staleness check below), and
+  never stored back into this field or any other frontmatter key. `aif index` reports
+  a separate, purely computed `stale: true/false` per doc; nothing in the doc's own
+  frontmatter ever claims to be current, because that claim would go stale the moment
+  it was written and nothing would catch it.
 - `key_files` belongs in frontmatter rather than a body section, because it is a list of
   paths — structured data, not prose. This is file-level binding: the affordable version
   of symbol-level binding. A code graph is explicitly *not* adopted; it gives structure,
@@ -358,12 +360,12 @@ key_files:
 2. **Real staleness detection.** With `last_verified` as a commit SHA, staleness is
    mechanical: *has any file in `key_files` changed since that commit?* A resolving link
    only proves a file exists, not that the doc still describes it. This turns doc drift
-   into a CI failure instead of a hope — and it's what produces the computed `stale`
-   flag that `freshness` itself never stores.
+   into a CI failure instead of a hope — and it's the sole source of the computed
+   `stale` flag; no frontmatter field ever holds it.
 
-**`aif index` entry shape**: `path`, `section`, `title`, `summary`, `freshness`, `tags`,
-`key_files`, `last_verified`, plus the computed reverse index and `stale` flag — enough
-for an agent to skim the whole set and open only what is relevant. Same pure-parse → build → diff
+**`aif index` entry shape**: `path`, `section`, `title`, `summary`, `lifecycle`, `tags`,
+`key_files`, `last_verified`, plus the computed reverse index and the computed `stale`
+flag — enough for an agent to skim the whole set and open only what is relevant. Same pure-parse → build → diff
 pipeline as today's decision indexer; generalize `entriesEqual`'s hardcoded array-field
 list to "sort any array-valued field" so one module serves both doc sets.
 
@@ -678,7 +680,7 @@ Two related items that are *not* missing ADRs:
 
 | # | Check |
 |---|---|
-| 1 | `docs/architecture/` exists as a flat arc42 section directory with a section-file template carrying the conventions in Writing docs agents can consume: frontmatter (`section`, `title`, `freshness`, `last_verified` as a commit SHA, `tags`, `key_files`) and a one-sentence blockquote summary after the H1. Sections are created lazily — only §1/§2/§3/§5 need exist at the start, and no empty stubs are scaffolded. `docs/product/` is **not** created — reserved slot, no content and no owner yet. |
+| 1 | `docs/architecture/` exists as a flat arc42 section directory with a section-file template carrying the conventions in Writing docs agents can consume: frontmatter (`section`, `title`, `lifecycle`, `last_verified` as a commit SHA, `tags`, `key_files`) and a one-sentence blockquote summary after the H1. Sections are created lazily — only §1/§2/§3/§5 need exist at the start, and no empty stubs are scaffolded. `docs/product/` is **not** created — reserved slot, no content and no owner yet. |
 | 2 | `aif index` emits a nav index for arc42 sections with the entry shape above, **plus the computed `source path → [docs]` reverse index** from `key_files`. Decisions stay in scope too, via the retargeted indexer in check 19 — one module, two doc sets. |
 | 3 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
 | 4 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
