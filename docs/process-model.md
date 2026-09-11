@@ -337,6 +337,15 @@ it's accurate for the tool-category removals. No check in this document proposes
 building path-scoped tool enforcement — that would be new framework capability, out of
 scope here; flagging the gap is.
 
+Real enforcement is plausible later without changing this plan: Kiro's
+`permissions.yaml` already supports a glob-matched `fs_write` capability, and Claude
+Code's `PreToolUse` hooks can inspect `tool_input.file_path` on `Edit`/`Write` calls —
+both harnesses this repo already targets (`lib/harnesses/kiro.js`,
+`lib/harnesses/claude.js`), each already emitting an analogous rule for
+`blocked_commands`. Adding it would mean a path-scoping field on the agent schema plus
+a harness-specific translation in each adapter — a future framework change, not
+something check 16b or this document should take on now.
+
 **Why AI-Engineer merges into Software-Engineer:** same privilege profile (write +
 shell, no web), no context-volume or verification-role reason to split, and
 parallelism already comes from dispatching multiple instances of one agent, not two
