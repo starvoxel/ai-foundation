@@ -56,7 +56,8 @@ Everything below is **knowledge** — non-code material an agent reads to work, 
 concept `.aiconfig.json`'s `paths.knowledge` already names (this repo points it at
 `docs/`). Four kinds, split by what question each answers and whether it may change
 after landing. Collapsing them into one type produced the current 16-record decision
-log, 8 of which aren't decisions at all.
+log (per the historical index; `PLAN-001` is one of the 16 but already deleted from
+disk, so 15 `.md` files remain to actually convert), 8 of which aren't decisions at all.
 
 | Type | Answers | Mutability | Home | Owner |
 |---|---|---|---|---|
@@ -155,7 +156,9 @@ config tables, algorithms, code beyond a 3-line illustration, migration/rollout 
 implementer detail, open questions about how the system will work.
 
 **Litmus test:** *how the system works* vs. *why this path won* — only the second
-belongs. Every current ARCH record's `Design` section fails this (see disposition below).
+belongs. Every current ARCH record with a `Design` section fails this test, with two
+acknowledged exceptions kept whole rather than split — see disposition below for why
+`ARCH-005` and `ARCH-006` don't get the same treatment as `ARCH-001/002/003/007`.
 
 An accepted ADR is never edited; a reversal is a new ADR with `links.supersedes` set.
 This retires the `Amending` status and the Errata/Amendments ladder wholesale.
@@ -171,7 +174,7 @@ build-out, and is itself the proof of concept: it validates the format by using 
 before any tooling is built around it.
 
 `docs/plans/adr-kit-plan.md` already scopes what tooling would look like if built — an
-in-repo JS CLI + MCP server, in phases — over a pinned Rust `adrs` binary, since `adrs`
+in-repo JS CLI + MCP server, in phases — over a pinned Rust `adrs-core` binary, since `adrs-core`
 has no npm-friendly distribution path and `ARCH-001` chose Node precisely for
 portable, minimal-dependency tooling. That's settled. What's still open, revisited
 with Architect once Phase 0.5 has enough volume to judge by: whether adr-kit is
@@ -184,7 +187,7 @@ PE review meanwhile).
 
 ### ADR discovery — keep the existing indexer, retargeted
 
-No CLI means no `adrs` MCP server to query, so discovery stays with `aif`.
+No CLI means no `adrs-core` MCP server to query, so discovery stays with `aif`.
 `lib/decisions.js` already parses records, builds an index, and inverts `Supersedes`
 into `superseded_by` — retarget its parser from the `## Metadata` table to MADR
 frontmatter (reading `links.supersedes` instead of the old table row) and it serves
@@ -193,14 +196,15 @@ for this retargeted indexer; that arrives with adr-kit tooling, not before. Less
 than rebuilding, and the reverse edge stays computed rather than authored twice.
 
 `docs/decisions/index.json` is stale on `main` today (`aif index -d --check` →
-`✗ stale: Removed: AIF-PLAN-001`) — a CI gap, not a reason to retire the indexer (check 20).
+`✗ Decision index is stale: Removed: AIF-PLAN-001`) — a CI gap, not a reason to retire the indexer (check 20).
 
 Flat directory, single counter: `docs/decisions/` — no subfolders at all, not even by
-type. IDs drop the `AIF-ADR-` project prefix and use MADR's own convention: the
-filename's bare zero-padded number (`0007-use-postgresql.md`), one flat counter across
-the directory — matching adr-kit's ID scheme exactly, so adopting it later needs no ID
-migration. Frontmatter `tags` carry all categorization (`architecture`, `process`,
-`meta-process`, …) the old domain subfolders used to encode structurally.
+type. IDs drop the current domain-coded scheme (`AIF-ARCH-001`, `AIF-PROC-003`,
+`AIF-META-001`, …) and use MADR's own convention instead: the filename's bare
+zero-padded number (`0007-use-postgresql.md`), one flat counter across the directory —
+matching adr-kit's ID scheme exactly, so adopting it later needs no ID migration.
+Frontmatter `tags` carry all categorization (`architecture`, `process`,
+`meta-process`, …) the old domain subfolders and ID prefixes used to encode structurally.
 
 ### Architecture docs — arc42 + C4
 
@@ -319,6 +323,20 @@ only by a human-confirmation gate, not a structural boundary.
 | **Engineering Researcher** *(new)* | Web research → decision-ready brief, for Architect, EM, or SE. Scoped for ADR-grade depth, not just light briefs. | Yes, scoped to `{paths.research}` (default `knowledge/research/`, new `.aiconfig.json` field — check 25), `.md` only | **No** | Yes | No |
 | **Principal Engineer** | Review gate — standards + the Feature's outline. Checklist branches by artifact type. | No (findings only) | No | No | No |
 
+**"Scoped to X" is a reviewed convention, not a schema-enforced boundary.** The agent
+schema (`skills/agent-authoring/reference/schema.md`) has no path/glob-scoping field —
+`tools:`/`approved_tools:` is a flat list of tool *names*, nothing narrower. Dropping
+`shell`/`web_search`/`web_fetch` from Architect's `tools:` list entirely *is* a real,
+schema-enforced structural change (the agent literally cannot invoke them). "Write,
+scoped to `docs/decisions/**`" is not the same kind of guarantee — nothing stops
+Architect's `write` calls from touching a different path; the scope is a documented
+constraint Principal-Engineer review must specifically check for (check 16b), the same
+enforcement class as every other hard rule in an agent's prompt. This is honestly
+weaker than "structural boundary" implies for the write leg specifically, even though
+it's accurate for the tool-category removals. No check in this document proposes
+building path-scoped tool enforcement — that would be new framework capability, out of
+scope here; flagging the gap is.
+
 **Why AI-Engineer merges into Software-Engineer:** same privilege profile (write +
 shell, no web), no context-volume or verification-role reason to split, and
 parallelism already comes from dispatching multiple instances of one agent, not two
@@ -345,11 +363,11 @@ what makes Software-Engineer's write access to `agents/*.yaml` safe post-merge.
 
 | Agent | Legs held | Residual risk |
 |---|---|---|
-| Architect | write only | Tightest posture in the roster — no shell, no web. Sees only Researcher briefs, never raw web content. |
+| Architect | write only | Tightest posture of any agent that still touches the repo — no shell, no web. Sees only Researcher briefs, never raw web content. |
 | Engineering Manager | write + shell, no web | Only sees compressed briefs from Architect/Researcher, never raw content |
 | Software Engineer | write + shell, no web | Direct web-vector closed, but not zero — see Residual injection surface |
-| Engineering Researcher | web only, write scoped to non-executable `.md` | The one agent allowed to hold web freely holds nothing else |
-| Principal Engineer | none | Clean |
+| Engineering Researcher | write (scoped to non-executable `.md` output) + web | The one agent allowed to hold web at all holds nothing beyond that and a narrowly-scoped write leg |
+| Principal Engineer | none | Tightest posture in the roster overall — holds nothing, not even scoped write |
 
 `skills/agent-authoring/reference/tools.yaml` should gain an explicit rule against
 holding `moderate` (web) and `privileged` (write/shell) tools at once without
@@ -446,17 +464,17 @@ on orchestrator presence, stop-and-report vs. hand-to-orchestrator) — not
 
 | Artifact | Disposition |
 |---|---|
-| `AIF-001`, `AIF-002` epics + chunk plans | Done. Leave in place as history — no migration, no rename. |
-| `AIF-003` epic (decision-record amendment ladder) + its 8 chunk plans | **Abandoned mid-flight.** The ladder it implements is retired by this model. PRs #23/#24 closed unmerged 2026-09-09; chunks `001/003/004/005` had already merged and need unwinding. Teardown in checks 23–24. |
-| `AIF-004` (Draft — planning redesign) | Superseded. Valid pieces (one gate per Feature, tier-aware pipeline, terminology sweep) roll in above. Mark `Deferred` and archive (`Superseded` isn't a legal Epic Plan status). |
-| `docs/plans/agent-consolidation-plan.md` (Draft) | Superseded — agent-roster content merged above. Mark `Superseded`, leave as history. |
-| `docs/plans/chunk-epic-planning-redesign-plan.md`, `docs/plans/tech-lead-subagent-dispatch-plan.md` | **Already deleted, not archived**, ahead of sequencing — both doubly-orphaned/moot with nothing not already captured here. `AIF-001`/`AIF-002`'s frozen chunk plans still reference the deleted path as historical record. |
+| `AIF-001`, `AIF-002` epics + chunk plans | Substantively complete (orchestration state records both `"status": "Complete"`, all chunks `"Done"`) — but their own `Status` field reads `Approved` / `Approved (rev 6)`, not `Done`. Leave in place as history either way — no migration, no rename; flipping the field to match reality is optional cleanup, not required by this document. |
+| `AIF-003` epic (decision-record amendment ladder) + its 8 chunk plans | **Abandoned mid-flight.** The ladder it implements is retired by this model. PRs #23/#24 closed unmerged 2026-09-09; chunks `001/003/004` had already merged and need unwinding (checks 23–24). Chunk `005` also merged but needs **no** unwinding — check 24 keeps its change (the steering de-enumeration is correct under MADR too). |
+| `AIF-004` (Draft — planning redesign) | Superseded. Valid pieces (one gate per Feature, tier-aware pipeline, terminology sweep) roll in above. Mark `Deferred` and archive (`Superseded` isn't a legal Epic Plan status) — check 28. |
+| `docs/plans/agent-consolidation-plan.md` | Already `Status: Superseded` on disk (flipped in the same commit that merged its content here) — nothing left to do; listed for completeness, not as a pending action. Leave in place as history. |
+| `docs/plans/chunk-epic-planning-redesign-plan.md`, `docs/plans/tech-lead-subagent-dispatch-plan.md` | **Already deleted, not archived**, ahead of sequencing — both doubly-orphaned/moot with nothing not already captured here. `AIF-002`'s frozen chunk plans still reference the deleted path as historical record (`AIF-001` has no chunk plans that do — its only file predates both deleted plans). |
 | Freeform `docs/plans/*.md` (`cli-plan`, `ai-git-enforcement`, `commit-discipline-plan-gate`, `gmail-*`, …) | Triage each: Done → `docs/plans/completed/`; real upcoming work → a Feature; process change → fold into the edit and delete; stale → delete. No new freeform plans after this. |
 | `ai-engineering-plan` skill / "Tier 3 plan" | Retired. Small work runs under `complexity-tiers`; larger becomes a Feature. |
 | `agents/tech-lead.yaml`, `test-engineer.yaml`, `engineering-tech-writer.yaml`, `ai-engineer.yaml` | Retired — charters absorbed per Agent roster. |
 | `agents/architect.yaml`, `software-engineer.yaml`, `engineering-manager.yaml`, `principal-engineer.yaml` | Modified per Agent roster (tool grants, scope). |
 | `agents/engineering-researcher.yaml` | New. |
-| 16 decision records | Converted to MADR or rehomed — see disposition below. |
+| 16 decision records (15 files on disk — `PLAN-001` already deleted, live only in the stale index) | Converted to MADR or rehomed — see disposition below. |
 
 Archived records/plans move to an `archive/` subfolder with status noted — not deleted;
 git plus a browsable trail is the audit record.
@@ -469,20 +487,22 @@ Freeform `docs/plans/*.md` isn't governed by that vocabulary.
 ### Decision-record disposition
 
 All seven ARCH records are genuine ADRs with real options and trade-offs — none
-mislabeled. What splits is each `Design` section, which fails the litmus test above.
+mislabeled. Five of the seven (`001/002/003/004/007`) get their `Design` section split
+out because it fails the litmus test above; `005`/`006` are the acknowledged exceptions
+kept whole, with the reasoning given in their own rows below.
 
 | Record | Genuine ADR? | Disposition |
 |---|---|---|
 | `ARCH-001` Install CLI redesign | Yes | Core → MADR. `Design` (bundle schema, manifest, adapter table) → arc42 §5 install/bundle sections. |
 | `ARCH-002` Steering schema & harness scoping | Yes | Core → MADR. `Design` → arc42 §5 (harness adapters); `Known Limitations` (Kiro `fileMatch` bug) → §11 Risks. |
 | `ARCH-003` Shared resource lifecycle | Yes | Core → MADR. `Design` → arc42 §5 (manifest/snapshot) and §6 Runtime. |
-| `ARCH-004` Standards sync mechanism | Yes, still `Draft` | Decide or drop before converting — its byte-level schema belongs in arc42 §5, not a frozen ADR. |
-| `ARCH-005` DAG tool as MCP server | Yes | Convert whole; nothing to split — retrospective by design, don't fold-and-archive. |
-| `ARCH-006` `ai-git` tool boundary | Yes — a decision not to build | Convert whole. No "how it works" content to fold anywhere. |
-| `ARCH-007` Epic/Chunk → YouTrack | Yes | Core → MADR. `Design` (field schema, workflow rules) → `docs/plans/youtrack-integration-plan.md`. |
+| `ARCH-004` Standards sync mechanism | Yes, still `Draft` | Decide or drop before converting (check 21b) — its byte-level schema belongs in arc42 §5, not a frozen ADR. |
+| `ARCH-005` DAG tool as MCP server | Yes | Convert whole, deliberately **not** split despite its `Design` section technically failing the litmus test too — that section is short and inseparable from the decision's own reasoning (why an MCP server shape, not a bigger "how it's built" write-up), so splitting would gut the record's retrospective value for no arc42 content worth seeding. |
+| `ARCH-006` `ai-git` tool boundary | Yes — a decision not to build | Convert whole. Passes the litmus test cleanly — it has no `Design` section at all, so nothing fails it and nothing needs folding anywhere. |
+| `ARCH-007` Epic/Chunk → YouTrack | Yes, still `Draft` | Same "decide or drop before converting" gate as `ARCH-004` (check 21b) — not called out separately before, but it's in the identical state. Once approved: Core → MADR, `Design` (field schema, workflow rules) → `docs/plans/youtrack-integration-plan.md`. |
 | `PROC-001` AI-Engineer/SE boundary | No — ownership | → `steering/`; no longer an agent boundary. |
 | `PROC-002`, `PROC-006` AI-track dispatch/decomposition | No — ownership | Moot — AI-track distinction retires with the merge. |
-| `PROC-003` Parallel chunk isolation (worktrees) | Partly | Short MADR ADR for the worktrees-vs-alternatives trade-off; operational detail → orchestration skill text. |
+| `PROC-003` Parallel chunk isolation (worktrees) | Partly, still `Draft` | Same gate as `ARCH-004`/`ARCH-007` (check 21b). Once approved: short MADR ADR for the worktrees-vs-alternatives trade-off; operational detail → orchestration skill text. |
 | `PROC-004` Standards sync ownership | No — ownership | → `steering/`, alongside `PROC-001`. |
 | `PROC-005` Git workflow mode | No — convention | → `steering/`. |
 | `PLAN-001` Epic/chunk colocation | No — convention | Already deleted from disk; retire the stale index reference (check 19). |
@@ -518,7 +538,7 @@ not an open question this work resolves. Check 20 adds new guards to that workfl
 | 3 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
 | 4 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software/AI-track branching removed — one pipeline (implement+self-test+docs → PE review) for every Task. |
 | 5 | DAG server + `lib` renamed chunk→task; wave output identical for an equivalent graph. Includes `servers/dag/logic.js`'s doc comment and the chunk/epic-worded test fixtures in all three `servers/dag/tests/**` files, not just identifiers. |
-| 6 | `decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring` skills deleted, all references removed. `decision-record` because MADR replaces (not shrinks) it; `knowledge-authoring` per Subject matter is not a document kind. |
+| 6 | `decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring` skills deleted, all references removed. `decision-record` because MADR replaces (not shrinks) it; `knowledge-authoring` per Subject matter is not a document kind. `docs/knowledge-file-format.md` — the live canonical spec for the exact `type: decision\|reference\|architecture\|api\|business-rule` taxonomy this section retires — rewritten to match (or deleted if `8c`'s steering rule + templates fully replace what it specified); it's actively pointed to from `projects/_template/knowledge/example.md` and several `docs/plans/*.md` files, which need the same update. |
 | 7 | `plan-lifecycle`/`complexity-tiers` trimmed; `complexity-tiers` re-pointed as SE's primary gate. Tier 3 becomes "stop and hand off" (orchestrated → EM, standalone → human). `plan this` documented as a Tier 2 floor, not a Tier 3 jump. |
 | 8 | `steering/engineering/core.md` Rules 1/2/8/9 reworded (Rule 1 → `complexity-tiers` gate, Rule 2 gets a Tier 1/2 fallback, Chunk/Epic Plan → Feature Plan); `knowledge-consumption.md` moves decision-records from full-body auto-load to **index-only by default, full body on demand**; doc-update acceptance gate added. |
 | 8b | **Full vocabulary + reference sweep**, not just planning skills: `skills/code-review/`, `skills/test-execution/`, `skills/worktree-management/SKILL.md`, `skills/complexity-tiers/SKILL.md`, `skills/plan-lifecycle/reference/commit-gate-procedure.md`, `standards/csharp_base.md`, `standards/javascript_base.md`, `steering/engineering/git-workflow-projects.md`. Deleted-skill references also in `skills/agent-authoring/reference/schema.md`, `projects/_template/project-standards.md`, `standards/javascript_node.md`, and `lib/resolver.js`'s JSDoc examples. |
@@ -532,34 +552,39 @@ not an open question this work resolves. Check 20 adds new guards to that workfl
 | 14 | `bundles/engineering/snapshot.json` regenerated (`bundle.yaml` needs no edit — domain-based auto-discovery absorbs the shrink). |
 | 15 | `README.md`, `PLAN.md`, `AGENTS.md`, `agents/README.md`, `skills/README.md` updated. `install.ps1` not in scope — already deleted (dead per `ARCH-001`), its `tools.test.js` assertion removed with it. |
 | 16 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell at once without documented isolation). |
+| 16b | `skill/code-review`'s checklist gains an explicit item, since the agent schema has no path-scoping field to enforce this instead (see Agent roster's "reviewed convention, not schema-enforced" note): for any diff where Architect or Engineering Researcher performed the `write`, Principal-Engineer confirms the touched paths stay within their documented scope — `docs/decisions/**`/`docs/architecture/**` for Architect, `{paths.research}` for Researcher. A violation is a HIGH finding, same severity class as the existing `tools`/`approved_tools`/`blocked_commands` rule (Why Principal-Engineer absorbs AI-component review, above). |
 | 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute; confirm PE review applies regardless of who dispatched SE. |
-| 18 | `docs/decisions/` flattened (domain subfolders removed, flat bare-number MADR counter — `0007-slug.md`, no `AIF-ADR-` prefix); every surviving record rewritten by hand into MADR within the word budget, renumbered onto the new counter, checked at PE review. |
+| 18 | `docs/decisions/` flattened (domain subfolders removed, flat bare-number MADR counter — `0007-slug.md`, no domain-coded `AIF-ARCH-`/`AIF-PROC-`/etc. prefix); every surviving record rewritten by hand into MADR within the word budget, renumbered onto the new counter, checked at PE review. |
 | 19 | `lib/decisions.js` **retargeted, not deleted**: parser moves from the `## Metadata` table to MADR frontmatter, keeping index generation and the `supersedes`→`superseded_by` inversion. `aif index -d` and `docs/decisions/index.json` stay. `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` updated to new fixtures. |
-| 20 | New guards added to the **existing** `.github/workflows/ci.yml` (already runs lint/typecheck/format/validate/test): the `key_files`-vs-`last_verified` staleness check, relative-link resolution across `docs/architecture`, `aif index --check`. No `adrs lint` or hyphenated-`kind` guard — both moot while ADRs are hand-written. |
-| 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into their arc42 homes (or the YouTrack plan for `007`); `ARCH-005/006` converted whole. This is what seeds `docs/architecture/` with real content. |
+| 20 | New guards added to the **existing** `.github/workflows/ci.yml` (already runs lint/typecheck/format/validate/test): the `key_files`-vs-`last_verified` staleness check, relative-link resolution across `docs/architecture`, `aif index --check`. No `adrs-core lint` or hyphenated-`kind` guard — both moot while ADRs are hand-written. |
+| 21 | `Design` sections split out of `ARCH-001/002/003/007` into their arc42 homes (or the YouTrack plan for `007`), plus `ARCH-004` if check 21b approves it; `ARCH-005/006` converted whole per their disposition-table exceptions. This is what seeds `docs/architecture/` with real content. |
+| 21b | Human decision gate for every source record still `Status: Draft` at conversion time — currently `ARCH-004`, `ARCH-007`, `PROC-003` (verified against `docs/decisions/index.json` and each file's own Metadata table). Each gets an explicit `Approved`/`Deferred` call before its MADR conversion (check 21 or 22) proceeds — `Draft` never silently becomes an accepted MADR record. A `Deferred` verdict drops that record from this pass entirely rather than converting it speculatively. |
 | 22 | The three New ADRs to write are written in MADR form. |
 | 23 | `AIF-003` torn down: Epic Plan + all 8 chunk plans move to `Deferred` and `archive/`, reason recorded once, `chunks.json`/`orchestration-state.json` archived alongside. Delete stale remote branches: `AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`, plus older strays `AIF-001/003-epic-planning-ai-track`, `AIF-002/010-migrate-aif-006`, `AIF-002/015-backfill-decisions-index`. |
 | 24 | Merged half of `AIF-003` unwound, minus what already dies elsewhere. Real revert: `AIF-003-004`'s `Amending` status, removed from `plan-lifecycle/reference/status-vocabulary.md` by hand. `AIF-003-003`'s Amendments/Errata template sections die with check 6; `AIF-003-001`'s `Supersedes` parse dies with check 19 — no separate revert needed. `AIF-003-005`'s steering de-enumeration is **kept** (correct under MADR too). |
 | 25 | `.aiconfig.json` schema: `paths.epics`→`paths.features`, `paths.chunks`→`paths.tasks`, add `paths.architecture`, add `paths.research` (default `knowledge/research/`, for Engineering Researcher), keep `paths.decisions` (now flat), reserve `paths.product` without a default. Code change too — `resolveKnowledgePath`/`resolveDecisionsPath` in `lib/commands/index.js` read these; `AGENTS.md`'s field table documents them. This repo's own `.aiconfig.json` updated to match. |
 | 26 | `projects/_template/` brought to the new format: `.aiconfig.json` paths, `plans/{epics,chunks,orchestration}/` skeleton, `knowledge/decisions/` directory, `project-standards.md`'s deleted-skill references. Every consuming project starts from this. |
 | 27 | A **deferred** ADR, written by Architect once there's enough hand-written volume: ADR tooling (Rust CLI vs. in-repo JS vs. staying manual — see ADR tooling above, and `docs/plans/adr-kit-plan.md`). Gates nothing. |
+| 28 | `AIF-004` marked `Deferred` and moved into `archive/` (per Retiring a plan above). Much lighter than `AIF-003`'s teardown (checks 23–24): `AIF-004` was never dispatched — no `chunks.json`, no orchestration state, no branches or PRs to unwind. Just the epic file's `Status` flip and a move to `archive/`. |
 
 ---
 
 ## Sequencing
 
-1. Tear down `AIF-003` (check 23) — independent and cheap, removes the largest source
-   of confusion about what's still live. PRs already closed.
+1. Tear down `AIF-003` and `AIF-004` (checks 23, 28) — both independent and cheap,
+   and together remove the largest current source of confusion about what's still
+   live. `AIF-003`'s PRs are already closed; `AIF-004` was never dispatched.
 2. Land the arc42 structure + `aif index` extension + doc conventions (checks 1–2).
 3. Agent roster first (check 9) — everything else here derives from it. Then
    vocabulary + skill + agent sweep in one pass: feature/task rename, skill deletions,
-   `complexity-tiers` re-pointed, steering rewrites (checks 3–8c, 10, 13–17), plus
+   `complexity-tiers` re-pointed, steering rewrites (checks 3–8c, 10, 13–17, 16b), plus
    `.aiconfig.json` schema/resolvers and `projects/_template/` (checks 25–26). Check
    13b (terminology-sweep verification) runs last within this step, once 3–8c/13/25–26
    are all in.
-4. Decisions conversion: flatten `docs/decisions/`, rewrite survivors as MADR, split
-   `Design` sections into arc42, rehome ownership/convention records, retarget the
-   indexer, write the three missing ADRs (checks 11, 18–19, 21–22). Depends on step 2.
+4. Decisions conversion: resolve the Draft-record gate first (check 21b), then flatten
+   `docs/decisions/`, rewrite survivors as MADR, split `Design` sections into arc42,
+   rehome ownership/convention records, retarget the indexer, write the three missing
+   ADRs (checks 11, 18–19, 21–22). Depends on step 2.
 5. Unwind what's left of the merged `AIF-003` half (check 24) — small by this point.
 6. Add the new guards to the existing CI workflow (check 20), once there's a converted
    decision log and populated arc42 sections to run against.
