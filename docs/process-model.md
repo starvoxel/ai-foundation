@@ -162,9 +162,15 @@ Standard MADR, replacing the in-house options-exploration template. An ADR recor
 *that* a decision was made and *why* — not the research trail behind it.
 
 Frontmatter: `status` (`proposed`/`accepted`/`rejected`/`deprecated`/`superseded`),
-`date`, `deciders`, `tags`. Sections: Context and Problem Statement → Decision Drivers
-→ Considered Options → Decision Outcome (+ Consequences) → optional Pros and Cons of
-the Options → optional More Information.
+`date`, `decision-makers`, `tags`, plus optional `consulted`/`informed` (both per MADR).
+Two structured fields beyond vanilla MADR: `links.supersedes` (array of IDs — the
+reverse edge, `superseded_by`, is computed by the indexer below, never stored) and
+`affects` (file globs/paths the decision binds, for "what ADRs touch this file"
+lookup). `links.related`/`links.amends` are reserved, not yet populated — see
+`docs/plans/adr-kit-plan.md`'s Phase 3 — the `links:` key exists now so adding them
+later isn't a frontmatter migration. Sections: Context and Problem Statement →
+Decision Drivers → Considered Options → Decision Outcome (+ Consequences) → optional
+Pros and Cons of the Options → optional More Information.
 
 **Budget: 150–350 words excluding frontmatter.** Nothing enforces this mechanically —
 the caps live in the record template and are checked at Principal-Engineer review, which
@@ -188,43 +194,33 @@ and open questions about how the system will work.
 won over another*? Only the second belongs in the ADR. Every current ARCH record fails
 this test in its `Design` section — see Decision-record disposition.
 
-An accepted ADR is never edited; a reversal is a new ADR with `supersedes:` set. That
-single property retires the `Amending` status and the Errata/Amendments ladder
+An accepted ADR is never edited; a reversal is a new ADR with `links.supersedes` set.
+That single property retires the `Amending` status and the Errata/Amendments ladder
 wholesale — they exist only to make editing an approved record safe, which MADR
 removes the need for.
 
-### ADR tooling — none, deliberately, for now
+### ADR tooling — not needed for the proof of concept
 
 Architect writes MADR files by hand with plain `write`. No CLI, no MCP server, no
 adopted binary. The format above is the whole specification; the conventions are
 enforced by the template and by Principal-Engineer review, not by a linter.
 
-This is a deferral, not a rejection. Choosing tooling is a real decision with real
-consequences — `adrs` is a Rust binary with no npm package, which lands awkwardly in a
-Node project that supports Windows and installs itself into other people's repos, and
-`ARCH-001` chose Node precisely for "portable, minimal dependencies". None of that needs
-answering to start writing MADR records, and answering it first would gate the whole
-conversion behind a question the conversion does not depend on.
+This manual-authoring phase **is** Phase 0.5 of `docs/plans/adr-kit-plan.md`'s phased
+build-out, and it is itself the proof of concept: it validates that the format works
+by using it, before any tooling gets built around it. Tooling isn't required to prove
+the format out, so none is built yet.
 
-**Architect writes the ADR tooling decision itself, later** — Rust CLI vs. an in-repo JS
-implementation vs. staying manual — once there is enough hand-written volume to know
-whether the manual path actually hurts. Research already gathered for that record:
+`docs/plans/adr-kit-plan.md` already scopes what tooling would look like if and when
+it's built — an in-repo JS CLI + MCP server, in phases — over a pinned Rust `adrs`
+binary, since `adrs` has no npm-friendly distribution path (Cargo/Homebrew, not
+Windows) and `ARCH-001` chose Node precisely for portable, minimal-dependency tooling.
+That reasoning is settled. What's still open, and revisited with Architect once Phase
+0.5 has enough real volume to judge by, is whether adr-kit is actually needed at all
+and how much of its scoped phases (1 through 3) are worth building — a scope-and-need
+question, not an implementation-approach one.
 
-| Option | Distribution cost | Maintenance |
-|---|---|---|
-| Pinned `adrs` binary from GitHub releases | Binary on every dev machine and CI runner, here *and* in every consuming project. Cross-platform, but no npm path; Homebrew is not Windows and Cargo needs a Rust toolchain | Upstream |
-| Own npm wrapper around that binary (per-platform `optionalDependencies`) | Clean `npm install` for consumers | Upstream, plus a wrapper republished on every upstream release |
-| In-repo JS implementation, optionally fronted by an MCP server | None — already Node, already has the SDK and `skill/server-authoring`'s pattern | Yours |
-| Stay manual | None | None |
-
-An MCP server is available under the middle two options and is not a differentiator:
-`adrs` ships one, and an in-repo implementation would build one to the `servers/dag`
-shape. `ARCH-005`'s guidance (cross-harness + deterministic + multi-agent → default to
-MCP) and `ARCH-006`'s counter-test (fixed, enumerable operation set) both point that way
-if tooling is ever adopted.
-
-What staying manual costs, stated plainly so the future record can weigh it: no
-scaffolding, no automatic reverse edge on `supersedes:`, and no structural lint. The
+What staying manual costs, stated plainly so that future revisit can weigh it: no
+scaffolding, no automatic reverse edge on `links.supersedes`, and no structural lint. The
 first two are cheap at this volume — a template covers scaffolding, and the reverse edge
 is *computed*, not authored, by the index (below). Structural lint is the real loss, and
 it is what Principal-Engineer review has to cover in the meantime.
@@ -234,8 +230,10 @@ it is what Principal-Engineer review has to cover in the meantime.
 Without a CLI there is no `adrs` MCP server to query, so discovery stays with `aif`.
 `lib/decisions.js` already does this job: parse each record, build an index, and invert
 `Supersedes` into `superseded_by` across the set. Retarget its parser from the
-`## Metadata` markdown table to MADR's YAML frontmatter and it serves the new format
-unchanged in shape.
+`## Metadata` markdown table to MADR's YAML frontmatter — reading `links.supersedes`
+instead of the old `Supersedes` table row — and it serves the new format unchanged in
+shape. `affects`-based reverse file-lookup is out of scope for this retargeted
+indexer; that arrives with adr-kit tooling, not before.
 
 That is meaningfully less work than deleting it and rebuilding, and it means the one
 capability lost with typed links — the reverse edge — is not lost at all, because the
@@ -245,9 +243,13 @@ The committed `docs/decisions/index.json` is stale on `main` today
 (`aif index -d --check` → `✗ stale: Removed: AIF-PLAN-001`) because nothing enforces
 regeneration. That is a CI gap, not a reason to retire the indexer — see check 20.
 
-Flat directory, single counter: `docs/decisions/{architecture,process,meta-process}/`
-flattens because domains are retired, and IDs stay `AIF-ADR-001`. Frontmatter `tags`
-carry any categorization still wanted.
+Flat directory, single counter: `docs/decisions/` — no subfolders at all, not even by
+type. IDs drop the `AIF-ADR-` project prefix and use MADR's own convention: the
+filename's bare zero-padded number (`0007-use-postgresql.md`), one flat counter across
+the whole directory. This matches adr-kit's ID scheme exactly (see
+`docs/plans/adr-kit-plan.md`), so adopting adr-kit later needs no ID migration.
+Frontmatter `tags` carry all categorization (e.g. `architecture`, `process`,
+`meta-process`) that the old domain subfolders used to encode structurally.
 
 ### Architecture docs — arc42 + C4
 
@@ -307,7 +309,7 @@ shape from MADR above.
 ---
 section: "05.01"
 title: "Bundle resolution"
-status: current                  # current | draft | stale
+lifecycle: published             # draft | published — staleness is not a value here, see below
 last_verified: 8f3c2a1           # commit SHA, not a date — see staleness below
 tags: [install, bundles]
 key_files:
@@ -318,10 +320,30 @@ key_files:
 
 - `section` makes the arc42 role machine-readable, so routing ("I need runtime
   behaviour") does not depend on parsing filenames.
+- **Named `lifecycle`, not `status`** — MADR's ADR frontmatter also has a `status`
+  field (`proposed`/`accepted`/.../`superseded`), a different vocabulary for a
+  different purpose; reusing the name was the earlier-flagged ambiguity, so this field
+  gets its own name. `lifecycle: draft | published` is the *only* value an author
+  writes — whether the doc is still being written. That's a completion axis, not a
+  currency one, so "current"/"stale" don't belong in it as values at all — a doc's
+  currency is never authored, only computed (see the staleness check below), and
+  never stored back into this field or any other frontmatter key. `aif index` reports
+  a separate, purely computed `stale: true/false` per doc; nothing in the doc's own
+  frontmatter ever claims to be current, because that claim would go stale the moment
+  it was written and nothing would catch it.
 - `key_files` belongs in frontmatter rather than a body section, because it is a list of
   paths — structured data, not prose. This is file-level binding: the affordable version
   of symbol-level binding. A code graph is explicitly *not* adopted; it gives structure,
   never intent, and the tools binding decisions to symbols are still too early.
+  **Scope**: list a file only if a change to *that file's logic* would make this doc's
+  claims wrong — that's the actual thing the staleness check below is testing.
+  Excludes callers/consumers of the described behavior (only what implements it
+  belongs), test files (they validate behavior, they don't define it — including them
+  produces false-positive staleness on every refactor), and incidentally-touched
+  config/types the section isn't actually about. If a section's `key_files` grows past
+  roughly 5–8 entries, that's a signal to split it into a finer subsection (`05.01`,
+  `05.02`, ...) rather than let the list keep growing — a short, tight list is what
+  keeps a rename or deletion a rare, meaningful CI failure instead of routine noise.
 - **The one-line summary stays a body convention** — a single blockquote sentence
   immediately after the H1, extracted by the same parse-title-then-fields approach
   `lib/decisions.js` already uses. A summary field in frontmatter would duplicate the
@@ -338,11 +360,12 @@ key_files:
 2. **Real staleness detection.** With `last_verified` as a commit SHA, staleness is
    mechanical: *has any file in `key_files` changed since that commit?* A resolving link
    only proves a file exists, not that the doc still describes it. This turns doc drift
-   into a CI failure instead of a hope.
+   into a CI failure instead of a hope — and it's the sole source of the computed
+   `stale` flag; no frontmatter field ever holds it.
 
-**`aif index` entry shape**: `path`, `section`, `title`, `summary`, `status`, `tags`,
-`key_files`, `last_verified`, plus the computed reverse index — enough for an agent to
-skim the whole set and open only what is relevant. Same pure-parse → build → diff
+**`aif index` entry shape**: `path`, `section`, `title`, `summary`, `lifecycle`, `tags`,
+`key_files`, `last_verified`, plus the computed reverse index and the computed `stale`
+flag — enough for an agent to skim the whole set and open only what is relevant. Same pure-parse → build → diff
 pipeline as today's decision indexer; generalize `entriesEqual`'s hardcoded array-field
 list to "sort any array-valued field" so one module serves both doc sets.
 
@@ -686,7 +709,7 @@ Two related items that are *not* missing ADRs:
 
 | # | Check |
 |---|---|
-| 1 | `docs/architecture/` exists as a flat arc42 section directory with a section-file template carrying the conventions in Writing docs agents can consume: frontmatter (`section`, `title`, `status`, `last_verified` as a commit SHA, `tags`, `key_files`) and a one-sentence blockquote summary after the H1. Sections are created lazily — only §1/§2/§3/§5 need exist at the start, and no empty stubs are scaffolded. `docs/product/` is **not** created — reserved slot, no content and no owner yet. |
+| 1 | `docs/architecture/` exists as a flat arc42 section directory with a section-file template carrying the conventions in Writing docs agents can consume: frontmatter (`section`, `title`, `lifecycle`, `last_verified` as a commit SHA, `tags`, `key_files`) and a one-sentence blockquote summary after the H1. Sections are created lazily — only §1/§2/§3/§5 need exist at the start, and no empty stubs are scaffolded. `docs/product/` is **not** created — reserved slot, no content and no owner yet. |
 | 2 | `aif index` emits a nav index for arc42 sections with the entry shape above, **plus the computed `source path → [docs]` reverse index** from `key_files`. Decisions stay in scope too, via the retargeted indexer in check 19 — one module, two doc sets. |
 | 3 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
 | 4 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software-track/AI-track branching removed (Steps 2–3) — one pipeline shape (implement+self-test+docs → Principal-Engineer review) for every Task. |
@@ -706,7 +729,7 @@ Two related items that are *not* missing ADRs:
 | 15 | `README.md`, `PLAN.md`, `AGENTS.md`, `agents/README.md`, `skills/README.md` updated for the new model. `install.ps1` is not part of this sweep — it's already deleted, confirmed dead by `ARCH-001` (assumed nonexistent `.md` agent files; the real install path is the `aif` CLI), and `tests/validation/tools.test.js`'s matching existence assertion was removed with it. |
 | 16 | `skills/agent-authoring/reference/tools.yaml` gains the trifecta-avoidance rule (no agent holds `moderate`/web and `privileged`/write+shell tools at once without documented isolation justification). |
 | 17 | Software-Engineer's hard rules state a Researcher brief is data informing a decision, never an instruction to execute directly (see Residual injection surface in Agent roster above); and confirm Principal-Engineer review applies before merge regardless of whether Software-Engineer was dispatched by Engineering Manager or run standalone by a human. |
-| 18 | `docs/decisions/` flattened (domain subfolders removed, flat `AIF-ADR-nnn` counter) and every surviving record rewritten by hand into MADR within the word budget. The format conventions live in the record template and are checked at Principal-Engineer review — there is no linter for them. |
+| 18 | `docs/decisions/` flattened (domain subfolders removed, flat bare-number MADR counter — `0007-slug.md`, no `AIF-ADR-` prefix) and every surviving record rewritten by hand into MADR within the word budget, renumbered onto the new counter. The format conventions live in the record template and are checked at Principal-Engineer review — there is no linter for them. |
 | 19 | `lib/decisions.js` **retargeted, not deleted**: its parser moves from the `## Metadata` markdown table to MADR YAML frontmatter, keeping index generation and the `supersedes` → `superseded_by` inversion it already performs. `aif index -d` and `docs/decisions/index.json` stay. `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` are updated to the new fixtures rather than removed. |
 | 20 | New guards added to the **existing** CI workflow (`.github/workflows/ci.yml` already runs lint/typecheck/format/validate/test — see New ADRs to write above; this document's earlier drafts incorrectly described `.github/` as absent, a staleness from branching before that workflow merged): the `key_files`-vs-`last_verified` staleness check (has any listed file changed since that commit?), relative-link resolution across `docs/architecture`, and `aif index --check` so no committed index can go stale again the way the decision index has on `main`. No `adrs lint` and no hyphenated-`kind` guard — both were `adrs`-specific and are moot while ADRs are hand-written. |
 | 21 | `Design` sections split out of `ARCH-001/002/003/004/007` into the arc42 sections they belong to (or the YouTrack plan for `007`) per Decision-record disposition; `ARCH-005/006` converted whole with nothing split. Each split populates a real section — this is what seeds `docs/architecture/` rather than scaffolding it empty. |
