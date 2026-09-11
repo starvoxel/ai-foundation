@@ -68,6 +68,8 @@ aif test [unit|integration|validation]
 # Source freshness
 aif snapshot --check
 aif snapshot
+aif snapshot --bundle             # every bundle's snapshot (bare flag = all of that kind)
+aif snapshot --bundle engineering # one bundle's snapshot
 
 # Knowledge/decision indexing
 aif index knowledge          # generate knowledge/index.json

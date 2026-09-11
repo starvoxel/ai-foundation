@@ -96,9 +96,9 @@ Commands:
   init        Scaffold a new project directory
 
 Options:
-  --bundle <name>    Bundle to install/uninstall/snapshot
-  --server <name>    Server to snapshot (snapshot command)
-  --hook <name>      Hook resource to snapshot (snapshot command)
+  --bundle <name>    Bundle to install/uninstall; bundle to snapshot (snapshot: name optional, omit for all bundles)
+  --server [name]    Server to snapshot (snapshot command; omit name for all servers)
+  --hook [name]      Hook resource to snapshot (snapshot command; omit name for all hooks)
   --harness <name>   Target harness (${HARNESSES.join(', ')})
   --update           Update all installed bundles that are stale
   --check            Verify snapshots without writing (snapshot command)
@@ -124,6 +124,8 @@ Examples:
   aif test unit
   aif snapshot
   aif snapshot --server git
+  aif snapshot --bundle
+  aif snapshot --bundle --check
   aif index knowledge
   aif index decisions
   aif index decisions --check
