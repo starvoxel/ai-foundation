@@ -277,17 +277,25 @@ noise.
 The one-line summary stays a body convention (a blockquote after the H1), so it
 doesn't drift from frontmatter.
 
-Two computed affordances matter more than any field:
+These are the only two reasons `aif index` needs to know about arc42 sections at all —
+neither is a forward-browsing nav index, because arc42 doesn't need one: numbered
+files in a flat directory plus §5's own building-block list already tell a human or
+agent where to look. Duplicating that as a generated table of contents would be the
+kind of ceremony this document is trying to remove, not add.
+
 1. **Reverse index** — `key_files` inverted: `aif index` builds `source path → [docs]`,
-   the highest-value navigation available here (same inversion pattern as `supersedes`).
+   the direction arc42's own structure can't give you (same inversion pattern as
+   `supersedes`).
 2. **Real staleness detection** — `last_verified` as a commit SHA means *has any
    `key_files` entry changed since?* is mechanical, turning doc drift into a CI
    failure — and it's the sole source of the computed `stale` flag; no frontmatter
    field ever holds it.
 
 `aif index` entry shape: `path`, `section`, `title`, `summary`, `lifecycle`, `tags`,
-`key_files`, `last_verified`, plus the computed reverse index and `stale` flag. Same
-pure-parse → build → diff pipeline as today's decision indexer — generalize
+`key_files`, `last_verified`, plus the computed reverse index and `stale` flag. The
+per-entry fields exist to identify what a reverse-lookup or staleness hit actually is
+(a title/summary to show, a section to jump to) — not to double as a browsable index.
+Same pure-parse → build → diff pipeline as today's decision indexer — generalize
 `entriesEqual`'s hardcoded array-field list to "sort any array-valued field" so one
 module serves both doc sets.
 
@@ -550,7 +558,7 @@ how these group into phases.
 | 2 | `AIF-004` marked `Deferred` and moved into `archive/` (per Retiring a plan above). Much lighter than `AIF-003`'s teardown (checks 1 and 30): `AIF-004` was never dispatched — no `chunks.json`, no orchestration state, no branches or PRs to unwind. Just the epic file's `Status` flip and a move to `archive/`. |
 | 3 | `.aiconfig.json` schema: `paths.epics`→`paths.features`, `paths.chunks`→`paths.tasks`, add `paths.architecture`, add `paths.research` (default `knowledge/research/`, for Engineering Researcher), keep `paths.decisions` (now flat), reserve `paths.product` without a default. Code change too — `resolveKnowledgePath`/`resolveDecisionsPath` in `lib/commands/index.js` read these; `AGENTS.md`'s field table documents them. This repo's own `.aiconfig.json` updated to match. Lands first so nothing downstream (agent scopes, `aif index`, the template) references a path field that doesn't exist yet. |
 | 4 | `docs/architecture/` exists as a flat arc42 section directory with a section-file template (frontmatter: `section`, `title`, `lifecycle`, `last_verified` as a commit SHA, `tags`, `key_files`; one-sentence blockquote summary after the H1). Sections created lazily — only §1/§2/§3/§5 need exist at the start. `docs/product/` **not** created — reserved, no owner yet. |
-| 5 | `aif index` emits a nav index for arc42 sections (entry shape above) plus the computed `source path → [docs]` reverse index from `key_files`. Decisions stay in scope via the retargeted indexer (check 28) — one module, two doc sets. |
+| 5 | `aif index` extended for arc42 sections (entry shape above), for two things §5 and the numbered directory can't give you: the computed `source path → [docs]` reverse index from `key_files`, and the `stale` flag from `last_verified`. Not a forward nav index — arc42's own numbering + §5's block list already cover browsing, so none is built. Decisions stay in scope via the retargeted indexer (check 28) — one module, two doc sets. |
 | 6 | Agent YAMLs updated per Agent roster: 4 retired, 4 modified, 1 new. `architect.yaml` **loses** `shell` and `web_search`/`web_fetch`, gains only plain `write` (scoped to `docs/decisions/**` + `docs/architecture/**`) plus gated Researcher dispatch — no `@adr/*` tools exist, per ADR tooling above. `engineering-researcher.yaml` scoped for ADR-grade depth, write scoped to `{paths.research}` from check 3. Also states explicitly, in whichever agent dispatches Architect, that it — not Architect — commits the resulting ADR/arc42 file. Everything else in this list derives from this check. |
 | 7 | `epic-planning` + `chunk-planning` merge into `feature-planning`: renamed, Task-sizing rules added, small Features may skip decomposition. |
 | 8 | `chunk-orchestration`: `chunks.json` → `tasks.json`; per-Task plan gate replaced by `complexity-tiers`; software/AI-track branching removed — one pipeline (implement+self-test+docs → PE review) for every Task. |
