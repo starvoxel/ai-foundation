@@ -92,7 +92,7 @@ Commands:
   validate    Check repo health (schema, refs, bundles)
   test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles, servers, and hook resources
-  index       Generate knowledge/index.json for a project
+  index       Generate a knowledge or decision index for a project
   init        Scaffold a new project directory
 
 Options:
@@ -124,6 +124,9 @@ Examples:
   aif test unit
   aif snapshot
   aif snapshot --server git
+  aif index knowledge
+  aif index decisions
+  aif index decisions --check
   aif init --name my-app --language typescript --org acme
   aif init --interactive
 `.trim();

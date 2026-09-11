@@ -70,9 +70,9 @@ aif snapshot --check
 aif snapshot
 
 # Knowledge/decision indexing
-aif index -k|--knowledge          # generate knowledge/index.json
-aif index -d|--decision           # generate {paths.decisions}/index.json
-aif index -d --check              # verify the decision index without writing
+aif index knowledge          # generate knowledge/index.json
+aif index decisions          # generate {paths.decisions}/index.json
+aif index decisions --check  # verify the decision index without writing
 
 # Project scaffolding
 aif init --name my-app --shortname myapp --language typescript --org acme

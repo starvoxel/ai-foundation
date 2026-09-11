@@ -8,9 +8,9 @@
 // ------------------------------
 
 /**
- * Integration tests for `aif index -d` decision-index generation/validation
- * (filesystem operations), mirroring tests/integration/knowledge-index.test.js's
- * structure.
+ * Integration tests for `aif index decisions` decision-index
+ * generation/validation (filesystem operations), mirroring
+ * tests/integration/knowledge-index.test.js's structure.
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -129,7 +129,7 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    return quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot)).then(
+    return quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot)).then(
       ({ code }) => {
         assert.equal(code, 0);
         const indexPath = join(decisionsDir, 'index.json');
@@ -177,7 +177,7 @@ describe('integration: decision index', () => {
       );
 
       const { code } = await quiet(() =>
-        runIndex({ args: { d: true }, positional: [] }, projectRoot),
+        runIndex({ args: {}, positional: ['decisions'] }, projectRoot),
       );
       assert.equal(code, 0);
 
@@ -198,10 +198,10 @@ describe('integration: decision index', () => {
     },
   );
 
-  it('DEC-IT02: no -k/-d flag is a usage error, not an implicit -k', async () => {
+  it('DEC-IT02: no target is a usage error, not an implicit knowledge index', async () => {
     const { code, output } = await quiet(() => runIndex({ args: {}, positional: [] }, projectRoot));
     assert.equal(code, 1);
-    assert.ok(output.some((line) => /-k|-d|--knowledge|--decision/.test(line)));
+    assert.ok(output.some((line) => /knowledge|decisions/.test(line)));
     assert.ok(!existsSync(join(projectRoot, 'knowledge', 'index.json')));
   });
 
@@ -219,11 +219,11 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    const gen = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
+    const gen = await quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot));
     assert.equal(gen.code, 0);
 
     const check = await quiet(() =>
-      runIndex({ args: { d: true, check: true }, positional: [] }, projectRoot),
+      runIndex({ args: { check: true }, positional: ['decisions'] }, projectRoot),
     );
     assert.equal(check.code, 0);
   });
@@ -243,7 +243,7 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    const gen = await quiet(() => runIndex({ args: { d: true }, positional: [] }, projectRoot));
+    const gen = await quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot));
     assert.equal(gen.code, 0);
 
     // Stale the index by changing the fixture's status after generation.
@@ -254,7 +254,7 @@ describe('integration: decision index', () => {
     );
 
     const check = await quiet(() =>
-      runIndex({ args: { d: true, check: true }, positional: [] }, projectRoot),
+      runIndex({ args: { check: true }, positional: ['decisions'] }, projectRoot),
     );
     assert.equal(check.code, 1);
     assert.ok(check.output.some((line) => /AIF-ARCH-001/.test(line)));
@@ -280,25 +280,24 @@ describe('integration: decision index', () => {
     );
 
     const { code, output } = await quiet(() =>
-      runIndex({ args: { d: true }, positional: [] }, projectRoot),
+      runIndex({ args: {}, positional: ['decisions'] }, projectRoot),
     );
     assert.equal(code, 1);
     assert.ok(output.some((line) => /broken\.decision\.md/.test(line)));
     assert.ok(!existsSync(join(decisionsDir, 'index.json')));
   });
 
-  it('DEC-IT06: both -k and -d together exits non-zero with a usage error', async () => {
+  it('DEC-IT06: an unknown index target exits non-zero with a usage error', async () => {
     const { code, output } = await quiet(() =>
-      runIndex({ args: { k: true, d: true }, positional: [] }, projectRoot),
+      runIndex({ args: {}, positional: ['bogus'] }, projectRoot),
     );
     assert.equal(code, 1);
-    assert.ok(output.length > 0);
+    assert.ok(output.some((line) => /Unknown index target/.test(line)));
   });
 
   it(
-    'end-to-end: `aif index -d` (short flag, via the real bin/aif.js parseArgs) ' +
-      'is recognized the same way `--decision` is (Test-Engineer gap coverage, ' +
-      'added post-implementation — see AIF-002-014 Test Results Report)',
+    'end-to-end: `aif index decisions` (via the real bin/aif.js parseArgs) ' +
+      'generates the decision index the same way a hand-built positional arg does',
     async () => {
       const decisionsDir = join(projectRoot, 'docs', 'decisions');
       mkdirSync(decisionsDir, { recursive: true });
@@ -313,25 +312,14 @@ describe('integration: decision index', () => {
         'utf8',
       );
 
-      // This mirrors exactly what a real user typing `aif index -d` triggers:
+      // Mirrors exactly what a real user typing `aif index decisions` triggers:
       // bin/aif.js's parseArgs(process.argv.slice(2)) feeding runIndex's
-      // `parsed` argument — not a hand-built { args: { d: true } } object like
+      // `parsed` argument, not a hand-built { positional: [...] } object like
       // every other test in this file uses.
-      const parsed = parseArgs(['index', '-d']);
+      const parsed = parseArgs(['index', 'decisions']);
       const { code } = await quiet(() => runIndex(parsed, projectRoot));
 
-      assert.equal(
-        code,
-        0,
-        'Expected `aif index -d` (short flag) to generate the decision index, ' +
-          "same as `--decision` does. bin/aif.js's parseArgs() only recognizes " +
-          'double-dash (--decision/--knowledge) flags — single-dash short flags ' +
-          '(-d/-k) are captured as positional arguments instead of args.d/args.k, ' +
-          'so parsed.args.d is undefined and runIndex() falls through to the ' +
-          'no-flag usage error. Every other test in this file bypasses this bug ' +
-          'by hand-constructing `{ args: { d: true } }` directly, never going ' +
-          'through the real CLI argument parser end-to-end.',
-      );
+      assert.equal(code, 0, 'Expected `aif index decisions` to generate the decision index.');
     },
   );
 
