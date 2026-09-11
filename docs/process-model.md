@@ -324,6 +324,15 @@ key_files:
   paths — structured data, not prose. This is file-level binding: the affordable version
   of symbol-level binding. A code graph is explicitly *not* adopted; it gives structure,
   never intent, and the tools binding decisions to symbols are still too early.
+  **Scope**: list a file only if a change to *that file's logic* would make this doc's
+  claims wrong — that's the actual thing the staleness check below is testing.
+  Excludes callers/consumers of the described behavior (only what implements it
+  belongs), test files (they validate behavior, they don't define it — including them
+  produces false-positive staleness on every refactor), and incidentally-touched
+  config/types the section isn't actually about. If a section's `key_files` grows past
+  roughly 5–8 entries, that's a signal to split it into a finer subsection (`05.01`,
+  `05.02`, ...) rather than let the list keep growing — a short, tight list is what
+  keeps a rename or deletion a rare, meaningful CI failure instead of routine noise.
 - **The one-line summary stays a body convention** — a single blockquote sentence
   immediately after the H1, extracted by the same parse-title-then-fields approach
   `lib/decisions.js` already uses. A summary field in frontmatter would duplicate the
