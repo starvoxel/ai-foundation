@@ -33,7 +33,7 @@ next one existing yet.
 
 | Phase | Scope | Where it lives |
 |---|---|---|
-| **0.5** | Hand-authored MADR records — the format below, written by `write` alone, no tooling. This *is* `docs/process-model.md`'s current "ADR tooling — none, deliberately, for now" state. | `docs/process-model.md`, not this plan |
+| **0.5** | Hand-authored MADR records — the format below, written by `write` alone, no tooling. This *is* `docs/process-model.md`'s current "ADR tooling — not needed for the proof of concept" state. | `docs/process-model.md`, not this plan |
 | **1** | Vanilla MADR + `affects` + `links.supersedes`, parsed and indexed by a CLI. Minimal command surface: create records, build the index. No search/list/show query commands yet, no MCP. | `lib/adr-kit/`, `bin/adr-kit.js` |
 | **2** | Full CLI (search/list/show/affects/link) + MCP server, both fronting the same Phase 1 engine. | + `servers/adr-kit/` |
 | **3** | `links.related` (symmetric) and possibly `links.amends`; possibly a generic "custom" link-type mechanism. Deliberately unspecified until Phase 2 ships — fleshed out then. | TBD |

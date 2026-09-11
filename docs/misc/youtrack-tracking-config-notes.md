@@ -1,6 +1,6 @@
 # YouTrack as an Epic/Chunk Tracking Backend — Config Notes
 
-> Research notes, not a Decision Record. Captures what configuring YouTrack to replace/complement the `chunks.json` + committed Chunk Plan model (per `docs/plans/chunk-epic-planning-redesign-plan.md`) would require. Written 2026-08-19, pending any decision to actually pursue this.
+> Research notes, not a Decision Record. Captures what configuring YouTrack to replace/complement the `chunks.json` + committed Chunk Plan model (per the now-deleted `docs/plans/chunk-epic-planning-redesign-plan.md`, superseded by `docs/process-model.md`) would require. Written 2026-08-19, pending any decision to actually pursue this. **Stale as of the Feature/Task redesign** — the target tracking model is now Feature/Task, not Epic/Chunk; see `docs/plans/youtrack-integration-plan.md` for the current design.
 
 ## Context
 
