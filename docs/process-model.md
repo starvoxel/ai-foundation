@@ -195,7 +195,7 @@ the new format unchanged in shape. `affects`-based reverse file-lookup is out of
 for this retargeted indexer; that arrives with adr-kit tooling, not before. Less work
 than rebuilding, and the reverse edge stays computed rather than authored twice.
 
-`docs/decisions/index.json` is stale on `main` today (`aif index -d --check` →
+`docs/decisions/index.json` is stale on `main` today (`aif index decisions --check` →
 `✗ Decision index is stale: Removed: AIF-PLAN-001`) — a CI gap, not a reason to retire the indexer (check 31).
 
 Flat directory, single counter: `docs/decisions/` — no subfolders at all, not even by
@@ -581,7 +581,7 @@ how these group into phases.
 | 25 | Existing decision records dispositioned per the table above; archive location created. |
 | 26 | `docs/decisions/` flattened (domain subfolders removed, flat bare-number MADR counter — `0007-slug.md`, no domain-coded `AIF-ARCH-`/`AIF-PROC-`/etc. prefix); every surviving record rewritten by hand into MADR within the word budget, renumbered onto the new counter, checked at PE review. |
 | 27 | `Design` sections split out of `ARCH-001/002/003/007` into their arc42 homes (or the YouTrack plan for `007`), plus `ARCH-004` if check 24 approves it; `ARCH-005/006` converted whole per their disposition-table exceptions. This is what seeds `docs/architecture/` with real content. |
-| 28 | `lib/decisions.js` **retargeted, not deleted**: parser moves from the `## Metadata` table to MADR frontmatter, keeping index generation and the `supersedes`→`superseded_by` inversion. `aif index -d` and `docs/decisions/index.json` stay. `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` updated to new fixtures. |
+| 28 | `lib/decisions.js` **retargeted, not deleted**: parser moves from the `## Metadata` table to MADR frontmatter, keeping index generation and the `supersedes`→`superseded_by` inversion. `aif index decisions` and `docs/decisions/index.json` stay. `tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` updated to new fixtures. |
 | 29 | The three New ADRs to write are written in MADR form. |
 | 30 | Merged half of `AIF-003` unwound, minus what already dies elsewhere. Real revert: `AIF-003-004`'s `Amending` status, removed from `plan-lifecycle/reference/status-vocabulary.md` by hand. `AIF-003-003`'s Amendments/Errata template sections die with check 11; `AIF-003-001`'s `Supersedes` parse dies with check 28 — no separate revert needed. `AIF-003-005`'s steering de-enumeration is **kept** (correct under MADR too). |
 | 31 | New guards added to the **existing** `.github/workflows/ci.yml` (already runs lint/typecheck/format/validate/test): the `key_files`-vs-`last_verified` staleness check, relative-link resolution across `docs/architecture`, `aif index --check`. No `adrs-core lint` or hyphenated-`kind` guard — both moot while ADRs are hand-written. |
