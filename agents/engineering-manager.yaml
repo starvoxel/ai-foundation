@@ -1,6 +1,6 @@
 ---
 name: "engineering-manager"
-version: "0.7.0"
+version: "0.8.0"
 domain: "engineering"
 description: "Orchestration agent that manages parallel chunk plan execution across engineering agents."
 
@@ -98,6 +98,7 @@ tools:
   - "grep"
   - "glob"
   - "task"
+  - "skill"
   - "@dag/dag-compute-waves"
   - "@youtrack/search_issues"
   - "@youtrack/get_issue"
@@ -112,6 +113,7 @@ approved_tools:
   - "grep"
   - "glob"
   - "task"
+  - "skill"
   - "@dag/dag-compute-waves"
   - "@youtrack/search_issues"
   - "@youtrack/get_issue"

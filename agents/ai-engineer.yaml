@@ -1,6 +1,6 @@
 ---
 name: "ai-engineer"
-version: "0.5.0"
+version: "0.6.0"
 domain: "engineering"
 description: "Builds and maintains AI infrastructure — agents, skills, steering, servers, and related tooling."
 
@@ -54,12 +54,14 @@ tools:
   - "web_search"
   - "web_fetch"
   - "task"
+  - "skill"
 
 approved_tools:
   - "read"
   - "grep"
   - "glob"
   - "task"
+  - "skill"
 
 skills:
   - "skill/agent-authoring"

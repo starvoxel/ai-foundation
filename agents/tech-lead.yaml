@@ -1,6 +1,6 @@
 ---
 name: "tech-lead"
-version: "0.6.0"
+version: "0.7.0"
 domain: "engineering"
 description: "Planning and decomposition agent that produces Epic Plans and Chunk Plans."
 
@@ -59,6 +59,7 @@ tools:
   - "plan"
   - "ask_user"
   - "task"
+  - "skill"
 
 approved_tools:
   - "read"
@@ -68,6 +69,7 @@ approved_tools:
   - "plan"
   - "ask_user"
   - "task"
+  - "skill"
 
 skills:
   - "skill/epic-planning"

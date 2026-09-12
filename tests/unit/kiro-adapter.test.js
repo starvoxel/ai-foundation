@@ -34,6 +34,7 @@ describe('unit: kiro adapter', () => {
         'plan',
         'ask_user',
         'task',
+        'skill',
       ];
       for (const name of expected) {
         assert.ok(name in TOOL_MAP, `missing ${name}`);
@@ -52,6 +53,7 @@ describe('unit: kiro adapter', () => {
       assert.equal(TOOL_MAP['plan'], null);
       assert.equal(TOOL_MAP['ask_user'], null);
       assert.equal(TOOL_MAP['task'], null);
+      assert.equal(TOOL_MAP['skill'], null);
     });
   });
 

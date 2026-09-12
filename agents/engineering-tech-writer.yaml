@@ -1,6 +1,6 @@
 ---
 name: "engineering-tech-writer"
-version: "0.3.0"
+version: "0.4.0"
 domain: "engineering"
 description: "Documentation agent that produces inline docs, README updates, and CHANGELOG entries."
 
@@ -46,6 +46,7 @@ tools:
   - "grep"
   - "glob"
   - "task"
+  - "skill"
 
 approved_tools:
   - "read"
@@ -53,6 +54,7 @@ approved_tools:
   - "grep"
   - "glob"
   - "task"
+  - "skill"
 
 skills: []
 

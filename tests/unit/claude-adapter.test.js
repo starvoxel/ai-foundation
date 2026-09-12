@@ -66,6 +66,7 @@ describe('unit: claude adapter', () => {
     'TaskList',
     'TaskOutput',
     'TaskStop',
+    'Skill',
   ]);
 
   describe('TOOL_MAP', () => {
@@ -88,6 +89,7 @@ describe('unit: claude adapter', () => {
         'TaskOutput',
         'TaskStop',
       ]);
+      assert.deepEqual(TOOL_MAP['skill'], ['Skill']);
     });
 
     it('maps code to no native equivalent (verified absent, not guessed)', () => {
