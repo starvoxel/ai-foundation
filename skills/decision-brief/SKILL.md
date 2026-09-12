@@ -6,7 +6,7 @@ description: "Produces a slim Tier B Decision Brief for structural decisions tha
 
 ## Purpose
 
-Captures a Tier B ("Structural") decision — one with a plausible future cross-plan citation, per AIF-META-001's promotion threshold, but not a multi-option architectural trade-off — without the full options-exploration ceremony of `skill/decision-record`. Produces a durable record, discoverable via `docs/decisions/index.json` once `aif index -d` (AIF-002-014) next regenerates it, lighter than a Tier A Decision Record but heavier than a Tier C inline note. Normally invoked by `skill/decision-triage` once it has already selected Tier B and determined Domain; may also be invoked directly by an agent that already knows a decision is Tier B (see Edge Cases).
+Captures a Tier B ("Structural") decision — one with a plausible future cross-plan citation, per AIF-META-001's promotion threshold, but not a multi-option architectural trade-off — without the full options-exploration ceremony of `skill/decision-record`. Produces a durable record, discoverable via `docs/decisions/index.json` once `aif index decisions` (AIF-002-014) next regenerates it, lighter than a Tier A Decision Record but heavier than a Tier C inline note. Normally invoked by `skill/decision-triage` once it has already selected Tier B and determined Domain; may also be invoked directly by an agent that already knows a decision is Tier B (see Edge Cases).
 
 ---
 
@@ -28,7 +28,7 @@ If actually no plausible second citation exists, escalate down to the Tier C inl
 
 ### Step 2 — Write the Decision Brief
 
-Write the record using the template at `skills/decision-brief/reference/template.md`. Exactly five sections — Metadata (including `Tier: B`, `Domain`, and `Tags` if applicable), Problem, Decision, Rationale, Impact. No Options Explored, Design, or Constraints & Requirements sections. Ensure the Metadata table is complete and accurate — this is the sole source `aif index -d` (AIF-002-014) reads when it later builds `docs/decisions/index.json`.
+Write the record using the template at `skills/decision-brief/reference/template.md`. Exactly five sections — Metadata (including `Tier: B`, `Domain`, and `Tags` if applicable), Problem, Decision, Rationale, Impact. No Options Explored, Design, or Constraints & Requirements sections. Ensure the Metadata table is complete and accurate — this is the sole source `aif index decisions` (AIF-002-014) reads when it later builds `docs/decisions/index.json`.
 
 ### Step 3 — Follow the Abbreviated Commit-Gate Procedure
 
@@ -41,7 +41,7 @@ Commit the Brief with `Status: Draft` via `ai-git`, present it to the human for 
 - **Decision Brief** — markdown file following the template format
 - **Location:** `{paths.decisions}/{domain-folder}/{ProjectID}-{DomainCode}-{###}_{ShortTitle}.decision.md` (from `.aiconfig.json`; falls back to `docs/decisions/` if `paths.decisions` is unset, consistent with `skill/decision-record`'s existing fallback convention)
 - **Note:** `{paths.decisions}/index.json` is not produced by this skill. It is a
-  generated artifact, rebuilt by running `aif index -d` (see AIF-002-014),
+  generated artifact, rebuilt by running `aif index decisions` (see AIF-002-014),
   which reads every record's Metadata table directly (Tier A and Tier B
   alike) — this skill's only obligation toward the index is keeping that
   table accurate.

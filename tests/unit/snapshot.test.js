@@ -65,10 +65,18 @@ describe('unit: snapshot/resolveExplicitTargets', () => {
     assert.deepEqual(result.targets, [{ kind: 'bundle', name: 'engineering' }]);
   });
 
-  it('returns an error when a kind flag has no string value', () => {
+  it('resolves a bare flag (no value) to a wildcard target for that kind', () => {
     const result = resolveExplicitTargets({ bundle: true }, kinds);
-    assert.equal(result.ok, false);
-    assert.match(result.error, /--bundle/);
+    assert.deepEqual(result, { ok: true, targets: [{ kind: 'bundle', name: null }] });
+  });
+
+  it('resolves a wildcard target alongside an explicit target of a different kind', () => {
+    const result = resolveExplicitTargets({ bundle: true, server: 'git' }, kinds);
+    assert.equal(result.ok, true);
+    assert.deepEqual(result.targets, [
+      { kind: 'bundle', name: null },
+      { kind: 'server', name: 'git' },
+    ]);
   });
 
   it('returns an error for an empty string value', () => {
