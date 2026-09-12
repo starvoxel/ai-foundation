@@ -200,6 +200,32 @@ describe('unit: claude adapter', () => {
       assert.ok(result.includes('tools: ""'));
     });
 
+    describe('skills preload', () => {
+      it('omits the skills field when preload_skills is absent (no silent behavior change)', () => {
+        const result = transformAgent(agent);
+        const { frontmatter } = parseFrontmatter(result);
+        assert.equal(frontmatter.skills, undefined);
+      });
+
+      it('preloads all declared skills for the ["*"] sentinel, stripping the skill/ prefix', () => {
+        const withWildcard = { ...agent, skills: ['skill/a', 'skill/b'], preload_skills: ['*'] };
+        const result = transformAgent(withWildcard);
+        const { frontmatter } = parseFrontmatter(result);
+        assert.deepEqual(frontmatter.skills, ['a', 'b']);
+      });
+
+      it('preloads only the named subset when preload_skills lists specific skills', () => {
+        const withSubset = {
+          ...agent,
+          skills: ['skill/a', 'skill/b', 'skill/c'],
+          preload_skills: ['skill/b'],
+        };
+        const result = transformAgent(withSubset);
+        const { frontmatter } = parseFrontmatter(result);
+        assert.deepEqual(frontmatter.skills, ['b']);
+      });
+    });
+
     it('emits a PreToolUse hook on Bash for blocked_commands', () => {
       const withBlocked = { ...agent, blocked_commands: ['git *', 'gh *'] };
       const result = transformAgent(withBlocked);

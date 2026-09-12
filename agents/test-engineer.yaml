@@ -1,6 +1,6 @@
 ---
 name: "test-engineer"
-version: "0.6.0"
+version: "0.7.0"
 domain: "engineering"
 description: "Test authoring and execution agent that verifies code against the Chunk Plan's test cases."
 
@@ -57,6 +57,8 @@ approved_tools:
 
 skills:
   - "skill/test-execution"
+
+preload_skills: ["*"]
 
 blocked_commands:
   - "git *"

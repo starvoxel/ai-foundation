@@ -1,6 +1,6 @@
 ---
 name: "ai-engineer"
-version: "0.6.0"
+version: "0.7.0"
 domain: "engineering"
 description: "Builds and maintains AI infrastructure — agents, skills, steering, servers, and related tooling."
 
@@ -70,6 +70,9 @@ skills:
   - "skill/server-authoring"
   - "skill/bundle-authoring"
   - "skill/ai-engineering-plan"
+  - "skill/complexity-tiers"
+
+preload_skills:
   - "skill/complexity-tiers"
 
 blocked_commands:

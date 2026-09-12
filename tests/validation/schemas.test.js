@@ -194,6 +194,24 @@ describe('agent schemas', () => {
         }
       });
 
+      it('preload_skills is either ["*"] or a subset of skills', () => {
+        if (parsed.preload_skills === undefined) return;
+        assert.ok(Array.isArray(parsed.preload_skills), 'preload_skills must be an array');
+
+        const isWildcard = parsed.preload_skills.length === 1 && parsed.preload_skills[0] === '*';
+        if (isWildcard) return;
+
+        assert.ok(
+          !parsed.preload_skills.includes('*'),
+          '"*" must be the sole entry in preload_skills, not mixed with named skills',
+        );
+
+        const skillSet = new Set(parsed.skills || []);
+        for (const preloaded of parsed.preload_skills) {
+          assert.ok(skillSet.has(preloaded), `preload_skills entry "${preloaded}" not in skills`);
+        }
+      });
+
       it('blocked_commands is an array of strings when present', () => {
         if (parsed.blocked_commands === undefined) return;
         assert.ok(Array.isArray(parsed.blocked_commands), 'blocked_commands must be an array');

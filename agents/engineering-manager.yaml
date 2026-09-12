@@ -1,6 +1,6 @@
 ---
 name: "engineering-manager"
-version: "0.8.0"
+version: "0.9.0"
 domain: "engineering"
 description: "Orchestration agent that manages parallel chunk plan execution across engineering agents."
 
@@ -126,6 +126,10 @@ skills:
   - "skill/decision-triage"
   - "skill/decision-record"
   - "skill/decision-brief"
+
+preload_skills:
+  - "skill/chunk-orchestration"
+  - "skill/worktree-management"
 
 blocked_commands:
   - "git *"
