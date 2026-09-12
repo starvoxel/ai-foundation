@@ -2,19 +2,19 @@
 
 ## 1. Metadata
 
-| Field          | Value                                                                                                                                                             |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Plan ID        | AIF-002-004                                                                                                                                                       |
-| Parent Epic    | AIF-002                                                                                                                                                           |
-| Chunk          | 004 of 15                                                                                                                                                         |
-| Depends On     | None                                                                                                                                                              |
-| Can Parallel   | 001, 002, 003, 005, 006, 007, 008, 009 (all other Wave 1 chunks)                                                                                                  |
-| Project        | ai-foundation                                                                                                                                                     |
-| Status         | Approved                                                                                                                                                          |
-| Author (Agent) | AI-Engineer                                                                                                                                                       |
-| Reviewed By    | Jeremy                                                                                                                                                            |
-| Created        | 2026-08-14                                                                                                                                                        |
-| Last Updated   | 2026-08-14                                                                                                                                                        |
+| Field          | Value                                                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-004                                                                                                                                                    |
+| Parent Epic    | AIF-002                                                                                                                                                        |
+| Chunk          | 004 of 15                                                                                                                                                      |
+| Depends On     | None                                                                                                                                                           |
+| Can Parallel   | 001, 002, 003, 005, 006, 007, 008, 009 (all other Wave 1 chunks)                                                                                               |
+| Project        | ai-foundation                                                                                                                                                  |
+| Status         | Approved                                                                                                                                                       |
+| Author (Agent) | AI-Engineer                                                                                                                                                    |
+| Reviewed By    | Jeremy                                                                                                                                                         |
+| Created        | 2026-08-14                                                                                                                                                     |
+| Last Updated   | 2026-08-14                                                                                                                                                     |
 | Standards      | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverables are`skills/plan-lifecycle/` markdown content only |
 
 ---
@@ -67,10 +67,10 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 ## 6. Prerequisites
 
-- [X] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`, Status: Approved, Work Log entry 2026-08-14 [Approved])
-- [X] AIF-META-001 Decision Record is `Approved` (verified: `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`, Status: Approved)
-- [X] Current `skills/plan-lifecycle/` content read in full (`SKILL.md`, `reference/status-vocabulary.md`, `reference/commit-gate-procedure.md`)
-- [X] No dependency chunks — this chunk has `depends_on: []` in `chunks.json`
+- [x] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`, Status: Approved, Work Log entry 2026-08-14 [Approved])
+- [x] AIF-META-001 Decision Record is `Approved` (verified: `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`, Status: Approved)
+- [x] Current `skills/plan-lifecycle/` content read in full (`SKILL.md`, `reference/status-vocabulary.md`, `reference/commit-gate-procedure.md`)
+- [x] No dependency chunks — this chunk has `depends_on: []` in `chunks.json`
 
 ---
 
@@ -87,11 +87,11 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 
 1. **Decision**: Document the Tier B/C variants as additive subsections placed after the existing Steps/procedure, rather than rewriting Steps 1-5 or the existing sequence diagram in place.
    **Rationale**: The Epic Plan and AIF-META-001 both explicitly require that core Draft → Approved mechanics are unchanged. Keeping the variant documentation additive (a clearly labeled "Decision Record Tier Variants" section) makes the diff auditable as "new content describing which artifacts use which cycle" rather than "changed mechanics," satisfying that constraint structurally, not just by intent.
-2. **Decision**: `plan-lifecycle` documents *that* the index-update step exists and is required for Tier A/B, but does not itself own or duplicate that step's procedure.
+2. **Decision**: `plan-lifecycle` documents _that_ the index-update step exists and is required for Tier A/B, but does not itself own or duplicate that step's procedure.
    **Rationale**: `{paths.decisions}/index.json` is produced/updated by `skill/decision-record` and `skill/decision-brief` (chunks 002/003), in the same commit as the record itself, per AIF-META-001's Design section. Making `plan-lifecycle` the second source of truth for that step would create drift risk between two skills describing the same mechanic. `plan-lifecycle` references it so a reader following the gate procedure doesn't miss it, without becoming its owner.
-3. **Decision**: Tier C is documented as an explicit *non-gate*, not merely omitted.
+3. **Decision**: Tier C is documented as an explicit _non-gate_, not merely omitted.
    **Rationale**: AIF-META-001's Design section states Tier C "rides its parent plan's own `plan-lifecycle` gate — nothing separate." If `plan-lifecycle` simply doesn't mention Tier C, a future reader (or `skill/decision-triage`)
-   might assume Tier C decisions need *some* minimal cycle here. An explicit statement — "Tier C decisions never invoke this skill directly; they are governed entirely by whichever plan recorded them" — forecloses that ambiguity.
+   might assume Tier C decisions need _some_ minimal cycle here. An explicit statement — "Tier C decisions never invoke this skill directly; they are governed entirely by whichever plan recorded them" — forecloses that ambiguity.
 
 ### Patterns & Conventions Applied
 
@@ -110,7 +110,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 **Content additions** (markdown sections, not code):
 
 - `Inputs` — extend the "Artifact type" bullet to note that for Decision Records, the artifact's `Tier` field (from `skill/decision-triage`) determines which gate variant applies.
-- New subsection after Step 4, e.g. "### Decision Record Tier Variants" — states the three variants (A full cycle / B abbreviated one-shot / C rides the parent plan, no cycle here) at the `plan-lifecycle` level, with a link/reference to AIF-META-001's Design section Tier table as the source of truth for the underlying rigor definitions (this skill does not re-define what Tier A/B/C *mean* — only how the gate procedure differs once a tier is already chosen).
+- New subsection after Step 4, e.g. "### Decision Record Tier Variants" — states the three variants (A full cycle / B abbreviated one-shot / C rides the parent plan, no cycle here) at the `plan-lifecycle` level, with a link/reference to AIF-META-001's Design section Tier table as the source of truth for the underlying rigor definitions (this skill does not re-define what Tier A/B/C _mean_ — only how the gate procedure differs once a tier is already chosen).
   Explicitly states: "Tier C decisions are never presented to this skill as a standalone artifact — they do not have a `Status` field of their own; consult the governing plan's own status instead." Explicitly references: "Tier A and Tier B Decision Records must update `{paths.decisions}/index.json` in the same commit that produces or updates the record — see `skill/decision-record`/`skill/decision-brief` for that step's procedure; this skill's commit-gate applies in addition to, not instead of, that requirement."
 - `Edge Cases` — add one new edge case: "Decision Record with Tier B — the abbreviated gate applies (see Decision Record Tier Variants above): commit Draft, present for one round of human confirmation, commit Approved. A multi-round revision cycle is not expected but is not prohibited if the human requests changes — if it happens, follow Steps 2-3 exactly as for Tier A."
 
@@ -123,7 +123,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 **Dependencies**:
 
 - AIF-META-001 (Decision Record) — source of the Tier definitions being referenced, not redefined.
-- `skill/decision-record`, `skill/decision-brief` (chunks 002, 003) — own the index-update step this chunk references but does not implement. Since those chunks are dispatched in parallel (Wave 1, no dependency edge), this chunk references their *documented* responsibility per the Epic Plan/AIF-META-001 rather than their as-yet-unwritten `SKILL.md` content.
+- `skill/decision-record`, `skill/decision-brief` (chunks 002, 003) — own the index-update step this chunk references but does not implement. Since those chunks are dispatched in parallel (Wave 1, no dependency edge), this chunk references their _documented_ responsibility per the Epic Plan/AIF-META-001 rather than their as-yet-unwritten `SKILL.md` content.
 
 ### plan-lifecycle commit-gate-procedure.md — Tier Variant Sequences
 
@@ -165,7 +165,7 @@ Extend `skills/plan-lifecycle/` to document two decision-record-specific gate va
 **Content additions**:
 
 - One clarifying note under the "Per-artifact-type extensions" table, e.g.:
-  "Tier does not add new `Status` values. A Tier B Decision Record uses the same `Draft`/`Approved`/`Done`/`Deferred`/`Superseded` values as Tier A — only the *procedure* for reaching `Approved` differs (see `skill/plan-lifecycle`/`reference/commit-gate-procedure.md`, Decision Record Tier Variants). Tier C decisions have no `Status` field of their own — they are governed by their parent plan's status."
+  "Tier does not add new `Status` values. A Tier B Decision Record uses the same `Draft`/`Approved`/`Done`/`Deferred`/`Superseded` values as Tier A — only the _procedure_ for reaching `Approved` differs (see `skill/plan-lifecycle`/`reference/commit-gate-procedure.md`, Decision Record Tier Variants). Tier C decisions have no `Status` field of their own — they are governed by their parent plan's status."
 
 **Key Behaviour**:
 
@@ -190,7 +190,7 @@ Not applicable — this chunk produces markdown documentation only, no data sche
 - [ ] No new attack surface — this chunk edits only markdown documentation inside `skills/plan-lifecycle/`; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 8, first bullet).
 - [ ] No secrets or credentials in source content — the added text references only public artifact paths (`{paths.decisions}/index.json`) and skill/decision names, nothing environment- or credential-specific.
 - [ ] The Tier B abbreviated gate must not be documented in a way that weakens the approval requirement — the abbreviated gate still requires an explicit committed `Approved` status; "abbreviated" refers only to the expected number of revision rounds, never to skipping human confirmation itself.
-  This is a direct carry-forward of AIF-META-001's non-negotiable constraint ("must not weaken `skill/plan-lifecycle`'s human-approval gate for any decision, regardless of tier or domain") and of Epic Plan Section 8.
+      This is a direct carry-forward of AIF-META-001's non-negotiable constraint ("must not weaken `skill/plan-lifecycle`'s human-approval gate for any decision, regardless of tier or domain") and of Epic Plan Section 8.
 - [ ] Errors/ambiguity exposed to future readers contain no internal system details beyond what is already documented elsewhere in this repo (not applicable in practice for a docs-only change, verified as N/A).
 
 ---
@@ -202,10 +202,10 @@ Not applicable — this chunk produces markdown documentation only, no data sche
 This chunk produces static documentation content with no runtime component — `skills/plan-lifecycle/` is read by agents as reference material, not executed as code, so there are no application log statements for this chunk to define.
 The table below documents the plan-level Work Log entries this chunk itself must produce, per `steering/engineering/core.md` Rule 2/Rule 9 and `skill/plan-lifecycle` Step 1-4 commit requirements — these are the only "logging" applicable to a documentation-only chunk.
 
-| Event                                          | Level (Work Log Action)                                        | What is logged                                           | What is NOT logged                                        |
-| ---------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------- |
+| Event                                          | Level (Work Log Action)                                      | What is logged                                           | What is NOT logged                                        |
+| ---------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------- |
 | Plan drafted                                   | `[Created]`                                                  | Plan ID, agent, tier assessed, summary of scope          | No content of unrelated chunks/plans                      |
-| Plan approved/deferred                         | `[Approved]`/`[Deferred]`                                  | Human decision, approver name if approved                | Nothing beyond the decision itself                        |
+| Plan approved/deferred                         | `[Approved]`/`[Deferred]`                                    | Human decision, approver name if approved                | Nothing beyond the decision itself                        |
 | Implementation commits (future, post-approval) | `[Implemented]` (per commit, one per Component in Section 8) | Files touched, brief description referencing AIF-002-004 | No secrets; N/A here since no secrets exist in this chunk |
 
 ---
@@ -216,14 +216,14 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ### plan-lifecycle Documentation Tests
 
-| Test ID | Description                                                                                                                                                                                                   | Type                       | Pass Criteria                                                                                                                                              |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 004-T01 | `SKILL.md` still describes Steps 1-5 and the core status transitions identically to the pre-chunk version (diff review)                                                                                     | Manual/diff review         | No wording change to existing Step 1-5 semantics; only additive content present                                                                            |
-| 004-T02 | New Tier B/C content is internally consistent with AIF-META-001's Design section Tier table (Draft→confirm→Approved for B; no cycle for C)                                                                  | Manual cross-check         | Wording matches AIF-META-001's Tier table's`Gate` column meaning, not contradicting it                                                                   |
-| 004-T03 | `commit-gate-procedure.md`'s new "Decision Record Tier Variants" section renders as valid markdown and its Tier B sequence block is copy-paste consistent in format with the existing Tier A block above it | Manual review              | Same code-fence/numbered-list style as existing sequence                                                                                                   |
+| Test ID | Description                                                                                                                                                                                                 | Type                       | Pass Criteria                                                                                                                                    |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 004-T01 | `SKILL.md` still describes Steps 1-5 and the core status transitions identically to the pre-chunk version (diff review)                                                                                     | Manual/diff review         | No wording change to existing Step 1-5 semantics; only additive content present                                                                  |
+| 004-T02 | New Tier B/C content is internally consistent with AIF-META-001's Design section Tier table (Draft→confirm→Approved for B; no cycle for C)                                                                  | Manual cross-check         | Wording matches AIF-META-001's Tier table's`Gate` column meaning, not contradicting it                                                           |
+| 004-T03 | `commit-gate-procedure.md`'s new "Decision Record Tier Variants" section renders as valid markdown and its Tier B sequence block is copy-paste consistent in format with the existing Tier A block above it | Manual review              | Same code-fence/numbered-list style as existing sequence                                                                                         |
 | 004-T04 | `status-vocabulary.md`'s new note does not add, remove, or rename any status value in the existing table                                                                                                    | Manual diff review         | Existing table rows (`Draft`, `Approved`, `Done`, `Deferred`, `Superseded`) and Transitions section byte-for-byte unchanged except appended note |
-| 004-T05 | Grep for "Tier B" and "Tier C" across`skills/plan-lifecycle/` after edit returns exactly the new content added by this chunk (no stray duplicate/contradictory mentions)                                    | Grep-based self-validation | Matches expected line count/locations                                                                                                                      |
-| 004-T06 | Cross-reference to AIF-META-001 uses its Decision ID (`AIF-META-001`) and, if referencing the file path, points to the correct current path under `docs/decisions/meta-process/`                          | Manual review              | Path resolves; ID matches Metadata table                                                                                                                   |
+| 004-T05 | Grep for "Tier B" and "Tier C" across`skills/plan-lifecycle/` after edit returns exactly the new content added by this chunk (no stray duplicate/contradictory mentions)                                    | Grep-based self-validation | Matches expected line count/locations                                                                                                            |
+| 004-T06 | Cross-reference to AIF-META-001 uses its Decision ID (`AIF-META-001`) and, if referencing the file path, points to the correct current path under `docs/decisions/meta-process/`                            | Manual review              | Path resolves; ID matches Metadata table                                                                                                         |
 
 ---
 
@@ -238,10 +238,10 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question                                                                                                                                                                                                                                                      | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| - | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1 | This chunk references`skill/decision-record` and `skill/decision-brief` (chunks 002/003) for the index-update step's procedure, but those chunks' own Chunk Plans/implementations are being authored in parallel (Wave 1, no dependency edge in `chunks.json`) | L      | No functional risk — this chunk only needs the*existence and required-ness* of the index-update step (already specified in AIF-META-001's Design section, independent of 002/003's eventual wording), not their finished `SKILL.md` text. If 002/003 land with a materially different index-update mechanic than AIF-META-001 describes, that is a discrepancy for review to catch across those chunks, not something this chunk can pre-empt without violating its own Out of Scope (documenting, not defining, those skills). |
-| 2 | The exact insertion points/wording for the new subsections in`SKILL.md` and `commit-gate-procedure.md` are a drafting judgment call (no existing precedent in this repo for a "tier variant" documentation pattern)                                              | L      | Documented under global Rule 4's delegated-judgment exception — reasonable, additive placement chosen to avoid touching existing Step numbering; flagged here for reviewer visibility rather than escalated, since the choice has no architectural impact and is easily revised in review if the reviewer prefers different placement                                                                                                                                                                                               |
+| #   | Risk / Question                                                                                                                                                                                                                                                | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | This chunk references`skill/decision-record` and `skill/decision-brief` (chunks 002/003) for the index-update step's procedure, but those chunks' own Chunk Plans/implementations are being authored in parallel (Wave 1, no dependency edge in `chunks.json`) | L      | No functional risk — this chunk only needs the*existence and required-ness* of the index-update step (already specified in AIF-META-001's Design section, independent of 002/003's eventual wording), not their finished `SKILL.md` text. If 002/003 land with a materially different index-update mechanic than AIF-META-001 describes, that is a discrepancy for review to catch across those chunks, not something this chunk can pre-empt without violating its own Out of Scope (documenting, not defining, those skills). |
+| 2   | The exact insertion points/wording for the new subsections in`SKILL.md` and `commit-gate-procedure.md` are a drafting judgment call (no existing precedent in this repo for a "tier variant" documentation pattern)                                            | L      | Documented under global Rule 4's delegated-judgment exception — reasonable, additive placement chosen to avoid touching existing Step numbering; flagged here for reviewer visibility rather than escalated, since the choice has no architectural impact and is easily revised in review if the reviewer prefers different placement                                                                                                                                                                                           |
 
 ---
 

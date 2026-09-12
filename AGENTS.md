@@ -41,13 +41,13 @@ ai-foundation/
 
 ## File Loading Rules
 
-| File type | When to load |
-|---|---|
-| `steering/global/**/*.md` | Every session, always |
-| `steering/{domain}/**/*.md` | Based on agent's `domain` field |
-| `agents/{name}.yaml` | To execute an agent role |
-| `skills/{name}/SKILL.md` | When the task requires that procedure |
-| `standards/{name}.md` | When working in that language/stack |
+| File type                    | When to load                           |
+| ---------------------------- | -------------------------------------- |
+| `steering/global/**/*.md`    | Every session, always                  |
+| `steering/{domain}/**/*.md`  | Based on agent's `domain` field        |
+| `agents/{name}.yaml`         | To execute an agent role               |
+| `skills/{name}/SKILL.md`     | When the task requires that procedure  |
+| `standards/{name}.md`        | When working in that language/stack    |
 | `servers/{name}/{name}.yaml` | To understand an available tool server |
 
 **Do not load:** `README.md` files, files starting with `_`.
@@ -72,7 +72,7 @@ Fields: `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved
 
 A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
-**Lives in:** `skills/{name}/` | **Format:** `SKILL.md` + `reference/`, `assets/`, `scripts/`  | **Authoring:** `skill/skill-authoring`
+**Lives in:** `skills/{name}/` | **Format:** `SKILL.md` + `reference/`, `assets/`, `scripts/` | **Authoring:** `skill/skill-authoring`
 
 Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
@@ -108,6 +108,7 @@ Every project that uses ai-foundation agents should have a `.aiconfig.json` file
 **Location:** Project repository root (where agents run)
 
 **Resolution order:**
+
 1. Read `.aiconfig.json` from the current working directory
 2. If not found, fall back to default conventions (see below)
 
@@ -117,27 +118,27 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 
 ### Fields
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `project_name` | string | Yes | Project identifier used in file naming and human-readable metadata |
-| `project_shortname` | string | No | Short project identifier (max 5 characters) used in Epic IDs and worktree paths. Falls back to `project_name` if unset. |
-| `repo_type` | string | No | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply. |
-| `standards` | object | No | Map of domain → tags for tag-based standard matching. See below. |
-| `project_standards` | string | No | Path to project-specific standards override |
-| `ai_identity` | object | No | AI agent git identity for commits and push auth |
-| `ai_identity.git_author_name` | string | No | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars |
-| `ai_identity.git_author_email` | string | No | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars |
-| `ai_identity.git_token_env` | string | No | Name of env var holding the PAT for push/PR ops |
-| `paths` | object | No | Artifact output directories (relative to repo root) |
-| `paths.plans` | string | No | Root for all plan artifacts. Default: `plans` |
-| `paths.epics` | string | No | Epic plan location. Default: `plans/epics` |
-| `paths.chunks` | string | No | Chunk plans and chunks.json. Default: `plans/chunks` |
-| `paths.decisions` | string | No | Decision Records. Default: `knowledge/decisions` |
-| `paths.orchestration` | string | No | Orchestration state files. Default: `plans/orchestration` |
-| `paths.knowledge` | string | No | Knowledge directory. Default: `knowledge` |
-| `paths.worktrees` | string | No | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}` |
-| `orchestration` | object | No | Orchestration behaviour configuration |
-| `orchestration.max_concurrent` | number | No | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4` |
+| Field                          | Type   | Required | Description                                                                                                             |
+| ------------------------------ | ------ | -------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `project_name`                 | string | Yes      | Project identifier used in file naming and human-readable metadata                                                      |
+| `project_shortname`            | string | No       | Short project identifier (max 5 characters) used in Epic IDs and worktree paths. Falls back to `project_name` if unset. |
+| `repo_type`                    | string | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.               |
+| `standards`                    | object | No       | Map of domain → tags for tag-based standard matching. See below.                                                        |
+| `project_standards`            | string | No       | Path to project-specific standards override                                                                             |
+| `ai_identity`                  | object | No       | AI agent git identity for commits and push auth                                                                         |
+| `ai_identity.git_author_name`  | string | No       | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars                                                            |
+| `ai_identity.git_author_email` | string | No       | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars                                                         |
+| `ai_identity.git_token_env`    | string | No       | Name of env var holding the PAT for push/PR ops                                                                         |
+| `paths`                        | object | No       | Artifact output directories (relative to repo root)                                                                     |
+| `paths.plans`                  | string | No       | Root for all plan artifacts. Default: `plans`                                                                           |
+| `paths.epics`                  | string | No       | Epic plan location. Default: `plans/epics`                                                                              |
+| `paths.chunks`                 | string | No       | Chunk plans and chunks.json. Default: `plans/chunks`                                                                    |
+| `paths.decisions`              | string | No       | Decision Records. Default: `knowledge/decisions`                                                                        |
+| `paths.orchestration`          | string | No       | Orchestration state files. Default: `plans/orchestration`                                                               |
+| `paths.knowledge`              | string | No       | Knowledge directory. Default: `knowledge`                                                                               |
+| `paths.worktrees`              | string | No       | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}`                   |
+| `orchestration`                | object | No       | Orchestration behaviour configuration                                                                                   |
+| `orchestration.max_concurrent` | number | No       | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4`                                           |
 
 #### `standards` field
 
@@ -162,6 +163,7 @@ A map of agent domain → array of tags for tag-based standard matching:
 ### Defaults (when `.aiconfig.json` is absent)
 
 If no config file exists, agents fall back to:
+
 - `project_name`: inferred from repository directory name
 - `project_shortname`: same as `project_name`
 - `standards`: none (agent must ask or search `standards/`)

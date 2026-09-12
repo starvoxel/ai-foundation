@@ -1,7 +1,7 @@
 ---
-name: "knowledge-consumption"
-version: "0.1.0"
-description: "Instructs agents how to discover and load project knowledge before starting work."
+name: 'knowledge-consumption'
+version: '0.1.1'
+description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
 

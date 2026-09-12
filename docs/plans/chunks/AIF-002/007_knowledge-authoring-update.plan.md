@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-007 |
-| Parent Epic | AIF-002 |
-| Chunk | 007 of 15 |
-| Depends On | None |
-| Can Parallel | 001, 002, 003, 004, 005, 006, 008, 009 (all other Wave 1 chunks) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Jeremy Smellie |
-| Created | 2026-08-14 |
-| Last Updated | 2026-08-17 (revised — folded Risk 1's Edge Cases/Step 6 corrections into this chunk's own scope so the file's changes are self-contained to AIF-002-007) |
-| Standards | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverable is `skills/knowledge-authoring/SKILL.md` markdown content only |
+| Field          | Value                                                                                                                                                                      |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-007                                                                                                                                                                |
+| Parent Epic    | AIF-002                                                                                                                                                                    |
+| Chunk          | 007 of 15                                                                                                                                                                  |
+| Depends On     | None                                                                                                                                                                       |
+| Can Parallel   | 001, 002, 003, 004, 005, 006, 008, 009 (all other Wave 1 chunks)                                                                                                           |
+| Project        | ai-foundation                                                                                                                                                              |
+| Status         | Approved                                                                                                                                                                   |
+| Author (Agent) | AI-Engineer                                                                                                                                                                |
+| Reviewed By    | Jeremy Smellie                                                                                                                                                             |
+| Created        | 2026-08-14                                                                                                                                                                 |
+| Last Updated   | 2026-08-17 (revised — folded Risk 1's Edge Cases/Step 6 corrections into this chunk's own scope so the file's changes are self-contained to AIF-002-007)                   |
+| Standards      | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverable is `skills/knowledge-authoring/SKILL.md` markdown content only |
 
 ---
 
@@ -54,6 +54,7 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
 ## 5. Scope
 
 ### In Scope
+
 - `skills/knowledge-authoring/SKILL.md` Step 2 (`## Step 2 — Choose the type`) — replace the `decision` row's guidance text. It currently reads "Recording a technical decision with options and rationale (use decision-record skill instead)" — a blanket redirect with no domain awareness. Replace with guidance that:
   - Directs the agent to `skill/decision-triage` as the entry point for recording any decision (per this Epic's Wave 1 chunk 001), rather than naming `decision-record` directly, since `decision-triage` is what determines Tier/Domain and dispatches to `decision-record` (Tier A) or `decision-brief` (Tier B) — `knowledge-authoring` should not itself re-derive tier/domain routing logic that `decision-triage` owns.
   - States the domain-scoped consumption rule plainly: a decision is only added to `knowledge/index.json` when its Domain is Architecture or AI-component — the two domains without a single canonical implementing artifact that already captures the decision's effect. Other domains' decisions (Process, Planning, Quality, Testing, Meta-process) are never added to `knowledge/index.json`; their traceability is via `{paths.decisions}/index.json` instead.
@@ -62,6 +63,7 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
 - **(Folded in, 2026-08-17 revision)** The `Step 6` self-validation checklist's "(or `{paths.knowledge}/decisions/` for decisions)" parenthetical — remove it; decisions are no longer located under `{paths.knowledge}/` at all in the new model (they live at `{paths.decisions}/{domain}/`, per the dedicated `paths.decisions` config key chunk 008 introduces — not `{paths.knowledge}/decisions/`, which would only coincidentally resolve correctly in this project since `paths.knowledge` happens to equal `docs` here), so the parenthetical is now simply incorrect, not just stale phrasing.
 
 ### Out of Scope
+
 - Authoring `skill/decision-triage`, `skill/decision-record`'s Tier A scoping, or `skill/decision-brief` themselves — those are chunks 001, 002, and 003 respectively, dispatched in parallel with this chunk. This chunk only points to `decision-triage` as the entry point; it does not define or modify that skill's own Steps/Outputs.
 - Creating or backfilling `{paths.decisions}/index.json` — that is chunk 014, which depends on all migration chunks (009-013) and has not been built yet. This chunk's new guidance text references that path as the eventual traceability mechanism for non-Architecture/AI-component domains, without assuming it already exists.
 - Steps 1, 3, 4, and 5 of `skills/knowledge-authoring/SKILL.md` — untouched. These are generic across all five `type` values and are not decision-specific. **(Step 6 is no longer fully untouched — see the folded-in bullet above; only its decisions-specific parenthetical changes, the rest of Step 6's checklist is unaffected.)**
@@ -81,6 +83,7 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
 ## 7. Architecture & Design
 
 ### Project Structure Changes
+
 - `skills/knowledge-authoring/SKILL.md` ← MODIFIED (Step 2 section only)
 - No new files.
 
@@ -98,6 +101,7 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
    **Rationale**: The original chunk scoped itself strictly to "Step 2's `decision` type guidance" per the Epic Plan's Section 5 wording, and raised the other two lines as an out-of-scope discovery (Section 14, Risk 1) per `steering/engineering/core.md` Rule 4, since they weren't named in the Epic bullet and a reviewer hadn't signed off on including them. Human direction (2026-08-17) confirmed folding them in instead, so this single chunk leaves `skills/knowledge-authoring/SKILL.md` fully self-consistent with the new decision-record model — no stale line is left behind for an unspecified future chunk to pick up. All three edits (Step 2 row, Step 6 parenthetical, Edge Cases bullet) are small, mechanically related corrections of the exact same superseded model, not three independent pieces of scope.
 
 ### Patterns & Conventions Applied
+
 - Follows the same "reference the source-of-truth decision record, state the actionable rule inline, don't re-derive it" pattern already used by chunk 004 (`skill/plan-lifecycle`) for AIF-META-001's Tier definitions.
 - Preserves the existing Step 2 table's row-per-type structure; the `decision` row's guidance text is replaced, the table shape itself is not restructured.
 
@@ -111,6 +115,7 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
 **Purpose**: Correct the single guidance line an agent consults when deciding whether a `decision` belongs in `knowledge/`, replacing a blanket redirect with the domain-scoped rule.
 
 **Content changes**:
+
 - Step 2 table, `decision` row — replace:
   `| `decision` | Recording a technical decision with options and rationale (use decision-record skill instead) |` with guidance that:
   1. Directs to `skill/decision-triage` as the entry point for recording any decision (not `decision-record` directly).
@@ -119,11 +124,13 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
   Cite AIF-META-001 by Decision ID as the source.
 
 **Key Behaviour**:
+
 - An agent reading Step 2 for a `decision`-type entry is redirected to `decision-triage`, never told to write a `knowledge-authoring`-produced decision file directly.
-- An agent that already has a Tier A/B decision in hand (post-triage) and is deciding whether it *also* needs a `knowledge/index.json` entry can answer that from Step 2's guidance alone, using the decision's Domain field.
+- An agent that already has a Tier A/B decision in hand (post-triage) and is deciding whether it _also_ needs a `knowledge/index.json` entry can answer that from Step 2's guidance alone, using the decision's Domain field.
 - No other Step (1, 3, 4, 5) or the Inputs/Outputs sections change. Step 6 and Edge Cases change only in the two specific ways described below (folded in, 2026-08-17 revision) — everything else in those two sections is untouched.
 
 **Dependencies**:
+
 - AIF-META-001 (Decision Record) — source of the domain-scoped consumption rule, referenced not redefined.
 - `skill/decision-triage` (chunk 001) — this chunk points to it by name as the entry point; since chunk 001 has no dependency edge on this chunk (both Wave 1, parallel), this chunk references `decision-triage`'s documented role per the Epic Plan/AIF-META-001 rather than its as-yet-unwritten `SKILL.md` content.
 
@@ -133,8 +140,9 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
 **Purpose**: Remove the now-incorrect decisions-location parenthetical from the Step 6 self-validation checklist.
 
 **Content changes**:
+
 - Step 6, first checklist item — replace:
-  `- [ ] File is in `{paths.knowledge}/` (or `{paths.knowledge}/decisions/` for decisions)`
+  `- [ ] File is in `{paths.knowledge}/`(or`{paths.knowledge}/decisions/` for decisions)`
   with:
   `- [ ] File is in `{paths.knowledge}/``
   (Decisions are never written by `knowledge-authoring` at all under the new model — see Step 2's revised guidance — so a decisions-specific location note no longer belongs on this checklist.)
@@ -149,10 +157,11 @@ Update `skills/knowledge-authoring/SKILL.md` Step 2's `decision` type guidance t
 **Purpose**: Correct the Edge Cases bullet that still names `decision-record` directly and still describes a decision as producing "a knowledge file."
 
 **Content changes**:
+
 - Edge Cases section — replace:
   `- **Decision Record** — use the `decision-record` skill instead. It produces a knowledge file with the correct decision format and template.`
   with:
-  `- **Decision Record** — use `skill/decision-triage` instead, which determines Tier/Domain and dispatches to `skill/decision-record` (Tier A) or `skill/decision-brief` (Tier B) as needed. A decision record is not a knowledge file — see Step 2 for when (Architecture/AI-component domain) it is additionally added to `knowledge/index.json`.`
+  `- **Decision Record** — use `skill/decision-triage`instead, which determines Tier/Domain and dispatches to`skill/decision-record`(Tier A) or`skill/decision-brief`(Tier B) as needed. A decision record is not a knowledge file — see Step 2 for when (Architecture/AI-component domain) it is additionally added to`knowledge/index.json`.`
 
 **Key Behaviour**: No other Edge Cases bullet changes.
 
@@ -184,11 +193,11 @@ Not applicable — this chunk produces markdown documentation only, no data sche
 
 This chunk produces static documentation content with no runtime component — `skills/knowledge-authoring/SKILL.md` is read by agents as reference material, not executed as code, so there are no application log statements for this chunk to define. The table below documents the plan-level Work Log entries this chunk itself must produce, per `steering/engineering/core.md` Rule 2/Rule 9 and `skill/plan-lifecycle` Steps 1-4 commit requirements — these are the only "logging" applicable to a documentation-only chunk.
 
-| Event | Level (Work Log Action) | What is logged | What is NOT logged |
-|---|---|---|---|
-| Plan drafted | `[Created]` | Plan ID, agent, tier assessed, summary of scope | No content of unrelated chunks/plans |
-| Plan approved/deferred | `[Approved]`/`[Deferred]` | Human decision, approver name if approved | Nothing beyond the decision itself |
-| Implementation commit (future, post-approval) | `[Implemented]` | File touched (`skills/knowledge-authoring/SKILL.md`), brief description referencing AIF-002-007 | No secrets; N/A here since no secrets exist in this chunk |
+| Event                                         | Level (Work Log Action)   | What is logged                                                                                  | What is NOT logged                                        |
+| --------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| Plan drafted                                  | `[Created]`               | Plan ID, agent, tier assessed, summary of scope                                                 | No content of unrelated chunks/plans                      |
+| Plan approved/deferred                        | `[Approved]`/`[Deferred]` | Human decision, approver name if approved                                                       | Nothing beyond the decision itself                        |
+| Implementation commit (future, post-approval) | `[Implemented]`           | File touched (`skills/knowledge-authoring/SKILL.md`), brief description referencing AIF-002-007 | No secrets; N/A here since no secrets exist in this chunk |
 
 ---
 
@@ -198,15 +207,15 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ### knowledge-authoring Documentation Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 007-T01 | Step 2's `decision` row no longer says "use decision-record skill instead" and instead names `skill/decision-triage` | Manual/diff review | Old blanket-redirect text is fully replaced, not left alongside the new text |
-| 007-T02 | Step 2 guidance states the domain-scoped rule (Architecture and AI-component only load into `knowledge/index.json`) matching AIF-META-001's Domain table's `knowledge/index.json?` column exactly (Yes for Architecture/AI-component, No for the rest) | Manual cross-check | Domain list matches AIF-META-001 verbatim — no domain omitted or added |
-| 007-T03 | New text cites AIF-META-001 by Decision ID | Manual review | Citation present and ID matches AIF-META-001's Metadata table |
-| 007-T04 | No section of `SKILL.md` other than Step 2, Step 6's decisions-parenthetical, and the Edge Cases "Decision Record" bullet changes wording (Steps 1, 3-5, Inputs, Outputs, and every other Step 6/Edge Cases line untouched) | Manual diff review | Diff is scoped to exactly those three locations plus the new Step 2 explanatory note |
-| 007-T05 | Resulting Step 2 table remains valid markdown (renders correctly, no broken table syntax) | Manual render check | Table parses cleanly |
-| 007-T06 (folded in, rev 2026-08-17) | Step 6's checklist no longer contains any `{paths.knowledge}/decisions/` reference | Grep-based self-validation | Zero matches for `decisions/` in Step 6 |
-| 007-T07 (folded in, rev 2026-08-17) | Edge Cases "Decision Record" bullet names `skill/decision-triage` (not `decision-record` directly) and no longer states a decision record "produces a knowledge file" | Manual review | Both corrections present |
+| Test ID                             | Description                                                                                                                                                                                                                                            | Type                       | Pass Criteria                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- | ------------------------------------------------------------------------------------ |
+| 007-T01                             | Step 2's `decision` row no longer says "use decision-record skill instead" and instead names `skill/decision-triage`                                                                                                                                   | Manual/diff review         | Old blanket-redirect text is fully replaced, not left alongside the new text         |
+| 007-T02                             | Step 2 guidance states the domain-scoped rule (Architecture and AI-component only load into `knowledge/index.json`) matching AIF-META-001's Domain table's `knowledge/index.json?` column exactly (Yes for Architecture/AI-component, No for the rest) | Manual cross-check         | Domain list matches AIF-META-001 verbatim — no domain omitted or added               |
+| 007-T03                             | New text cites AIF-META-001 by Decision ID                                                                                                                                                                                                             | Manual review              | Citation present and ID matches AIF-META-001's Metadata table                        |
+| 007-T04                             | No section of `SKILL.md` other than Step 2, Step 6's decisions-parenthetical, and the Edge Cases "Decision Record" bullet changes wording (Steps 1, 3-5, Inputs, Outputs, and every other Step 6/Edge Cases line untouched)                            | Manual diff review         | Diff is scoped to exactly those three locations plus the new Step 2 explanatory note |
+| 007-T05                             | Resulting Step 2 table remains valid markdown (renders correctly, no broken table syntax)                                                                                                                                                              | Manual render check        | Table parses cleanly                                                                 |
+| 007-T06 (folded in, rev 2026-08-17) | Step 6's checklist no longer contains any `{paths.knowledge}/decisions/` reference                                                                                                                                                                     | Grep-based self-validation | Zero matches for `decisions/` in Step 6                                              |
+| 007-T07 (folded in, rev 2026-08-17) | Edge Cases "Decision Record" bullet names `skill/decision-triage` (not `decision-record` directly) and no longer states a decision record "produces a knowledge file"                                                                                  | Manual review              | Both corrections present                                                             |
 
 ---
 
@@ -221,11 +230,11 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | **(Resolved, 2026-08-17)** ~~The Epic Plan scopes this chunk to "Step 2's `decision` type guidance" specifically, but two other lines in the same file describe the same pre-AIF-META-001 model and will read as stale once Step 2 changes.~~ Resolved by human direction: both lines (the Edge Cases "Decision Record" bullet and the Step 6 `{paths.knowledge}/decisions/` parenthetical) are now folded into this chunk's own scope (Section 5, Section 8) so `skills/knowledge-authoring/SKILL.md` is left fully self-consistent by this single chunk. | — | Resolved — no longer a follow-up risk. |
-| 2 | This chunk references `skill/decision-triage` (chunk 001) by name for its entry-point role, but chunk 001's own Chunk Plan/implementation is being authored in parallel (Wave 1, no dependency edge in `chunks.json`) | L | No functional risk — this chunk only needs `decision-triage`'s documented existence and role (already specified in the Epic Plan Section 7, Architecture Overview), not its finished `SKILL.md` content. If chunk 001 lands with a materially different entry-point name or behavior than the Epic Plan describes, that is a discrepancy for review to catch across chunks, not something this chunk can pre-empt. |
-| 3 | This chunk's new text references `{paths.decisions}/index.json` as the traceability mechanism for non-Architecture/AI-component domains, but that file does not yet exist (created in chunk 014, which depends on all migration chunks 009-013) | L | Acceptable per the same pattern chunk 004 uses for the same file — the reference states the eventual traceability mechanism per AIF-META-001's Design section, independent of whether the file has been created yet in this Epic's sequencing. No agent following this guidance today would need `{paths.decisions}/index.json` to exist in order to correctly *not* add a Process/Planning/Quality/Testing/Meta-process decision to `knowledge/index.json` — the guidance is actionable immediately regardless. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **(Resolved, 2026-08-17)** ~~The Epic Plan scopes this chunk to "Step 2's `decision` type guidance" specifically, but two other lines in the same file describe the same pre-AIF-META-001 model and will read as stale once Step 2 changes.~~ Resolved by human direction: both lines (the Edge Cases "Decision Record" bullet and the Step 6 `{paths.knowledge}/decisions/` parenthetical) are now folded into this chunk's own scope (Section 5, Section 8) so `skills/knowledge-authoring/SKILL.md` is left fully self-consistent by this single chunk. | —      | Resolved — no longer a follow-up risk.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| 2   | This chunk references `skill/decision-triage` (chunk 001) by name for its entry-point role, but chunk 001's own Chunk Plan/implementation is being authored in parallel (Wave 1, no dependency edge in `chunks.json`)                                                                                                                                                                                                                                                                                                                                      | L      | No functional risk — this chunk only needs `decision-triage`'s documented existence and role (already specified in the Epic Plan Section 7, Architecture Overview), not its finished `SKILL.md` content. If chunk 001 lands with a materially different entry-point name or behavior than the Epic Plan describes, that is a discrepancy for review to catch across chunks, not something this chunk can pre-empt.                                                                                               |
+| 3   | This chunk's new text references `{paths.decisions}/index.json` as the traceability mechanism for non-Architecture/AI-component domains, but that file does not yet exist (created in chunk 014, which depends on all migration chunks 009-013)                                                                                                                                                                                                                                                                                                            | L      | Acceptable per the same pattern chunk 004 uses for the same file — the reference states the eventual traceability mechanism per AIF-META-001's Design section, independent of whether the file has been created yet in this Epic's sequencing. No agent following this guidance today would need `{paths.decisions}/index.json` to exist in order to correctly _not_ add a Process/Planning/Quality/Testing/Meta-process decision to `knowledge/index.json` — the guidance is actionable immediately regardless. |
 
 ---
 

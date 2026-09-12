@@ -1,7 +1,7 @@
 ---
-name: "engineering-core"
-version: "0.3.0"
-description: "Core rules that apply to all agents operating in the engineering domain."
+name: 'engineering-core'
+version: '0.3.1'
+description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
 
@@ -85,7 +85,7 @@ file_patterns: []
 
 **Rationale:** Code that mixes logic with I/O can only be tested via slow integration tests that require real filesystems, temp directories, or mocked services. Separating concerns makes the interesting logic trivially testable and keeps integration tests focused on actual I/O coordination.
 
-**Exceptions:** Trivially thin modules where the logic *is* the I/O coordination (e.g. a function that reads a file and returns its content unchanged). Do not add abstraction layers that provide no testability benefit.
+**Exceptions:** Trivially thin modules where the logic _is_ the I/O coordination (e.g. a function that reads a file and returns its content unchanged). Do not add abstraction layers that provide no testability benefit.
 
 ---
 
@@ -143,6 +143,7 @@ file_patterns: []
 ## Notes
 
 These rules exist because the most common and expensive engineering failures are:
+
 1. Building the wrong thing (prevented by Rule 1 and Rule 4)
 2. Building it in an unmaintainable way (prevented by Rules 3, 5, 6, and 7)
 3. Losing track of why things were done (prevented by Rule 2)

@@ -1,7 +1,7 @@
 ---
-name: "ai-engineering-plan"
-version: "0.2.0"
-description: "Produces a structured plan for complex AI component work that requires human approval before implementation."
+name: 'ai-engineering-plan'
+version: '0.2.1'
+description: 'Produces a structured plan for complex AI component work that requires human approval before implementation.'
 ---
 
 ## Purpose
@@ -27,6 +27,7 @@ Use this skill when the ai-engineer agent assesses work at Tier 3 complexity and
 ### Step 1 — Investigate current state
 
 Read the relevant components to understand what exists:
+
 - Read affected agent definitions
 - Read affected skill SKILL.md files
 - Read affected steering files
@@ -36,6 +37,7 @@ Read the relevant components to understand what exists:
 ### Step 2 — Identify scope and boundaries
 
 Determine:
+
 - What is changing vs. what stays the same
 - What new components are needed
 - What existing components need modification
@@ -44,6 +46,7 @@ Determine:
 ### Step 3 — Draft the plan
 
 Produce a plan following the schema in `reference/plan-schema.md`. The plan must:
+
 - Be specific enough that the human can approve or reject the approach
 - Identify risks or open questions
 - State what will be validated after implementation

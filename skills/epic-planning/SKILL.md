@@ -1,7 +1,7 @@
 ---
-name: "epic-planning"
-version: "0.3.0"
-description: "Produces a structured Epic Plan describing a complete feature at a human-reviewable level."
+name: 'epic-planning'
+version: '0.3.1'
+description: 'Produces a structured Epic Plan describing a complete feature at a human-reviewable level.'
 ---
 
 ## Purpose
@@ -40,6 +40,7 @@ Epic IDs follow the format `{ProjectShortName}-{###}` (e.g. `MYAPP-001`), an eve
 ### Step 3 — Write Epic Plan
 
 Follow the template at `skills/epic-planning/reference/template.md`. Key sections:
+
 - Section 3 (Quick Summary) comes right after the Goal — keep its open-item count in sync whenever Section 8 changes
 - Section 5 (Feature Description) is the main reviewable content — be thorough
 - Section 6 (Architecture Overview) stays high-level — no method signatures
@@ -53,6 +54,7 @@ Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, 
 ### Step 5 — Decompose into Chunks
 
 After approval, produce the `chunks.json` file:
+
 1. Copy the template from `skills/epic-planning/assets/chunks.json`
 2. Set `epic_id` to this epic's ID
 3. Identify natural boundaries (data layer, service layer, UI, tests, docs)
@@ -63,6 +65,7 @@ After approval, produce the `chunks.json` file:
 6. Run `dag-validate` against the file
 
 If `dag-validate` fails:
+
 - Read the errors (cycles, missing refs, schema issues)
 - Fix the `chunks.json` and re-validate
 - Retry up to 3 times

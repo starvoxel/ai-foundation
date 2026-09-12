@@ -1,6 +1,6 @@
 ---
 name: javascript_base
-version: 1.0.0
+version: 1.0.1
 description: Core JavaScript language conventions for all JS projects
 tags: [javascript]
 depends_on: []
@@ -16,11 +16,11 @@ Style basis: this standard follows the widely-adopted [Airbnb JavaScript Style G
 
 ## Language Baseline
 
-| Aspect          | Convention                                      |
-|------------------|--------------------------------------------------|
+| Aspect           | Convention                                                                                      |
+| ---------------- | ----------------------------------------------------------------------------------------------- |
 | Language version | Modern ECMAScript (ES2022+) — no transpilation assumed unless a project standard says otherwise |
-| Module system    | ES Modules (`import`/`export`) — see `javascript_node` for runtime resolution details |
-| Type system      | Plain JavaScript. See `typescript_base` (future) for typed projects |
+| Module system    | ES Modules (`import`/`export`) — see `javascript_node` for runtime resolution details           |
+| Type system      | Plain JavaScript. See `typescript_base` (future) for typed projects                             |
 
 ---
 
@@ -42,15 +42,15 @@ var maxRetries = 3;
 
 ## Naming Conventions
 
-| Construct              | Convention                    | Example                  |
-|-------------------------|--------------------------------|---------------------------|
-| Variables, functions    | camelCase                      | `parseFile`, `userCount` |
-| Classes                 | PascalCase                     | `DataParser`             |
-| Private class fields    | `#camelCase`                   | `#retryCount`             |
-| Constants (module-level, true constants) | UPPER_SNAKE_CASE | `MAX_RETRY_COUNT`         |
-| Constants (local, non-primitive config)  | camelCase        | `defaultOptions`          |
-| File names              | kebab-case                     | `data-parser.js`          |
-| Boolean variables/functions | `is`/`has`/`should` prefix | `isValid`, `hasErrors`   |
+| Construct                                | Convention                 | Example                  |
+| ---------------------------------------- | -------------------------- | ------------------------ |
+| Variables, functions                     | camelCase                  | `parseFile`, `userCount` |
+| Classes                                  | PascalCase                 | `DataParser`             |
+| Private class fields                     | `#camelCase`               | `#retryCount`            |
+| Constants (module-level, true constants) | UPPER_SNAKE_CASE           | `MAX_RETRY_COUNT`        |
+| Constants (local, non-primitive config)  | camelCase                  | `defaultOptions`         |
+| File names                               | kebab-case                 | `data-parser.js`         |
+| Boolean variables/functions              | `is`/`has`/`should` prefix | `isValid`, `hasErrors`   |
 
 ---
 
@@ -97,10 +97,14 @@ function greet(name) {
 
 ```javascript
 // Correct — named export
-export function resolveBundle(name, root) { /* ... */ }
+export function resolveBundle(name, root) {
+  /* ... */
+}
 
 // Avoid default exports for library code
-export default function resolveBundle(name, root) { /* ... */ }
+export default function resolveBundle(name, root) {
+  /* ... */
+}
 ```
 
 ---
@@ -239,7 +243,7 @@ const admin = users.find((u) => u.role === 'admin');
 ## Comments and Documentation
 
 - Use JSDoc (`/** ... */`) on all exported functions, classes, and non-trivial types.
-- Use `//` line comments for implementation notes; explain *why*, not *what* the code already makes clear.
+- Use `//` line comments for implementation notes; explain _why_, not _what_ the code already makes clear.
 
 ### Mandatory JSDoc Tags
 
@@ -250,7 +254,9 @@ const admin = users.find((u) => u.role === 'admin');
  * @param {string} repoRoot   - Absolute path to the repository root
  * @returns {ResolvedBundle}
  */
-export function resolveBundle(bundleName, repoRoot) { /* ... */ }
+export function resolveBundle(bundleName, repoRoot) {
+  /* ... */
+}
 ```
 
 - `@param` is mandatory for every parameter, including a type.
@@ -277,6 +283,7 @@ Every `.js` file must begin with a header comment block:
 ```
 
 Rules:
+
 - **Never omit the header.** Every `.js` file gets one regardless of size or purpose.
 - `Author` is whoever created the file. If an AI agent creates it, use the configured AI identity name.
 - `Plan` is the chunk plan ID (or equivalent) that caused this file to be created or meaningfully modified.
@@ -297,21 +304,22 @@ These general-purpose items apply to every JS plan's security checklist, regardl
 
 ## Formatting
 
-| Aspect          | Convention        |
-|------------------|--------------------|
-| Indentation      | 2 spaces           |
-| Semicolons       | Always required    |
-| Quotes           | Single (`'`) for strings; backticks for interpolation |
-| Trailing commas  | Yes, on multi-line literals |
-| Line length      | ~100 characters (soft limit) |
+| Aspect          | Convention                                            |
+| --------------- | ----------------------------------------------------- |
+| Indentation     | 2 spaces                                              |
+| Semicolons      | Always required                                       |
+| Quotes          | Single (`'`) for strings; backticks for interpolation |
+| Trailing commas | Yes, on multi-line literals                           |
+| Line length     | ~100 characters (soft limit)                          |
 
 ---
 
 ## Linting and Formatting Tooling
 
-This standard documents the *shape* of expected tooling config; adding the actual config files to a given repo is a separate implementation task, not part of authoring this standard.
+This standard documents the _shape_ of expected tooling config; adding the actual config files to a given repo is a separate implementation task, not part of authoring this standard.
 
 A compliant project's ESLint config should:
+
 - Enforce `const`/`let` over `var`
 - Enforce `===`/`!==` over `==`/`!=`
 - Enforce single quotes and required semicolons

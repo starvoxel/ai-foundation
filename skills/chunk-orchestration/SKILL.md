@@ -1,7 +1,7 @@
 ---
-name: "chunk-orchestration"
-version: "0.4.0"
-description: "Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates."
+name: 'chunk-orchestration'
+version: '0.4.1'
+description: 'Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
 ## Purpose
@@ -50,6 +50,7 @@ Manages the end-to-end execution of an epic's chunk plans. Computes execution wa
 **File Overlap Detection (warning only):**
 
 Before dispatching any chunks in the wave, compare `files_modified` or `components_affected` across all chunk plans in the current wave:
+
 1. Read each chunk plan for the wave and extract the list of files/components it modifies
 2. Compare across all chunks in the wave for overlapping file paths
 3. If overlap is found:
@@ -87,10 +88,12 @@ For each chunk in the current wave with status `Ready`:
    Software track: dispatch a Software-Engineer subagent — unchanged from today.
 
    AI track: dispatch an AI-Engineer subagent, with the explicit instruction to self-validate (run its own validation tests per its hard rule "Always run tests before declaring work complete") before reporting complete. AI-Engineer's self-validation replaces the Test-Engineer step in the AI-track pipeline (see Step 3).
+
 5. Update chunk status to `Implementing`
 6. Log: `chunk_dispatched` with agent, branch, and worktree path details
 
 Constraints:
+
 - Maximum concurrent subagents is read from `orchestration.max_concurrent` (default: 4)
 - If more chunks in a wave than the concurrency limit, queue the rest and dispatch as slots free up
 - Never dispatch a chunk whose dependencies are not all `Done`
@@ -103,12 +106,14 @@ As each subagent completes, advance the chunk through its pipeline. The pipeline
 **Software track (`agents: ["Software-Engineer"]`) — SE → TE → PE, unchanged:**
 
 **After Software-Engineer completes:**
+
 1. Verify SE reported that changes are committed and pushed to the chunk's branch
 2. Update chunk status to `Testing`
 3. Dispatch Test-Engineer subagent for the same branch, chunk plan, and worktree path
 4. Log: `chunk_status_changed`
 
 **After Test-Engineer completes:**
+
 1. Verify TE reported that test files are committed and pushed to the chunk's branch
 2. Update chunk status to `Reviewing`
 3. Dispatch Principal-Engineer subagent for the same branch, chunk plan, and worktree path
@@ -117,12 +122,14 @@ As each subagent completes, advance the chunk through its pipeline. The pipeline
 **AI track (`agents: ["AI-Engineer"]`) — AI-Engineer implements + self-validates → PE, Test-Engineer skipped:**
 
 **After AI-Engineer completes:**
+
 1. Verify AI-Engineer reported that changes are committed and pushed to the chunk's branch, and that it self-validated (ran its own validation tests) before reporting complete
 2. Update chunk status directly to `Reviewing` (skip `Testing` — Test-Engineer is not dispatched for AI-track chunks)
 3. Dispatch Principal-Engineer subagent for the same branch, chunk plan, and worktree path
 4. Log: `chunk_status_changed`
 
 **After Principal-Engineer completes — APPROVED (both tracks):**
+
 1. Update chunk status to `Done`
 2. Re-dispatch the chunk's implementing agent (Software-Engineer for software-track, AI-Engineer for AI-track — same agent that implemented the chunk in Step 2) with instruction to create a PR:
    - Same branch and worktree path
@@ -136,12 +143,14 @@ As each subagent completes, advance the chunk through its pipeline. The pipeline
 
 Note: The worktree remains active until the human confirms the PR is merged.
 When the human confirms merge, run worktree teardown (skill/worktree-management Step 4):
+
 - Remove the worktree directory
 - Delete the merged branch
 - Clear `worktree_path` in chunk state
 - Log: `worktree_removed`
 
 **After Principal-Engineer completes — NEEDS_CHANGES (both tracks):**
+
 1. Increment chunk `iterations`
 2. If `iterations` < 5:
    - Update chunk status to `Implementing`
@@ -158,6 +167,7 @@ When the human confirms merge, run worktree teardown (skill/worktree-management 
 A chunk may be blocked for reasons beyond review loops:
 
 **Out-of-domain work detected:** AI component authoring (declarative skills, agents, steering, server definitions) is in-domain — it dispatches to AI-Engineer via the AI track (Step 2/3), not this edge case. If a chunk plan references components, skills, or work genuinely outside both the software and AI tracks (e.g., infrastructure provisioning unrelated to either track), mark it as:
+
 - Status: `Blocked`
 - `blocked_reason`: description of what's needed (e.g., "Requires new skill to be authored by AI Engineer")
 - Log: `chunk_blocked`
@@ -229,11 +239,13 @@ human approval before it can proceed.
    clear `blocked_reason` or advance the chunk.
 
 **Blocked chunks and wave progression:**
+
 - A blocked chunk does NOT prevent other chunks in the wave from completing
 - A blocked chunk DOES prevent any chunk that depends on it from dispatching
 - If all remaining undone chunks are blocked and no progress is possible, set overall status to `Blocked` and escalate
 
 **When human unblocks:**
+
 - Set chunk status back to `Ready`
 - Clear `blocked_reason`
 - Set escalation `resolved` to true

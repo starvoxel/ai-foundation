@@ -1,7 +1,7 @@
 ---
-name: "chunk-planning"
-version: "0.3.0"
-description: "Produces a Chunk Plan with enough detail for an agent to implement without ambiguity."
+name: 'chunk-planning'
+version: '0.3.1'
+description: 'Produces a Chunk Plan with enough detail for an agent to implement without ambiguity.'
 ---
 
 ## Purpose
@@ -32,11 +32,13 @@ Read the Epic's Section 9 to understand this chunk's boundaries, dependencies, a
 Follow the template at `skills/chunk-planning/reference/template.md`.
 
 Standards composition order (later overrides earlier):
+
 1. The template (universal structure)
 2. Language/stack standards
 3. Project standards
 
 Key rules:
+
 - Section 10 (Security) and Section 11 (Logging) must never be empty
 - Section 8 (Components) must be detailed enough to implement without questions
 - Section 4 (Acceptance Criteria) and Section 3 (Quick Summary) come right after the Goal — keep Section 3's open-item count in sync whenever Section 14 (Risks & Open Questions) changes
@@ -64,6 +66,7 @@ Chunks with `agents: ["AI-Engineer"]` in `chunks.json` do **not** use this skill
 ## Outputs
 
 Software-track chunks (`agents: ["Software-Engineer"]`):
+
 - **Chunk Plan** — markdown file following the template
 - **Location:** `{paths.chunks}/{EpicID}/{###}_{ShortTitle}.plan.md` (from `.aiconfig.json`, default: `plans/chunks/`)
 

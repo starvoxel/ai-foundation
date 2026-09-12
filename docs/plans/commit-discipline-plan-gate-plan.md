@@ -14,22 +14,22 @@ Make three things explicit and centralized in engineering steering/skills: (1) p
 
 ## Components Affected
 
-| Component | Action | Notes |
-|---|---|---|
-| `skills/plan-lifecycle/SKILL.md` | Create | New shared skill defining the commit-gate procedure and the canonical status vocabulary |
-| `skills/plan-lifecycle/reference/status-vocabulary.md` | Create | Single source of truth: core statuses (`Draft`, `Approved`, `Done`, `Deferred`) plus documented per-artifact-type extensions (e.g. Decision Record's `Superseded`) |
-| `skills/plan-lifecycle/reference/commit-gate-procedure.md` | Create | The step-by-step commit procedure other skills reference instead of restating |
-| `steering/engineering/core.md` | Modify | Strengthen Rule 1, add new Rule 8 (plan-committed-first, points to `skill/plan-lifecycle`) and Rule 9 (incremental commits) |
-| `steering/engineering/git-workflow-framework.md` | Modify | Add plan-commit-first rule (references `skill/plan-lifecycle` for mechanics) + commit granularity checkpoints |
-| `steering/engineering/git-workflow-projects.md` | Modify | Promote existing plan-commit exception into an explicit rule referencing `skill/plan-lifecycle`; add commit granularity checkpoints |
-| `skills/chunk-planning/SKILL.md` + `reference/template.md` | Modify | Status field becomes `Draft / Approved / Done / Deferred`; Step 3 references `skill/plan-lifecycle` |
-| `skills/epic-planning/SKILL.md` + `reference/template.md` | Modify | Same status/reference change as chunk-planning |
-| `skills/decision-record/SKILL.md` + `reference/template.md` | Modify | Status field becomes `Draft / Approved / Done / Deferred / Superseded` (was `Draft / Confirmed / Superseded`); `Confirmed By` field renamed to `Approved By`; Step 3 references `skill/plan-lifecycle` |
-| `skills/ai-engineering-plan/SKILL.md` | Modify | Outputs — Tier 3 plans saved under `paths.plans`, status field `Draft / Approved / Done / Deferred`, references `skill/plan-lifecycle` |
-| `skills/chunk-orchestration/SKILL.md` | Modify | Step 1 adds explicit check: Epic Plan `Status` must be `Approved` before reading `chunks.json` |
-| `agents/engineering-manager.yaml` | Modify | Hard rule referencing Decision Record `Status "Confirmed"` / `"Confirmed By"` updated to `"Approved"` / `"Approved By"` |
-| `docs/plans/commit-discipline-plan-gate-plan.md` (this file) | Modify | Adopts the vocabulary it defines |
-| Frontmatter `version` on all modified files | Modify | Minor version bump |
+| Component                                                    | Action | Notes                                                                                                                                                                                                  |
+| ------------------------------------------------------------ | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `skills/plan-lifecycle/SKILL.md`                             | Create | New shared skill defining the commit-gate procedure and the canonical status vocabulary                                                                                                                |
+| `skills/plan-lifecycle/reference/status-vocabulary.md`       | Create | Single source of truth: core statuses (`Draft`, `Approved`, `Done`, `Deferred`) plus documented per-artifact-type extensions (e.g. Decision Record's `Superseded`)                                     |
+| `skills/plan-lifecycle/reference/commit-gate-procedure.md`   | Create | The step-by-step commit procedure other skills reference instead of restating                                                                                                                          |
+| `steering/engineering/core.md`                               | Modify | Strengthen Rule 1, add new Rule 8 (plan-committed-first, points to `skill/plan-lifecycle`) and Rule 9 (incremental commits)                                                                            |
+| `steering/engineering/git-workflow-framework.md`             | Modify | Add plan-commit-first rule (references `skill/plan-lifecycle` for mechanics) + commit granularity checkpoints                                                                                          |
+| `steering/engineering/git-workflow-projects.md`              | Modify | Promote existing plan-commit exception into an explicit rule referencing `skill/plan-lifecycle`; add commit granularity checkpoints                                                                    |
+| `skills/chunk-planning/SKILL.md` + `reference/template.md`   | Modify | Status field becomes `Draft / Approved / Done / Deferred`; Step 3 references `skill/plan-lifecycle`                                                                                                    |
+| `skills/epic-planning/SKILL.md` + `reference/template.md`    | Modify | Same status/reference change as chunk-planning                                                                                                                                                         |
+| `skills/decision-record/SKILL.md` + `reference/template.md`  | Modify | Status field becomes `Draft / Approved / Done / Deferred / Superseded` (was `Draft / Confirmed / Superseded`); `Confirmed By` field renamed to `Approved By`; Step 3 references `skill/plan-lifecycle` |
+| `skills/ai-engineering-plan/SKILL.md`                        | Modify | Outputs — Tier 3 plans saved under `paths.plans`, status field `Draft / Approved / Done / Deferred`, references `skill/plan-lifecycle`                                                                 |
+| `skills/chunk-orchestration/SKILL.md`                        | Modify | Step 1 adds explicit check: Epic Plan `Status` must be `Approved` before reading `chunks.json`                                                                                                         |
+| `agents/engineering-manager.yaml`                            | Modify | Hard rule referencing Decision Record `Status "Confirmed"` / `"Confirmed By"` updated to `"Approved"` / `"Approved By"`                                                                                |
+| `docs/plans/commit-discipline-plan-gate-plan.md` (this file) | Modify | Adopts the vocabulary it defines                                                                                                                                                                       |
+| Frontmatter `version` on all modified files                  | Modify | Minor version bump                                                                                                                                                                                     |
 
 ---
 

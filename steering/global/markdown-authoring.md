@@ -1,8 +1,8 @@
 ---
-name: "global-markdown-authoring"
-version: "0.1.0"
-description: "Prohibits manual hard-wrapping of prose in markdown files; paragraphs must be written as continuous logical lines."
-file_patterns: ["**/*.md"]
+name: 'global-markdown-authoring'
+version: '0.1.1'
+description: 'Prohibits manual hard-wrapping of prose in markdown files; paragraphs must be written as continuous logical lines.'
+file_patterns: ['**/*.md']
 ---
 
 ## Scope

@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-006 |
-| Parent Epic | AIF-002 |
-| Chunk | 6 of 15 |
-| Depends On | None |
-| Can Parallel | AIF-002-001, AIF-002-002, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-007, AIF-002-008, AIF-002-009 (Wave 1 siblings, per `docs/plans/chunks/AIF-002/chunks.json`) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Jeremy |
-| Created | 2026-08-14 |
-| Last Updated | 2026-08-17 (Approved by Jeremy) |
-| Standards | None apply — this chunk produces only declarative agent-config (`agents/engineering-manager.yaml`) and skill content (`skills/chunk-orchestration/SKILL.md` + `reference/state-schema.md`), governed by AGENTS.md schemas and `skill/agent-authoring`/`skill/skill-authoring`, not by the project's `javascript`/`node` engineering standards (no runtime code is produced) |
+| Field          | Value                                                                                                                                                                                                                                                                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-006                                                                                                                                                                                                                                                                                                                                                                 |
+| Parent Epic    | AIF-002                                                                                                                                                                                                                                                                                                                                                                     |
+| Chunk          | 6 of 15                                                                                                                                                                                                                                                                                                                                                                     |
+| Depends On     | None                                                                                                                                                                                                                                                                                                                                                                        |
+| Can Parallel   | AIF-002-001, AIF-002-002, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-007, AIF-002-008, AIF-002-009 (Wave 1 siblings, per `docs/plans/chunks/AIF-002/chunks.json`)                                                                                                                                                                                                       |
+| Project        | ai-foundation                                                                                                                                                                                                                                                                                                                                                               |
+| Status         | Approved                                                                                                                                                                                                                                                                                                                                                                    |
+| Author (Agent) | AI-Engineer                                                                                                                                                                                                                                                                                                                                                                 |
+| Reviewed By    | Jeremy                                                                                                                                                                                                                                                                                                                                                                      |
+| Created        | 2026-08-14                                                                                                                                                                                                                                                                                                                                                                  |
+| Last Updated   | 2026-08-17 (Approved by Jeremy)                                                                                                                                                                                                                                                                                                                                             |
+| Standards      | None apply — this chunk produces only declarative agent-config (`agents/engineering-manager.yaml`) and skill content (`skills/chunk-orchestration/SKILL.md` + `reference/state-schema.md`), governed by AGENTS.md schemas and `skill/agent-authoring`/`skill/skill-authoring`, not by the project's `javascript`/`node` engineering standards (no runtime code is produced) |
 
 ---
 
@@ -52,6 +52,7 @@ Expand `agents/engineering-manager.yaml`'s charter to include Process-domain (`P
 ## 5. Scope
 
 ### In Scope
+
 - `agents/engineering-manager.yaml`:
   - Add a Responsibilities bullet for Process-domain (`PROC`) decision-record authoring via `skill/decision-triage` → `skill/decision-record`/ `skill/decision-brief`.
   - Add `skill/decision-triage`, `skill/decision-record`, `skill/decision-brief` to the `skills:` field (EM invokes all three when it authors a Process-domain decision directly — see Key Design Decision 2).
@@ -72,6 +73,7 @@ Expand `agents/engineering-manager.yaml`'s charter to include Process-domain (`P
   - No new chunk `status` value. No new state-object field. Reuses the existing `Blocked`/`blocked_reason`/unblock mechanics documented in the Chunk status values / Status transitions sections (unchanged).
 
 ### Out of Scope
+
 - Any change to `skills/decision-triage/`, `skills/decision-record/`, or `skills/decision-brief/` themselves (chunks AIF-002-001, 002, 003 — this chunk only references them by name and dispatches to them, per the same no-file-dependency pattern established in AIF-002-001).
 - Any change to `skill/plan-lifecycle` (chunk AIF-002-004) — this chunk reuses its Draft → Approved/Deferred gate unmodified; the Decision Hand-off Sub-Flow explicitly defers to it rather than re-implementing approval semantics.
 - Any change to the Tier C inline-recording convention (chunk AIF-002-005) — the Decision Hand-off Sub-Flow only triggers for Tier A/B hand-offs per Epic Section 5; Tier C decisions never reach this sub-flow (no cross-domain check applies to Tier C, per `skill/decision-triage`'s own design in AIF-002-001).
@@ -89,7 +91,7 @@ Expand `agents/engineering-manager.yaml`'s charter to include Process-domain (`P
 - [x] AIF-004 (soon to be renumbered `AIF-PROC-001` by chunk AIF-002-012) is `Approved` — the precedent this chunk's Responsibilities-bullet phrasing explicitly follows (AI-Engineer's Architecture/AI-component split).
 - [x] Epic AIF-002 is `Approved` and decomposed (`chunks.json`, Wave 1, no dependencies for this chunk).
 - [x] `skill/agent-authoring`, `skill/skill-authoring`, and `skill/plan-lifecycle` exist and define the schemas, folder structure, and commit-gate procedure this chunk follows.
-- [ ] No dependency on any sibling Wave 1 chunk's output — this chunk references `skill/decision-triage`, `skill/decision-record`, and `skill/decision-brief` by *name* only, not by reading their finalized content, so it can be authored in parallel with AIF-002-001/002/003 without a file-level dependency (same pattern established in AIF-002-001's own Prerequisites).
+- [ ] No dependency on any sibling Wave 1 chunk's output — this chunk references `skill/decision-triage`, `skill/decision-record`, and `skill/decision-brief` by _name_ only, not by reading their finalized content, so it can be authored in parallel with AIF-002-001/002/003 without a file-level dependency (same pattern established in AIF-002-001's own Prerequisites).
 
 ---
 
@@ -130,6 +132,7 @@ No new files or folders — this chunk is entirely additive edits to three exist
    **Rationale**: Epic AIF-002 Section 4's sub-step 1 and the state-schema scope note both explicitly rule this out ("No new chunk `status` value or state-object field is needed — reuses the existing `Blocked`/`blocked_reason`/ unblock mechanics"). `blocked_reason`'s existing type (`string | null`) already accommodates a structured-but-stringified reason (domain, tier, owning agent), consistent with how the existing merge-conflict `blocked_reason` values are already free-text descriptions embedding structured facts (branch name, conflicting files).
 
 ### Patterns & Conventions Applied
+
 - `skill/agent-authoring`'s field schema and Step 7 self-validation checklist for the `engineering-manager.yaml` edit (tools/approved_tools subset rule, skills-exist rule, semver bump).
 - The existing Conflict Resolution Sub-Flow in `skill/chunk-orchestration` Step 4 used as the direct structural precedent for the new Decision Hand-off Sub-Flow (numbered sub-steps, "Triggered by:" framing, explicit outcomes).
 - `skill/plan-lifecycle`'s status vocabulary referenced (not re-defined) for how `Approved`/`Deferred` govern the hand-off decision's own gate.
@@ -144,6 +147,7 @@ No new files or folders — this chunk is entirely additive edits to three exist
 **Purpose**: Add Process-domain decision-authoring capability and the orchestration-time Hard Rule that consumes it, without altering EM's existing orchestration responsibilities or tool surface beyond the new skill references.
 
 **Public Interface** (edits):
+
 - `version`: `"0.4.0"` → `"0.5.0"`.
 - `prompt` → Responsibilities: add — `- Author Process-domain ("PROC") decision records via skill/decision-triage -> skill/decision-record / skill/decision-brief, following the domain-ownership pattern established for AI-Engineer's Architecture/ AI-component split (AIF-PROC-001, formerly AIF-004)`
 - `prompt` → Hard rules: add — `- When a dispatched subagent reports (via skill/decision-triage) that continuing requires a Tier A/B decision outside its own domain, or requires human approval before it can proceed, follow the Decision Hand-off Sub-Flow (skill/chunk-orchestration Step 4). If Engineering-Manager owns the domain (Process), author the decision directly via decision-triage -> decision-record/decision-brief. Otherwise dispatch the owning agent as a subagent to author it. Never resume a chunk past the decision point until it reaches Approved. Deferred never satisfies the gate.`
@@ -151,10 +155,12 @@ No new files or folders — this chunk is entirely additive edits to three exist
 - `tools` / `approved_tools`: **unchanged** — no entry added or removed. This is the explicit verification point for the Epic's non-negotiable (Section 10/12).
 
 **Key Behaviour**:
+
 - EM's existing orchestration Process (Steps 1–8) is not renumbered or restructured — the new decision-authoring capability is exposed only via the Responsibilities bullet and the Hard Rule, consistent with how it is a conditional sub-flow, not a core numbered step of every orchestration run.
 - `blocked_commands` (`git *`, `gh *`) is unchanged — EM still never runs git directly; `decision-record`/`decision-brief`'s own commit steps (via `skill/plan-lifecycle`) use `ai-git` per the repo's git-workflow steering, same as every other artifact EM commits (plans, orchestration state).
 
 **Dependencies**:
+
 - `skill/decision-triage`, `skill/decision-record`, `skill/decision-brief` — referenced by name (chunks AIF-002-001/002/003, not modified here).
 - `skill/chunk-orchestration` — modified in this same chunk (Component below).
 
@@ -197,12 +203,14 @@ human approval before it can proceed.
 ```
 
 **Key Behaviour**:
+
 - No new chunk `status` value and no new state-object field — reuses `Blocked`/`blocked_reason` exactly as the Conflict Resolution Sub-Flow does.
 - The sub-flow does not itself gate on Tier — Tier A vs. Tier B only changes which skill (`decision-record` vs. `decision-brief`) sub-step 2 invokes; the orchestration-level mechanics (block, author, present, resume-on-Approved)
   are identical for both tiers.
 - Sub-step 3 explicitly forbids inventing parallel approval tracking in `orchestration-state.json` — the decision artifact's own `Status` field (checked via `skill/plan-lifecycle`) is the single source of truth for whether the gate is satisfied.
 
 **Dependencies**:
+
 - `skill/decision-triage` — the signal source that triggers this sub-flow (chunk AIF-002-001, referenced by name only).
 - `skill/decision-record` / `skill/decision-brief` — the skills EM or the dispatched owning agent runs in sub-step 2 (chunks AIF-002-002/003, referenced by name only).
 - `skill/plan-lifecycle` — governs the decision artifact's own Approved/ Deferred gate, referenced not re-implemented.
@@ -213,17 +221,19 @@ human approval before it can proceed.
 **Purpose**: Documents the three new Log actions the Decision Hand-off Sub-Flow emits, added to the existing Log actions table (no other schema changes).
 
 **Key Behaviour**:
+
 - Table addition (inserted after the existing `chunk_unblocked` row, before `conflict_detected`, grouping all Blocked/unblock-related actions together):
 
-| Action | Description |
-|---|---|
-| `decision_handoff_detected` | A dispatched subagent's `decision-triage` hand-off (cross-domain or approval-gated Tier A/B decision) was detected and the chunk was marked `Blocked` |
-| `decision_authored` | A Draft decision record (Tier A) or brief (Tier B) was authored and committed in response to a decision hand-off — either directly by Engineering-Manager (Process domain) or by the dispatched owning agent |
-| `decision_handoff_resolved` | The hand-off decision reached `Approved` and the chunk was unblocked via the existing generic unblock mechanic |
+| Action                      | Description                                                                                                                                                                                                  |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `decision_handoff_detected` | A dispatched subagent's `decision-triage` hand-off (cross-domain or approval-gated Tier A/B decision) was detected and the chunk was marked `Blocked`                                                        |
+| `decision_authored`         | A Draft decision record (Tier A) or brief (Tier B) was authored and committed in response to a decision hand-off — either directly by Engineering-Manager (Process domain) or by the dispatched owning agent |
+| `decision_handoff_resolved` | The hand-off decision reached `Approved` and the chunk was unblocked via the existing generic unblock mechanic                                                                                               |
 
 - No change to the Chunk status values table, Status transitions diagram, or any state-object field definition — the scope note directly above the `## Rules` section already documents `blocked_reason` as `string | null`, which the hand-off's structured reason fits without a type change.
 
 **Dependencies**:
+
 - `skill/chunk-orchestration/SKILL.md`'s Decision Hand-off Sub-Flow (Component above, same chunk) — the sole emitter of these three actions.
 
 ---
@@ -238,7 +248,7 @@ No new data models. This chunk reuses the existing `Chunk state object` and `Log
 
 > This section must never be empty.
 
-This chunk produces documentation-only agent-config and skill content (`agents/engineering-manager.yaml`, `SKILL.md`, `reference/state-schema.md`) — no runtime code, no scripts, no execution path, no credential handling, and no network calls. The applicable security considerations are about the *access surface and design* the configuration encodes:
+This chunk produces documentation-only agent-config and skill content (`agents/engineering-manager.yaml`, `SKILL.md`, `reference/state-schema.md`) — no runtime code, no scripts, no execution path, no credential handling, and no network calls. The applicable security considerations are about the _access surface and design_ the configuration encodes:
 
 - [x] **No `WebSearch`/`WebFetch` added to `agents/engineering-manager.yaml`.** Explicitly verified as an acceptance item (Section 4) — this is the Epic's non-negotiable (AIF-002 Section 8) and this chunk is the one that edits the file it applies to. Confirmed by diffing the final `tools:` and `approved_tools:` lists against the pre-edit file: both entries are unchanged from `agents/engineering-manager.yaml` v0.4.0 (`subagent`, `read`, `write`, `shell`, `grep`, `glob`, `@dag/dag-compute-waves`) — only the `skills:` field gains entries.
 - [x] No secrets or credentials referenced anywhere in the edited content.
@@ -252,13 +262,13 @@ This chunk produces documentation-only agent-config and skill content (`agents/e
 
 > This section must never be empty.
 
-This chunk produces no runtime code, so there are no application log statements to write directly. Its actual deliverable, however, *is* the specification of three new orchestration Log actions — documented here as the authoritative logging requirements for `skill/chunk-orchestration`'s Decision Hand-off Sub-Flow (implemented as prose steps that any agent following the skill executes, not as code):
+This chunk produces no runtime code, so there are no application log statements to write directly. Its actual deliverable, however, _is_ the specification of three new orchestration Log actions — documented here as the authoritative logging requirements for `skill/chunk-orchestration`'s Decision Hand-off Sub-Flow (implemented as prose steps that any agent following the skill executes, not as code):
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| `decision_handoff_detected` | Info (orchestration log — no severity levels in this schema, but semantically informational, not an error) | `chunk_id`, `agent` ("Engineering-Manager"), `details` including domain, tier, owning agent | No decision content itself — only the routing facts (domain/tier/owner) |
-| `decision_authored` | Info | `chunk_id`, `agent`, `details` including which decision skill was used (`decision-record` or `decision-brief`) and the new Draft decision's ID/path | Full decision record content — the log references the artifact, it does not duplicate it |
-| `decision_handoff_resolved` | Info | `chunk_id`, `agent`, `details` confirming the decision reached `Approved` and the chunk was unblocked | Nothing — logged alongside `chunk_unblocked` per Key Design Decision 4, no separate sensitive data |
+| Event                       | Level                                                                                                      | What is logged                                                                                                                                      | What is NOT logged                                                                                 |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `decision_handoff_detected` | Info (orchestration log — no severity levels in this schema, but semantically informational, not an error) | `chunk_id`, `agent` ("Engineering-Manager"), `details` including domain, tier, owning agent                                                         | No decision content itself — only the routing facts (domain/tier/owner)                            |
+| `decision_authored`         | Info                                                                                                       | `chunk_id`, `agent`, `details` including which decision skill was used (`decision-record` or `decision-brief`) and the new Draft decision's ID/path | Full decision record content — the log references the artifact, it does not duplicate it           |
+| `decision_handoff_resolved` | Info                                                                                                       | `chunk_id`, `agent`, `details` confirming the decision reached `Approved` and the chunk was unblocked                                               | Nothing — logged alongside `chunk_unblocked` per Key Design Decision 4, no separate sensitive data |
 
 Per engineering steering Rule 3 ("Logging Requirements Are Never Optional"), these three log actions are mandatory Steps in the Decision Hand-off Sub-Flow, not optional or deferrable — verified as present in Section 8's `SKILL.md` Component text and as acceptance items in Section 4.
 
@@ -270,25 +280,25 @@ This chunk has no executable code, so "testing" here means structural/ cross-ref
 
 ### `agents/engineering-manager.yaml` Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| EM-T01 | `tools` and `approved_tools` lists are byte-identical to the pre-edit v0.4.0 file | Structural (diff) | No entries added or removed; `web_search`/`web_fetch` absent from both |
-| EM-T02 | `skills` field includes `skill/decision-triage`, `skill/decision-record`, `skill/decision-brief` in addition to the two pre-existing entries | Structural | All five entries present |
-| EM-T03 | Every entry in `skills` resolves to an existing folder under `skills/` (or a Wave 1 sibling chunk's planned folder name, confirmed against `chunks.json`, per the same allowance used in AIF-002-001) | Structural | All entries resolve |
-| EM-T04 | `version` is valid semver and incremented from `0.4.0` to `0.5.0` | Structural | Semver valid, bumped |
-| EM-T05 | New Hard Rule text references `skill/chunk-orchestration`'s Decision Hand-off Sub-Flow by name and states both invariants (never resume past unapproved decision; `Deferred` never satisfies the gate) | Structural (manual read) | Both invariants present in prose |
-| EM-T06 | `blocked_commands` unchanged (`git *`, `gh *`) | Structural (diff) | No change |
+| Test ID | Description                                                                                                                                                                                            | Type                     | Pass Criteria                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ | ---------------------------------------------------------------------- |
+| EM-T01  | `tools` and `approved_tools` lists are byte-identical to the pre-edit v0.4.0 file                                                                                                                      | Structural (diff)        | No entries added or removed; `web_search`/`web_fetch` absent from both |
+| EM-T02  | `skills` field includes `skill/decision-triage`, `skill/decision-record`, `skill/decision-brief` in addition to the two pre-existing entries                                                           | Structural               | All five entries present                                               |
+| EM-T03  | Every entry in `skills` resolves to an existing folder under `skills/` (or a Wave 1 sibling chunk's planned folder name, confirmed against `chunks.json`, per the same allowance used in AIF-002-001)  | Structural               | All entries resolve                                                    |
+| EM-T04  | `version` is valid semver and incremented from `0.4.0` to `0.5.0`                                                                                                                                      | Structural               | Semver valid, bumped                                                   |
+| EM-T05  | New Hard Rule text references `skill/chunk-orchestration`'s Decision Hand-off Sub-Flow by name and states both invariants (never resume past unapproved decision; `Deferred` never satisfies the gate) | Structural (manual read) | Both invariants present in prose                                       |
+| EM-T06  | `blocked_commands` unchanged (`git *`, `gh *`)                                                                                                                                                         | Structural (diff)        | No change                                                              |
 
 ### `skill/chunk-orchestration` Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| CO-T01 | Decision Hand-off Sub-Flow is present under Step 4, structurally parallel to the Conflict Resolution Sub-Flow (numbered sub-steps, "Triggered by:" framing) | Structural | Present, correctly placed |
-| CO-T02 | Sub-flow implements all five sub-steps from Epic AIF-002 Section 4, matched 1:1 against the epic text | Structural (manual diff) | All five present, no omissions or additions |
-| CO-T03 | No new chunk `status` value referenced anywhere in the new sub-flow text; only `Blocked`/`Ready` (existing values) are used | Structural | Confirmed by read-through |
-| CO-T04 | Sub-flow text references `decision-triage`, `decision-record`, `decision-brief`, and `plan-lifecycle` by name, without duplicating their internal Steps | Structural | Names present; no duplicated internal logic |
-| CO-T05 | `reference/state-schema.md`'s Log actions table gains exactly three new rows (`decision_handoff_detected`, `decision_authored`, `decision_handoff_resolved`) and no other schema tables change | Structural (diff) | Exactly three rows added; no other table modified |
-| CO-T06 | `SKILL.md`'s Decision Hand-off Sub-Flow log actions (`decision_handoff_detected`, `decision_authored`, `decision_handoff_resolved`, plus reused `chunk_unblocked`) exactly match the three new rows added to `state-schema.md` in this same chunk | Structural (cross-file diff) | Names match exactly across both files |
+| Test ID | Description                                                                                                                                                                                                                                       | Type                         | Pass Criteria                                     |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- | ------------------------------------------------- |
+| CO-T01  | Decision Hand-off Sub-Flow is present under Step 4, structurally parallel to the Conflict Resolution Sub-Flow (numbered sub-steps, "Triggered by:" framing)                                                                                       | Structural                   | Present, correctly placed                         |
+| CO-T02  | Sub-flow implements all five sub-steps from Epic AIF-002 Section 4, matched 1:1 against the epic text                                                                                                                                             | Structural (manual diff)     | All five present, no omissions or additions       |
+| CO-T03  | No new chunk `status` value referenced anywhere in the new sub-flow text; only `Blocked`/`Ready` (existing values) are used                                                                                                                       | Structural                   | Confirmed by read-through                         |
+| CO-T04  | Sub-flow text references `decision-triage`, `decision-record`, `decision-brief`, and `plan-lifecycle` by name, without duplicating their internal Steps                                                                                           | Structural                   | Names present; no duplicated internal logic       |
+| CO-T05  | `reference/state-schema.md`'s Log actions table gains exactly three new rows (`decision_handoff_detected`, `decision_authored`, `decision_handoff_resolved`) and no other schema tables change                                                    | Structural (diff)            | Exactly three rows added; no other table modified |
+| CO-T06  | `SKILL.md`'s Decision Hand-off Sub-Flow log actions (`decision_handoff_detected`, `decision_authored`, `decision_handoff_resolved`, plus reused `chunk_unblocked`) exactly match the three new rows added to `state-schema.md` in this same chunk | Structural (cross-file diff) | Names match exactly across both files             |
 
 ---
 
@@ -302,11 +312,11 @@ This chunk has no executable code, so "testing" here means structural/ cross-ref
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | This chunk references `skill/decision-triage`, `skill/decision-record`, and `skill/decision-brief` by name before those Wave 1 sibling chunks (001/002/003) have landed — if any of them lands with a materially different name or Steps shape than assumed here, the Hard Rule / Responsibilities text and the Sub-Flow's dispatch language could need a follow-up edit | L | Names (`decision-triage`, `decision-brief`) were explicitly confirmed by the human in Epic AIF-002's Work Log before decomposition (Open Question 1), and `decision-record`'s name is unchanged from its current form — low risk of drift. This chunk has no `depends_on` on 001/002/003 in `chunks.json` (Wave 1, fully parallel), consistent with the Epic's own parallelization notes accepting this risk as acceptable. |
-| 2 | `blocked_reason` remains an untyped string carrying structured domain/tier/owning-agent facts, rather than a proper structured field — a future chunk parsing `blocked_reason` programmatically (e.g. for a dashboard) would need to parse free text | L | Explicitly the Epic's own design choice (Section 5 sub-step 1, state-schema scope note: "No new chunk status value or state-object field is needed"). Out of this chunk's authority to change; flagged here for visibility only, not a defect of this chunk's implementation. |
-| 3 | The Hard Rule text summarizes the sub-flow rather than reproducing all five sub-steps verbatim in the agent prompt (Key Design Decision 3) — a future reader of only `engineering-manager.yaml` (without also reading `skill/chunk-orchestration`) gets a partial picture | L | Matches the agent's existing style for the Conflict Resolution rules (also summarized, not reproduced in full). Accepted as consistent with precedent; the full procedure is always one skill-reference away. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                                          | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | This chunk references `skill/decision-triage`, `skill/decision-record`, and `skill/decision-brief` by name before those Wave 1 sibling chunks (001/002/003) have landed — if any of them lands with a materially different name or Steps shape than assumed here, the Hard Rule / Responsibilities text and the Sub-Flow's dispatch language could need a follow-up edit | L      | Names (`decision-triage`, `decision-brief`) were explicitly confirmed by the human in Epic AIF-002's Work Log before decomposition (Open Question 1), and `decision-record`'s name is unchanged from its current form — low risk of drift. This chunk has no `depends_on` on 001/002/003 in `chunks.json` (Wave 1, fully parallel), consistent with the Epic's own parallelization notes accepting this risk as acceptable. |
+| 2   | `blocked_reason` remains an untyped string carrying structured domain/tier/owning-agent facts, rather than a proper structured field — a future chunk parsing `blocked_reason` programmatically (e.g. for a dashboard) would need to parse free text                                                                                                                     | L      | Explicitly the Epic's own design choice (Section 5 sub-step 1, state-schema scope note: "No new chunk status value or state-object field is needed"). Out of this chunk's authority to change; flagged here for visibility only, not a defect of this chunk's implementation.                                                                                                                                               |
+| 3   | The Hard Rule text summarizes the sub-flow rather than reproducing all five sub-steps verbatim in the agent prompt (Key Design Decision 3) — a future reader of only `engineering-manager.yaml` (without also reading `skill/chunk-orchestration`) gets a partial picture                                                                                                | L      | Matches the agent's existing style for the Conflict Resolution rules (also summarized, not reproduced in full). Accepted as consistent with precedent; the full procedure is always one skill-reference away.                                                                                                                                                                                                               |
 
 ---
 

@@ -1,7 +1,7 @@
 ---
-name: "test-execution"
-version: "0.3.0"
-description: "Writes and executes automated tests, producing a Test Results Report with pass/fail/blocked status."
+name: 'test-execution'
+version: '0.3.1'
+description: 'Writes and executes automated tests, producing a Test Results Report with pass/fail/blocked status.'
 ---
 
 ## Purpose
@@ -25,6 +25,7 @@ Produces a structured report showing pass/fail/blocked status per test case with
 ### Step 1 — Read Testing Plan
 
 Understand every test case before writing any tests. Identify:
+
 - Which functions contain pure logic that can be unit tested directly
 - Which behaviours require I/O and need integration tests
 - Shared setup opportunities to extract into `tests/helpers/`
@@ -42,6 +43,7 @@ tests/
 ```
 
 Category definitions:
+
 - **Unit** — zero side effects. No filesystem reads/writes, no network, no child processes. Input is data, output is data.
 - **Integration** — exercises real I/O (temp directories, actual file writes, subprocess invocation). Uses shared fixtures for setup/teardown.
 - **Validation** — verifies the real repository or environment is well-formed (schema checks, cross-reference integrity). Runs against actual project files.
@@ -59,6 +61,7 @@ Before writing tests, assess whether the source code exposes pure functions that
 ### Step 4 — Write Test Cases
 
 Rules:
+
 - Each test verifies one distinct behaviour or boundary
 - Do not write tests that duplicate coverage from another test
 - Do not write separate tests for trivially implied outcomes

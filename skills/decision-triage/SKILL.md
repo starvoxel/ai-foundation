@@ -1,14 +1,14 @@
 ---
-name: "decision-triage"
-version: "0.1.0"
-description: "Classifies a decision by Tier and Domain and routes it to the correct producing skill or convention."
+name: 'decision-triage'
+version: '0.1.1'
+description: 'Classifies a decision by Tier and Domain and routes it to the correct producing skill or convention.'
 ---
 
 ## Purpose
 
 The single entry point every agent uses when it identifies it needs to record a decision. Applies the promotion threshold to select a Tier (A/B/C), determines Domain for Tier A/B decisions, checks the invoking agent against the domain owner, and dispatches to the skill (or convention) that actually produces the artifact.
 
-`decision-triage` never writes a decision artifact itself. It decides *what kind* of record is needed and routes accordingly; the target skill decides *how* to produce it. Use this skill any time a decision point is identified during planning or implementation — before authoring a Decision Record, a Decision Brief, or an inline plan note.
+`decision-triage` never writes a decision artifact itself. It decides _what kind_ of record is needed and routes accordingly; the target skill decides _how_ to produce it. Use this skill any time a decision point is identified during planning or implementation — before authoring a Decision Record, a Decision Brief, or an inline plan note.
 
 ---
 

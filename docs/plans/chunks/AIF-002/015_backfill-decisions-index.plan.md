@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-015 |
-| Parent Epic | AIF-002 |
-| Chunk | 15 of 15 |
-| Depends On | AIF-002-009, AIF-002-010, AIF-002-011, AIF-002-012, AIF-002-013 (all 11 records must be migrated to their final ID/domain/status first), AIF-002-014 (the `aif index -d` tool must exist to run it) |
-| Can Parallel | None (sole Wave 3 chunk) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer (self-planned) |
-| Reviewed By | Jeremy Smellie |
-| Created | 2026-08-17 |
-| Last Updated | 2026-08-16 (revised — added AIF-META-001 pointer edit and stale-reference sweep scope, per Epic Open Question 8 resolution) |
-| Standards | AGENTS.md declarative-component schemas — this chunk produces `docs/decisions/index.json`, a `docs/` data artifact, per AIF-004's boundary table. No code is written by this chunk; it runs a tool built in AIF-002-014. |
+| Field          | Value                                                                                                                                                                                                                    |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Plan ID        | AIF-002-015                                                                                                                                                                                                              |
+| Parent Epic    | AIF-002                                                                                                                                                                                                                  |
+| Chunk          | 15 of 15                                                                                                                                                                                                                 |
+| Depends On     | AIF-002-009, AIF-002-010, AIF-002-011, AIF-002-012, AIF-002-013 (all 11 records must be migrated to their final ID/domain/status first), AIF-002-014 (the `aif index -d` tool must exist to run it)                      |
+| Can Parallel   | None (sole Wave 3 chunk)                                                                                                                                                                                                 |
+| Project        | ai-foundation                                                                                                                                                                                                            |
+| Status         | Approved                                                                                                                                                                                                                 |
+| Author (Agent) | AI-Engineer (self-planned)                                                                                                                                                                                               |
+| Reviewed By    | Jeremy Smellie                                                                                                                                                                                                           |
+| Created        | 2026-08-17                                                                                                                                                                                                               |
+| Last Updated   | 2026-08-16 (revised — added AIF-META-001 pointer edit and stale-reference sweep scope, per Epic Open Question 8 resolution)                                                                                              |
+| Standards      | AGENTS.md declarative-component schemas — this chunk produces `docs/decisions/index.json`, a `docs/` data artifact, per AIF-004's boundary table. No code is written by this chunk; it runs a tool built in AIF-002-014. |
 
 ---
 
@@ -57,6 +57,7 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
 ## 5. Scope
 
 ### In Scope
+
 - Run `aif index -d` against this repo's `docs/decisions/` directory, once all 11 records (migrated by chunks 009–013) exist in their final `{domain}/{ID}_{ShortTitle}.decision.md` form.
 - Verify the generated `docs/decisions/index.json`:
   - Contains exactly 11 entries, one per migrated record.
@@ -70,6 +71,7 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
 - If verification surfaces a data problem in a migrated record (e.g. a `References` field pointing to an ID that doesn't exist, a Metadata table field that doesn't parse) — **stop and report**, per Section 8 (Error Handling); do not hand-edit the generated `index.json` to work around it, and do not silently fix the source record without flagging it, since that would be undocumented scope creep into a migration chunk's own territory.
 
 ### Out of Scope
+
 - Any change to `aif index -d`'s implementation, `lib/commands/index.js`, or `lib/decisions.js` — that is chunk 014, already complete and Approved by the time this chunk runs (dependency).
 - Any change to any of the 11 migrated Decision Records' content — this chunk only reads them; fixing a data problem discovered during verification is routed back to the relevant migration chunk (009–013), not patched here (see In Scope, last bullet).
 - Adding a `Supersedes`/`Superseded By` field to any template or record — out of scope for chunk 014 (Risk 3 there) and equally out of scope here; this chunk accepts `supersedes`/`superseded_by` as empty arrays in the generated output, consistent with chunk 014's documented limitation.
@@ -95,6 +97,7 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
 ## 7. Architecture & Design
 
 ### Project Structure Changes
+
 - `docs/decisions/index.json` ← NEW (generated, not hand-authored)
 
 ### Key Design Decisions
@@ -106,6 +109,7 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
    **Rationale**: Matches the actual nature of the work per the Epic's Section 5 description ("produced by running `aif index -d` against the migrated records, not hand-authored"). A heavyweight Chunk Plan for a "run a command and check its output" task would be ceremony without substance; `skill/complexity-tiers` assessment (Section 15) reflects this as Tier 1.
 
 ### Patterns & Conventions Applied
+
 - AGENTS.md declarative-component conventions for `docs/` content.
 - `skill/plan-lifecycle` commit-gate procedure for this Chunk Plan itself.
 
@@ -119,15 +123,18 @@ Produce the first real `docs/decisions/index.json` for this repo by running `aif
 **Purpose**: The first real cross-domain decision index for this repo, generated (not authored) by running `aif index -d` against all 11 migrated records.
 
 **Key Behaviour**:
+
 - Produced entirely by AIF-002-014's tool — this chunk supplies no new parsing/generation logic.
 - 11 entries, matching AIF-002 Epic Plan Section 5's migration table exactly (IDs `AIF-ARCH-001` through `AIF-ARCH-004`, `AIF-PROC-001` through `AIF-PROC-006`, `AIF-PLAN-001`).
 
 **Error Handling** (this chunk's actual work, beyond running the command):
+
 - **`aif index -d` exits non-zero (malformed record found)**: stop immediately; do not attempt to work around it in this chunk. Identify which migration chunk (009–013) produced the offending record and report back to it — that chunk's own Chunk Plan or a follow-up revision fixes the source record, not this chunk.
 - **`aif index -d --check` finds drift immediately after generation**: should not happen by construction (generation and the check use the same underlying logic per chunk 014's design) — if it does, this is itself a bug in chunk 014's tool, reported back there, not worked around here.
 - **A `References` field points to an ID that doesn't exist among the 11 migrated records**: `aif index -d`'s inversion logic (chunk 014) will simply not find a match for that reference — it does not itself validate that every `References` entry resolves to a real ID in the corpus (chunk 014's Section 8 does not specify this as a validation step, only that `referenced_by` is computed from what does match). This chunk's own verification step (Section 5, second bullet) catches this by manually cross-checking each entry's `references` list against the set of real IDs — if any don't resolve, stop and report to the migration chunk that owns the record with the bad reference, per the Epic's Section 8 ("a broken cross-reference during migration is a data-integrity defect, not merely cosmetic").
 
 **Dependencies**:
+
 - `aif index -d` (AIF-002-014) — the tool this chunk runs
 - All 11 migrated Decision Records (AIF-002-009 through 013) — the source data
 
@@ -156,11 +163,11 @@ No new data model — `docs/decisions/index.json`'s shape is entirely defined by
 
 This chunk performs a one-time CLI run plus manual verification, not ongoing runtime execution — no new application log stream is introduced. The relevant logging is `aif index -d`'s own console output (already specified in chunk 014, Section 11) plus this chunk's own Work Log entries.
 
-| Event | Level (Work Log equivalent) | What is logged | What is NOT logged |
-|---|---|---|---|
-| `aif index -d` run against the real repo | Captured in this chunk's implementation commit message/Work Log | Entry count generated, confirmation `--check` passed | Full file contents duplicated into the Work Log (the file itself is the artifact, committed separately) |
-| A data problem found during verification (if any) | Work Log `[Blocked]`/note, referencing the offending migration chunk | Which record, which field, which chunk it's routed back to | — |
-| Chunk Plan Draft/Revised/Approved | Work Log entry, this file's §14 | Standard plan-lifecycle fields | — |
+| Event                                             | Level (Work Log equivalent)                                          | What is logged                                             | What is NOT logged                                                                                      |
+| ------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `aif index -d` run against the real repo          | Captured in this chunk's implementation commit message/Work Log      | Entry count generated, confirmation `--check` passed       | Full file contents duplicated into the Work Log (the file itself is the artifact, committed separately) |
+| A data problem found during verification (if any) | Work Log `[Blocked]`/note, referencing the offending migration chunk | Which record, which field, which chunk it's routed back to | —                                                                                                       |
+| Chunk Plan Draft/Revised/Approved                 | Work Log entry, this file's §14                                      | Standard plan-lifecycle fields                             | —                                                                                                       |
 
 ---
 
@@ -170,15 +177,15 @@ This chunk produces a data artifact via a tool already tested in chunk 014 — "
 
 ### `docs/decisions/index.json` Verification
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| BF-T01 | ~~`docs/decisions/index.json` contains exactly 11 entries~~ **(Superseded, 2026-08-24, human decision — see Work Log)** contains exactly 14 entries | Manual/scripted count check | Count is 14 |
-| BF-T02 | ~~Every entry's `id` matches one of the 11 final IDs from AIF-002 Epic Plan §3's migration table~~ **(Superseded, 2026-08-24)** Every entry's `id` matches one of the 11 originally-migrated final IDs, plus `AIF-META-001`, `AIF-ARCH-005`, `AIF-ARCH-006` | Manual cross-check | Full match, no missing/extra IDs |
-| BF-T03 | Every entry's `path` resolves to a real file on disk | Manual/scripted check (`existsSync` per entry) | All resolve |
-| BF-T04 | Every entry's `domain`/`tier`/`status` matches the corresponding record's actual Metadata table | Manual spot-check (all 11, given the small count) | Full match |
-| BF-T05 | `references`/`referenced_by` are bidirectionally consistent across all 11 entries | Manual cross-check | For every `A references B`, `B.referenced_by` includes `A` |
-| BF-T06 | `aif index -d --check` exits 0 immediately after generation | Automated (run the command) | Exit code 0 |
-| BF-T07 | `npm test` passes (no regression introduced by adding this file) | Automated | Exit code 0 |
+| Test ID | Description                                                                                                                                                                                                                                                 | Type                                              | Pass Criteria                                              |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------------------------- |
+| BF-T01  | ~~`docs/decisions/index.json` contains exactly 11 entries~~ **(Superseded, 2026-08-24, human decision — see Work Log)** contains exactly 14 entries                                                                                                         | Manual/scripted count check                       | Count is 14                                                |
+| BF-T02  | ~~Every entry's `id` matches one of the 11 final IDs from AIF-002 Epic Plan §3's migration table~~ **(Superseded, 2026-08-24)** Every entry's `id` matches one of the 11 originally-migrated final IDs, plus `AIF-META-001`, `AIF-ARCH-005`, `AIF-ARCH-006` | Manual cross-check                                | Full match, no missing/extra IDs                           |
+| BF-T03  | Every entry's `path` resolves to a real file on disk                                                                                                                                                                                                        | Manual/scripted check (`existsSync` per entry)    | All resolve                                                |
+| BF-T04  | Every entry's `domain`/`tier`/`status` matches the corresponding record's actual Metadata table                                                                                                                                                             | Manual spot-check (all 11, given the small count) | Full match                                                 |
+| BF-T05  | `references`/`referenced_by` are bidirectionally consistent across all 11 entries                                                                                                                                                                           | Manual cross-check                                | For every `A references B`, `B.referenced_by` includes `A` |
+| BF-T06  | `aif index -d --check` exits 0 immediately after generation                                                                                                                                                                                                 | Automated (run the command)                       | Exit code 0                                                |
+| BF-T07  | `npm test` passes (no regression introduced by adding this file)                                                                                                                                                                                            | Automated                                         | Exit code 0                                                |
 
 ---
 
@@ -193,12 +200,12 @@ This chunk produces a data artifact via a tool already tested in chunk 014 — "
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | This chunk is entirely dependent on all 5 migration chunks and chunk 014 being fully Approved and correctly implemented — it has no independent value until then and cannot be meaningfully started early. | L | Reflected accurately in `chunks.json` (`depends_on: ["009","010","011","012","013","014"]`) and Section 6 Prerequisites — no attempt to parallelize this chunk against its dependencies. |
-| 2 | If a cross-reference or parsing problem is found during this chunk's verification, fixing it requires reopening an already-Approved migration chunk (009–013) or chunk 014, which this chunk cannot do unilaterally. | M | Documented explicit "stop and report" behavior (Section 8, Error Handling) rather than silently patching around it. This is a real risk that could block Epic completion, not eliminated by this chunk, but its scope is deliberately kept out of this chunk's authority to avoid an undocumented fix landing outside the process that produced the original content. |
-| 3 | `supersedes`/`superseded_by` will be empty for all 11 entries, per chunk 014's Risk 3 (no `Supersedes` field in the current templates). None of the 11 existing records currently use `Status: Superseded`, so this gap has no visible effect on this specific backfill — but it means the backfilled index cannot yet represent a superseding relationship if one is later declared. | L | Accepted as a known, documented limitation inherited from chunk 014; not this chunk's to fix. Revisit if/when chunks 002/003 gain a `Supersedes` field. |
-| 4 | ~~**(Discovered, 2026-08-24)** `AIF-ARCH-005`'s `References` field cites the old-numbering ID `AIF-005` (the record now known as `AIF-PROC-002`), which does not resolve to any real entry in the generated index — its `references` array contains a dangling old-ID string and `AIF-PROC-002.referenced_by` does not include it. `AIF-ARCH-005` was authored by Architect after this Epic's migration and is not one of the 11 records this chunk is scoped to fix (Section 5, Out of Scope) or one covered by chunks 009–013's disposition tables.~~ **Resolved (2026-08-24, human direction, full commit authorization given directly):** `AIF-ARCH-005`'s `References` fixed to `AIF-PROC-002`, `AIF-PROC-002`'s `Referenced By` gained the reverse link, `docs/decisions/index.json` regenerated via `aif index -d` (unmodified tool output), `--check` passes, `npm test` 681/681. Commit `745d503`, direct to `main`, outside this chunk's own scope/plan (same ad hoc human-approved pattern as commits `5543cc4`/`c47c86f`). | L | Originally not fixed by this chunk per Rule 4 (raise, don't silently expand scope) and this chunk's own "stop and report, do not patch source records" mandate (Section 8); raised as an open item for Architect/Tech-Lead follow-up. Did not block this chunk's own acceptance criteria. Follow-up completed same-day per explicit human instruction. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                            |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | This chunk is entirely dependent on all 5 migration chunks and chunk 014 being fully Approved and correctly implemented — it has no independent value until then and cannot be meaningfully started early.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | L      | Reflected accurately in `chunks.json` (`depends_on: ["009","010","011","012","013","014"]`) and Section 6 Prerequisites — no attempt to parallelize this chunk against its dependencies.                                                                                                                                                                              |
+| 2   | If a cross-reference or parsing problem is found during this chunk's verification, fixing it requires reopening an already-Approved migration chunk (009–013) or chunk 014, which this chunk cannot do unilaterally.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | M      | Documented explicit "stop and report" behavior (Section 8, Error Handling) rather than silently patching around it. This is a real risk that could block Epic completion, not eliminated by this chunk, but its scope is deliberately kept out of this chunk's authority to avoid an undocumented fix landing outside the process that produced the original content. |
+| 3   | `supersedes`/`superseded_by` will be empty for all 11 entries, per chunk 014's Risk 3 (no `Supersedes` field in the current templates). None of the 11 existing records currently use `Status: Superseded`, so this gap has no visible effect on this specific backfill — but it means the backfilled index cannot yet represent a superseding relationship if one is later declared.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | L      | Accepted as a known, documented limitation inherited from chunk 014; not this chunk's to fix. Revisit if/when chunks 002/003 gain a `Supersedes` field.                                                                                                                                                                                                               |
+| 4   | ~~**(Discovered, 2026-08-24)** `AIF-ARCH-005`'s `References` field cites the old-numbering ID `AIF-005` (the record now known as `AIF-PROC-002`), which does not resolve to any real entry in the generated index — its `references` array contains a dangling old-ID string and `AIF-PROC-002.referenced_by` does not include it. `AIF-ARCH-005` was authored by Architect after this Epic's migration and is not one of the 11 records this chunk is scoped to fix (Section 5, Out of Scope) or one covered by chunks 009–013's disposition tables.~~ **Resolved (2026-08-24, human direction, full commit authorization given directly):** `AIF-ARCH-005`'s `References` fixed to `AIF-PROC-002`, `AIF-PROC-002`'s `Referenced By` gained the reverse link, `docs/decisions/index.json` regenerated via `aif index -d` (unmodified tool output), `--check` passes, `npm test` 681/681. Commit `745d503`, direct to `main`, outside this chunk's own scope/plan (same ad hoc human-approved pattern as commits `5543cc4`/`c47c86f`). | L      | Originally not fixed by this chunk per Rule 4 (raise, don't silently expand scope) and this chunk's own "stop and report, do not patch source records" mandate (Section 8); raised as an open item for Architect/Tech-Lead follow-up. Did not block this chunk's own acceptance criteria. Follow-up completed same-day per explicit human instruction.                |
 
 ---
 

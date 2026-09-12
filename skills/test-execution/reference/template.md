@@ -2,23 +2,23 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Run By | Test-Engineer |
-| Date | {YYYY-MM-DD HH:mm} |
-| Chunk Plan | {Plan ID} |
-| Outcome | Pass / Fail / Blocked |
-| Results | {n} passed, {n} failed, {n} blocked |
+| Field      | Value                               |
+| ---------- | ----------------------------------- |
+| Run By     | Test-Engineer                       |
+| Date       | {YYYY-MM-DD HH:mm}                  |
+| Chunk Plan | {Plan ID}                           |
+| Outcome    | Pass / Fail / Blocked               |
+| Results    | {n} passed, {n} failed, {n} blocked |
 
 ---
 
 ## Results by Test Case
 
-| Test ID | Test Name | Result | Notes |
-|---|---|---|---|
-| {ID}-T01 | {TestName} | Pass | |
-| {ID}-T02 | {TestName} | Fail | {brief failure detail} |
-| {ID}-T03 | {TestName} | Blocked | {brief reason} |
+| Test ID  | Test Name  | Result  | Notes                  |
+| -------- | ---------- | ------- | ---------------------- |
+| {ID}-T01 | {TestName} | Pass    |                        |
+| {ID}-T02 | {TestName} | Fail    | {brief failure detail} |
+| {ID}-T03 | {TestName} | Blocked | {brief reason}         |
 
 ---
 

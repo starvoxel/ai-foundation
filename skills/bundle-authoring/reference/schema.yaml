@@ -2,14 +2,14 @@
 # Lives at bundles/{name}/bundle.yaml
 
 fields:
-  name:        "kebab-case identifier, matches directory name"
-  version:     "semver (1.0.0)"
+  name: "kebab-case identifier, matches directory name"
+  version: "semver (1.0.0)"
   description: "One sentence — what this bundle installs"
-  domain:      "Optional. Auto-discover all components in this domain"
-  agents:      "Optional. Explicit agent filenames to include"
-  skills:      "Optional. Explicit skill folder names to include"
-  steering:    "Optional. Explicit steering paths (relative to repo root)"
-  servers:     "Optional. Explicit server folder names to include"
+  domain: "Optional. Auto-discover all components in this domain"
+  agents: "Optional. Explicit agent filenames to include"
+  skills: "Optional. Explicit skill folder names to include"
+  steering: "Optional. Explicit steering paths (relative to repo root)"
+  servers: "Optional. Explicit server folder names to include"
 
 # Resolution rules:
 #   - domain + explicit lists: discovery runs first, explicit appended, deduped
@@ -19,10 +19,10 @@ fields:
 
 resolution:
   domain_discovery:
-    agents:   "All agents where agent.domain == bundle.domain"
-    skills:   "Collected from discovered agents' skills fields"
+    agents: "All agents where agent.domain == bundle.domain"
+    skills: "Collected from discovered agents' skills fields"
     steering: "steering/global/**/*.md + steering/{domain}/**/*.md"
-    servers:  "Resolved from @server/tool refs in agent tools"
+    servers: "Resolved from @server/tool refs in agent tools"
 
 example:
   name: "engineering"

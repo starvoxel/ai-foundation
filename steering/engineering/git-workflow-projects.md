@@ -1,7 +1,7 @@
 ---
-name: "git-workflow-projects"
-version: "0.3.0"
-description: "Git workflow for project repositories where agents produce code."
+name: 'git-workflow-projects'
+version: '0.3.1'
+description: 'Git workflow for project repositories where agents produce code.'
 file_patterns: []
 ---
 

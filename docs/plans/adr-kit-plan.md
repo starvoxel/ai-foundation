@@ -5,9 +5,9 @@
 - Need: ADR tooling with search (name/tags), typed links (related/supersedes/amends), reverse file-lookup, a CLI, and an MCP server.
 - Evaluated: **adrs-core** (feature fit, but Rust — wrong stack), **adr-tools** and **log4brains** (Node, but neither has typed links or reverse file-lookup). Building that layer ourselves either way, so build the whole thing ourselves.
 - Where it lives: ai-foundation isn't published to npm (`"private": true`) and has exactly one consumer today, so a separate package/repo now is overhead with no payoff. Build inside ai-foundation, but split the code (core / CLI / MCP) the way it would need to look as three packages later, so extraction is mechanical, not a rewrite.
-- Format: YAML frontmatter, MADR convention. This is now the *same* format `docs/process-model.md` adopted for ai-foundation's own `docs/decisions/` — see "Format alignment with process-model.md" below. adr-kit does **not** perform that migration; the existing `.decision.md` records are rewritten by hand as part of process-model.md's own migration, independent of this plan.
+- Format: YAML frontmatter, MADR convention. This is now the _same_ format `docs/process-model.md` adopted for ai-foundation's own `docs/decisions/` — see "Format alignment with process-model.md" below. adr-kit does **not** perform that migration; the existing `.decision.md` records are rewritten by hand as part of process-model.md's own migration, independent of this plan.
 - Physical split: only the MCP protocol layer goes under `servers/` (per `servers/README.md`, that folder is MCP defs only). Core logic + CLI live at `lib/adr-kit/` + `bin/adr-kit.js`, mirroring `lib/*` + `bin/aif.js`. `servers/adr-kit/index.js` importing `lib/adr-kit/` is the one deliberate cross-folder dependency; `lib/adr-kit/` itself must stay zero-coupled (see guard below) so it can become `adr-kit-core` cleanly later.
-- **Goal is for ai-foundation to eventually adopt adr-kit once built** — not run two parallel decision-record systems indefinitely. Until then, ai-foundation authors decisions by hand (`docs/process-model.md`'s Phase 0.5, below) in the *same* format adr-kit will later automate, so the format gets validated by real use before any tooling is built, and adopting adr-kit later is a tooling swap, not a format migration.
+- **Goal is for ai-foundation to eventually adopt adr-kit once built** — not run two parallel decision-record systems indefinitely. Until then, ai-foundation authors decisions by hand (`docs/process-model.md`'s Phase 0.5, below) in the _same_ format adr-kit will later automate, so the format gets validated by real use before any tooling is built, and adopting adr-kit later is a tooling swap, not a format migration.
 
 ---
 
@@ -31,12 +31,12 @@ No remaining discrepancies between the two documents' formats.
 Split into featuresets so each phase is independently useful and buildable without the
 next one existing yet.
 
-| Phase | Scope | Where it lives |
-|---|---|---|
-| **0.5** | Hand-authored MADR records — the format below, written by `write` alone, no tooling. This *is* `docs/process-model.md`'s current "ADR tooling — not needed for the proof of concept" state. | `docs/process-model.md`, not this plan |
-| **1** | Vanilla MADR + `affects` + `links.supersedes`, parsed and indexed by a CLI. Minimal command surface: create records, build the index. No search/list/show query commands yet, no MCP. | `lib/adr-kit/`, `bin/adr-kit.js` |
-| **2** | Full CLI (search/list/show/affects/link) + MCP server, both fronting the same Phase 1 engine. | + `servers/adr-kit/` |
-| **3** | `links.related` (symmetric) and possibly `links.amends`; possibly a generic "custom" link-type mechanism. Deliberately unspecified until Phase 2 ships — fleshed out then. | TBD |
+| Phase   | Scope                                                                                                                                                                                       | Where it lives                         |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| **0.5** | Hand-authored MADR records — the format below, written by `write` alone, no tooling. This _is_ `docs/process-model.md`'s current "ADR tooling — not needed for the proof of concept" state. | `docs/process-model.md`, not this plan |
+| **1**   | Vanilla MADR + `affects` + `links.supersedes`, parsed and indexed by a CLI. Minimal command surface: create records, build the index. No search/list/show query commands yet, no MCP.       | `lib/adr-kit/`, `bin/adr-kit.js`       |
+| **2**   | Full CLI (search/list/show/affects/link) + MCP server, both fronting the same Phase 1 engine.                                                                                               | + `servers/adr-kit/`                   |
+| **3**   | `links.related` (symmetric) and possibly `links.amends`; possibly a generic "custom" link-type mechanism. Deliberately unspecified until Phase 2 ships — fleshed out then.                  | TBD                                    |
 
 Phases 1 and 2 are what the rest of this document specs in detail. Phase 3 is a
 placeholder, not a commitment to `amends`/custom-links' exact shape.
@@ -103,9 +103,11 @@ Considered Options / Decision Outcome / Consequences — not parsed structurally
 ```
 
 Config at the consuming project's root, `.adr-kit.json`:
+
 ```json
 { "path": "docs/adr", "idPrefix": "ADR" }
 ```
+
 `idPrefix` is display-only ("ADR-0002" in CLI output); stored/referenced IDs stay bare MADR numbers. No Tier/Domain or other ai-foundation-specific fields.
 
 ---
@@ -117,11 +119,13 @@ Vanilla MADR fields, `affects`, `links.supersedes`, and a CLI that can create re
 ### `lib/adr-kit/core.js` — pure logic
 
 **Exported (wrapper-facing)**:
+
 - `parseAdrFile(content, relPath)` → `{record}`/`{error}` — parses frontmatter, validates `title` (H1) and `status`, derives `id` from `relPath`'s `NNNN-` prefix.
 - `nextId(index, idPrefix)` — used by `new`
 - `renderAdrTemplate({id, title, tags, links, affects}, template)` — used by `new`
 
 **Exported out of necessity, not API** (`@internal` JSDoc tag):
+
 - `buildIndex(records)` → `{generated_at, entries}` — inverts `links.supersedes`→`superseded_by` (Phase 1; `related`/`amends` inversion added Phase 3). Called only by `io.js`'s private `buildIndexForDir`. Must stay `export`ed since core.js and io.js are separate files — plain JS has no file-local-but-cross-module privacy — but it's not part of the intended wrapper API and is tagged accordingly.
 
 ### `lib/adr-kit/io.js` — io wrappers

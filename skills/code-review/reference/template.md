@@ -2,13 +2,13 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Reviewed By | Principal-Engineer |
-| Date | {YYYY-MM-DD HH:mm} |
-| Chunk Plan | {Plan ID} |
-| Outcome | Approved / Returned |
-| Findings | {n} CRITICAL, {n} HIGH, {n} MEDIUM, {n} LOW |
+| Field       | Value                                       |
+| ----------- | ------------------------------------------- |
+| Reviewed By | Principal-Engineer                          |
+| Date        | {YYYY-MM-DD HH:mm}                          |
+| Chunk Plan  | {Plan ID}                                   |
+| Outcome     | Approved / Returned                         |
+| Findings    | {n} CRITICAL, {n} HIGH, {n} MEDIUM, {n} LOW |
 
 ---
 

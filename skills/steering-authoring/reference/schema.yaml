@@ -2,9 +2,9 @@
 # Lives at steering/{scope}/{name}.md with YAML frontmatter.
 
 frontmatter:
-  name:          "kebab-case identifier"
-  version:       "semver (0.1.0)"
-  description:   "One sentence — what this enforces"
+  name: "kebab-case identifier"
+  version: "semver (0.1.0)"
+  description: "One sentence — what this enforces"
   file_patterns: "[] = always | ['glob', ...] = conditional"
 
 body_sections:
@@ -16,11 +16,11 @@ body_sections:
     content: "What happens on violation, who catches it"
 
 scopes:
-  global:  "steering/global/ — all agents, every session"
-  domain:  "steering/{domain}/ — agents with matching domain field"
-  agent:   "NOT steering — goes in agent's prompt field"
+  global: "steering/global/ — all agents, every session"
+  domain: "steering/{domain}/ — agents with matching domain field"
+  agent: "NOT steering — goes in agent's prompt field"
 
 file_patterns_mapping:
   # Our field → harness native
-  empty:   "Always loaded"
+  empty: "Always loaded"
   populated: "Loaded when working with matching files"

@@ -65,7 +65,7 @@ The chunk/epic planning redesign plan proposes collapsing per-chunk approval int
 
 ## 10. Open question to resolve before configuring any of this
 
-Do committed plan `.md` files in git go away entirely (YouTrack becomes sole source of truth), or does YouTrack become the *tracking* layer while `.md` content still gets committed for git-log audit trail? This changes whether `Security Considerations`/`Epic Test Plan` are YouTrack fields, git files, or both — worth pinning down first since it affects roughly half the field list above.
+Do committed plan `.md` files in git go away entirely (YouTrack becomes sole source of truth), or does YouTrack become the _tracking_ layer while `.md` content still gets committed for git-log audit trail? This changes whether `Security Considerations`/`Epic Test Plan` are YouTrack fields, git files, or both — worth pinning down first since it affects roughly half the field list above.
 
 ## Comparison note vs. Plane
 

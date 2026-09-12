@@ -1,7 +1,7 @@
 ---
-name: "standards-loading"
-version: "0.3.0"
-description: "Instructs agents how to resolve and load standards files for a project using tag-based matching."
+name: 'standards-loading'
+version: '0.3.1'
+description: 'Instructs agents how to resolve and load standards files for a project using tag-based matching.'
 file_patterns: []
 ---
 
@@ -57,11 +57,11 @@ depends_on: [csharp_base]
 
 **Example:** Project tags `["csharp", "avalonia"]` with these standards:
 
-| Standard | Tags | Depends on | Loaded? |
-|---|---|---|---|
-| `csharp_base` | `[csharp]` | — | ✓ (has `csharp`) |
-| `csharp_avalonia` | `[csharp, avalonia]` | `csharp_base` | ✓ (has both) |
-| `csharp_unity` | `[csharp, unity]` | `csharp_base` | ✗ (missing `unity`) |
+| Standard          | Tags                 | Depends on    | Loaded?             |
+| ----------------- | -------------------- | ------------- | ------------------- |
+| `csharp_base`     | `[csharp]`           | —             | ✓ (has `csharp`)    |
+| `csharp_avalonia` | `[csharp, avalonia]` | `csharp_base` | ✓ (has both)        |
+| `csharp_unity`    | `[csharp, unity]`    | `csharp_base` | ✗ (missing `unity`) |
 
 Load order: `csharp_base` → `csharp_avalonia`
 
@@ -84,7 +84,7 @@ and their `depends_on` chains are also resolved.
 
 ## Rationale
 
-Tag-based resolution means projects declare *what they use* (e.g. "csharp", "avalonia")
+Tag-based resolution means projects declare _what they use_ (e.g. "csharp", "avalonia")
 rather than memorising exact standard filenames. Adding a new layered standard (e.g. `csharp_avalonia_reactiveui`) automatically loads for projects with matching tags — no `.aiconfig.json` changes needed. The ALL-of matching ensures standards only load when all their prerequisites are relevant to the project.
 
 ## Exceptions

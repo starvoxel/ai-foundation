@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-ARCH-006 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | architecture |
-| Status | Approved |
-| Author (Agent) | Architect |
-| Approved By | Jeremy |
-| Created | 2026-08-23 |
-| Referenced By | — |
-| References | AIF-ARCH-005 |
-| Tags | mcp, ai-git, tooling, cross-harness, credentials |
+| Field          | Value                                            |
+| -------------- | ------------------------------------------------ |
+| Decision ID    | AIF-ARCH-006                                     |
+| Project        | ai-foundation                                    |
+| Tier           | A                                                |
+| Domain         | architecture                                     |
+| Status         | Approved                                         |
+| Author (Agent) | Architect                                        |
+| Approved By    | Jeremy                                           |
+| Created        | 2026-08-23                                       |
+| Referenced By  | —                                                |
+| References     | AIF-ARCH-005                                     |
+| Tags           | mcp, ai-git, tooling, cross-harness, credentials |
 
 > **Note:** This record is the follow-up audit item flagged in AIF-ARCH-005's Impact on Planning — whether `ai-git` (currently a CLI script invoked via the generic `shell` tool) should be rebuilt as an MCP server, applying the same reasoning framework used for the DAG tool. Unlike AIF-ARCH-005, this is not retrospective: `ai-git` remains exactly as implemented today (`bin/ai-git.js` + `lib/ai-git.js`) regardless of this record's outcome unless a human separately commissions the conversion work.
 
@@ -29,11 +29,13 @@
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - Must continue to support the full git subcommand surface already in active use across this repo's skills — not just a fixed handful. `skill/worktree-management` alone already invokes `worktree add`, `worktree remove --force`, `worktree list`, `worktree prune`, `worktree unlock`, and `branch -d`; `skill/plan-lifecycle`/`skill/decision-brief` invoke plain commits; `steering/engineering/git-workflow-*.md` document `gh-pr-create`, `gh-pr-list`, `gh-pr-merge`, `gh-pr-view`, `gh-repo-view` as a non-exhaustive example set, explicitly "any `gh-<subcommand>`" and "any git subcommand" are supported today.
 - Must never weaken the existing credential-injection guarantee: token values are only ever injected as environment variables (`GH_TOKEN`, or embedded once into a push/fetch remote URL) — never accepted as a logged CLI argument, never printed.
 - Must remain invocable by every agent that currently uses it (Software-Engineer, Engineering-Manager, and any future agent following git-workflow steering), regardless of harness.
 
 What was a preference but not a hard requirement:
+
 - Apply AIF-ARCH-005's general guidance ("default to MCP for cross-harness deterministic tooling") consistently rather than special-casing `ai-git` without a stated reason either way.
 - Reuse `skill/server-authoring`'s standard shape if conversion is warranted.
 
@@ -68,19 +70,20 @@ What was a preference but not a hard requirement:
 
 **Chosen approach**: Option A — keep `ai-git` as a CLI script invoked via `shell`. Explicitly not converted to MCP.
 
-**Rationale**: AIF-ARCH-005's MCP-by-default guidance rests on three properties: the operation set is fixed and enumerable, the logic is deterministic in a way that benefits from schema-validated typed I/O, and converting narrows or clarifies what capability a consuming agent actually holds. `ai-git` fails the first property by design — its entire value is unconstrained passthrough of an open-ended git/gh surface that this repo's own skills are already actively expanding — which is exactly the condition that made Option B unworkable for DAG and remains unworkable here. It fails the third property incidentally, not by design: every current consumer already holds `shell` for other reasons, so there is no access-narrowing benefit available to capture, unlike a hypothetical agent that holds `shell` *only* for git operations. What would remain — a structured response object instead of an exit code — is real but marginal, and does not justify the server scaffold, SDK dependency, and install/registration cost against a script that already correctly isolates its credential-handling logic (`lib/ai-git.js` is already pure and already tested independently of the CLI I/O layer, satisfying the testability goal a conversion would otherwise be partly justified by). Applying AIF-ARCH-005's guidance faithfully means recognizing when its preconditions don't hold, not converting every cross-harness script to MCP by reflex.
+**Rationale**: AIF-ARCH-005's MCP-by-default guidance rests on three properties: the operation set is fixed and enumerable, the logic is deterministic in a way that benefits from schema-validated typed I/O, and converting narrows or clarifies what capability a consuming agent actually holds. `ai-git` fails the first property by design — its entire value is unconstrained passthrough of an open-ended git/gh surface that this repo's own skills are already actively expanding — which is exactly the condition that made Option B unworkable for DAG and remains unworkable here. It fails the third property incidentally, not by design: every current consumer already holds `shell` for other reasons, so there is no access-narrowing benefit available to capture, unlike a hypothetical agent that holds `shell` _only_ for git operations. What would remain — a structured response object instead of an exit code — is real but marginal, and does not justify the server scaffold, SDK dependency, and install/registration cost against a script that already correctly isolates its credential-handling logic (`lib/ai-git.js` is already pure and already tested independently of the CLI I/O layer, satisfying the testability goal a conversion would otherwise be partly justified by). Applying AIF-ARCH-005's guidance faithfully means recognizing when its preconditions don't hold, not converting every cross-harness script to MCP by reflex.
 
 **Trade-offs accepted**:
+
 - `ai-git` remains discoverable only as "the agent has `shell`," not as a named `@ai-git/*` capability in an agent's `tools` list. Accepted because no agent's actual tool grant would narrow as a result of fixing this, per Option A's strength above.
 - Error handling for `ai-git` invocations remains exit-code-and-stdout based rather than a structured response object. Accepted as a real but minor ergonomic gap, not a correctness or security gap — `lib/ai-git.js`'s credential-handling logic is already unit-testable in isolation, so the testability motivation for a conversion doesn't apply here the way it might for untested logic.
 
-**Revisit trigger**: If `ai-git`'s operation surface stabilizes into a small, fixed, well-known set (unlikely given git's own breadth, but possible if this repo ever wraps only a narrow subset of git deliberately), or if a future agent needs `ai-git` capability *without* otherwise needing broad `shell` access (making the access-narrowing benefit real rather than moot), reopen this decision in favor of Option C first — it preserves passthrough flexibility at lower cost than Option B and would be the correct next option to evaluate, not B.
+**Revisit trigger**: If `ai-git`'s operation surface stabilizes into a small, fixed, well-known set (unlikely given git's own breadth, but possible if this repo ever wraps only a narrow subset of git deliberately), or if a future agent needs `ai-git` capability _without_ otherwise needing broad `shell` access (making the access-narrowing benefit real rather than moot), reopen this decision in favor of Option C first — it preserves passthrough flexibility at lower cost than Option B and would be the correct next option to evaluate, not B.
 
 ---
 
 ## Impact on Planning
 
-- No Epic or Chunk Plan follows from this decision — it is a decision *not* to build something, so nothing changes in `bin/ai-git.js` or `lib/ai-git.js` as a result.
+- No Epic or Chunk Plan follows from this decision — it is a decision _not_ to build something, so nothing changes in `bin/ai-git.js` or `lib/ai-git.js` as a result.
 - Confirms, rather than expands, the general guidance recorded in AIF-ARCH-005: MCP-by-default applies specifically when the operation set is fixed/enumerable and callers benefit from typed validation — not to every cross-harness script uniformly. Future audits of other scripts (e.g. `aif index -d` and other `aif` CLI subcommands, noted as a smaller secondary instance in AIF-ARCH-005) should apply this same two-part test rather than assuming MCP conversion is the default outcome.
 - If a future decision revisits this per the Revisit trigger above, it should start from Option C, not restart the full options-exploration from scratch — Option B remains rejected for a structural reason (unbounded operation surface) unlikely to change.
 
@@ -88,8 +91,8 @@ What was a preference but not a hard requirement:
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Should `ai-git` become an MCP server, applying AIF-ARCH-005's default guidance? | No — its unbounded, deliberately-passthrough operation surface fails the precondition that made MCP the right fit for the DAG tool, and no consumer's effective access would narrow as a result of converting. |
-| 2 | Does this decision generalize to other CLI-script tooling in this repo? | It generalizes the *test* to apply (fixed/enumerable operation set + typed-validation benefit + real access-narrowing benefit), not a blanket conclusion — each future case still needs to be checked against that test individually. |
-| 3 | Under what condition should this be revisited? | If `ai-git`'s surface becomes fixed/small, or a future agent needs `ai-git` without otherwise needing broad `shell` — see Revisit trigger. |
+| #   | Item                                                                            | Resolution                                                                                                                                                                                                                            |
+| --- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Should `ai-git` become an MCP server, applying AIF-ARCH-005's default guidance? | No — its unbounded, deliberately-passthrough operation surface fails the precondition that made MCP the right fit for the DAG tool, and no consumer's effective access would narrow as a result of converting.                        |
+| 2   | Does this decision generalize to other CLI-script tooling in this repo?         | It generalizes the _test_ to apply (fixed/enumerable operation set + typed-validation benefit + real access-narrowing benefit), not a blanket conclusion — each future case still needs to be checked against that test individually. |
+| 3   | Under what condition should this be revisited?                                  | If `ai-git`'s surface becomes fixed/small, or a future agent needs `ai-git` without otherwise needing broad `shell` — see Revisit trigger.                                                                                            |

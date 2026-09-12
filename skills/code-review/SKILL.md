@@ -1,7 +1,7 @@
 ---
-name: "code-review"
-version: "0.2.0"
-description: "Produces a Review Report with severity-classified findings for completed source code."
+name: 'code-review'
+version: '0.2.1'
+description: 'Produces a Review Report with severity-classified findings for completed source code.'
 ---
 
 ## Purpose
@@ -44,12 +44,12 @@ Are interfaces implemented as specified?
 Write the report using the template at `skills/code-review/reference/template.md`.
 Classify each finding by severity:
 
-| Severity | Meaning |
-|---|---|
-| CRITICAL | Security vulnerability, data loss risk, broken builds |
-| HIGH | Security/logging requirement unmet, major standards violation, acceptance criterion missed |
-| MEDIUM | Standards violation not affecting correctness, missing docs |
-| LOW | Style inconsistency, minor naming deviation |
+| Severity | Meaning                                                                                    |
+| -------- | ------------------------------------------------------------------------------------------ |
+| CRITICAL | Security vulnerability, data loss risk, broken builds                                      |
+| HIGH     | Security/logging requirement unmet, major standards violation, acceptance criterion missed |
+| MEDIUM   | Standards violation not affecting correctness, missing docs                                |
+| LOW      | Style inconsistency, minor naming deviation                                                |
 
 Any CRITICAL or HIGH finding blocks approval.
 

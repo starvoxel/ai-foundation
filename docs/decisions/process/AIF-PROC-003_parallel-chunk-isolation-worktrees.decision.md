@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-PROC-003 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | process |
-| Status | Draft |
-| Author (Agent) | Architect |
-| Approved By | Pending |
-| Created | 2026-08-13 |
-| Referenced By | — |
-| References | AIF-PROC-002, AIF-PROC-005 |
-| Tags | worktrees, orchestration, parallel-dispatch, chunk-isolation, git |
+| Field          | Value                                                             |
+| -------------- | ----------------------------------------------------------------- |
+| Decision ID    | AIF-PROC-003                                                      |
+| Project        | ai-foundation                                                     |
+| Tier           | A                                                                 |
+| Domain         | process                                                           |
+| Status         | Draft                                                             |
+| Author (Agent) | Architect                                                         |
+| Approved By    | Pending                                                           |
+| Created        | 2026-08-13                                                        |
+| Referenced By  | —                                                                 |
+| References     | AIF-PROC-002, AIF-PROC-005                                        |
+| Tags           | worktrees, orchestration, parallel-dispatch, chunk-isolation, git |
 
 ---
 
@@ -29,11 +29,13 @@ AIF-PROC-002 confirmed that AI-track and software-track chunks both dispatch thr
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - Each concurrently-dispatched chunk must have an isolated working directory and branch — no two agents may operate in the same directory or on the same branch simultaneously.
 - The mechanism must work on the project's actual environment: Windows via Git Bash (per the shell tool's documented constraints), no assumption of a container runtime or CI system.
 - Must not silently reduce actual parallelism (defeating the purpose of wave-based dispatch) in order to achieve isolation.
 
 What was a preference but not a hard requirement:
+
 - Minimize disk and setup time per concurrently active chunk.
 - Reuse what already exists (`skill/worktree-management`) rather than introduce new infrastructure, unless a concrete gap is identified.
 
@@ -82,6 +84,7 @@ The mechanism this question asks for already exists and is already wired into th
 the cheap, fast git operation stays sequential; the expensive, slow agent work runs in parallel.
 
 **Trade-offs accepted**:
+
 - Each concurrently active chunk pays its own `npm install` cost (disk + time).
   Already an accepted, documented edge case in `skill/worktree-management` ("Disk space insufficient for worktree setup" → chunk `Blocked`). Can be optimized later (e.g. shared npm cache) without changing the underlying architecture.
 - Shared `.git` metadata across worktrees means a corrupted lock file could, in principle, affect multiple active chunks at once. Mitigated by `worktree-management`'s existing lock-file edge case (`ai-git worktree unlock`)
@@ -92,6 +95,7 @@ the cheap, fast git operation stays sequential; the expensive, slow agent work r
 ## Design
 
 No new design — this record ratifies the mechanism already specified in:
+
 - `skills/worktree-management/SKILL.md` (creation, setup, teardown, startup validation)
 - `agents/engineering-manager.yaml` hard rules ("EVERY CHUNK GETS ITS OWN BRANCH AND WORKTREE. This is non-negotiable.")
 - `skills/chunk-orchestration/SKILL.md` Step 2 (serialized worktree creation preceding parallel subagent dispatch, bounded by `orchestration.max_concurrent`)
@@ -109,8 +113,8 @@ No changes to these files are required as a result of this decision.
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | What mechanism enables multiple agents to work on different chunks of the same Epic in parallel? | Git worktrees — one per dispatched chunk, per the existing `skill/worktree-management` design. |
-| 2 | Does concurrent worktree creation risk racing on shared `.git` metadata? | No in practice — `chunk-orchestration` Step 2 creates worktrees sequentially inside Engineering-Manager's own dispatch loop before handing each chunk to a subagent; only post-creation agent work runs in parallel. |
-| 3 | Is container-level isolation needed? | Not currently — no observed requirement (no long-running servers, no shared host state touched by test suites) justifies the added infrastructure cost. Revisit if that changes. |
+| #   | Item                                                                                             | Resolution                                                                                                                                                                                                           |
+| --- | ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | What mechanism enables multiple agents to work on different chunks of the same Epic in parallel? | Git worktrees — one per dispatched chunk, per the existing `skill/worktree-management` design.                                                                                                                       |
+| 2   | Does concurrent worktree creation risk racing on shared `.git` metadata?                         | No in practice — `chunk-orchestration` Step 2 creates worktrees sequentially inside Engineering-Manager's own dispatch loop before handing each chunk to a subagent; only post-creation agent work runs in parallel. |
+| 3   | Is container-level isolation needed?                                                             | Not currently — no observed requirement (no long-running servers, no shared host state touched by test suites) justifies the added infrastructure cost. Revisit if that changes.                                     |
