@@ -48,18 +48,28 @@ document's **Implementation checks** table, grouped into the 15 phases from its
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** _(fill in after first real check lands)_
-**Current phase:** Not started — Phase 1 is next.
+**Last commit at last tracker update:** `1255d42`
+**Current phase:** Phase 1 done pending one manual step (branch deletion — see Checkpoint 1). Phase 2 is next.
 
 ---
 
 ## Phase 1 — Retire abandoned work (checks 1–2)
 
-- [ ] **Check 1** — Tear down `AIF-003` (Epic + 8 chunk plans → `Deferred` + `archive/`,
-      delete stale remote branches). Commit: `_____`
-- [ ] **Check 2** — Mark `AIF-004` `Deferred`, move to `archive/`. Commit: `_____`
+- [x] **Check 1** — Tear down `AIF-003` (Epic + 8 chunk plans → `Deferred` + `archive/`).
+      Commit: `2d79802`. **Branch deletion still outstanding** — see checkpoint note.
+- [x] **Check 2** — Mark `AIF-004` `Deferred`, move to `archive/`. Commit: `1255d42`.
 
-**Checkpoint 1:** _____
+**Checkpoint 1:** Both epics archived (`docs/plans/archive/AIF-003/`,
+`docs/plans/archive/AIF-004.epic.md`), `npm test` 697/697 and `aif validate` clean
+after each move. **Outstanding:** deleting the 5 stale remote branches named in check 1
+(`AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`,
+`AIF-001/003-epic-planning-ai-track`, `AIF-002/010-migrate-aif-006`,
+`AIF-002/015-backfill-decisions-index`) was blocked by the auto-mode destructive-action
+classifier. Verified all 5 first: none merged into `origin/main`
+(`git branch -r --no-merged origin/main`), and PRs #23/#24 (the two `AIF-003`
+branches) confirmed `closed`/`merged: false` via the GitHub API. Needs a human to run
+the deletes (or grant permission) before this checkpoint is fully closed:
+`git push origin --delete <branch>` for each of the 5.
 
 ---
 
