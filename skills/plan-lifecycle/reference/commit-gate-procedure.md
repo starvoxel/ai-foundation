@@ -29,7 +29,7 @@ The mechanical sequence behind `skill/plan-lifecycle` Steps 1-4, for quick refer
 
 ## Decision Record Tier Variants
 
-*(AIF-002-004)* Same sequence numbers as above (1-5); source of the Tier definitions themselves is AIF-META-001's Design section Tier table, referenced here, not re-derived.
+_(AIF-002-004)_ Same sequence numbers as above (1-5); source of the Tier definitions themselves is AIF-META-001's Design section Tier table, referenced here, not re-derived.
 
 - **Tier A**: Follows the sequence above unchanged.
 - **Tier B**: a shortened sequence:

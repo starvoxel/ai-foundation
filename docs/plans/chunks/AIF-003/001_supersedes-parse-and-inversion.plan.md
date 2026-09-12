@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-003-001 |
-| Parent Epic | AIF-003 |
-| Chunk | 1 of 8 |
-| Depends On | None |
-| Can Parallel | AIF-003-003, AIF-003-004, AIF-003-005 (wave 1) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | Tech-Lead |
-| Reviewed By | Jeremy Smellie |
-| Created | 2026-08-25 |
-| Last Updated | 2026-08-25 (Approved by Jeremy Smellie) |
-| Standards | `standards/javascript_base.md`, `standards/javascript_node.md` (project tags `javascript`, `node`). Software-Engineer track per `AIF-PROC-001`. |
+| Field          | Value                                                                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-003-001                                                                                                                                     |
+| Parent Epic    | AIF-003                                                                                                                                         |
+| Chunk          | 1 of 8                                                                                                                                          |
+| Depends On     | None                                                                                                                                            |
+| Can Parallel   | AIF-003-003, AIF-003-004, AIF-003-005 (wave 1)                                                                                                  |
+| Project        | ai-foundation                                                                                                                                   |
+| Status         | Approved                                                                                                                                        |
+| Author (Agent) | Tech-Lead                                                                                                                                       |
+| Reviewed By    | Jeremy Smellie                                                                                                                                  |
+| Created        | 2026-08-25                                                                                                                                      |
+| Last Updated   | 2026-08-25 (Approved by Jeremy Smellie)                                                                                                         |
+| Standards      | `standards/javascript_base.md`, `standards/javascript_node.md` (project tags `javascript`, `node`). Software-Engineer track per `AIF-PROC-001`. |
 
 ---
 
@@ -138,6 +138,7 @@ The returned `record` gains one property:
 ```
 
 **Key Behaviour**:
+
 - Reads `fields['Supersedes']` and passes it through the existing `parseListField`.
 - Absent field → `[]` (via `parseListField`'s `!value` guard). This is the normal case for every record in the repo today.
 - `—` → `[]`, per the repo's empty-value convention already implemented in `parseListField`.
@@ -145,8 +146,9 @@ The returned `record` gains one property:
 - `Supersedes` is **not** added to `REQUIRED_FIELDS`; a record without it must parse cleanly.
 
 **Dependencies**:
+
 - `parseListField` — existing helper, unchanged.
-- `parseMetadataTable` — existing helper, unchanged; it already returns every row of the table, so no parsing change is needed to *find* the field.
+- `parseMetadataTable` — existing helper, unchanged; it already returns every row of the table, so no parsing change is needed to _find_ the field.
 
 ### `buildDecisionIndex` — records → index.json structure
 
@@ -161,6 +163,7 @@ buildDecisionIndex(records: object[])
 ```
 
 **Key Behaviour**:
+
 - `supersedes` is populated from `record.supersedes || []` instead of the current hardcoded `[]`.
 - `superseded_by` is computed in the existing inversion pass: for each entry, the IDs of all other entries whose `supersedes` array contains this entry's `id`.
 - Self-reference is excluded by the same `other.id !== entry.id` guard the `referenced_by` inversion already uses.
@@ -168,6 +171,7 @@ buildDecisionIndex(records: object[])
 - Entry key order must remain as it is today, so the regenerated JSON in AIF-003-002 produces a minimal diff: `id, tier, domain, title, status, path, supersedes, superseded_by, references, referenced_by, tags`.
 
 **Dependencies**:
+
 - None new. `entriesEqual` already sorts and compares both `supersedes` and `superseded_by`, so `diffDecisionIndex` needs no change.
 
 ---
@@ -178,10 +182,10 @@ buildDecisionIndex(records: object[])
 
 **Purpose**: One record's row in `{paths.decisions}/index.json`.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `supersedes` | string[] | Yes | Was hardcoded `[]`; now parsed from the `Supersedes` Metadata field. Empty array when absent. |
-| `superseded_by` | string[] | Yes | Was hardcoded `[]`; now computed by inverting `supersedes` across all records. Never authored by hand. |
+| Field           | Type     | Required | Notes                                                                                                  |
+| --------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| `supersedes`    | string[] | Yes      | Was hardcoded `[]`; now parsed from the `Supersedes` Metadata field. Empty array when absent.          |
+| `superseded_by` | string[] | Yes      | Was hardcoded `[]`; now computed by inverting `supersedes` across all records. Never authored by hand. |
 
 No other field changes in this chunk.
 
@@ -203,13 +207,13 @@ No other field changes in this chunk.
 
 > This section must never be empty.
 
-`lib/decisions.js` is a pure library and deliberately logs nothing; all user-facing output belongs to `lib/commands/index.js`, which this chunk does not modify. `standards/javascript_node.md` permits `console.*` for CLI output because "output *is* the product" — that output is unchanged here.
+`lib/decisions.js` is a pure library and deliberately logs nothing; all user-facing output belongs to `lib/commands/index.js`, which this chunk does not modify. `standards/javascript_node.md` permits `console.*` for CLI output because "output _is_ the product" — that output is unchanged here.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| Successful parse/index build | — | Nothing from this module. The existing CLI line `✓ Decision index generated: {n} entries → {path}` is unchanged and is emitted by `lib/commands/index.js`. | Record bodies, field values, supersede relationships |
-| Record fails to parse | — | No logging from this module; it returns `{ error }` and the io wrapper throws with the existing message, printed by the CLI as `✗ {message}`. | File contents beyond the relative path already in the message |
-| Dangling `Supersedes` ID | — | Nothing, deliberately. Epic Question 7 answered "no validation" — silence here is the specified behaviour, not an oversight. | n/a |
+| Event                        | Level | What is logged                                                                                                                                             | What is NOT logged                                            |
+| ---------------------------- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| Successful parse/index build | —     | Nothing from this module. The existing CLI line `✓ Decision index generated: {n} entries → {path}` is unchanged and is emitted by `lib/commands/index.js`. | Record bodies, field values, supersede relationships          |
+| Record fails to parse        | —     | No logging from this module; it returns `{ error }` and the io wrapper throws with the existing message, printed by the CLI as `✗ {message}`.              | File contents beyond the relative path already in the message |
+| Dangling `Supersedes` ID     | —     | Nothing, deliberately. Epic Question 7 answered "no validation" — silence here is the specified behaviour, not an oversight.                               | n/a                                                           |
 
 Adding logging to this module would be a deviation from the existing pure/io split and must not be done in this chunk.
 
@@ -219,20 +223,20 @@ Adding logging to this module would be a deviation from the existing pure/io spl
 
 All tests are unit tests against synthetic in-memory fixtures, per the existing file's stated convention ("no real disk I/O"). Extend the existing `wellFormedRecord({...})` factory with a `supersedes` parameter defaulting to `'—'` so existing cases are unaffected.
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 001-T01 | `Supersedes` absent from the Metadata table (today's normal case) | Unit | `parseDecisionRecord` succeeds; `record.supersedes` deep-equals `[]` |
-| 001-T02 | `Supersedes` present as `—` | Unit | `record.supersedes` deep-equals `[]` |
-| 001-T03 | `Supersedes` names one record | Unit | `record.supersedes` deep-equals `['AIF-ARCH-004']` |
-| 001-T04 | `Supersedes` names three records, with irregular spacing | Unit | Values are split and trimmed to a 3-element array |
-| 001-T05 | Inversion: B supersedes A | Unit | Entry A has `superseded_by: ['B']`; entry B has `supersedes: ['A']`, `superseded_by: []` |
-| 001-T06 | Inversion with a dangling ID (C supersedes `AIF-ARCH-999`, which does not exist) | Unit | No throw; C keeps `supersedes: ['AIF-ARCH-999']`; no entry gains a `superseded_by` |
-| 001-T07 | Two records supersede the same predecessor | Unit | The predecessor's `superseded_by` contains both IDs |
-| 001-T08 | A record naming itself in `Supersedes` | Unit | Its own `superseded_by` stays `[]` (self-reference guard), no infinite loop |
-| 001-T09 | `references`/`referenced_by` still computed correctly alongside the new pair | Unit | Existing reference assertions unchanged and passing |
-| 001-T10 | Legacy record with no `Tier`/`Domain` **and** no `Supersedes` | Unit | Parses cleanly — proves `REQUIRED_FIELDS` was not widened |
-| 001-T11 | `diffDecisionIndex` reports a supersede-only change as stale | Unit | `stale: true`, and the changed record's ID appears in the summary |
-| 001-T12 | Full suite regression | Unit+Integration | `npm test` passes; the pre-existing 681 tests remain green |
+| Test ID | Description                                                                      | Type             | Pass Criteria                                                                            |
+| ------- | -------------------------------------------------------------------------------- | ---------------- | ---------------------------------------------------------------------------------------- |
+| 001-T01 | `Supersedes` absent from the Metadata table (today's normal case)                | Unit             | `parseDecisionRecord` succeeds; `record.supersedes` deep-equals `[]`                     |
+| 001-T02 | `Supersedes` present as `—`                                                      | Unit             | `record.supersedes` deep-equals `[]`                                                     |
+| 001-T03 | `Supersedes` names one record                                                    | Unit             | `record.supersedes` deep-equals `['AIF-ARCH-004']`                                       |
+| 001-T04 | `Supersedes` names three records, with irregular spacing                         | Unit             | Values are split and trimmed to a 3-element array                                        |
+| 001-T05 | Inversion: B supersedes A                                                        | Unit             | Entry A has `superseded_by: ['B']`; entry B has `supersedes: ['A']`, `superseded_by: []` |
+| 001-T06 | Inversion with a dangling ID (C supersedes `AIF-ARCH-999`, which does not exist) | Unit             | No throw; C keeps `supersedes: ['AIF-ARCH-999']`; no entry gains a `superseded_by`       |
+| 001-T07 | Two records supersede the same predecessor                                       | Unit             | The predecessor's `superseded_by` contains both IDs                                      |
+| 001-T08 | A record naming itself in `Supersedes`                                           | Unit             | Its own `superseded_by` stays `[]` (self-reference guard), no infinite loop              |
+| 001-T09 | `references`/`referenced_by` still computed correctly alongside the new pair     | Unit             | Existing reference assertions unchanged and passing                                      |
+| 001-T10 | Legacy record with no `Tier`/`Domain` **and** no `Supersedes`                    | Unit             | Parses cleanly — proves `REQUIRED_FIELDS` was not widened                                |
+| 001-T11 | `diffDecisionIndex` reports a supersede-only change as stale                     | Unit             | `stale: true`, and the changed record's ID appears in the summary                        |
+| 001-T12 | Full suite regression                                                            | Unit+Integration | `npm test` passes; the pre-existing 681 tests remain green                               |
 
 ---
 
@@ -248,11 +252,11 @@ All tests are unit tests against synthetic in-memory fixtures, per the existing 
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | **No record in the repo declares `Supersedes` today**, so this chunk's behaviour change is invisible in the committed `index.json` and is only demonstrated by unit tests. A reviewer could reasonably ask whether it works end-to-end. | Risk | M | Test 001-T05/T07 prove the inversion on synthetic multi-record sets, and AIF-003-002's integration test exercises the real index path. Do **not** invent a supersede relationship in a real record to demonstrate it — that would be fabricating decision history. |
-| 2 | Field-name coupling with AIF-003-003, which adds `Supersedes` to the templates in the same wave. If the two disagree on spelling, the parser silently reads nothing (absent field → `[]`) rather than failing loudly. | Risk | M | The Epic fixes the name in Section 4 and Section 6 for both chunks. Implementer must use the exact string `Supersedes` — matching is case-sensitive and exact, since `parseMetadataTable` keys on the raw cell text. |
-| 3 | `entriesEqual` already sorts `supersedes`/`superseded_by`, so a pure reordering will not register as a change. This is correct behaviour, but means the diff cannot detect ordering churn. | Risk | L | Accepted — matches how `references`/`tags` already behave. No action. |
+| #   | Risk / Question                                                                                                                                                                                                                         | Type | Impact | Mitigation                                                                                                                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **No record in the repo declares `Supersedes` today**, so this chunk's behaviour change is invisible in the committed `index.json` and is only demonstrated by unit tests. A reviewer could reasonably ask whether it works end-to-end. | Risk | M      | Test 001-T05/T07 prove the inversion on synthetic multi-record sets, and AIF-003-002's integration test exercises the real index path. Do **not** invent a supersede relationship in a real record to demonstrate it — that would be fabricating decision history. |
+| 2   | Field-name coupling with AIF-003-003, which adds `Supersedes` to the templates in the same wave. If the two disagree on spelling, the parser silently reads nothing (absent field → `[]`) rather than failing loudly.                   | Risk | M      | The Epic fixes the name in Section 4 and Section 6 for both chunks. Implementer must use the exact string `Supersedes` — matching is case-sensitive and exact, since `parseMetadataTable` keys on the raw cell text.                                               |
+| 3   | `entriesEqual` already sorts `supersedes`/`superseded_by`, so a pure reordering will not register as a change. This is correct behaviour, but means the diff cannot detect ordering churn.                                              | Risk | L      | Accepted — matches how `references`/`tags` already behave. No action.                                                                                                                                                                                              |
 
 ---
 

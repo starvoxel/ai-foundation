@@ -20,19 +20,19 @@ Resolved from `.aiconfig.json` at project root. Default: `plans/chunks/`.
 
 ### Top-level
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `epic_id` | string | Yes | Parent epic ID for traceability |
-| `chunks` | array | Yes | Array of chunk definitions |
+| Field     | Type   | Required | Description                     |
+| --------- | ------ | -------- | ------------------------------- |
+| `epic_id` | string | Yes      | Parent epic ID for traceability |
+| `chunks`  | array  | Yes      | Array of chunk definitions      |
 
 ### Chunk object
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `id` | string | Yes | Unique chunk identifier (e.g., "001", "002") |
-| `title` | string | Yes | Short descriptive title |
-| `depends_on` | string[] | Yes | Array of chunk IDs this chunk depends on. Empty array for no dependencies. |
-| `agents` | string[] | Yes | Array of agent roles assigned to this chunk |
+| Field        | Type     | Required | Description                                                                |
+| ------------ | -------- | -------- | -------------------------------------------------------------------------- |
+| `id`         | string   | Yes      | Unique chunk identifier (e.g., "001", "002")                               |
+| `title`      | string   | Yes      | Short descriptive title                                                    |
+| `depends_on` | string[] | Yes      | Array of chunk IDs this chunk depends on. Empty array for no dependencies. |
+| `agents`     | string[] | Yes      | Array of agent roles assigned to this chunk                                |
 
 ---
 
@@ -80,6 +80,7 @@ Resolved from `.aiconfig.json` at project root. Default: `plans/chunks/`.
 ```
 
 This produces two execution waves:
+
 - **Wave 1:** 001, 002 (parallel — no dependencies)
 - **Wave 2:** 003 (depends on 001 + 002)
 - **Wave 3:** 004 (depends on 003)

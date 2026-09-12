@@ -2,19 +2,19 @@
 
 ## 1. Metadata
 
-| Field          | Value                                                                                                                                                             |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Plan ID        | AIF-002-003                                                                                                                                                       |
-| Parent Epic    | AIF-002                                                                                                                                                           |
-| Chunk          | 3 of 15                                                                                                                                                           |
-| Depends On     | None                                                                                                                                                              |
-| Can Parallel   | 001, 002, 004, 005, 006, 007, 008, 009 (all other Wave 1 chunks)                                                                                                  |
-| Project        | ai-foundation                                                                                                                                                     |
-| Status         | Approved                                                                                                                                                          |
-| Author (Agent) | AI-Engineer (revised by Tech-Lead per AIF-002 rev 6)                                                                                                              |
-| Reviewed By    | Jeremy                                                                                                                                                            |
-| Created        | 2026-08-14                                                                                                                                                        |
-| Last Updated   | 2026-08-17 (revised for AIF-002 rev 6 — index-update step removed,`Tags` field added, `scripts/` rationale corrected)                                        |
+| Field          | Value                                                                                                                                                          |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-003                                                                                                                                                    |
+| Parent Epic    | AIF-002                                                                                                                                                        |
+| Chunk          | 3 of 15                                                                                                                                                        |
+| Depends On     | None                                                                                                                                                           |
+| Can Parallel   | 001, 002, 004, 005, 006, 007, 008, 009 (all other Wave 1 chunks)                                                                                               |
+| Project        | ai-foundation                                                                                                                                                  |
+| Status         | Approved                                                                                                                                                       |
+| Author (Agent) | AI-Engineer (revised by Tech-Lead per AIF-002 rev 6)                                                                                                           |
+| Reviewed By    | Jeremy                                                                                                                                                         |
+| Created        | 2026-08-14                                                                                                                                                     |
+| Last Updated   | 2026-08-17 (revised for AIF-002 rev 6 — index-update step removed,`Tags` field added, `scripts/` rationale corrected)                                          |
 | Standards      | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverables are`skills/decision-brief/` markdown content only |
 
 ---
@@ -60,7 +60,7 @@ Author a new skill `skills/decision-brief/` — the Tier B ("Structural") Decisi
 - New skill folder `skills/decision-brief/`:
   - `skills/decision-brief/SKILL.md` — full five-section skill definition (Purpose, Inputs, Steps, Outputs, Edge Cases) per `skill/skill-authoring`'s schema.
   - `skills/decision-brief/reference/template.md` — the slim Tier B skeleton (Metadata, Problem, Decision, Rationale, Impact — explicitly no Options-Explored section).
-- `Tier`/`Domain`/`Tags` metadata fields on the template, matching the field set chunk 002's `decision-record` template uses for the fields both skills share (Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags) — see Section 7, Key Design Decision 2. *(Revision, 2026-08-17: the original chunk flagged this field set as an unresolved cross-chunk coordination risk, since chunk 002 was being planned in parallel with no dependency edge. Both chunks 002 and 003 are being revised together in this same session, so the field set is now directly cross-checked against chunk 002's actual (revised) output rather than inferred from AIF-META-001 alone — see Section 14, Risk 1, updated.)*
+- `Tier`/`Domain`/`Tags` metadata fields on the template, matching the field set chunk 002's `decision-record` template uses for the fields both skills share (Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags) — see Section 7, Key Design Decision 2. _(Revision, 2026-08-17: the original chunk flagged this field set as an unresolved cross-chunk coordination risk, since chunk 002 was being planned in parallel with no dependency edge. Both chunks 002 and 003 are being revised together in this same session, so the field set is now directly cross-checked against chunk 002's actual (revised) output rather than inferred from AIF-META-001 alone — see Section 14, Risk 1, updated.)_
 - ID and storage scheme, applied exactly as AIF-META-001's Design section specifies: `{ProjectID}-{DomainCode}-{###}` at `{paths.decisions}/{domain-folder}/{ID}_{ShortTitle}.decision.md`.
 - Documenting, inside `decision-brief`'s own `SKILL.md`, the Tier B abbreviated `plan-lifecycle` gate (Draft → one human confirmation → Approved, no expected multi-round revision cycle, though one remains available if the human requests changes) — written directly into this skill's own Step text so it is correct and self-sufficient even though chunk 004 (parallel, no dependency)
   is the chunk responsible for documenting this same gate variant inside `skill/plan-lifecycle` itself.
@@ -84,13 +84,13 @@ Author a new skill `skills/decision-brief/` — the Tier B ("Structural") Decisi
 
 ## 6. Prerequisites
 
-- [X] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`, Status: Approved (rev 6), Work Log entry 2026-08-17 [Approved])
-- [X] AIF-META-001 Decision Record is `Approved` (verified:
-  `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`, Status: Approved)
-- [X] Existing `skills/decision-record/SKILL.md` and `skills/decision-record/reference/template.md` (as revised by chunk 002, AIF-002-002) read in full, as the closest structural precedent for a decision-producing skill
-- [X] `skills/skill-authoring/SKILL.md` and `reference/schema.md` read in full, for the general skill-folder/frontmatter/five-section schema this new skill must satisfy
-- [X] `skills/plan-lifecycle/SKILL.md` and its two `reference/` files read in full, to describe the Tier B cadence accurately even though chunk 004 (not this chunk) is the chunk that documents it inside `plan-lifecycle` itself
-- [X] No dependency chunks — this chunk has `depends_on: []` in `chunks.json`; chunk 002's revised Metadata table (Section 8/7 of AIF-002-002) is used directly as the field-set reference for this chunk's own template, since both are being revised in the same session (rev 6) rather than planned fully independently
+- [x] AIF-002 Epic Plan is `Approved` (verified: `docs/plans/epics/AIF-002.epic.md`, Status: Approved (rev 6), Work Log entry 2026-08-17 [Approved])
+- [x] AIF-META-001 Decision Record is `Approved` (verified:
+      `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`, Status: Approved)
+- [x] Existing `skills/decision-record/SKILL.md` and `skills/decision-record/reference/template.md` (as revised by chunk 002, AIF-002-002) read in full, as the closest structural precedent for a decision-producing skill
+- [x] `skills/skill-authoring/SKILL.md` and `reference/schema.md` read in full, for the general skill-folder/frontmatter/five-section schema this new skill must satisfy
+- [x] `skills/plan-lifecycle/SKILL.md` and its two `reference/` files read in full, to describe the Tier B cadence accurately even though chunk 004 (not this chunk) is the chunk that documents it inside `plan-lifecycle` itself
+- [x] No dependency chunks — this chunk has `depends_on: []` in `chunks.json`; chunk 002's revised Metadata table (Section 8/7 of AIF-002-002) is used directly as the field-set reference for this chunk's own template, since both are being revised in the same session (rev 6) rather than planned fully independently
 
 ---
 
@@ -100,7 +100,7 @@ Author a new skill `skills/decision-brief/` — the Tier B ("Structural") Decisi
 
 - `skills/decision-brief/SKILL.md` ← NEW
 - `skills/decision-brief/reference/template.md` ← NEW
-- No `assets/` or `scripts/` subfolder in *this skill* — writing a Decision Brief (the judgment calls of Problem/Decision/Rationale/Impact) is a judgment-driven authoring task with no deterministic transform to script. **(Corrected, rev 6, 2026-08-17):** the original chunk additionally justified this by folding the index-update step into "judgment-driven... not a mechanical transform" — that reasoning no longer applies and has been removed, since index maintenance is not this skill's job at all (see Key Design Decision 5, revised). The absence of a `scripts/` folder here is now justified solely by the authoring task itself, consistent with how `skill/decision-record` also has no `scripts/` folder.
+- No `assets/` or `scripts/` subfolder in _this skill_ — writing a Decision Brief (the judgment calls of Problem/Decision/Rationale/Impact) is a judgment-driven authoring task with no deterministic transform to script. **(Corrected, rev 6, 2026-08-17):** the original chunk additionally justified this by folding the index-update step into "judgment-driven... not a mechanical transform" — that reasoning no longer applies and has been removed, since index maintenance is not this skill's job at all (see Key Design Decision 5, revised). The absence of a `scripts/` folder here is now justified solely by the authoring task itself, consistent with how `skill/decision-record` also has no `scripts/` folder.
 
 ### Key Design Decisions
 
@@ -134,33 +134,33 @@ confirm the tier fits, write the slim record, follow the abbreviated commit-gate
 
 **Full section content specification:**
 
-*Frontmatter:*
+_Frontmatter:_
 
 ```yaml
 ---
-name: "decision-brief"
-version: "0.1.0"
+name: 'decision-brief'
+version: '0.1.0'
 description: "Produces a slim Tier B Decision Brief for structural decisions that don't need full options-exploration ceremony."
 ---
 ```
 
-*Purpose section:* Captures a Tier B ("Structural") decision — one with a plausible future cross-plan citation, per AIF-META-001's promotion threshold, but not a multi-option architectural trade-off — without the full options-exploration ceremony of `skill/decision-record`. Produces a durable record, discoverable via `docs/decisions/index.json` once `aif index -d` (AIF-002-014) next regenerates it, lighter than a Tier A Decision Record but heavier than a Tier C inline note. Normally invoked by `skill/decision-triage` once it has already selected Tier B and determined Domain; may also be invoked directly by an agent that already knows a decision is Tier B (see Edge Cases).
+_Purpose section:_ Captures a Tier B ("Structural") decision — one with a plausible future cross-plan citation, per AIF-META-001's promotion threshold, but not a multi-option architectural trade-off — without the full options-exploration ceremony of `skill/decision-record`. Produces a durable record, discoverable via `docs/decisions/index.json` once `aif index -d` (AIF-002-014) next regenerates it, lighter than a Tier A Decision Record but heavier than a Tier C inline note. Normally invoked by `skill/decision-triage` once it has already selected Tier B and determined Domain; may also be invoked directly by an agent that already knows a decision is Tier B (see Edge Cases).
 
-*Inputs section:*
+_Inputs section:_
 
 - **Problem statement** — what question this decision answers
 - **The decision already made** — Tier B skips options-exploration; the brief documents what was decided and why, not a menu of alternatives to evaluate
 - **Domain** — one of Architecture, Process, Planning, AI-component, Quality, Testing, Meta-process, per AIF-META-001's ownership table (determines both the folder/ID prefix and, normally, the authoring agent)
 - **Project context** — existing stack, standards, relevant repo patterns needed to state the Rationale/Impact accurately
 
-*Steps section:*
+_Steps section:_
 
 - Step 1 — Confirm Tier B Fits: sanity-check against AIF-META-001's promotion threshold before writing. If a genuine multi-option trade-off with lasting cross-component impact is discovered, stop and escalate to `skill/decision-record` (Tier A) instead of force-fitting the slim skeleton.
   If actually no plausible second citation exists, escalate down to the Tier C inline convention instead (`skill/chunk-planning`/`skill/epic-planning`) — do not write a standalone file for a decision that doesn't need one.
 - Step 2 — Write the Decision Brief: write the record using the template at `skills/decision-brief/reference/template.md`. Exactly five sections — Metadata (including `Tier: B`, `Domain`, and `Tags` if applicable), Problem, Decision, Rationale, Impact. No Options Explored, Design, or Constraints & Requirements sections. Ensure the Metadata table is complete and accurate — this is the sole source `aif index -d` (AIF-002-014) reads when it later builds `docs/decisions/index.json`.
 - Step 3 — Follow the Abbreviated Commit-Gate Procedure: commit the Brief with `Status: Draft` via `ai-git`, present it to the human for confirmation. On confirmation, update `Status: Approved` and the approver field, and commit that as its own commit — a lighter, expected one-shot cycle (Draft → confirm → Approved) rather than `decision-record`'s full multi-round options-exploration review, though a revision round remains available and should be followed exactly like `skill/plan-lifecycle`'s standard Step 3 if the human requests changes instead of confirming outright.
 
-*Outputs section:*
+_Outputs section:_
 
 - **Decision Brief** — markdown file following the template format
 - **Location:** `{paths.decisions}/{domain-folder}/{ProjectID}-{DomainCode}-{###}_{ShortTitle}.decision.md` (from `.aiconfig.json`; falls back to `docs/decisions/` if `paths.decisions` is unset, consistent with `skill/decision-record`'s existing fallback convention)
@@ -170,7 +170,7 @@ description: "Produces a slim Tier B Decision Brief for structural decisions tha
   alike) — this skill's only obligation toward the index is keeping that
   table accurate.
 
-*Edge Cases section:*
+_Edge Cases section:_
 
 - **Decision turns out to need Options-Explored ceremony mid-write** — stop, do not force the slim skeleton; escalate to `skill/decision-record` (Tier A)
   instead.
@@ -203,19 +203,19 @@ description: "Produces a slim Tier B Decision Brief for structural decisions tha
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | {ProjectID}-{DomainCode}-{###} |
-| Project | {Project name} |
-| Tier | B |
-| Domain | {architecture / process / planning / ai-component / quality / testing / meta-process} |
-| Status | Draft / Approved / Done / Deferred / Superseded |
-| Author (Agent) | {Domain-owning agent} |
-| Approved By | {human name or "Pending"} |
-| Created | {YYYY-MM-DD HH:mm} |
-| Referenced By | {Decision ID(s) that cite this decision, or "—"} |
-| References | {Decision ID(s) this decision cites, or "—"} |
-| Tags | {comma-separated free-text tags for discovery, or "—"} |
+| Field          | Value                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------- |
+| Decision ID    | {ProjectID}-{DomainCode}-{###}                                                        |
+| Project        | {Project name}                                                                        |
+| Tier           | B                                                                                     |
+| Domain         | {architecture / process / planning / ai-component / quality / testing / meta-process} |
+| Status         | Draft / Approved / Done / Deferred / Superseded                                       |
+| Author (Agent) | {Domain-owning agent}                                                                 |
+| Approved By    | {human name or "Pending"}                                                             |
+| Created        | {YYYY-MM-DD HH:mm}                                                                    |
+| Referenced By  | {Decision ID(s) that cite this decision, or "—"}                                      |
+| References     | {Decision ID(s) this decision cites, or "—"}                                          |
+| Tags           | {comma-separated free-text tags for discovery, or "—"}                                |
 
 ---
 
@@ -267,18 +267,18 @@ explicitly ruled out, and any domain ambiguity noted per the Edge Cases in
 
 **Purpose**: The schema `aif index -d` (chunk 014) produces for a Tier B Decision Brief once it crawls this skill's output. Fully specified by AIF-META-001's Design section and AIF-002 Epic Plan rev 6; this chunk does not define, own, produce, or modify this schema or any index-generation code — it only ensures its own template's Metadata table (Section 8) carries the data the generator needs.
 
-| Field                              | Type   | Notes                                                                                                          |
-| ---------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
-| `id`                             | string | `{ProjectID}-{DomainCode}-{###}`                                                                             |
-| `tier`                           | string | `"B"` for every entry derived from this skill's output                                                       |
-| `domain`                         | string | lowercase domain name, e.g.`"process"`                                                                       |
-| `title`                          | string | matches the`# Decision Brief: {Short Title}` heading                                                         |
-| `status`                         | string | `Draft`/`Approved`/`Done`/`Deferred`/`Superseded`                                                    |
-| `path`                           | string | repo-relative path to the`.decision.md` file                                                                 |
-| `supersedes` / `superseded_by` | array  | Decision IDs, if any                                                                                           |
-| `references`                     | array  | parsed from this record's own`References` field                                                              |
-| `referenced_by`                  | array  | computed by`aif index -d` via inversion across the whole corpus — not something this record's author writes |
-| `tags`                           | array  | parsed from this record's own`Tags` field                                                                    |
+| Field                          | Type   | Notes                                                                                                       |
+| ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------------- |
+| `id`                           | string | `{ProjectID}-{DomainCode}-{###}`                                                                            |
+| `tier`                         | string | `"B"` for every entry derived from this skill's output                                                      |
+| `domain`                       | string | lowercase domain name, e.g.`"process"`                                                                      |
+| `title`                        | string | matches the`# Decision Brief: {Short Title}` heading                                                        |
+| `status`                       | string | `Draft`/`Approved`/`Done`/`Deferred`/`Superseded`                                                           |
+| `path`                         | string | repo-relative path to the`.decision.md` file                                                                |
+| `supersedes` / `superseded_by` | array  | Decision IDs, if any                                                                                        |
+| `references`                   | array  | parsed from this record's own`References` field                                                             |
+| `referenced_by`                | array  | computed by`aif index -d` via inversion across the whole corpus — not something this record's author writes |
+| `tags`                         | array  | parsed from this record's own`Tags` field                                                                   |
 
 ---
 
@@ -289,7 +289,7 @@ explicitly ruled out, and any domain ambiguity noted per the Edge Cases in
 - [ ] No new attack surface — this chunk creates only markdown documentation inside `skills/decision-brief/`; it introduces no code execution paths, no credential handling, and no network-facing behavior (consistent with Epic Plan Section 8, first bullet).
 - [ ] No secrets or credentials in the skill or template content — the added text references only public artifact paths (`{paths.decisions}/index.json`, `{paths.decisions}`) and skill/decision names, nothing environment- or credential-specific.
 - [ ] This chunk grants no `WebSearch`/`WebFetch` capability to any agent and does not reference such a grant anywhere in the new skill's content — a direct carry-forward of AIF-META-001's non-negotiable ("no domain owner is granted `WebSearch`/`WebFetch` solely to support decision-authoring")
-  and of Epic Plan Section 8, second bullet. `decision-brief` is a pure-authoring skill; it does not itself invoke any tool.
+      and of Epic Plan Section 8, second bullet. `decision-brief` is a pure-authoring skill; it does not itself invoke any tool.
 - [ ] The Tier B abbreviated gate is documented in a way that does not weaken the human-approval requirement — "abbreviated" refers only to the expected number of revision rounds (one-shot vs. multi-round), never to skipping human confirmation itself.
 - [ ] **(Revised, rev 6)** `docs/decisions/index.json` data-integrity handling (missing/malformed file) is **not** this chunk's responsibility — that error path belongs entirely to `aif index -d`'s own implementation (chunk 014). Verified this chunk's `SKILL.md` does not claim to own or handle that failure mode.
 - [ ] Errors/ambiguity surfaced to a human via this skill's Edge Cases (domain ambiguity, tier mismatch) contain no internal system details beyond what is already documented elsewhere in this repo (verified as N/A in practice for a docs-only skill).
@@ -305,11 +305,11 @@ This chunk produces static documentation content with no runtime component — `
 1. **This chunk's own plan-level Work Log entries** (per `steering/engineering/core.md` Rule 2/Rule 9 and `skill/plan-lifecycle` Steps 1-4 commit requirements) — the only logging genuinely owned by this chunk.
 2. **Runtime log actions for `decision-brief` invocations during orchestrated execution** (`decision_authored`, per chunk 006's Decision Hand-off Sub-Flow) — explicitly **not** owned by this chunk. `decision-brief` itself performs no orchestration-state logging; when Engineering-Manager dispatches or invokes `decision-brief` mid-chunk-orchestration, chunk 006's Decision Hand-off Sub-Flow (in `skill/chunk-orchestration`, not in this skill) is responsible for emitting `decision_handoff_detected`/`decision_authored`/`decision_handoff_resolved` to `orchestration-state.json`. This is called out explicitly here so responsibility for that log action is not silently assumed by both chunks or by neither.
 
-| Event                                                                                                       | Level (Work Log Action)                                         | What is logged                                           | What is NOT logged                                                     |
-| ----------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Plan drafted/revised                                                                                        | `[Created]`/`[Revised]`                                     | Plan ID, agent, tier assessed, summary of scope/change   | No content of unrelated chunks/plans                                   |
-| Plan approved/deferred                                                                                      | `[Approved]`/`[Deferred]`                                   | Human decision, approver name if approved                | Nothing beyond the decision itself                                     |
-| Implementation commits (future, post-approval)                                                              | `[Implemented]` (one per Component in Section 8)              | Files touched, brief description referencing AIF-002-003 | No secrets; N/A here since no secrets exist in this chunk              |
+| Event                                                                                                   | Level (Work Log Action)                                         | What is logged                                           | What is NOT logged                                                   |
+| ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | -------------------------------------------------------- | -------------------------------------------------------------------- |
+| Plan drafted/revised                                                                                    | `[Created]`/`[Revised]`                                         | Plan ID, agent, tier assessed, summary of scope/change   | No content of unrelated chunks/plans                                 |
+| Plan approved/deferred                                                                                  | `[Approved]`/`[Deferred]`                                       | Human decision, approver name if approved                | Nothing beyond the decision itself                                   |
+| Implementation commits (future, post-approval)                                                          | `[Implemented]` (one per Component in Section 8)                | Files touched, brief description referencing AIF-002-003 | No secrets; N/A here since no secrets exist in this chunk            |
 | Orchestration-level`decision_authored` (future, if `decision-brief` is invoked mid-chunk-orchestration) | Owned by chunk 006's Decision Hand-off Sub-Flow, not this chunk | (see chunk 006 Chunk Plan)                               | This chunk's`SKILL.md` must not claim to emit this log action itself |
 
 ---
@@ -320,17 +320,17 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ### decision-brief Documentation Tests
 
-| Test ID                           | Description                                                                                                                                                                                                                                    | Type                                                                      | Pass Criteria                                                                                                                                          |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 003-T01                           | `SKILL.md` frontmatter has `name`/`version`/`description`; `name` is kebab-case and matches folder name (`decision-brief`); `version` is valid semver                                                                            | Manual/self-validate against`skill/skill-authoring/reference/schema.md` | All three fields present and well-formed                                                                                                               |
-| 003-T02                           | `SKILL.md` has all five required body sections in order: Purpose, Inputs, Steps, Outputs, Edge Cases                                                                                                                                         | Manual review                                                             | All five present, correctly ordered                                                                                                                    |
-| 003-T03                           | `reference/template.md` has exactly five sections (Metadata, Problem, Decision, Rationale, Impact) and no Options Explored/Design/Constraints & Requirements/Resolved-Open-Items section                                                     | Manual diff against AIF-META-001's Tier B row                             | Matches exactly                                                                                                                                        |
-| 003-T04                           | Template's Metadata table field set matches chunk 002's`decision-record` template's field set exactly, for shared fields (Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags) | Manual cross-check against AIF-002-002 §6/§7                            | Field names/order match                                                                                                                                |
-| 003-T05                           | `Tier` field in the template is fixed at `B`, not a placeholder                                                                                                                                                                            | Manual review                                                             | Literal`B`, no `{...}`                                                                                                                             |
-| 003-T06                           | ID/path scheme in`SKILL.md` Outputs matches AIF-META-001's Design section exactly (`{ProjectID}-{DomainCode}-{###}` at `{paths.decisions}/{domain-folder}/{ID}_{ShortTitle}.decision.md`)                                                | Manual cross-check                                                        | Matches verbatim                                                                                                                                       |
-| 003-T07                           | `SKILL.md` does not grant or reference `WebSearch`/`WebFetch` anywhere                                                                                                                                                                   | Grep-based self-validation                                                | Zero matches                                                                                                                                           |
-| 003-T08                           | `SKILL.md` Edge Cases correctly describe escalation to Tier A (`decision-record`) and de-escalation to Tier C (inline convention), not silent absorption into the Tier B template                                                          | Manual review                                                             | Both escalation paths present                                                                                                                          |
-| 003-T09 (rev 6, replaces old T09) | `SKILL.md` contains no "Update the Cross-Domain Index" step and no index-update Output/Edge-Case content                                                                                                                                     | Manual/self-validate                                                      | Grep for "index.json" returns only the informational Outputs note pointing to`aif index -d`, no step/edge-case instructing this skill to write to it |
+| Test ID                           | Description                                                                                                                                                                                                                                  | Type                                                                    | Pass Criteria                                                                                                                                        |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 003-T01                           | `SKILL.md` frontmatter has `name`/`version`/`description`; `name` is kebab-case and matches folder name (`decision-brief`); `version` is valid semver                                                                                        | Manual/self-validate against`skill/skill-authoring/reference/schema.md` | All three fields present and well-formed                                                                                                             |
+| 003-T02                           | `SKILL.md` has all five required body sections in order: Purpose, Inputs, Steps, Outputs, Edge Cases                                                                                                                                         | Manual review                                                           | All five present, correctly ordered                                                                                                                  |
+| 003-T03                           | `reference/template.md` has exactly five sections (Metadata, Problem, Decision, Rationale, Impact) and no Options Explored/Design/Constraints & Requirements/Resolved-Open-Items section                                                     | Manual diff against AIF-META-001's Tier B row                           | Matches exactly                                                                                                                                      |
+| 003-T04                           | Template's Metadata table field set matches chunk 002's`decision-record` template's field set exactly, for shared fields (Decision ID, Project, Tier, Domain, Status, Author (Agent), Approved By, Created, Referenced By, References, Tags) | Manual cross-check against AIF-002-002 §6/§7                            | Field names/order match                                                                                                                              |
+| 003-T05                           | `Tier` field in the template is fixed at `B`, not a placeholder                                                                                                                                                                              | Manual review                                                           | Literal`B`, no `{...}`                                                                                                                               |
+| 003-T06                           | ID/path scheme in`SKILL.md` Outputs matches AIF-META-001's Design section exactly (`{ProjectID}-{DomainCode}-{###}` at `{paths.decisions}/{domain-folder}/{ID}_{ShortTitle}.decision.md`)                                                    | Manual cross-check                                                      | Matches verbatim                                                                                                                                     |
+| 003-T07                           | `SKILL.md` does not grant or reference `WebSearch`/`WebFetch` anywhere                                                                                                                                                                       | Grep-based self-validation                                              | Zero matches                                                                                                                                         |
+| 003-T08                           | `SKILL.md` Edge Cases correctly describe escalation to Tier A (`decision-record`) and de-escalation to Tier C (inline convention), not silent absorption into the Tier B template                                                            | Manual review                                                           | Both escalation paths present                                                                                                                        |
+| 003-T09 (rev 6, replaces old T09) | `SKILL.md` contains no "Update the Cross-Domain Index" step and no index-update Output/Edge-Case content                                                                                                                                     | Manual/self-validate                                                    | Grep for "index.json" returns only the informational Outputs note pointing to`aif index -d`, no step/edge-case instructing this skill to write to it |
 
 ---
 
@@ -338,21 +338,21 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 - [ ] Inline documentation on all sections (clear headers, no orphaned prose) — applies to markdown structure since there is no code
 - [ ] File headers — not applicable in the source-code sense; `SKILL.md` uses YAML frontmatter as its structured header (name/version/description), consistent with every other skill in this repo; `reference/template.md` has no header convention, matching `skill/decision-record`'s existing `reference/template.md`. Traceability to this Chunk Plan (AIF-002-003)
-  is carried via commit messages, consistent with this repo's established practice (no existing skill file embeds an in-body Plan ID reference; confirmed by inspection of `skills/decision-record/SKILL.md` and recent skill-authoring commits in git history).
+      is carried via commit messages, consistent with this repo's established practice (no existing skill file embeds an in-body Plan ID reference; confirmed by inspection of `skills/decision-record/SKILL.md` and recent skill-authoring commits in git history).
 - [ ] README updated if user-facing — not applicable; no README exists for skills beyond their own `SKILL.md`
 - [ ] CHANGELOG entry written — deferred to the Epic-level decision (Epic Acceptance Criteria: "Epic-level CHANGELOG entry written (if this repo maintains one — confirm at implementation time)"); this chunk does not add a chunk-level CHANGELOG entry unilaterally. Confirmed by inspection:
-  no top-level `CHANGELOG.md` currently exists in this repo.
+      no top-level `CHANGELOG.md` currently exists in this repo.
 
 ---
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question                                                                                                                                                                                                                                                                                                                                           | Impact | Mitigation                                                                                                                                                                                                 |
-| - | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1 | **(Revised, rev 6 — was a coordination risk, now resolved)** This chunk's Metadata field set for `decision-brief`'s template is cross-checked directly against chunk 002's (revised) `decision-record` template, since both are being revised together in this session.                                                                        | —     | Resolved: field set matches chunk 002's exactly for shared fields (Section 7, Key Design Decision 2; Test 003-T04). No remaining action for the human reviewer beyond the normal chunk-plan review.        |
-| 2 | **(Removed, rev 6)** ~~`decision-brief` documents an index-update step that would fail before chunk 014/015 land~~ — no longer applies; this skill has no index-update step at all, regardless of `docs/decisions/index.json`'s existence.                                                                                                    | —     | N/A                                                                                                                                                                                                        |
-| 3 | This chunk's own`SKILL.md` inlines the Tier B abbreviated-gate description (Key Design Decision 4) rather than solely referencing `skill/plan-lifecycle`, to stay correct regardless of chunk 004's landing order. If chunk 004's eventual wording in `plan-lifecycle` differs materially from this chunk's inline description, the two could drift | L      | Both describe the same AIF-META-001 Design section Tier table content, so drift risk is low by construction. Flagged for review to cross-check once both chunks 003 and 004 are implemented.               |
-| 4 | Domain subfolder creation (`{paths.decisions}/{domain}/`) is not assigned to any single chunk in `chunks.json`; this chunk explicitly defers it (Out of Scope) since it writes no actual decision instance                                                                                                                                               | L      | No action needed by this chunk. Folders are created naturally by whichever chunk/agent first writes an actual record into a domain lacking one — consistent with git's own lack of empty-folder tracking. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                     | Impact | Mitigation                                                                                                                                                                                                |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **(Revised, rev 6 — was a coordination risk, now resolved)** This chunk's Metadata field set for `decision-brief`'s template is cross-checked directly against chunk 002's (revised) `decision-record` template, since both are being revised together in this session.                                                                             | —      | Resolved: field set matches chunk 002's exactly for shared fields (Section 7, Key Design Decision 2; Test 003-T04). No remaining action for the human reviewer beyond the normal chunk-plan review.       |
+| 2   | **(Removed, rev 6)** ~~`decision-brief` documents an index-update step that would fail before chunk 014/015 land~~ — no longer applies; this skill has no index-update step at all, regardless of `docs/decisions/index.json`'s existence.                                                                                                          | —      | N/A                                                                                                                                                                                                       |
+| 3   | This chunk's own`SKILL.md` inlines the Tier B abbreviated-gate description (Key Design Decision 4) rather than solely referencing `skill/plan-lifecycle`, to stay correct regardless of chunk 004's landing order. If chunk 004's eventual wording in `plan-lifecycle` differs materially from this chunk's inline description, the two could drift | L      | Both describe the same AIF-META-001 Design section Tier table content, so drift risk is low by construction. Flagged for review to cross-check once both chunks 003 and 004 are implemented.              |
+| 4   | Domain subfolder creation (`{paths.decisions}/{domain}/`) is not assigned to any single chunk in `chunks.json`; this chunk explicitly defers it (Out of Scope) since it writes no actual decision instance                                                                                                                                          | L      | No action needed by this chunk. Folders are created naturally by whichever chunk/agent first writes an actual record into a domain lacking one — consistent with git's own lack of empty-folder tracking. |
 
 ---
 

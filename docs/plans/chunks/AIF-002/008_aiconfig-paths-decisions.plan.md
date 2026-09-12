@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-008 |
-| Parent Epic | AIF-002 |
-| Chunk | 008 of 15 |
-| Depends On | None |
-| Can Parallel | 001, 002, 003, 004, 005, 006, 007, 009 (all other Wave 1 chunks) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Jeremy Smellie |
-| Created | 2026-08-14 |
-| Last Updated | 2026-08-14 |
-| Standards | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverable is a single JSON config field |
+| Field          | Value                                                                                                                                     |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-008                                                                                                                               |
+| Parent Epic    | AIF-002                                                                                                                                   |
+| Chunk          | 008 of 15                                                                                                                                 |
+| Depends On     | None                                                                                                                                      |
+| Can Parallel   | 001, 002, 003, 004, 005, 006, 007, 009 (all other Wave 1 chunks)                                                                          |
+| Project        | ai-foundation                                                                                                                             |
+| Status         | Approved                                                                                                                                  |
+| Author (Agent) | AI-Engineer                                                                                                                               |
+| Reviewed By    | Jeremy Smellie                                                                                                                            |
+| Created        | 2026-08-14                                                                                                                                |
+| Last Updated   | 2026-08-14                                                                                                                                |
+| Standards      | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverable is a single JSON config field |
 
 ---
 
@@ -46,9 +46,11 @@ Add an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`'s 
 ## 5. Scope
 
 ### In Scope
+
 - `.aiconfig.json` — add one key, `"decisions": "docs/decisions"`, to the existing `paths` object.
 
 ### Out of Scope
+
 - Any change to other `paths.*` entries, `standards`, `orchestration`, or `ai_identity` fields in `.aiconfig.json` — untouched.
 - Creating or migrating the `docs/decisions/{domain}/` subfolder structure itself — that is Wave 1 chunk 009 (light-touch migration) and the domain folders described in Epic Plan Section 5 ("Creation of the domain subfolders under `docs/decisions/`").
 - Any skill or tooling change that reads `paths.decisions` — no skill in this Epic currently requires reading it programmatically; this chunk only adds the config entry itself, per the Epic Plan's exact scope description ("Adding an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`").
@@ -68,6 +70,7 @@ Add an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`'s 
 ## 7. Architecture & Design
 
 ### Project Structure Changes
+
 - `.aiconfig.json` ← MODIFIED (one new key in the existing `paths` object)
 - No new files.
 
@@ -80,6 +83,7 @@ Add an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`'s 
    **Rationale**: The Epic Plan's In Scope bullet for this chunk is narrowly "adding an explicit entry," not "wiring skills to read it." Skills that produce records under `docs/decisions/` (`decision-record`, `decision-brief` — chunks 002/003) already hardcode the `docs/decisions/{domain}/` path pattern per the Epic Plan's Data Flow (Section 6, step 4). Adding config-consumption logic to those skills without an explicit Epic Plan directive would be scope expansion beyond what was confirmed; if a future chunk wants skills to read `paths.decisions` instead of hardcoding the path, that is a separate, explicitly scoped change.
 
 ### Patterns & Conventions Applied
+
 - Follows the existing flat key-value convention already used by every other entry in `.aiconfig.json`'s `paths` object — no nesting, no new schema shape introduced.
 
 ---
@@ -93,6 +97,7 @@ Add an explicit `paths.decisions: "docs/decisions"` entry to `.aiconfig.json`'s 
 
 **Public Interface**:
 Not applicable — static JSON config, no function signature. Resulting shape:
+
 ```json
 "paths": {
   "plans": "docs/plans",
@@ -105,10 +110,12 @@ Not applicable — static JSON config, no function signature. Resulting shape:
 ```
 
 **Key Behaviour**:
+
 - Adds exactly one key. No existing key's value changes.
 - Valid JSON after the edit (verified by a JSON parse check in self-validation).
 
 **Dependencies**:
+
 - None.
 
 ---
@@ -119,8 +126,8 @@ Not applicable — static JSON config, no function signature. Resulting shape:
 
 **Purpose**: Declares project-relative paths used by planning skills to resolve default output locations.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
+| Field       | Type   | Required                                        | Notes                                                                |
+| ----------- | ------ | ----------------------------------------------- | -------------------------------------------------------------------- |
 | `decisions` | string | No (optional, like all other `paths.*` entries) | Relative path to the Decision Records root; value `"docs/decisions"` |
 
 ---
@@ -143,11 +150,11 @@ Not applicable — static JSON config, no function signature. Resulting shape:
 
 This chunk produces a static configuration value with no runtime component — `.aiconfig.json` is read by agents/skills at the start of a session, not executed as code, so there are no application log statements for this chunk to define. The table below documents the plan-level Work Log entries this chunk itself must produce, per `steering/engineering/core.md` Rule 2/Rule 9 and `skill/plan-lifecycle` Steps 1-4 commit requirements — these are the only "logging" applicable to a config-only chunk.
 
-| Event | Level (Work Log Action) | What is logged | What is NOT logged |
-|---|---|---|---|
-| Plan drafted | `[Created]` | Plan ID, agent, tier assessed, summary of scope | No content of unrelated chunks/plans |
-| Plan approved/deferred | `[Approved]`/`[Deferred]` | Human decision, approver name if approved | Nothing beyond the decision itself |
-| Implementation commit (future, post-approval) | `[Implemented]` | File touched (`.aiconfig.json`), one-line description referencing AIF-002-008 | No secrets; no `ai_identity` values beyond the unchanged existing config |
+| Event                                         | Level (Work Log Action)   | What is logged                                                                | What is NOT logged                                                       |
+| --------------------------------------------- | ------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Plan drafted                                  | `[Created]`               | Plan ID, agent, tier assessed, summary of scope                               | No content of unrelated chunks/plans                                     |
+| Plan approved/deferred                        | `[Approved]`/`[Deferred]` | Human decision, approver name if approved                                     | Nothing beyond the decision itself                                       |
+| Implementation commit (future, post-approval) | `[Implemented]`           | File touched (`.aiconfig.json`), one-line description referencing AIF-002-008 | No secrets; no `ai_identity` values beyond the unchanged existing config |
 
 ---
 
@@ -157,12 +164,12 @@ This chunk has no executable code, so "tests" are validation checks performed du
 
 ### .aiconfig.json Config Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 008-T01 | `.aiconfig.json` parses as valid JSON after the edit | Automated (`node -e "JSON.parse(...)"` or equivalent) | No parse error |
-| 008-T02 | `paths.decisions` equals exactly `"docs/decisions"` | Manual/scripted field check | Value matches human-confirmed scope statement verbatim |
-| 008-T03 | No other key in `.aiconfig.json` changes value (diff review) | Manual diff review | Only one line added; all pre-existing lines byte-for-byte unchanged except trailing comma adjustment |
-| 008-T04 | `docs/decisions` (the path value) already exists as a real directory in the repo, so the new config entry does not point at a nonexistent location | Filesystem check | Directory exists (confirmed: `docs/decisions/meta-process/` already present from AIF-META-001) |
+| Test ID | Description                                                                                                                                        | Type                                                  | Pass Criteria                                                                                        |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| 008-T01 | `.aiconfig.json` parses as valid JSON after the edit                                                                                               | Automated (`node -e "JSON.parse(...)"` or equivalent) | No parse error                                                                                       |
+| 008-T02 | `paths.decisions` equals exactly `"docs/decisions"`                                                                                                | Manual/scripted field check                           | Value matches human-confirmed scope statement verbatim                                               |
+| 008-T03 | No other key in `.aiconfig.json` changes value (diff review)                                                                                       | Manual diff review                                    | Only one line added; all pre-existing lines byte-for-byte unchanged except trailing comma adjustment |
+| 008-T04 | `docs/decisions` (the path value) already exists as a real directory in the repo, so the new config entry does not point at a nonexistent location | Filesystem check                                      | Directory exists (confirmed: `docs/decisions/meta-process/` already present from AIF-META-001)       |
 
 ---
 
@@ -177,9 +184,9 @@ This chunk has no executable code, so "tests" are validation checks performed du
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | No skill currently reads `paths.decisions` programmatically, so this chunk's deliverable is purely declarative until a future skill/tooling change consumes it | L | Matches the Epic Plan's exact scope ("adding an explicit entry"), not a functional gap — flagged here per global Rule 4 rather than silently expanded into wiring work not requested by the Epic Plan or the human's scope confirmation |
+| #   | Risk / Question                                                                                                                                                | Impact | Mitigation                                                                                                                                                                                                                              |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | No skill currently reads `paths.decisions` programmatically, so this chunk's deliverable is purely declarative until a future skill/tooling change consumes it | L      | Matches the Epic Plan's exact scope ("adding an explicit entry"), not a functional gap — flagged here per global Rule 4 rather than silently expanded into wiring work not requested by the Epic Plan or the human's scope confirmation |
 
 ---
 

@@ -9,14 +9,14 @@ It is composed on top of the universal schema and the language standards file.
 
 ## Project Identity
 
-| Field              | Value                                                        |
-|--------------------|--------------------------------------------------------------|
-| Project Name       | {ProjectName}                                                |
-| Organization       | {Organization}                                               |
-| Language           | {Language}                                                   |
-| Module ID          | {ModuleID}                                                   |
-| Repository         | {Repository}                                                 |
-| Created            | {YYYY-MM-DD}                                                 |
+| Field        | Value          |
+| ------------ | -------------- |
+| Project Name | {ProjectName}  |
+| Organization | {Organization} |
+| Language     | {Language}     |
+| Module ID    | {ModuleID}     |
+| Repository   | {Repository}   |
+| Created      | {YYYY-MM-DD}   |
 
 **Module ID** is the language-specific package or module identifier for this project.
 Examples: npm scope (`@org/package`), Go module (`github.com/org/repo`), Rust crate name, Python package name, .NET root namespace (`Company.Project`), Java group ID (`com.company.project`).
@@ -30,9 +30,9 @@ Standards for this project are configured in `.aiconfig.json` under the `standar
 Only list overrides or additions to the base standards file.
 If the base standards file already covers it, do not repeat it here.
 
-| Construct       | Convention  | Example | Reason for Override |
-|-----------------|-------------|---------|---------------------|
-| {construct}     | {rule}      | {ex}    | {why different}     |
+| Construct   | Convention | Example | Reason for Override |
+| ----------- | ---------- | ------- | ------------------- |
+| {construct} | {rule}     | {ex}    | {why different}     |
 
 ---
 
@@ -52,9 +52,9 @@ Only document additions or deviations from the base standards layout.
 List the packages approved for this project.
 The Coder agent must not add packages not listed here without a plan update.
 
-| Package                      | Version  | Purpose                        |
-|------------------------------|----------|--------------------------------|
-| {PackageName}                | {x.y.z}  | {What it is used for}          |
+| Package       | Version | Purpose               |
+| ------------- | ------- | --------------------- |
+| {PackageName} | {x.y.z} | {What it is used for} |
 
 ---
 
@@ -69,9 +69,9 @@ These add to the universal and language-level security rules — they do not rep
 
 ## Project-Specific Logging Rules
 
-| Event              | Level  | What is logged    | What is NOT logged |
-|--------------------|--------|-------------------|--------------------|
-| {project event}    | {level}| {safe fields}     | {excluded fields}  |
+| Event           | Level   | What is logged | What is NOT logged |
+| --------------- | ------- | -------------- | ------------------ |
+| {project event} | {level} | {safe fields}  | {excluded fields}  |
 
 ---
 

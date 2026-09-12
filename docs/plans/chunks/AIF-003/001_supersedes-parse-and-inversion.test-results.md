@@ -2,13 +2,13 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Run By | Test-Engineer |
-| Date | 2026-08-25 |
-| Chunk Plan | AIF-003-001 |
-| Outcome | Pass |
-| Results | 692 passed, 0 failed, 0 blocked (11 new tests for this chunk: 001-T01 through 001-T11; 001-T12 is the full-suite regression itself) |
+| Field      | Value                                                                                                                               |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Run By     | Test-Engineer                                                                                                                       |
+| Date       | 2026-08-25                                                                                                                          |
+| Chunk Plan | AIF-003-001                                                                                                                         |
+| Outcome    | Pass                                                                                                                                |
+| Results    | 692 passed, 0 failed, 0 blocked (11 new tests for this chunk: 001-T01 through 001-T11; 001-T12 is the full-suite regression itself) |
 
 ---
 
@@ -38,20 +38,20 @@ change to that file.)
 
 ## Results by Test Case
 
-| Test ID | Test Name | Result | Notes |
-|---|---|---|---|
-| 001-T01 | Supersedes absent from Metadata table | Pass | Uses `.replace()` to strip the row entirely from `wellFormedRecord()`, distinct from the `—` case (001-T02) — genuine absent-field coverage, not a duplicate. |
-| 001-T02 | Supersedes present as `—` | Pass | |
-| 001-T03 | Supersedes names one record | Pass | |
-| 001-T04 | Supersedes names three records, irregular spacing | Pass | Confirms split + trim on `'AIF-ARCH-004,AIF-ARCH-005 ,  AIF-ARCH-006'`. |
-| 001-T05 | Inversion: B supersedes A | Pass | Asserts both directions (`A.superseded_by`, `B.supersedes`, `B.superseded_by`). |
-| 001-T06 | Dangling Supersedes ID | Pass | Asserts no throw, `C.supersedes` retained, no entry gains `superseded_by`. |
-| 001-T07 | Two records supersede the same predecessor | Pass | Asserts `A.superseded_by` contains both `B` and `C`. |
-| 001-T08 | Self-reference in Supersedes | Pass | Asserts `superseded_by` stays `[]`; no infinite loop (implicit — the loop is a single non-recursive `.filter`, so no separate hang-detection test was needed). |
-| 001-T09 | references/referenced_by unaffected alongside new pair | Pass | Asserts all four fields (`referenced_by`, `superseded_by`, `supersedes`, plus the absence on A) in one fixture set — real coexistence check, not just re-running old assertions. |
-| 001-T10 | Legacy record, no Tier/Domain, no Supersedes | Pass | Uses the pre-existing `legacyRecordMissingTierAndDomain()` fixture, which has no `Supersedes` row at all — proves `REQUIRED_FIELDS` was not widened. |
-| 001-T11 | diffDecisionIndex reports supersede-only change as stale | Pass | Reuses the existing `baseEntry` fixture pattern from the surrounding describe block; asserts `stale: true` and that `A` appears in the summary. |
-| 001-T12 | Full suite regression | Pass | `npm test`: 692/692 passing, independently confirmed (681 pre-existing + 11 new). |
+| Test ID | Test Name                                                | Result | Notes                                                                                                                                                                            |
+| ------- | -------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 001-T01 | Supersedes absent from Metadata table                    | Pass   | Uses `.replace()` to strip the row entirely from `wellFormedRecord()`, distinct from the `—` case (001-T02) — genuine absent-field coverage, not a duplicate.                    |
+| 001-T02 | Supersedes present as `—`                                | Pass   |                                                                                                                                                                                  |
+| 001-T03 | Supersedes names one record                              | Pass   |                                                                                                                                                                                  |
+| 001-T04 | Supersedes names three records, irregular spacing        | Pass   | Confirms split + trim on `'AIF-ARCH-004,AIF-ARCH-005 ,  AIF-ARCH-006'`.                                                                                                          |
+| 001-T05 | Inversion: B supersedes A                                | Pass   | Asserts both directions (`A.superseded_by`, `B.supersedes`, `B.superseded_by`).                                                                                                  |
+| 001-T06 | Dangling Supersedes ID                                   | Pass   | Asserts no throw, `C.supersedes` retained, no entry gains `superseded_by`.                                                                                                       |
+| 001-T07 | Two records supersede the same predecessor               | Pass   | Asserts `A.superseded_by` contains both `B` and `C`.                                                                                                                             |
+| 001-T08 | Self-reference in Supersedes                             | Pass   | Asserts `superseded_by` stays `[]`; no infinite loop (implicit — the loop is a single non-recursive `.filter`, so no separate hang-detection test was needed).                   |
+| 001-T09 | references/referenced_by unaffected alongside new pair   | Pass   | Asserts all four fields (`referenced_by`, `superseded_by`, `supersedes`, plus the absence on A) in one fixture set — real coexistence check, not just re-running old assertions. |
+| 001-T10 | Legacy record, no Tier/Domain, no Supersedes             | Pass   | Uses the pre-existing `legacyRecordMissingTierAndDomain()` fixture, which has no `Supersedes` row at all — proves `REQUIRED_FIELDS` was not widened.                             |
+| 001-T11 | diffDecisionIndex reports supersede-only change as stale | Pass   | Reuses the existing `baseEntry` fixture pattern from the surrounding describe block; asserts `stale: true` and that `A` appears in the summary.                                  |
+| 001-T12 | Full suite regression                                    | Pass   | `npm test`: 692/692 passing, independently confirmed (681 pre-existing + 11 new).                                                                                                |
 
 ---
 
@@ -71,7 +71,7 @@ Additional cross-checks against the plan, beyond the Testing Plan table:
   `buildDecisionIndex` — confirmed by inspection; `supersedes` now reads
   `record.supersedes || []` and `superseded_by` is computed by inversion.
 - Entry key order preserved (`id, tier, domain, title, status, path, supersedes,
-  superseded_by, references, referenced_by, tags`) — confirmed by inspection of the object
+superseded_by, references, referenced_by, tags`) — confirmed by inspection of the object
   literal in `buildDecisionIndex`.
 - `docs/decisions/index.json` not regenerated in this chunk — confirmed; no change to that
   file appears in the branch diff against `origin/main`.

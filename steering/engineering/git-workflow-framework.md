@@ -1,7 +1,7 @@
 ---
-name: "git-workflow-framework"
-version: "0.4.0"
-description: "Git workflow for framework-style repositories (direct commits to main)."
+name: 'git-workflow-framework'
+version: '0.4.1'
+description: 'Git workflow for framework-style repositories (direct commits to main).'
 file_patterns: []
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: csharp_avalonia
-version: 1.1.0
+version: 1.1.1
 description: Avalonia UI conventions for C# desktop applications
 tags: [csharp, avalonia]
 depends_on: [csharp_base]
@@ -12,12 +12,12 @@ depends_on: [csharp_base]
 
 ## Stack
 
-| Layer        | Library / Version             |
-|--------------|-------------------------------|
-| UI Framework | Avalonia 11.x                 |
-| Theme        | Avalonia.Themes.Fluent        |
-| Bindings     | Compiled bindings (default)   |
-| Testing (UI) | Avalonia.Headless.XUnit       |
+| Layer        | Library / Version           |
+| ------------ | --------------------------- |
+| UI Framework | Avalonia 11.x               |
+| Theme        | Avalonia.Themes.Fluent      |
+| Bindings     | Compiled bindings (default) |
+| Testing (UI) | Avalonia.Headless.XUnit     |
 
 ---
 
@@ -50,12 +50,12 @@ Standard layout for an Avalonia application project:
 
 ### File Naming
 
-| File type      | Convention                           | Example                     |
-|----------------|--------------------------------------|-----------------------------|
-| View AXAML     | `{Feature}View.axaml`               | `FilePickerView.axaml`      |
-| View code-behind | `{Feature}View.axaml.cs`          | `FilePickerView.axaml.cs`   |
-| Window AXAML   | `{Feature}Window.axaml`             | `MainWindow.axaml`          |
-| UserControl    | `{Feature}View.axaml`               | `DataPreviewView.axaml`     |
+| File type        | Convention               | Example                   |
+| ---------------- | ------------------------ | ------------------------- |
+| View AXAML       | `{Feature}View.axaml`    | `FilePickerView.axaml`    |
+| View code-behind | `{Feature}View.axaml.cs` | `FilePickerView.axaml.cs` |
+| Window AXAML     | `{Feature}Window.axaml`  | `MainWindow.axaml`        |
+| UserControl      | `{Feature}View.axaml`    | `DataPreviewView.axaml`   |
 
 ### AXAML Rules
 
@@ -111,6 +111,7 @@ public class {Name}Converter : IValueConverter
 ```
 
 Rules:
+
 - One converter per file
 - File name matches class name: `{Name}Converter.cs`
 - Place in `Converters/` directory
@@ -136,6 +137,7 @@ public void MyControl_WhenLoaded_DisplaysExpectedText()
 Package: `Avalonia.Headless.XUnit`
 
 Rules:
+
 - Headless tests go in a separate test project: `{ProjectName}.Desktop.Tests`
 - Use `[AvaloniaFact]` and `[AvaloniaTheory]` attributes
 - Headless tests verify binding correctness and control behavior — not pixel-perfect rendering

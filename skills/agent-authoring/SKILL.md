@@ -1,7 +1,7 @@
 ---
-name: "agent-authoring"
-version: "0.2.0"
-description: "Creates a well-formed agent definition with proper tool selection and prompt design."
+name: 'agent-authoring'
+version: '0.2.1'
+description: 'Creates a well-formed agent definition with proper tool selection and prompt design.'
 ---
 
 ## Purpose
@@ -34,10 +34,10 @@ Use the schema documented in `skills/agent-authoring/reference/schema.md`:
 
 ```yaml
 ---
-name: "agent-name"
-version: "0.1.0"
-domain: "engineering"
-description: "One sentence."
+name: 'agent-name'
+version: '0.1.0'
+domain: 'engineering'
+description: 'One sentence.'
 prompt: |
   Full system prompt.
 tools: [...]
@@ -50,6 +50,7 @@ approved_tools: [...]
 Choose from the canonical tool list in `skills/agent-authoring/reference/tools.yaml`.
 
 Rules:
+
 - Only include tools the agent genuinely needs for its role
 - A read-only agent doesn't need `write` or `shell`
 - Include `grep` and `glob` for any agent that searches code
@@ -65,6 +66,7 @@ Rules:
 ### Step 5 — Write the prompt
 
 The prompt is a direct instruction to the agent. It must include:
+
 - Who the agent is and what its role is
 - Its operating process (numbered steps)
 - Hard rules it must never violate

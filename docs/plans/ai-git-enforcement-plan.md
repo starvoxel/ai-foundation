@@ -21,8 +21,8 @@ A new optional field on agent YAML definitions:
 
 ```yaml
 blocked_commands:
-  - "git *"
-  - "gh *"
+  - 'git *'
+  - 'gh *'
 ```
 
 - Per-agent (not global) — different agents may need different restrictions in the future
@@ -32,11 +32,11 @@ blocked_commands:
 
 ### Harness Translation
 
-| Harness | Native format |
-|---|---|
-| Kiro | `permissions.rules` with `{ capability: "shell", match: [...], effect: "deny" }` |
-| Claude Code | `permissions.deny` array with `"Bash(pattern)"` entries |
-| Copilot | Skipped for now (adapter not yet built) |
+| Harness     | Native format                                                                    |
+| ----------- | -------------------------------------------------------------------------------- |
+| Kiro        | `permissions.rules` with `{ capability: "shell", match: [...], effect: "deny" }` |
+| Claude Code | `permissions.deny` array with `"Bash(pattern)"` entries                          |
+| Copilot     | Skipped for now (adapter not yet built)                                          |
 
 ### Steering Simplification
 
@@ -68,13 +68,15 @@ The AI Identity sections in git workflow steering files are largely obsolete now
 ### 2. Update all agent YAML definitions
 
 For all 8 agents, add:
+
 ```yaml
 blocked_commands:
-  - "git *"
-  - "gh *"
+  - 'git *'
+  - 'gh *'
 ```
 
 Update prompts in agents that reference git/gh directly:
+
 - **software-engineer:** Replace `gh pr create` → `ai-git gh-pr-create`, remove identity/auth hard rules
 - **test-engineer:** Remove identity/auth hard rules, add "use `ai-git`" rule
 - **engineering-manager:** Replace `git worktree` → `ai-git worktree` references
@@ -84,21 +86,25 @@ Agents with no git/gh prompt references (ai-engineer, architect, tech-lead, prin
 ### 3. Update harness adapters
 
 **Kiro (`lib/harnesses/kiro.js`):**
+
 - In `transformAgent()`, read `blocked_commands` from agent object
 - If present, add `permissions.rules` array to output with deny entries
 
 **Claude Code (`lib/harnesses/claude.js`):**
+
 - In `transformAgent()`, read `blocked_commands` from agent object
 - If present, add `permissions.deny` array with `Bash(pattern)` entries
 
 ### 4. Update steering files
 
 **`steering/engineering/git-workflow-projects.md`:**
+
 - Replace Rules 11-13 with: "Use `ai-git` for all git and GitHub operations."
 - Keep Rule 14 (never echo tokens) simplified
 - Update the Rationale to mention `ai-git`
 
 **`steering/engineering/git-workflow-framework.md`:**
+
 - Replace Rules 5-7 with: "Use `ai-git` for all git and GitHub operations."
 - Keep Rule 8 (never echo tokens) simplified
 - Update the Rationale to mention `ai-git`

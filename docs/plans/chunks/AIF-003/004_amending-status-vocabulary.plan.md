@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-003-004 |
-| Parent Epic | AIF-003 |
-| Chunk | 4 of 8 |
-| Depends On | None |
-| Can Parallel | AIF-003-001, AIF-003-003, AIF-003-005 (wave 1) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
-| Created | 2026-08-25 |
-| Last Updated | 2026-08-25 |
-| Standards | AGENTS.md skill-authoring schemas; no language/stack standards apply (documentation-only change to a reference file inside `skills/plan-lifecycle`). AI-Engineer track per `AIF-PROC-001`. |
+| Field          | Value                                                                                                                                                                                      |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Plan ID        | AIF-003-004                                                                                                                                                                                |
+| Parent Epic    | AIF-003                                                                                                                                                                                    |
+| Chunk          | 4 of 8                                                                                                                                                                                     |
+| Depends On     | None                                                                                                                                                                                       |
+| Can Parallel   | AIF-003-001, AIF-003-003, AIF-003-005 (wave 1)                                                                                                                                             |
+| Project        | ai-foundation                                                                                                                                                                              |
+| Status         | Approved                                                                                                                                                                                   |
+| Author (Agent) | AI-Engineer                                                                                                                                                                                |
+| Reviewed By    | Pending                                                                                                                                                                                    |
+| Created        | 2026-08-25                                                                                                                                                                                 |
+| Last Updated   | 2026-08-25                                                                                                                                                                                 |
+| Standards      | AGENTS.md skill-authoring schemas; no language/stack standards apply (documentation-only change to a reference file inside `skills/plan-lifecycle`). AI-Engineer track per `AIF-PROC-001`. |
 
 ---
 
@@ -61,7 +61,7 @@ Complexity assessed at **Tier 1** per `skill/complexity-tiers`: single file, cle
 ### Out of Scope
 
 - **Any change to the "Checking whether dependent work may proceed" section.** It already reads "Always check for `Status: Approved` specifically. Do not write special-case logic for `Deferred`, `Draft`, or any other non-`Approved` value" — this sentence already covers `Amending` without modification. Editing it to name `Amending` explicitly would be an unnecessary (and precedent-breaking) special case; leaving it untouched is itself part of proving Business Rule "No gate anywhere special-cases `Amending`" (Epic Section 5).
-- **`skills/plan-lifecycle/reference/commit-gate-procedure.md`.** Owned by `AIF-003-006`, which documents the two-commit amendment gate procedure itself. This chunk documents only the status *value* and its transitions, not the commit sequence that drives them.
+- **`skills/plan-lifecycle/reference/commit-gate-procedure.md`.** Owned by `AIF-003-006`, which documents the two-commit amendment gate procedure itself. This chunk documents only the status _value_ and its transitions, not the commit sequence that drives them.
 - **`skills/plan-lifecycle/SKILL.md`.** Also `AIF-003-006`'s file.
 - **`steering/global/knowledge-consumption.md`.** Owned by `AIF-003-005` — a parallel, independent wave-1 chunk. This chunk does not touch it and does not need to; the existing negative-phrased status check there is unaffected by a new status value existing (per `AIF-META-002` Design → Status handling: "Because every gate checks positively for `Approved` ... this new status blocks dependent work through the existing mechanism").
 - **Either record template.** `## Amendments`, `## Errata`, `Last Amended`, `Supersedes` are `AIF-003-003`'s files.
@@ -100,7 +100,7 @@ No new files. No files outside `skills/plan-lifecycle/reference/status-vocabular
    **Why:** the record is `Approved` and already states the exact meaning ("An amendment has been proposed and applied to the body, and is awaiting human confirmation") and the exact two transitions. Inventing new wording risks introducing a semantic drift between the decision and its implementing artifact — the record itself warns about exactly this kind of drift in its own Design section ("The log can drift from the body if an amendment is applied carelessly" — the same discipline applies to documentation as to record bodies).
 
 2. **Decision**: fold `Amending`'s explanation into the existing Decision Record row's "Notes" cell (matching how `Superseded` is documented today), rather than adding a new standalone sub-table.
-   **Why:** `AIF-META-002` Design → Status handling presents `Amending` in a small `Status | Meaning | Dependent work allowed?` table of its own, but that table exists inside the *decision record*, not inside `status-vocabulary.md`. Introducing a second table shape into `status-vocabulary.md` — one row-plus-notes pattern for `Superseded`, one three-column sub-table for `Amending` — would be an inconsistent precedent for the next status value some future decision adds. The existing Notes-cell convention already carries everything needed (meaning, scope, blocking behaviour) in prose, exactly as it does for `Superseded` today.
+   **Why:** `AIF-META-002` Design → Status handling presents `Amending` in a small `Status | Meaning | Dependent work allowed?` table of its own, but that table exists inside the _decision record_, not inside `status-vocabulary.md`. Introducing a second table shape into `status-vocabulary.md` — one row-plus-notes pattern for `Superseded`, one three-column sub-table for `Amending` — would be an inconsistent precedent for the next status value some future decision adds. The existing Notes-cell convention already carries everything needed (meaning, scope, blocking behaviour) in prose, exactly as it does for `Superseded` today.
 
 3. **Decision**: do not touch the "Checking whether dependent work may proceed" section.
    **Why:** this is the section that would constitute "gate-checking logic" if this file contained any executable logic — but it is prose guidance, and it is already written generically ("any other non-`Approved` value"). Editing it to explicitly list `Amending` would itself be the special-casing the Epic's Business Rules (Section 5) and `AIF-META-002` Resolved Item 5 forbid. Leaving it untouched is the correct outcome, not an oversight, and Section 4's acceptance criteria call this out explicitly so a reviewer checks for the absence of a change here, not just the presence of one elsewhere.
@@ -136,17 +136,18 @@ $ grep -rn "Superseded\|Amending" lib/
 
 **Current text** (for reference — not reproduced from the live file verbatim beyond what is needed to show the edit boundary):
 
-| Artifact Type | Allowed Statuses | Notes |
-|---|---|---|
+| Artifact Type   | Allowed Statuses                                      | Notes                                                                                                                                                      |
+| --------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Decision Record | `Draft`, `Approved`, `Done`, `Deferred`, `Superseded` | `Superseded`: a later decision replaced this one. This is a terminal outcome reached after the record was `Approved`, not a choice made at initial review. |
 
 **New text**:
 
-| Artifact Type | Allowed Statuses | Notes |
-|---|---|---|
+| Artifact Type   | Allowed Statuses                                                  | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Decision Record | `Draft`, `Approved`, `Done`, `Deferred`, `Superseded`, `Amending` | `Superseded`: a later decision replaced this one. This is a terminal outcome reached after the record was `Approved`, not a choice made at initial review. `Amending` (Decision Records only): an amendment has been proposed and applied to the record's body, and is awaiting human confirmation. Unlike `Superseded`, this is not a terminal state — it always resolves back to `Approved`, whether the human confirms or rejects the proposal. It blocks dependent work exactly as `Draft`/`Deferred` already do, through the existing positive `Approved` check — no gate anywhere needs to know this value exists. |
 
 **Key Behaviour**:
+
 - The cell addition is purely additive — no existing text in the row is removed or reworded.
 - `Amending` is never added to the Core statuses table (Design Decision 4).
 
@@ -174,6 +175,7 @@ $ grep -rn "Superseded\|Amending" lib/
 ```
 
 **Key Behaviour**:
+
 - Both new bullets are scoped explicitly with "(Decision Records only; ...)", matching how the existing `Superseded` bullet already scopes itself.
 - The two-commit mechanics behind these transitions (propose commit, human decision, confirm/reject commit) are **not** described here — that belongs to `AIF-003-006`'s commit-gate-procedure documentation. This chunk states only that the transition exists and its trigger, consistent with how every other bullet in this section is written (one line, no procedure detail).
 
@@ -205,9 +207,9 @@ Not applicable — this chunk changes documentation prose and table cells, not a
 
 Not applicable. This chunk changes a static reference markdown file inside a skill; it introduces no code path, no runtime behaviour, and therefore nothing that could log an event. Per engineering-core Rule 3's own framing, logging requirements apply to acceptance criteria for runtime/observable behaviour — a documentation edit has none. Recorded explicitly here rather than left blank, per Step 2's rule that Section 11 must never be empty.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| N/A — no runtime component | — | N/A | N/A |
+| Event                      | Level | What is logged | What is NOT logged |
+| -------------------------- | ----- | -------------- | ------------------ |
+| N/A — no runtime component | —     | N/A            | N/A                |
 
 ---
 
@@ -215,16 +217,16 @@ Not applicable. This chunk changes a static reference markdown file inside a ski
 
 This chunk has no unit or integration test suite of its own — `status-vocabulary.md` is prose consumed by agents and humans, not parsed by any code (confirmed in Section 7: no `lib/` file references it). Validation is self-check against the acceptance criteria in Section 4, performed by AI-Engineer before presenting the result, per `skill/complexity-tiers` Tier 1's "Self-validate" step.
 
-| Check ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 004-C01 | `Amending` appears in the Decision Record row's Allowed Statuses cell | Self-check (read file) | Cell reads `Draft`, `Approved`, `Done`, `Deferred`, `Superseded`, `Amending` |
-| 004-C02 | `Amending` does **not** appear in the Core statuses table | Self-check (read file) | Core statuses table's four rows (`Draft`, `Approved`, `Done`, `Deferred`) are unchanged |
-| 004-C03 | `Amending` does **not** appear in any other artifact type's Allowed Statuses cell | Self-check (read file) | Chunk Plan / Epic Plan / Tier 3 `ai-engineering-plan` rows read exactly as before: `Draft`, `Approved`, `Done`, `Deferred` |
-| 004-C04 | Both new transition bullets are present and correctly scoped | Self-check (read file) | `Approved` → `Amending` and `Amending` → `Approved` bullets exist, each parenthetically scoped "(Decision Records only; ...)" |
-| 004-C05 | "Checking whether dependent work may proceed" section is byte-for-byte unchanged | Self-check (diff) | `git diff` shows zero changed lines in that section |
-| 004-C06 | Exactly one file changed | Self-check (`git diff --stat`) | Only `skills/plan-lifecycle/reference/status-vocabulary.md` appears |
-| 004-C07 | Markdown tables remain well-formed | Self-check (visual/render) | Pipe alignment and column count are consistent with the rest of the file; no broken table rendering |
-| 004-C08 | `npm test` still passes | Automated | No test in the suite reads `status-vocabulary.md`, so the full suite is unaffected — run as a regression guard only |
+| Check ID | Description                                                                       | Type                           | Pass Criteria                                                                                                                 |
+| -------- | --------------------------------------------------------------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| 004-C01  | `Amending` appears in the Decision Record row's Allowed Statuses cell             | Self-check (read file)         | Cell reads `Draft`, `Approved`, `Done`, `Deferred`, `Superseded`, `Amending`                                                  |
+| 004-C02  | `Amending` does **not** appear in the Core statuses table                         | Self-check (read file)         | Core statuses table's four rows (`Draft`, `Approved`, `Done`, `Deferred`) are unchanged                                       |
+| 004-C03  | `Amending` does **not** appear in any other artifact type's Allowed Statuses cell | Self-check (read file)         | Chunk Plan / Epic Plan / Tier 3 `ai-engineering-plan` rows read exactly as before: `Draft`, `Approved`, `Done`, `Deferred`    |
+| 004-C04  | Both new transition bullets are present and correctly scoped                      | Self-check (read file)         | `Approved` → `Amending` and `Amending` → `Approved` bullets exist, each parenthetically scoped "(Decision Records only; ...)" |
+| 004-C05  | "Checking whether dependent work may proceed" section is byte-for-byte unchanged  | Self-check (diff)              | `git diff` shows zero changed lines in that section                                                                           |
+| 004-C06  | Exactly one file changed                                                          | Self-check (`git diff --stat`) | Only `skills/plan-lifecycle/reference/status-vocabulary.md` appears                                                           |
+| 004-C07  | Markdown tables remain well-formed                                                | Self-check (visual/render)     | Pipe alignment and column count are consistent with the rest of the file; no broken table rendering                           |
+| 004-C08  | `npm test` still passes                                                           | Automated                      | No test in the suite reads `status-vocabulary.md`, so the full suite is unaffected — run as a regression guard only           |
 
 ---
 
@@ -239,11 +241,11 @@ This chunk has no unit or integration test suite of its own — `status-vocabula
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | **`AIF-003-006` depends on this chunk's exact wording**, not just its existence. If `006` is authored against a different phrasing than what actually lands here, its ladder documentation could describe a status name or transition slightly differently than the vocabulary file states. | Risk | M | Section 8's "New text" blocks are written to be copy-adoptable verbatim by `006` rather than paraphrased loosely; the status name (`Amending`) and both transition labels are fixed strings taken directly from `AIF-META-002`, leaving no room for `006` to reasonably diverge. |
-| 2 | **Folding `Amending`'s explanation into a prose Notes cell (Design Decision 2) discards the three-column `Status / Meaning / Dependent work allowed?` shape `AIF-META-002` uses inline.** A reviewer comparing the two side-by-side could read this as an unfaithful reproduction rather than a deliberate format adaptation. | Risk | L | Explicitly justified in Design Decision 2: the three-column shape is intrinsic to how the record explains itself inline, not a fixed contract this chunk must preserve structurally. The Notes-cell convention is the file's own established pattern (matching `Superseded`), and the acceptance criterion checks for semantic match ("in substance"), not structural match. |
-| 3 | **This chunk cannot itself verify `AIF-003-006`'s downstream consumption is correct**, since `006` has not been written yet. | Risk | L | Accepted — this is an ordinary forward dependency, identical in kind to how `AIF-003-001` could not verify `AIF-003-003`'s template field agreement end-to-end (see `AIF-003-001` Risk 2). `chunks.json` already sequences `006` behind `004` for exactly this reason. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                               | Type | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **`AIF-003-006` depends on this chunk's exact wording**, not just its existence. If `006` is authored against a different phrasing than what actually lands here, its ladder documentation could describe a status name or transition slightly differently than the vocabulary file states.                                   | Risk | M      | Section 8's "New text" blocks are written to be copy-adoptable verbatim by `006` rather than paraphrased loosely; the status name (`Amending`) and both transition labels are fixed strings taken directly from `AIF-META-002`, leaving no room for `006` to reasonably diverge.                                                                                             |
+| 2   | **Folding `Amending`'s explanation into a prose Notes cell (Design Decision 2) discards the three-column `Status / Meaning / Dependent work allowed?` shape `AIF-META-002` uses inline.** A reviewer comparing the two side-by-side could read this as an unfaithful reproduction rather than a deliberate format adaptation. | Risk | L      | Explicitly justified in Design Decision 2: the three-column shape is intrinsic to how the record explains itself inline, not a fixed contract this chunk must preserve structurally. The Notes-cell convention is the file's own established pattern (matching `Superseded`), and the acceptance criterion checks for semantic match ("in substance"), not structural match. |
+| 3   | **This chunk cannot itself verify `AIF-003-006`'s downstream consumption is correct**, since `006` has not been written yet.                                                                                                                                                                                                  | Risk | L      | Accepted — this is an ordinary forward dependency, identical in kind to how `AIF-003-001` could not verify `AIF-003-003`'s template field agreement end-to-end (see `AIF-003-001` Risk 2). `chunks.json` already sequences `006` behind `004` for exactly this reason.                                                                                                       |
 
 ---
 

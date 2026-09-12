@@ -14,17 +14,17 @@ Close the two gaps identified in `gmail-mcp-tool-request.md`: add Gmail filter C
 
 ## Components Affected
 
-| Component | Action | Notes |
-|---|---|---|
-| `servers/gmail/auth.js` | Modify | Add `https://www.googleapis.com/auth/gmail.settings.basic` to `GMAIL_SCOPES` |
-| `servers/gmail/gmail.yaml` | Modify | Add 5 new tool definitions |
-| `servers/gmail/logic.js` | Modify | Pure shaping/chunking/aggregation functions + I/O wrappers for filters, batch modify, and sender report |
-| `servers/gmail/index.js` | Modify | Register the 5 new tools with zod schemas |
-| `servers/gmail/README.md` | Modify | Document that the new scope requires re-running `scripts/authorize.js` |
-| `servers/gmail/tests/unit/gmail.test.js` | Modify | Unit tests for new pure functions |
-| `servers/gmail/tests/integration/gmail.test.js` | Modify | I/O tests against a fake Gmail client |
-| `servers/gmail/tests/integration/gmail.mcp.test.js` | Modify | Protocol tests for the 5 new tools |
-| `docs/plans/gmail-filter-and-batch-tools-plan.md` | Create | This plan |
+| Component                                           | Action | Notes                                                                                                   |
+| --------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------- |
+| `servers/gmail/auth.js`                             | Modify | Add `https://www.googleapis.com/auth/gmail.settings.basic` to `GMAIL_SCOPES`                            |
+| `servers/gmail/gmail.yaml`                          | Modify | Add 5 new tool definitions                                                                              |
+| `servers/gmail/logic.js`                            | Modify | Pure shaping/chunking/aggregation functions + I/O wrappers for filters, batch modify, and sender report |
+| `servers/gmail/index.js`                            | Modify | Register the 5 new tools with zod schemas                                                               |
+| `servers/gmail/README.md`                           | Modify | Document that the new scope requires re-running `scripts/authorize.js`                                  |
+| `servers/gmail/tests/unit/gmail.test.js`            | Modify | Unit tests for new pure functions                                                                       |
+| `servers/gmail/tests/integration/gmail.test.js`     | Modify | I/O tests against a fake Gmail client                                                                   |
+| `servers/gmail/tests/integration/gmail.mcp.test.js` | Modify | Protocol tests for the 5 new tools                                                                      |
+| `docs/plans/gmail-filter-and-batch-tools-plan.md`   | Create | This plan                                                                                               |
 
 No changes to `steering/generic/gmail-irreversible-action-approval.md` or `bundles/generic/bundle.yaml` — see gating classification below and note that the bundle already references the whole `gmail` server by name, not an enumerated tool list.
 
@@ -66,7 +66,7 @@ No changes to `steering/generic/gmail-irreversible-action-approval.md` or `bundl
    - `gmail-create-filter` is additive — undoable via `gmail-delete-filter`, same reasoning as `gmail-create-label`.
    - `gmail-delete-filter` removes a rule, not mail data, and is trivially re-creatable, matching the request doc's own suggestion and the existing precedent of `gmail-trash-message`/`gmail-create-*` being ungated because they're reversible or additive rather than destructive of user data.
    - `gmail-batch-modify-labels` is the batch form of the already-ungated `gmail-modify-labels` (add/remove labels is reversible) — batching doesn't change its reversibility, only its scale.
-   No changes to `steering/generic/gmail-irreversible-action-approval.md` are needed since none of these tools send mail or permanently destroy data.
+     No changes to `steering/generic/gmail-irreversible-action-approval.md` are needed since none of these tools send mail or permanently destroy data.
 
 8a. **`gmail-sender-report` must be optional, not a hard dependency, for anything built on top of it.** Per human direction, this tool may later be removed once the large-backlog triage work is done, and any skill built on it (the future `gmail-inbox-triage` skill — see Out of Scope) must degrade to a slower fallback — paging `gmail-list-messages` + per-message `gmail-get-message` (`format: 'metadata'`) and aggregating in the agent's own reasoning — rather than failing outright if the tool is unavailable. This plan only needs to keep the tool's design decoupled enough for that (a pure aggregation function over `{from, subject}` pairs, callable from either path); the fallback logic itself is implemented later, in the triage skill's own plan, not here.
 
