@@ -39,17 +39,70 @@ describe('unit: claude adapter', () => {
     });
   });
 
+  // The real, current set of tool names Claude Code recognizes natively
+  // (excluding hooks, MCP-server tools, and onboarding/marketplace tools
+  // out of scope for agent frontmatter). TOOL_MAP must never reference a
+  // name outside this list — that was exactly how `code` → `LSP` slipped
+  // in as an unverified guess. Update this list only after confirming a
+  // name against Claude Code's actual native tool surface.
+  const KNOWN_NATIVE_TOOLS = new Set([
+    'Read',
+    'Write',
+    'Edit',
+    'Bash',
+    'Grep',
+    'Glob',
+    'WebSearch',
+    'WebFetch',
+    'Agent',
+    'ListAgents',
+    'SendMessage',
+    'EnterPlanMode',
+    'ExitPlanMode',
+    'AskUserQuestion',
+    'TaskCreate',
+    'TaskUpdate',
+    'TaskGet',
+    'TaskList',
+    'TaskOutput',
+    'TaskStop',
+  ]);
+
   describe('TOOL_MAP', () => {
     it('maps to Claude Code PascalCase names', () => {
-      assert.equal(TOOL_MAP['read'], 'Read');
-      assert.equal(TOOL_MAP['write'], 'Write');
-      assert.equal(TOOL_MAP['shell'], 'Bash');
-      assert.equal(TOOL_MAP['web_search'], 'WebSearch');
-      assert.equal(TOOL_MAP['web_fetch'], 'WebFetch');
-      assert.equal(TOOL_MAP['grep'], 'Grep');
-      assert.equal(TOOL_MAP['glob'], 'Glob');
-      assert.equal(TOOL_MAP['code'], 'LSP');
-      assert.equal(TOOL_MAP['subagent'], 'Agent');
+      assert.deepEqual(TOOL_MAP['read'], ['Read']);
+      assert.deepEqual(TOOL_MAP['write'], ['Write', 'Edit']);
+      assert.deepEqual(TOOL_MAP['shell'], ['Bash']);
+      assert.deepEqual(TOOL_MAP['web_search'], ['WebSearch']);
+      assert.deepEqual(TOOL_MAP['web_fetch'], ['WebFetch']);
+      assert.deepEqual(TOOL_MAP['grep'], ['Grep']);
+      assert.deepEqual(TOOL_MAP['glob'], ['Glob']);
+      assert.deepEqual(TOOL_MAP['subagent'], ['Agent', 'ListAgents', 'SendMessage']);
+      assert.deepEqual(TOOL_MAP['plan'], ['EnterPlanMode', 'ExitPlanMode']);
+      assert.deepEqual(TOOL_MAP['ask_user'], ['AskUserQuestion']);
+      assert.deepEqual(TOOL_MAP['task'], [
+        'TaskCreate',
+        'TaskUpdate',
+        'TaskGet',
+        'TaskList',
+        'TaskOutput',
+        'TaskStop',
+      ]);
+    });
+
+    it('maps code to no native equivalent (verified absent, not guessed)', () => {
+      assert.deepEqual(TOOL_MAP['code'], []);
+    });
+
+    it('never references a tool name outside the known native Claude Code surface', () => {
+      for (const [generic, native] of Object.entries(TOOL_MAP)) {
+        for (const name of native) {
+          assert.ok(
+            KNOWN_NATIVE_TOOLS.has(name),
+            `TOOL_MAP['${generic}'] references unverified native tool "${name}"`,
+          );
+        }
+      }
     });
   });
 
@@ -57,7 +110,11 @@ describe('unit: claude adapter', () => {
     it('maps generic names to Claude Code names', () => {
       assert.equal(mapToolName('read'), 'Read');
       assert.equal(mapToolName('shell'), 'Bash');
-      assert.equal(mapToolName('code'), 'LSP');
+      assert.equal(mapToolName('subagent'), 'Agent');
+    });
+
+    it('passes through a tool with no native equivalent unchanged', () => {
+      assert.equal(mapToolName('code'), 'code');
     });
 
     it('passes through unknown names unchanged', () => {
@@ -73,6 +130,26 @@ describe('unit: claude adapter', () => {
 
     it('maps other tools normally alongside an expanded write', () => {
       assert.deepEqual(mapAgentTools(['read', 'write', 'grep']), ['Read', 'Write', 'Edit', 'Grep']);
+    });
+
+    it('expands subagent to its full orchestration cluster', () => {
+      assert.deepEqual(mapAgentTools(['subagent']), ['Agent', 'ListAgents', 'SendMessage']);
+    });
+
+    it('expands plan and ask_user to their native tools', () => {
+      assert.deepEqual(mapAgentTools(['plan', 'ask_user']), [
+        'EnterPlanMode',
+        'ExitPlanMode',
+        'AskUserQuestion',
+      ]);
+    });
+
+    it('contributes nothing for a tool with no native equivalent', () => {
+      assert.deepEqual(mapAgentTools(['read', 'code', 'grep']), ['Read', 'Grep']);
+    });
+
+    it('passes through an unrecognized generic name unchanged', () => {
+      assert.deepEqual(mapAgentTools(['@git/git_status']), ['@git/git_status']);
     });
 
     it('returns an empty list for an empty input', () => {

@@ -31,6 +31,9 @@ describe('unit: kiro adapter', () => {
         'glob',
         'code',
         'subagent',
+        'plan',
+        'ask_user',
+        'task',
       ];
       for (const name of expected) {
         assert.ok(name in TOOL_MAP, `missing ${name}`);
@@ -44,6 +47,12 @@ describe('unit: kiro adapter', () => {
       assert.equal(TOOL_MAP['web_search'], 'web_search');
       assert.equal(TOOL_MAP['subagent'], 'subagent');
     });
+
+    it('maps tools with no confirmed native Kiro equivalent to null', () => {
+      assert.equal(TOOL_MAP['plan'], null);
+      assert.equal(TOOL_MAP['ask_user'], null);
+      assert.equal(TOOL_MAP['task'], null);
+    });
   });
 
   describe('mapToolName()', () => {
@@ -51,6 +60,12 @@ describe('unit: kiro adapter', () => {
       assert.equal(mapToolName('read'), 'read');
       assert.equal(mapToolName('shell'), 'shell');
       assert.equal(mapToolName('web_search'), 'web_search');
+    });
+
+    it('returns null for tools with no confirmed native Kiro equivalent', () => {
+      assert.equal(mapToolName('plan'), null);
+      assert.equal(mapToolName('ask_user'), null);
+      assert.equal(mapToolName('task'), null);
     });
 
     it('passes through @server/tool references unchanged', () => {
@@ -89,6 +104,17 @@ describe('unit: kiro adapter', () => {
     it('maps approved_tools to allowedTools through TOOL_MAP', () => {
       const result = transformAgent(agent);
       assert.deepEqual(result.allowedTools, ['read', 'web_search', 'grep', 'glob']);
+    });
+
+    it('drops tools with no confirmed native Kiro equivalent instead of guessing a name', () => {
+      const withUnsupported = {
+        ...agent,
+        tools: ['read', 'plan', 'ask_user', 'task'],
+        approved_tools: ['read', 'task'],
+      };
+      const result = transformAgent(withUnsupported);
+      assert.deepEqual(result.tools, ['read']);
+      assert.deepEqual(result.allowedTools, ['read']);
     });
 
     it('converts skills to skill:// resources', () => {

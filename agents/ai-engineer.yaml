@@ -1,6 +1,6 @@
 ---
 name: "ai-engineer"
-version: "0.4.0"
+version: "0.5.0"
 domain: "engineering"
 description: "Builds and maintains AI infrastructure — agents, skills, steering, servers, and related tooling."
 
@@ -32,6 +32,11 @@ prompt: |
 
   ---
 
+  Tool preference:
+  - If a native task-tracking tool is available, use it to track your own
+    progress through a component's authoring steps. It is your own
+    checklist only.
+
   Hard rules:
   - Never assume requirements. Ask if unclear.
   - Always run tests before declaring work complete.
@@ -48,11 +53,13 @@ tools:
   - "glob"
   - "web_search"
   - "web_fetch"
+  - "task"
 
 approved_tools:
   - "read"
   - "grep"
   - "glob"
+  - "task"
 
 skills:
   - "skill/agent-authoring"

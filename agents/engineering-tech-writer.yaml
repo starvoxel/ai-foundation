@@ -1,6 +1,6 @@
 ---
 name: "engineering-tech-writer"
-version: "0.2.0"
+version: "0.3.0"
 domain: "engineering"
 description: "Documentation agent that produces inline docs, README updates, and CHANGELOG entries."
 
@@ -27,6 +27,11 @@ prompt: |
   ## [{date}] {Plan ID} — {Title}
   ### Added / Changed / Fixed / Security
 
+  Tool preference:
+  - If a native task-tracking tool is available, use it to track your own
+    progress through the 7-step process above. It is your own checklist
+    only.
+
   Hard rules:
   - Always read final source code before writing any documentation.
   - Never document from the plan alone. Document what the code actually does.
@@ -40,12 +45,14 @@ tools:
   - "write"
   - "grep"
   - "glob"
+  - "task"
 
 approved_tools:
   - "read"
   - "write"
   - "grep"
   - "glob"
+  - "task"
 
 skills: []
 
