@@ -95,6 +95,18 @@ which get installed; the actual MCP connection is a harness-runtime relationship
 (harness ↔ server process/endpoint), not a static code dependency. See the MCP
 servers table below and §3 Technical context.
 
+## Motivation for this decomposition
+
+The six groups below split along the one boundary that actually matters for this
+system: **what has to change together when a harness is added, vs. what never
+should.** Entry points and the command layer are harness-agnostic orchestration;
+core libraries are harness-agnostic logic reused by every command; harness adapters
+are the *only* place harness-specific knowledge is allowed to live (§1 Quality
+Goals' portability goal, enforced structurally); MCP servers and component sources
+are content the other five groups resolve and install, not code that runs as part
+of `aif` itself. Grouping any other way (e.g. by CLI command, or by file size) would
+cut across that boundary and hide it.
+
 ## Building blocks
 
 ### Entry points
