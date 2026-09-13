@@ -10,6 +10,11 @@
 - [ ] CI passes (lint, typecheck, format, tests)
 - [ ] Documentation updated where applicable <!-- README, docs/, standards/, etc. -->
 - [ ] Test coverage added/updated for the change
+- [ ] Manual validation testing done
+
+## Testing notes
+
+<!-- Outline the test plan you followed to validate this change. -->
 
 ## AI disclosure
 
