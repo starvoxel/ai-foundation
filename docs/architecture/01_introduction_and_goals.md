@@ -30,14 +30,20 @@ just by describing them.
 | Priority | Goal | Motivation |
 |---|---|---|
 | 1 | Portability | One definition installs into multiple harnesses (Claude Code, Kiro today) without per-harness rewrites. |
-| 2 | Proportionate ceremony | Process overhead should scale with what a change actually risks, not apply uniformly regardless of size — see `docs/process-model.md`. |
-| 3 | Git as the source of truth | History, review, and audit trail live in git, not in accreting in-context records agents must re-read. |
+| 2 | Vendor neutrality / single source of truth | "Define once, install anywhere" (README) — a project isn't locked into one AI tool's proprietary config format, and rule changes propagate from one place rather than being hand-copied per project. |
+| 3 | Consistent enforcement across projects | The same agent roles, tool boundaries, and standards apply the same way in every project that installs them — not documentation each project's contributors reinterpret independently. |
 | 4 | Minimal-dependency tooling | The CLI and its adapters stay plain Node.js with a small dependency footprint, so installing this framework doesn't itself become a supply-chain or portability liability. |
+
+Process-level principles this repo follows for its own development (proportionate
+ceremony, git as the durable record over accreting in-context artifacts, and so on)
+are real, but they're goals of *how ai-foundation's own contributors work*, documented
+in `docs/process-model.md` — not quality goals of the framework as a system, so they
+don't belong in this table.
 
 ## Stakeholders
 
 | Role | Concern |
 |---|---|
-| Human developer | Approves plans/decisions, reviews agent output, owns merge-to-main. |
-| AI agent (see `agents/README.md` for the current roster) | Executes work within the roles and boundaries this framework defines. |
-| Harness (Claude Code, Kiro) | Loads the installed, harness-native form of these components at runtime. |
+| Human developer | Wants one set of AI-development rules that behaves identically across every project and harness they use, installed once and trusted rather than re-verified per project — while keeping final approval over anything AI-authored before it takes effect. |
+| AI agent (see `agents/README.md` for the current roster) | Needs an unambiguous role, tool grant, and procedure to execute — consumes `agents/`, `skills/`, and `steering/` as its own operating definition, not just reference material. |
+| Harness (Claude Code, Kiro, and any future one) | Needs a stable adapter contract (`lib/harnesses/*`) so its native format can be generated without component sources (`agents/`, `skills/`, …) needing harness-specific knowledge. |
