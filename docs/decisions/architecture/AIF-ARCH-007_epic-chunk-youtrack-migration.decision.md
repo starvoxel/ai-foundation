@@ -2,21 +2,21 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-ARCH-007 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | architecture |
-| Status | Draft |
-| Author (Agent) | Architect |
-| Approved By | Pending |
-| Created | 2026-08-24 |
-| Referenced By | — |
-| References | — |
-| Tags | youtrack, epic-planning, chunk-orchestration, tracking, audit-trail |
+| Field          | Value                                                               |
+| -------------- | ------------------------------------------------------------------- |
+| Decision ID    | AIF-ARCH-007                                                        |
+| Project        | ai-foundation                                                       |
+| Tier           | A                                                                   |
+| Domain         | architecture                                                        |
+| Status         | Draft                                                               |
+| Author (Agent) | Architect                                                           |
+| Approved By    | Pending                                                             |
+| Created        | 2026-08-24                                                          |
+| Referenced By  | —                                                                   |
+| References     | —                                                                   |
+| Tags           | youtrack, epic-planning, chunk-orchestration, tracking, audit-trail |
 
-> This record's design presumes `docs/plans/chunk-epic-planning-redesign-plan.md` (currently `Draft`) is implemented as written — the collapsed single-epic-gate model and the extended chunk schema (`tier`, `high_risk`, `goal`, `files`, `acceptance_criteria`) are treated as given. That plan has no Decision ID yet (it is a plan document, not a decision), so it cannot be cited in `References` above — see Impact on Planning for the sequencing dependency this creates. This record also draws on two research-notes files that are explicitly *not* Decision Records and carry no authority of their own: `docs/misc/youtrack-tracking-config-notes.md` (general YouTrack-as-backend exploration) and `docs/misc/youtrack-dr-issue-setup-notes.md` (a parallel, since-resolved design for Decision-Record tracking specifically, used here only as a precedent to weigh against, per explicit human instruction — this record's project-boundary and Type decisions are made independently of it, not inherited from it).
+> This record's design presumes `docs/plans/chunk-epic-planning-redesign-plan.md` (currently `Draft`) is implemented as written — the collapsed single-epic-gate model and the extended chunk schema (`tier`, `high_risk`, `goal`, `files`, `acceptance_criteria`) are treated as given. That plan has no Decision ID yet (it is a plan document, not a decision), so it cannot be cited in `References` above — see Impact on Planning for the sequencing dependency this creates. This record also draws on two research-notes files that are explicitly _not_ Decision Records and carry no authority of their own: `docs/misc/youtrack-tracking-config-notes.md` (general YouTrack-as-backend exploration) and `docs/misc/youtrack-dr-issue-setup-notes.md` (a parallel, since-resolved design for Decision-Record tracking specifically, used here only as a precedent to weigh against, per explicit human instruction — this record's project-boundary and Type decisions are made independently of it, not inherited from it).
 
 ---
 
@@ -29,6 +29,7 @@ Epic/Chunk tracking currently lives entirely in git: `chunks.json` (structural d
 ## Constraints & Requirements
 
 What was non-negotiable (set by human direction during this record's authoring):
+
 - Epic/Chunk **content** (Goal, Security Considerations, Epic Test Plan, per-chunk Goal/Files/Acceptance Criteria) moves fully into YouTrack as the source of truth — no parallel git-committed `.md` files for new epics going forward.
 - The `Draft → Approved` gate (and the underlying pipeline status state machine) is enforced by a **hard YouTrack workflow-rule state machine** — not a convention the agent is trusted to follow, and not merely a field the agent could self-set.
 - This record's schema presumes the chunk-epic-planning-redesign-plan's final field set (`tier`, `high_risk`, `goal`, `files`, `acceptance_criteria`) is already in effect.
@@ -36,6 +37,7 @@ What was non-negotiable (set by human direction during this record's authoring):
 - The wave-based concurrency machinery (`chunks.json`, `dag-compute-waves`, `dag-validate`, worktrees) must be preserved unchanged, per the redesign plan's own stated goal — this record must not silently reopen that constraint.
 
 What was a preference but not a hard requirement:
+
 - A trimmed local file should remain for whatever the DAG tools and worktree cleanup genuinely need locally and fast — "most detail in YouTrack, minimal file for facilitating clean-up" (human direction), not zero local file.
 - Visual, board-level status of epics/chunks in YouTrack (an Agile board or equivalent saved-search view) matters enough to weigh into the design, not just field storage.
 
@@ -82,6 +84,7 @@ The substantive fork in this record is how much of the current git-file model ea
 **Rationale**: The two existing git-committed files have asymmetric write-frequency and risk profiles — `chunks.json` is decomposition-time-only and essentially frozen thereafter, while `orchestration-state.json` is the actual source of the manual-record-keeping burden this migration is meant to reduce. Option D is the only option that targets the expensive artifact without also paying to rebuild the cheap one's tooling. It satisfies the redesign plan's explicit "preserve wave-based concurrency machinery unchanged" constraint by construction (no code touching `dag-validate`/`dag-compute-waves` changes), rather than contradicting it (Option B) or satisfying it only at the pure-logic layer while still changing the tools' operational contract (Option C). Disjoint field ownership means there is no drift risk to mitigate, unlike Option A's fully duplicated fields — the "getting out of sync" concern raised at the start of this decision is resolved structurally, not procedurally.
 
 **Trade-offs accepted**:
+
 - The dependency graph is not natively enforceable as a YouTrack workflow guard. Mitigated by a one-time mirrored push of `depends_on` edges into YouTrack link types at chunk-creation time (write-once, not synced — see Design), giving board visualization and defense-in-depth without reopening `chunks.json` as a second editable copy of anything. Wave-ordering enforcement itself remains `dag-compute-waves`/Engineering-Manager's responsibility, exactly as it is today — this is not a new gap, just an explicit statement that it isn't closed by this migration.
 - Two systems (a trimmed local file + YouTrack) instead of one. Accepted because the alternative (one system) costs a DAG-tool rewrite this record has no evidence is justified by actual edit frequency on the data that would move.
 - Migrating the redesign plan's own conversion into an Epic Plan is flagged (see Impact on Planning) but explicitly **not** decided or scoped by this record — raised as a follow-up per Rule 4, not silently folded in.
@@ -97,29 +100,29 @@ The substantive fork in this record is how much of the current git-file model ea
 
 ### Custom Fields — Epic
 
-| Field | Status | Type | Notes |
-|---|---|---|---|
-| `Status` | **Needs redesign** | enum: `Draft`, `Approved`, `Done`, `Deferred` | The currently-provisioned `Status` field (`Draft, Approved, Deferred, In Progress, Blocked, Complete, Ready`) mixes Epic and Chunk vocabulary in one enum and includes `In Progress`, which `plan-lifecycle/status-vocabulary.md` deliberately excludes as a plan-status value. Needs to become an Epic-scoped enum matching `status-vocabulary.md` exactly, separate from the Chunk-scoped enum below. |
-| `Approved By` | Exists | string (login) | Workflow-gated — see Workflow Rules. |
-| `Security Considerations` | Exists | long text | |
-| `Test Plan` | Exists | long text | Houses the redesign plan's Epic Test Plan (Section 9: feature verification, integration points, regression scope, sign-off). |
-| `Agent` | **Needs gap closure** | multi-value enum | Currently single-value; an Epic can involve more than one agent role across its chunks. |
-| `High Risk` | Exists | boolean | Epic-level rollup, informational; the authoritative per-chunk value stays in `chunks.json`. |
-| `Files Impacted` | Exists | text | |
-| `Acceptance Criteria` | Exists | text | |
-| `Due Date` | Exists | date | |
-| `Priority` | Exists | enum | |
+| Field                     | Status                | Type                                          | Notes                                                                                                                                                                                                                                                                                                                                                                                                   |
+| ------------------------- | --------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Status`                  | **Needs redesign**    | enum: `Draft`, `Approved`, `Done`, `Deferred` | The currently-provisioned `Status` field (`Draft, Approved, Deferred, In Progress, Blocked, Complete, Ready`) mixes Epic and Chunk vocabulary in one enum and includes `In Progress`, which `plan-lifecycle/status-vocabulary.md` deliberately excludes as a plan-status value. Needs to become an Epic-scoped enum matching `status-vocabulary.md` exactly, separate from the Chunk-scoped enum below. |
+| `Approved By`             | Exists                | string (login)                                | Workflow-gated — see Workflow Rules.                                                                                                                                                                                                                                                                                                                                                                    |
+| `Security Considerations` | Exists                | long text                                     |                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Test Plan`               | Exists                | long text                                     | Houses the redesign plan's Epic Test Plan (Section 9: feature verification, integration points, regression scope, sign-off).                                                                                                                                                                                                                                                                            |
+| `Agent`                   | **Needs gap closure** | multi-value enum                              | Currently single-value; an Epic can involve more than one agent role across its chunks.                                                                                                                                                                                                                                                                                                                 |
+| `High Risk`               | Exists                | boolean                                       | Epic-level rollup, informational; the authoritative per-chunk value stays in `chunks.json`.                                                                                                                                                                                                                                                                                                             |
+| `Files Impacted`          | Exists                | text                                          |                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Acceptance Criteria`     | Exists                | text                                          |                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Due Date`                | Exists                | date                                          |                                                                                                                                                                                                                                                                                                                                                                                                         |
+| `Priority`                | Exists                | enum                                          |                                                                                                                                                                                                                                                                                                                                                                                                         |
 
 ### Custom Fields — Chunk
 
-| Field | Status | Type | Notes |
-|---|---|---|---|
-| `Status` | **Needs redesign** | enum: `Ready`, `Implementing`, `Testing`, `Reviewing`, `Done`, `Conflict`, `Blocked` | Chunk-scoped, matching `chunk-orchestration/reference/state-schema.md`'s existing state machine exactly — this is the field the hard workflow gate (below) operates on. |
-| `Blocked Reason` | New | string | Mirrors `orchestration-state.json`'s existing field; null-equivalent is empty string. |
-| `PR Number` / `PR URL` | New | integer / string (or a single link field to the GitHub PR if YouTrack's GitHub integration is enabled) | |
-| `Iterations` | New | integer | Review-loop counter (0–5), same cap as today. |
-| `Agent` | Same field as Epic's, multi-value | | |
-| `goal`, `files`, `acceptance_criteria` | New | text / text / text or checklist | Per the redesign plan's chunk schema — content fields, not dispatch-critical, read once at chunk kickoff. |
+| Field                                  | Status                            | Type                                                                                                   | Notes                                                                                                                                                                   |
+| -------------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Status`                               | **Needs redesign**                | enum: `Ready`, `Implementing`, `Testing`, `Reviewing`, `Done`, `Conflict`, `Blocked`                   | Chunk-scoped, matching `chunk-orchestration/reference/state-schema.md`'s existing state machine exactly — this is the field the hard workflow gate (below) operates on. |
+| `Blocked Reason`                       | New                               | string                                                                                                 | Mirrors `orchestration-state.json`'s existing field; null-equivalent is empty string.                                                                                   |
+| `PR Number` / `PR URL`                 | New                               | integer / string (or a single link field to the GitHub PR if YouTrack's GitHub integration is enabled) |                                                                                                                                                                         |
+| `Iterations`                           | New                               | integer                                                                                                | Review-loop counter (0–5), same cap as today.                                                                                                                           |
+| `Agent`                                | Same field as Epic's, multi-value |                                                                                                        |                                                                                                                                                                         |
+| `goal`, `files`, `acceptance_criteria` | New                               | text / text / text or checklist                                                                        | Per the redesign plan's chunk schema — content fields, not dispatch-critical, read once at chunk kickoff.                                                               |
 
 `tier`, `high_risk`, `depends_on` are **not** duplicated as YouTrack fields — they remain `chunks.json`-only (dispatch-critical, read by `dag-compute-waves`/`chunk-orchestration` locally). `depends_on` gets a one-time mirrored link (below) for visualization/defense-in-depth only, not as an editable YouTrack field.
 
@@ -132,13 +135,13 @@ The substantive fork in this record is how much of the current git-file model ea
 
 Replaces `orchestration-state.json`. Purpose: only what `dag-compute-waves`/wave dispatch and worktree cleanup need fast and local — everything else lives in YouTrack.
 
-| Field | Kept? | Where it goes if not kept |
-|---|---|---|
-| `epic_id`, `current_wave`, `total_waves` | Kept | — (needed synchronously by dispatch logic) |
-| `chunks[].id`, `.wave`, `.branch`, `.worktree_path` | Kept | — (`branch`/`worktree_path` are machine-local filesystem/git state, meaningless outside this machine; needed for cleanup per human direction) |
-| `chunks[].status`, `.pr_number`, `.pr_url`, `.iterations`, `.blocked_reason`, `.agents` | Moved | YouTrack Chunk Issue fields (above) |
-| `escalations[]` | Moved | YouTrack comments on the relevant Chunk/Epic Issue, or a dedicated `Escalated` boolean + comment thread |
-| `log[]` | Moved | YouTrack's native per-issue activity/history stream + comments — this is the field that eliminates the hand-authored prose burden |
+| Field                                                                                   | Kept? | Where it goes if not kept                                                                                                                     |
+| --------------------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `epic_id`, `current_wave`, `total_waves`                                                | Kept  | — (needed synchronously by dispatch logic)                                                                                                    |
+| `chunks[].id`, `.wave`, `.branch`, `.worktree_path`                                     | Kept  | — (`branch`/`worktree_path` are machine-local filesystem/git state, meaningless outside this machine; needed for cleanup per human direction) |
+| `chunks[].status`, `.pr_number`, `.pr_url`, `.iterations`, `.blocked_reason`, `.agents` | Moved | YouTrack Chunk Issue fields (above)                                                                                                           |
+| `escalations[]`                                                                         | Moved | YouTrack comments on the relevant Chunk/Epic Issue, or a dedicated `Escalated` boolean + comment thread                                       |
+| `log[]`                                                                                 | Moved | YouTrack's native per-issue activity/history stream + comments — this is the field that eliminates the hand-authored prose burden             |
 
 The exact final shape of this trimmed file (e.g. whether `agents` needs a local copy for dispatch decisions vs. an API read) is left to the implementing Epic Plan, not pinned further here — this record establishes the ownership boundary, not the byte-level schema.
 
@@ -157,6 +160,7 @@ Two YouTrack workflow rules, both scoped per Issue Type via the conditional-fiel
 ### Field/Config Gap Closure Required
 
 Confirmed against the live `AIF` project state at authoring time:
+
 1. No custom Epic/Chunk Issue Types exist — must be created.
 2. `Status` enum needs to split into two type-scoped enums (Epic vs. Chunk vocabulary) — current single enum matches neither cleanly.
 3. `Agent` field must become multi-value.
@@ -187,10 +191,10 @@ What Tech-Lead must know when writing the Epic that implements this decision:
 
 ## Open Items
 
-| # | Item | Owner |
-|---|---|---|
-| 1 | Workflow-rule guard capability (hard `Draft → Approved` and per-status-transition gating) has not been verified against this specific YouTrack instance/tier — workflow scripts are not visible via the current MCP tool surface. Must be confirmed via direct UI check before the implementing Epic proceeds; if unavailable, this record's "hard state-machine" requirement cannot be met as designed and must return to Architect. | Human / Architect |
-| 2 | Exact byte-level schema of the trimmed local file (successor to `orchestration-state.json`) is intentionally left to the implementing Epic Plan, not pinned here. | Tech-Lead |
-| 3 | Whether the redesign plan itself should be converted into an Epic Plan given its scope — flagged, not decided. | Human |
-| 4 | Whether `epic-planning`/`chunk-orchestration`'s new YouTrack REST calls should go through a dedicated MCP server (per `AIF-ARCH-005`'s general guidance) or a simpler integration — deferred to the implementing Epic. | Tech-Lead |
-| 5 | Webhook vs. polling for the Engineering-Manager to notice human-initiated changes made directly in the YouTrack UI (e.g. a human approving an Epic via the board rather than through agent-mediated flow) — deferred to the implementing Epic; not a correctness blocker since the EM remains the sole writer of the trimmed local file either way. | Tech-Lead |
+| #   | Item                                                                                                                                                                                                                                                                                                                                                                                                                                  | Owner             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| 1   | Workflow-rule guard capability (hard `Draft → Approved` and per-status-transition gating) has not been verified against this specific YouTrack instance/tier — workflow scripts are not visible via the current MCP tool surface. Must be confirmed via direct UI check before the implementing Epic proceeds; if unavailable, this record's "hard state-machine" requirement cannot be met as designed and must return to Architect. | Human / Architect |
+| 2   | Exact byte-level schema of the trimmed local file (successor to `orchestration-state.json`) is intentionally left to the implementing Epic Plan, not pinned here.                                                                                                                                                                                                                                                                     | Tech-Lead         |
+| 3   | Whether the redesign plan itself should be converted into an Epic Plan given its scope — flagged, not decided.                                                                                                                                                                                                                                                                                                                        | Human             |
+| 4   | Whether `epic-planning`/`chunk-orchestration`'s new YouTrack REST calls should go through a dedicated MCP server (per `AIF-ARCH-005`'s general guidance) or a simpler integration — deferred to the implementing Epic.                                                                                                                                                                                                                | Tech-Lead         |
+| 5   | Webhook vs. polling for the Engineering-Manager to notice human-initiated changes made directly in the YouTrack UI (e.g. a human approving an Epic via the board rather than through agent-mediated flow) — deferred to the implementing Epic; not a correctness blocker since the EM remains the sole writer of the trimmed local file either way.                                                                                   | Tech-Lead         |

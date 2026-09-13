@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-003-005 |
-| Parent Epic | AIF-003 |
-| Chunk | 5 of 8 |
-| Depends On | None |
-| Can Parallel | AIF-003-001, AIF-003-003, AIF-003-004 (wave 1) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
-| Created | 2026-08-25 |
-| Last Updated | 2026-08-25 |
-| Standards | `skills/steering-authoring/SKILL.md` (this is a steering-file edit, not application code — no `javascript`/`node` standards apply). AI-Engineer track per `AIF-PROC-001`. |
+| Field          | Value                                                                                                                                                                     |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-003-005                                                                                                                                                               |
+| Parent Epic    | AIF-003                                                                                                                                                                   |
+| Chunk          | 5 of 8                                                                                                                                                                    |
+| Depends On     | None                                                                                                                                                                      |
+| Can Parallel   | AIF-003-001, AIF-003-003, AIF-003-004 (wave 1)                                                                                                                            |
+| Project        | ai-foundation                                                                                                                                                             |
+| Status         | Approved                                                                                                                                                                  |
+| Author (Agent) | AI-Engineer                                                                                                                                                               |
+| Reviewed By    | Pending                                                                                                                                                                   |
+| Created        | 2026-08-25                                                                                                                                                                |
+| Last Updated   | 2026-08-25                                                                                                                                                                |
+| Standards      | `skills/steering-authoring/SKILL.md` (this is a steering-file edit, not application code — no `javascript`/`node` standards apply). AI-Engineer track per `AIF-PROC-001`. |
 
 ---
 
@@ -94,7 +94,7 @@ No new files.
 ### Key Design Decisions
 
 1. **Decision**: replace the enumerated bullet with a single negative check against `Approved`, rather than inverting it into a positive-check sentence.
-   **Why:** Epic Question 5 was answered explicitly on this point — the defect is the *enumeration* of statuses (which predates `Amending` and already omitted `Deferred`), not the negative voice. A positive-check rewrite ("only reference `Approved` records") would also be correct in effect, but the human directed the negative phrasing be kept, so this is not a free implementation choice.
+   **Why:** Epic Question 5 was answered explicitly on this point — the defect is the _enumeration_ of statuses (which predates `Amending` and already omitted `Deferred`), not the negative voice. A positive-check rewrite ("only reference `Approved` records") would also be correct in effect, but the human directed the negative phrasing be kept, so this is not a free implementation choice.
 
 2. **Decision**: state the check against exactly one status value (`Approved`), matching `reference/status-vocabulary.md`'s own convention ("Always check for `Status: Approved` specifically. Do not write special-case logic for `Deferred`, `Draft`, or any other non-`Approved` value").
    **Why:** this is the mechanism by which `Amending` (added by the sibling chunk `AIF-003-004`) blocks consumption without this file ever needing to know that status exists — the Epic's stated purpose for this chunk. Any wording that lists specific non-approved statuses would reintroduce the exact defect being fixed the next time a status is added.
@@ -135,6 +135,7 @@ No new files.
 ```
 
 **Key Behaviour**:
+
 - No status value other than `Approved` appears anywhere in the bullet.
 - The sentence remains negatively phrased (a "never ... that is not" construction), per the Epic's explicit direction, not a "only reference `Approved`" positive rewrite.
 - The trailing rationale clause ("— these are not authoritative") is preserved unchanged; only the enumerated clause before it is rewritten.
@@ -148,11 +149,13 @@ No new files.
 **Purpose**: Machine-checkable record of each bundle source file's content hash, used by `aif snapshot --check` / `aif status` to detect drift between the repo source and what has been installed.
 
 **Key Behaviour**:
+
 - Run `aif snapshot --bundle engineering` (or `aif snapshot` with no target, which covers all stale bundles/servers/hooks) after the steering edit lands.
 - Only the `steering/global/knowledge-consumption.md` entry's hash changes; `computed_at` updates; no other entry in the file changes, since no other bundle source is touched by this chunk.
 - Do not hand-edit the hash. The value is SHA-256 of file content, computed by `lib/snapshot/io.js` — regenerate via the CLI, never author it manually.
 
 **Dependencies**:
+
 - `lib/commands/snapshot.js` (`aif snapshot`) — existing tool, unmodified by this chunk.
 
 ---
@@ -181,9 +184,9 @@ Not applicable. This chunk edits prose in a steering file and regenerates an exi
 
 Not applicable — `steering/global/knowledge-consumption.md` is a static instruction file, not executable code, and this chunk touches no logging call site, log level, or log-emitting component. There is no event to log because there is no runtime behaviour in this chunk's diff.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| N/A | N/A | N/A — no executable code changes | N/A |
+| Event | Level | What is logged                   | What is NOT logged |
+| ----- | ----- | -------------------------------- | ------------------ |
+| N/A   | N/A   | N/A — no executable code changes | N/A                |
 
 ---
 
@@ -191,13 +194,13 @@ Not applicable — `steering/global/knowledge-consumption.md` is a static instru
 
 There is no unit or integration test suite for steering-file prose content (steering files are not parsed or executed by `lib/`; they are copied verbatim by the install harness). Validation for this chunk is manual/self-validation plus the existing repo-wide checks that do execute:
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 005-T01 | Read the edited bullet | Manual (self-validation) | No status value other than `Approved` appears in the bullet; the sentence is still negatively phrased |
-| 005-T02 | Diff the file against its prior committed version | Manual (self-validation) | Exactly one bullet's line(s) changed; no other line in the file differs |
-| 005-T03 | `aif snapshot --check` | Integration (CLI) | Reports the `engineering` bundle current after regeneration, not stale |
-| 005-T04 | `npm test` | Unit+Integration | Full suite passes with no changes to any test unrelated to this chunk (none are expected — this chunk touches no `lib/` or `tests/` file) |
-| 005-T05 | `aif validate` (repo-wide schema/cross-reference check, if it inspects steering front-matter) | Integration (CLI) | No new validation failures introduced by the edit |
+| Test ID | Description                                                                                   | Type                     | Pass Criteria                                                                                                                             |
+| ------- | --------------------------------------------------------------------------------------------- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 005-T01 | Read the edited bullet                                                                        | Manual (self-validation) | No status value other than `Approved` appears in the bullet; the sentence is still negatively phrased                                     |
+| 005-T02 | Diff the file against its prior committed version                                             | Manual (self-validation) | Exactly one bullet's line(s) changed; no other line in the file differs                                                                   |
+| 005-T03 | `aif snapshot --check`                                                                        | Integration (CLI)        | Reports the `engineering` bundle current after regeneration, not stale                                                                    |
+| 005-T04 | `npm test`                                                                                    | Unit+Integration         | Full suite passes with no changes to any test unrelated to this chunk (none are expected — this chunk touches no `lib/` or `tests/` file) |
+| 005-T05 | `aif validate` (repo-wide schema/cross-reference check, if it inspects steering front-matter) | Integration (CLI)        | No new validation failures introduced by the edit                                                                                         |
 
 ---
 
@@ -212,14 +215,14 @@ There is no unit or integration test suite for steering-file prose content (stee
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | **The user's installed global rules copy (`C:\Users\Jeremy\.claude\rules\global-knowledge-consumption.md`) will still show the old, enumerated wording until `aif install` is re-run against that harness target.** This chunk only edits the repo source, per its file ownership in `chunks.json`. | Risk | L | Accepted and explicitly out of scope (Section 5). No chunk in this Epic re-runs install for the human — that has always been a separate, human-initiated step for every steering/agent change in this repo, not something introduced or worsened by this chunk. Flagged here so the human is aware the installed copy needs a refresh after this chunk (and the Epic's other steering/agent chunks, `AIF-003-008`) land. |
-| 2 | **`bundles/engineering/snapshot.json` regeneration is a generated-artifact diff outside the "one bullet" scope description**, which could read as scope creep if not called out explicitly. | Risk | L | Not scope creep: the snapshot is a hash of this exact file's content, and leaving it stale would make `aif snapshot --check` report a false negative the moment this chunk merges. Included explicitly in Sections 5 and 8 rather than silently done, consistent with engineering-core Rule 4 (raise discoveries rather than silently expand scope) — this is the minimal, mechanically necessary companion change, not new scope. |
-| 3 | **Verifying the new wording excludes `Amending` requires the reader to already know `Amending` exists.** `AIF-003-004` (which adds `Amending` to `reference/status-vocabulary.md`) is independent of this chunk (`chunks.json`: neither depends on the other), so at review time either chunk could land first. | Risk | L | Accepted. The rewritten bullet is correct regardless of ordering, because it checks positively-in-spirit against `Approved` alone rather than naming any specific non-approved status — it does not need `Amending` to already exist in the vocabulary to already exclude it. No dependency edge is needed between `005` and `004`. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                 | Type | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **The user's installed global rules copy (`C:\Users\Jeremy\.claude\rules\global-knowledge-consumption.md`) will still show the old, enumerated wording until `aif install` is re-run against that harness target.** This chunk only edits the repo source, per its file ownership in `chunks.json`.             | Risk | L      | Accepted and explicitly out of scope (Section 5). No chunk in this Epic re-runs install for the human — that has always been a separate, human-initiated step for every steering/agent change in this repo, not something introduced or worsened by this chunk. Flagged here so the human is aware the installed copy needs a refresh after this chunk (and the Epic's other steering/agent chunks, `AIF-003-008`) land.           |
+| 2   | **`bundles/engineering/snapshot.json` regeneration is a generated-artifact diff outside the "one bullet" scope description**, which could read as scope creep if not called out explicitly.                                                                                                                     | Risk | L      | Not scope creep: the snapshot is a hash of this exact file's content, and leaving it stale would make `aif snapshot --check` report a false negative the moment this chunk merges. Included explicitly in Sections 5 and 8 rather than silently done, consistent with engineering-core Rule 4 (raise discoveries rather than silently expand scope) — this is the minimal, mechanically necessary companion change, not new scope. |
+| 3   | **Verifying the new wording excludes `Amending` requires the reader to already know `Amending` exists.** `AIF-003-004` (which adds `Amending` to `reference/status-vocabulary.md`) is independent of this chunk (`chunks.json`: neither depends on the other), so at review time either chunk could land first. | Risk | L      | Accepted. The rewritten bullet is correct regardless of ordering, because it checks positively-in-spirit against `Approved` alone rather than naming any specific non-approved status — it does not need `Amending` to already exist in the vocabulary to already exclude it. No dependency edge is needed between `005` and `004`.                                                                                                |
 
 ---
 
 ## 15. Work Log
 
-[2026-08-25] [AI-Engineer] [Created] [AIF-003-005] [Chunk Plan drafted from Epic AIF-003 Section 9 following its approval (`8c82f90`) and the chunk's scope entry in `docs/plans/chunks/AIF-003/chunks.json` (`depends_on: []`, `agents: ["AI-Engineer"]`). Verified against source rather than the Epic's summary: read `steering/global/knowledge-consumption.md` directly and confirmed the exact current bullet text (`Decision Records with `status: "Draft"` or `status: "Pending"``), confirmed `reference/status-vocabulary.md`'s positive-check convention it must now align with, and confirmed via `grep` that `bundles/engineering/snapshot.json` is the only bundle snapshot listing this file as a source (`bundles/generic/snapshot.json` does not reference it), which fixed the regeneration scope in Section 5/8 to that one file. Assessed complexity as Tier 1 per `skill/complexity-tiers` (single file, single bullet, clear intent, no schema change) — a written plan is produced anyway because the chunk is dispatched through the standard gate and was explicitly requested. No open questions found beyond the Epic's own resolved Question 5; the three items in Section 14 are accepted risks, not blocking ambiguities, so none is escalated.]
+[2026-08-25] [AI-Engineer] [Created] [AIF-003-005] [Chunk Plan drafted from Epic AIF-003 Section 9 following its approval (`8c82f90`) and the chunk's scope entry in `docs/plans/chunks/AIF-003/chunks.json` (`depends_on: []`, `agents: ["AI-Engineer"]`). Verified against source rather than the Epic's summary: read `steering/global/knowledge-consumption.md` directly and confirmed the exact current bullet text (`Decision Records with `status: "Draft"`or`status: "Pending"``), confirmed `reference/status-vocabulary.md`'s positive-check convention it must now align with, and confirmed via `grep` that `bundles/engineering/snapshot.json` is the only bundle snapshot listing this file as a source (`bundles/generic/snapshot.json` does not reference it), which fixed the regeneration scope in Section 5/8 to that one file. Assessed complexity as Tier 1 per `skill/complexity-tiers` (single file, single bullet, clear intent, no schema change) — a written plan is produced anyway because the chunk is dispatched through the standard gate and was explicitly requested. No open questions found beyond the Epic's own resolved Question 5; the three items in Section 14 are accepted risks, not blocking ambiguities, so none is escalated.]

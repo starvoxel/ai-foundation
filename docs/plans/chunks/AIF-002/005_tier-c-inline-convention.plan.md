@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-005 |
-| Parent Epic | AIF-002 |
-| Chunk | 005 of 15 |
-| Depends On | None |
-| Can Parallel | 001, 002, 003, 004, 006, 007, 008, 009 (all other Wave 1 chunks) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Jeremy |
-| Created | 2026-08-14 |
-| Last Updated | 2026-08-17 (Approved by Jeremy) |
-| Standards | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverables are `skills/chunk-planning/reference/template.md` and `skills/epic-planning/reference/template.md` markdown content only |
+| Field          | Value                                                                                                                                                                                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-005                                                                                                                                                                                                                           |
+| Parent Epic    | AIF-002                                                                                                                                                                                                                               |
+| Chunk          | 005 of 15                                                                                                                                                                                                                             |
+| Depends On     | None                                                                                                                                                                                                                                  |
+| Can Parallel   | 001, 002, 003, 004, 006, 007, 008, 009 (all other Wave 1 chunks)                                                                                                                                                                      |
+| Project        | ai-foundation                                                                                                                                                                                                                         |
+| Status         | Approved                                                                                                                                                                                                                              |
+| Author (Agent) | AI-Engineer                                                                                                                                                                                                                           |
+| Reviewed By    | Jeremy                                                                                                                                                                                                                                |
+| Created        | 2026-08-14                                                                                                                                                                                                                            |
+| Last Updated   | 2026-08-17 (Approved by Jeremy)                                                                                                                                                                                                       |
+| Standards      | ai-foundation declarative-component schemas (AGENTS.md) — no code standards apply; this chunk's deliverables are `skills/chunk-planning/reference/template.md` and `skills/epic-planning/reference/template.md` markdown content only |
 
 ---
 
@@ -49,16 +49,18 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
 ## 5. Scope
 
 ### In Scope
+
 - `skills/chunk-planning/reference/template.md` — add a Tier C guidance callout to Section 7 ("Architecture & Design" → "Key Design Decisions"), documenting the inline convention, the promotion threshold entry point (`skill/decision-triage`), and the fact that a Tier C entry rides this Chunk Plan's own `plan-lifecycle` cycle with no standalone file, no index update, and no separate approval gate.
 - `skills/epic-planning/reference/template.md` — add the same guidance, adapted to Section 12 ("Work Log"), since the Epic template has no "Key Design Decisions"-shaped section and AIF-META-001 names "the governing plan's own body or its sibling worklog file" as the Tier C home — the Epic template's existing Work Log section is the closest present-day fit (AIF-011's sibling-worklog-file convention is not yet migrated into this template; that is out of scope here — see below).
 - Both guidance blocks use the literal convention wording from AIF-META-001's Design section Tier table: `Decision: {what}. **Why:** {rationale}.`
 - Both guidance blocks reference `skill/decision-triage` by name (the confirmed entry-point skill name per Epic Open Question 1's resolution) as where the Tier A/B/C promotion threshold is applied — without restating the threshold's own definition, to avoid a second, driftable copy of AIF-META-001's Design section content.
 
 ### Out of Scope
+
 - Authoring `skill/decision-triage` itself, or its promotion-threshold logic — that is chunk 001, dispatched in parallel. This chunk only points to it by name.
 - Modifying `skills/decision-record/`, `skills/decision-brief/`, or `skills/plan-lifecycle/` — chunks 002, 003, and 004 respectively.
 - Modifying `skills/chunk-planning/SKILL.md` or `skills/epic-planning/SKILL.md` themselves — Epic Plan Section 5 scopes this chunk explicitly to the two `reference/template.md` files, not the parent `SKILL.md` files that describe the planning process around them.
-- Migrating the Epic template (or any other artifact) onto AIF-011's sibling-worklog-file convention — that convention does not yet exist in this repo's active templates (AIF-011 itself has not been migrated; it is chunk 013 of this Epic, in Wave 2, unrelated to this chunk's scope). This chunk documents the Tier C convention against the Epic template's *current* single-file Work Log section, not a hypothetical future structure.
+- Migrating the Epic template (or any other artifact) onto AIF-011's sibling-worklog-file convention — that convention does not yet exist in this repo's active templates (AIF-011 itself has not been migrated; it is chunk 013 of this Epic, in Wave 2, unrelated to this chunk's scope). This chunk documents the Tier C convention against the Epic template's _current_ single-file Work Log section, not a hypothetical future structure.
 - Retroactively applying the Tier C convention to any existing plan's Work Log entries — per Epic Plan Section 5 ("Out of Scope"), the promotion threshold applies forward from this Epic's completion, not retroactively.
 
 ---
@@ -76,6 +78,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
 ## 7. Architecture & Design
 
 ### Project Structure Changes
+
 - `skills/chunk-planning/reference/template.md` ← MODIFIED
 - `skills/epic-planning/reference/template.md` ← MODIFIED
 - No new files.
@@ -96,6 +99,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
    points to by name per the Epic's Component Relationships (Section 7); using the exact wording avoids any ambiguity about whether the template's convention and the Decision Record's convention are the same thing.
 
 ### Patterns & Conventions Applied
+
 - Reuses AIF-META-001's Design section Tier table's exact Tier C row wording as the literal inline-recording convention, rather than re-deriving new wording — the same "reference, don't redefine" pattern chunk 004 applies to `skill/plan-lifecycle`.
 - Follows this repo's existing cross-reference convention of naming skills as `skill/{name}` and Decision Records by their ID (`AIF-META-001`).
 - Both guidance blocks are added as callouts/notes immediately adjacent to the existing section content they extend, not as new top-level sections — matches the additive-insertion pattern chunk 004 used for `skill/plan-lifecycle` (no renumbering, no rewording of existing template structure).
@@ -110,6 +114,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
 **Purpose**: Tell an agent planning or implementing a chunk when and how to record a Tier C decision inline in a Chunk Plan, instead of leaving it as an implicit assumption that the existing "Key Design Decisions" bullet format happens to also serve this purpose.
 
 **Content addition** (markdown, not code):
+
 - A callout inserted immediately after the existing Section 7 "Key Design Decisions" example (`1. **Decision**: {What} / **Rationale**: {Why}`), e.g.:
 
   ```
@@ -125,11 +130,13 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
   ```
 
 **Key Behaviour**:
+
 - Purely documentation — no change to the existing numbered-list example format, which already matches the convention closely enough to serve as both the generic example and the Tier C guidance's home.
 - Does not restate or redefine the Tier A/B/C promotion threshold itself.
 
 **Dependencies**:
-- `skill/decision-triage` (chunk 001) — referenced by name only; this chunk does not depend on chunk 001's completion (Wave 1, no dependency edge in `chunks.json`), since the reference is to the skill's *name*, which is already fixed by the Epic's resolved Open Question 1, not to its finished content.
+
+- `skill/decision-triage` (chunk 001) — referenced by name only; this chunk does not depend on chunk 001's completion (Wave 1, no dependency edge in `chunks.json`), since the reference is to the skill's _name_, which is already fixed by the Epic's resolved Open Question 1, not to its finished content.
 
 ### epic-planning template.md — Tier C guidance block
 
@@ -137,6 +144,7 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
 **Purpose**: Tell an agent planning or revising an epic when and how to record a Tier C decision in the Epic Plan's Work Log, rather than defaulting every decision made during epic planning/revision to unstructured prose with no recognizable convention.
 
 **Content addition** (markdown, not code):
+
 - A callout inserted immediately after the existing Section 12 Work Log format description (`[{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]`), e.g.:
 
   ```
@@ -152,10 +160,12 @@ Add the Tier C inline-recording convention ("Decision: ... **Why:** ...") to bot
   ```
 
 **Key Behaviour**:
+
 - Purely documentation — no change to the existing Work Log entry format itself (agent/action/ID/details fields unchanged); the convention is guidance for what goes inside `[Details]` for this specific decision-recording case, not a new field.
 - Does not restate or redefine the Tier A/B/C promotion threshold itself.
 
 **Dependencies**:
+
 - `skill/decision-triage` (chunk 001) — referenced by name only, same rationale as above.
 
 ---
@@ -183,10 +193,10 @@ Not applicable — this chunk produces markdown documentation only, no data sche
 
 This chunk produces static documentation content with no runtime component — both target templates are read by agents as reference material when authoring plans, not executed as code, so there are no application log statements for this chunk to define. The table below documents the plan-level Work Log entries this chunk itself must produce, per `steering/engineering/core.md` Rule 2/Rule 9 and `skill/plan-lifecycle` Steps 1-4 commit requirements — these are the only "logging" applicable to a documentation-only chunk.
 
-| Event | Level (Work Log Action) | What is logged | What is NOT logged |
-|---|---|---|---|
-| Plan drafted | `[Created]` | Plan ID, agent, tier assessed, summary of scope | No content of unrelated chunks/plans |
-| Plan approved/deferred | `[Approved]`/`[Deferred]` | Human decision, approver name if approved | Nothing beyond the decision itself |
+| Event                                          | Level (Work Log Action)                                                                             | What is logged                                           | What is NOT logged                                        |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | --------------------------------------------------------- |
+| Plan drafted                                   | `[Created]`                                                                                         | Plan ID, agent, tier assessed, summary of scope          | No content of unrelated chunks/plans                      |
+| Plan approved/deferred                         | `[Approved]`/`[Deferred]`                                                                           | Human decision, approver name if approved                | Nothing beyond the decision itself                        |
 | Implementation commits (future, post-approval) | `[Implemented]` (per Component in Section 8, one commit per file per Commit Granularity Option A/B) | Files touched, brief description referencing AIF-002-005 | No secrets; N/A here since no secrets exist in this chunk |
 
 ---
@@ -197,13 +207,13 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ### Tier C Guidance Documentation Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 005-T01 | `skills/chunk-planning/reference/template.md` Section 7 renders the new Tier C callout correctly, immediately after the existing "Key Design Decisions" example, with no change to any other section | Manual/diff review | Callout present, correctly formatted markdown blockquote; rest of file byte-for-byte unchanged except the insertion |
-| 005-T02 | `skills/epic-planning/reference/template.md` Section 12 renders the new Tier C callout correctly, immediately after the existing Work Log format line, with no change to any other section | Manual/diff review | Callout present, correctly formatted markdown blockquote; rest of file byte-for-byte unchanged except the insertion |
-| 005-T03 | Both guidance blocks reference `skill/decision-triage` using that exact spelling, matching the naming confirmed in Epic Open Question 1 | Grep-based self-validation | `skill/decision-triage` string present in both files, no variant spelling |
-| 005-T04 | Both guidance blocks use the literal convention wording `Decision: ... **Why:** ...` consistent with AIF-META-001's Design section Tier table | Manual cross-check against AIF-META-001 | Wording matches; no paraphrase that changes meaning |
-| 005-T05 | Neither template's existing section numbering/headers shifted (diff review) — downstream skills (`skill/chunk-planning`, `skill/epic-planning`) reference these templates by section number/name and must not break | Manual diff review | Section headers 1-14 (chunk) and 1-10 (epic) identical to pre-chunk version |
+| Test ID | Description                                                                                                                                                                                                         | Type                                    | Pass Criteria                                                                                                       |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 005-T01 | `skills/chunk-planning/reference/template.md` Section 7 renders the new Tier C callout correctly, immediately after the existing "Key Design Decisions" example, with no change to any other section                | Manual/diff review                      | Callout present, correctly formatted markdown blockquote; rest of file byte-for-byte unchanged except the insertion |
+| 005-T02 | `skills/epic-planning/reference/template.md` Section 12 renders the new Tier C callout correctly, immediately after the existing Work Log format line, with no change to any other section                          | Manual/diff review                      | Callout present, correctly formatted markdown blockquote; rest of file byte-for-byte unchanged except the insertion |
+| 005-T03 | Both guidance blocks reference `skill/decision-triage` using that exact spelling, matching the naming confirmed in Epic Open Question 1                                                                             | Grep-based self-validation              | `skill/decision-triage` string present in both files, no variant spelling                                           |
+| 005-T04 | Both guidance blocks use the literal convention wording `Decision: ... **Why:** ...` consistent with AIF-META-001's Design section Tier table                                                                       | Manual cross-check against AIF-META-001 | Wording matches; no paraphrase that changes meaning                                                                 |
+| 005-T05 | Neither template's existing section numbering/headers shifted (diff review) — downstream skills (`skill/chunk-planning`, `skill/epic-planning`) reference these templates by section number/name and must not break | Manual diff review                      | Section headers 1-14 (chunk) and 1-10 (epic) identical to pre-chunk version                                         |
 
 ---
 
@@ -218,10 +228,10 @@ This chunk has no executable code, so "tests" are documentation-validation check
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | The Epic template has no section shaped like the Chunk template's "Key Design Decisions," so the choice of Section 12 (Work Log) as its Tier C home is a drafting judgment call with no existing precedent in this repo for a "decisions embedded in an epic's work log" pattern | L | Documented under global Rule 4's delegated-judgment exception — reasonable placement chosen based on AIF-META-001's own phrasing ("governing plan's own body or its sibling worklog file") and this Epic's own observed Work Log usage; flagged here for reviewer visibility rather than escalated, since the choice has no architectural impact and is easily revised in review if the reviewer prefers a different section |
-| 2 | AIF-011 (not yet migrated — chunk 013 of this Epic) introduces a sibling-worklog-file convention that could eventually change where Epic-level Tier C decisions live (a separate worklog file instead of an in-plan Work Log section) | L | Explicitly out of scope for this chunk (Section 5) — this chunk documents against the Epic template's *current* structure; if AIF-011's migration later changes the Work Log's shape, that is a follow-up documentation update to this same guidance block, not a blocker for this chunk |
+| #   | Risk / Question                                                                                                                                                                                                                                                                  | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The Epic template has no section shaped like the Chunk template's "Key Design Decisions," so the choice of Section 12 (Work Log) as its Tier C home is a drafting judgment call with no existing precedent in this repo for a "decisions embedded in an epic's work log" pattern | L      | Documented under global Rule 4's delegated-judgment exception — reasonable placement chosen based on AIF-META-001's own phrasing ("governing plan's own body or its sibling worklog file") and this Epic's own observed Work Log usage; flagged here for reviewer visibility rather than escalated, since the choice has no architectural impact and is easily revised in review if the reviewer prefers a different section |
+| 2   | AIF-011 (not yet migrated — chunk 013 of this Epic) introduces a sibling-worklog-file convention that could eventually change where Epic-level Tier C decisions live (a separate worklog file instead of an in-plan Work Log section)                                            | L      | Explicitly out of scope for this chunk (Section 5) — this chunk documents against the Epic template's _current_ structure; if AIF-011's migration later changes the Work Log's shape, that is a follow-up documentation update to this same guidance block, not a blocker for this chunk                                                                                                                                     |
 
 ---
 

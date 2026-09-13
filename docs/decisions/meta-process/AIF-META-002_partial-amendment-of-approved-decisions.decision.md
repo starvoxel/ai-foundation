@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-META-002 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | meta-process |
-| Status | Approved |
-| Author (Agent) | Generic Agent |
-| Approved By | Jeremy Smellie |
-| Created | 2026-08-25 12:36 |
-| Referenced By | — |
-| References | AIF-META-001 |
-| Tags | decision-record, amendment, errata, plan-lifecycle, status-vocabulary |
+| Field          | Value                                                                 |
+| -------------- | --------------------------------------------------------------------- |
+| Decision ID    | AIF-META-002                                                          |
+| Project        | ai-foundation                                                         |
+| Tier           | A                                                                     |
+| Domain         | meta-process                                                          |
+| Status         | Approved                                                              |
+| Author (Agent) | Generic Agent                                                         |
+| Approved By    | Jeremy Smellie                                                        |
+| Created        | 2026-08-25 12:36                                                      |
+| Referenced By  | —                                                                     |
+| References     | AIF-META-001                                                          |
+| Tags           | decision-record, amendment, errata, plan-lifecycle, status-vocabulary |
 
 ---
 
@@ -28,7 +28,7 @@ An `Approved` Decision Record has exactly one documented post-approval transitio
 
 What was non-negotiable:
 
-- Must not require any existing gate-checking logic to change. `skill/plan-lifecycle` and `reference/status-vocabulary.md` mandate that dependent-work gates check *positively* for `Status: Approved` and never special-case any other value. A new status value is therefore safe to add by construction — every existing gate treats it as "not approved" without modification — but a new *kind* of check would not be.
+- Must not require any existing gate-checking logic to change. `skill/plan-lifecycle` and `reference/status-vocabulary.md` mandate that dependent-work gates check _positively_ for `Status: Approved` and never special-case any other value. A new status value is therefore safe to add by construction — every existing gate treats it as "not approved" without modification — but a new _kind_ of check would not be.
 - Dependent work must be blocked while an amendment awaits approval. A record whose body contains unapproved content is not in an approved state, and nothing new should start against it until a human has confirmed the change.
 - Must not weaken the human-approval gate for any change that alters what was decided.
 - Must not require an amendment to carry its own Decision ID. A change substantial enough to need independent identity and citation is a supersede by definition — that distinction is the entire reason amendment exists as a separate concept.
@@ -44,7 +44,7 @@ What was a preference but not a hard requirement:
 
 ## Options Explored
 
-*(Five options are recorded rather than the template's suggested 2-4, because all five were genuinely explored and discarding one would misrepresent the reasoning.)*
+_(Five options are recorded rather than the template's suggested 2-4, because all five were genuinely explored and discarding one would misrepresent the reasoning.)_
 
 ### Option A: In-record amendment log (`## Amendments`)
 
@@ -118,11 +118,11 @@ The two problems in play are orthogonal, exactly as AIF-META-001 found for rigor
 
 ### The ladder
 
-| Change | Path | Author | Gate |
-|---|---|---|---|
-| Provably cannot alter the decision | `## Errata` entry | Anyone | None |
-| Alters the record, but the original rationale still holds | `## Amendments` entry + in-place edit | Domain owner | `Amending` + two-commit confirmation (below) |
-| The original rationale no longer holds, or the decision reverses | `Status: Superseded` + new record | Domain owner | Full Tier A cycle |
+| Change                                                           | Path                                  | Author       | Gate                                         |
+| ---------------------------------------------------------------- | ------------------------------------- | ------------ | -------------------------------------------- |
+| Provably cannot alter the decision                               | `## Errata` entry                     | Anyone       | None                                         |
+| Alters the record, but the original rationale still holds        | `## Amendments` entry + in-place edit | Domain owner | `Amending` + two-commit confirmation (below) |
+| The original rationale no longer holds, or the decision reverses | `Status: Superseded` + new record     | Domain owner | Full Tier A cycle                            |
 
 ### The errata test
 
@@ -135,12 +135,12 @@ Two properties of this test matter and are easy to get wrong:
 
 Worked examples:
 
-| Errata | Not errata |
-|---|---|
-| Typos, grammar, formatting | Correcting a factual claim in an option's strengths or weaknesses |
-| Broken or moved link/path fixes | Adding an option that was not originally considered |
-| ID renumbering where the referent is identical (`AIF-004` → `AIF-PROC-001`) | Sharpening vague wording in `Decision`, `Design` or `Rationale` |
-| Metadata corrections other than `Status`, `Tier`, `Domain` | Any change to `Status`, `Tier`, or `Domain` |
+| Errata                                                                      | Not errata                                                        |
+| --------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Typos, grammar, formatting                                                  | Correcting a factual claim in an option's strengths or weaknesses |
+| Broken or moved link/path fixes                                             | Adding an option that was not originally considered               |
+| ID renumbering where the referent is identical (`AIF-004` → `AIF-PROC-001`) | Sharpening vague wording in `Decision`, `Design` or `Rationale`   |
+| Metadata corrections other than `Status`, `Tier`, `Domain`                  | Any change to `Status`, `Tier`, or `Domain`                       |
 
 The second row of the right-hand column is the case most likely to be misfiled. Discovering that "Option B cannot do X" was factually wrong is not a correction to be logged and forgotten — it undermines the reasoning that rejected Option B, so it routes to supersede consideration, not to an amendment row.
 
@@ -151,16 +151,16 @@ Two optional sections are added to both the `skill/decision-record` and `skill/d
 ```markdown
 ## Amendments
 
-| # | Date | Section | Change | Rationale | Outcome |
-|---|---|---|---|---|---|
-| 1 | 2026-09-02 | Design | {what changed} | {why} | Approved by {name} |
-| 2 | 2026-09-14 | Decision | {what was proposed} | {why} | Rejected by {name} |
+| #   | Date       | Section  | Change              | Rationale | Outcome            |
+| --- | ---------- | -------- | ------------------- | --------- | ------------------ |
+| 1   | 2026-09-02 | Design   | {what changed}      | {why}     | Approved by {name} |
+| 2   | 2026-09-14 | Decision | {what was proposed} | {why}     | Rejected by {name} |
 
 ## Errata
 
-| # | Date | Change | Author |
-|---|---|---|---|
-| 1 | 2026-09-02 | {what changed} | {name} |
+| #   | Date       | Change         | Author |
+| --- | ---------- | -------------- | ------ |
+| 1   | 2026-09-02 | {what changed} | {name} |
 ```
 
 `Outcome` reads `Pending` while `Status: Amending`, and is filled in with `Approved by {name}` or `Rejected by {name}` when the cycle closes. Rejected rows stay in the table — that a change was proposed and declined is worth keeping, and it is the only place that fact survives outside `git log`.
@@ -175,9 +175,9 @@ The field is **optional and forward-looking**. Existing records are not retrofit
 
 `reference/status-vocabulary.md` gains one value, scoped to Decision Records only (alongside `Superseded`):
 
-| Status | Meaning | Dependent work allowed? |
-|---|---|---|
-| `Amending` | An amendment has been proposed and applied to the body, and is awaiting human confirmation. | No |
+| Status     | Meaning                                                                                     | Dependent work allowed? |
+| ---------- | ------------------------------------------------------------------------------------------- | ----------------------- |
+| `Amending` | An amendment has been proposed and applied to the body, and is awaiting human confirmation. | No                      |
 
 `Amending` is to an approved record what `Draft` is to a new one: the body contains content no human has confirmed. Because every gate checks positively for `Approved` and `reference/status-vocabulary.md` forbids special-casing any other value, this new status blocks dependent work through the existing mechanism — no gate-checking logic anywhere needs to change.
 
@@ -237,13 +237,13 @@ What every domain's decision-authoring agent must know, since a meta-process dec
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Should an amendment carry its own Decision ID? | No. Needing an independent, citable identity is the definition of a supersede; this is what distinguishes the two mechanisms, rather than a severity judgment. |
-| 2 | Who may author an amendment? | Errata: anyone, given the rung cannot alter the decision. Amendments and supersedes: the domain owner per AIF-META-001. |
-| 3 | Should the errata boundary be drawn by section or by meaning? | By meaning. A section-boundary rule was proposed and rejected — it is checkable but wrong, admitting substantive rewrites in `Options Explored` while excluding typo fixes in `Decision`. |
-| 4 | How is a semantic test kept from becoming a loophole? | Default-deny: doubt disqualifies. Uncertainty removes the ungated option rather than leaving it to the author's judgment. |
-| 5 | Should a new `Status` value be added for the amendment cycle? | Yes — `Amending`. An earlier draft ruled this out on the grounds that a new status would break downstream gates; that was wrong. Gates check positively for `Approved` and are forbidden from special-casing other values, so a new value engages them uniformly rather than breaking them. Blocking dependent work while an amendment is unconfirmed is the desired behaviour. |
-| 6 | Should the body edit land in the proposal commit or the approval commit? | The proposal commit. Deferring it was only ever a workaround for a reader mistaking unapproved content for decided content — a job `Amending` now does directly and more visibly. |
-| 7 | Does the `lib/decisions.js` `Supersedes`-parse fix ship inside this decision's implementing Epic or as a standalone correction ahead of it? | Deferred to Epic decomposition, to be settled with Tech-Lead when the Epic is written. This record states only that the fix must land before the index describes the new rungs; it does not constrain how that work is packaged. |
-| 8 | Are existing records retrofitted with `Last Amended`, or do they acquire it lazily? | Forward-looking only — no retrofit. The field is optional, and a record gains it on first amendment, so its presence is itself the signal that a record has ever been amended. |
+| #   | Item                                                                                                                                        | Resolution                                                                                                                                                                                                                                                                                                                                                                      |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Should an amendment carry its own Decision ID?                                                                                              | No. Needing an independent, citable identity is the definition of a supersede; this is what distinguishes the two mechanisms, rather than a severity judgment.                                                                                                                                                                                                                  |
+| 2   | Who may author an amendment?                                                                                                                | Errata: anyone, given the rung cannot alter the decision. Amendments and supersedes: the domain owner per AIF-META-001.                                                                                                                                                                                                                                                         |
+| 3   | Should the errata boundary be drawn by section or by meaning?                                                                               | By meaning. A section-boundary rule was proposed and rejected — it is checkable but wrong, admitting substantive rewrites in `Options Explored` while excluding typo fixes in `Decision`.                                                                                                                                                                                       |
+| 4   | How is a semantic test kept from becoming a loophole?                                                                                       | Default-deny: doubt disqualifies. Uncertainty removes the ungated option rather than leaving it to the author's judgment.                                                                                                                                                                                                                                                       |
+| 5   | Should a new `Status` value be added for the amendment cycle?                                                                               | Yes — `Amending`. An earlier draft ruled this out on the grounds that a new status would break downstream gates; that was wrong. Gates check positively for `Approved` and are forbidden from special-casing other values, so a new value engages them uniformly rather than breaking them. Blocking dependent work while an amendment is unconfirmed is the desired behaviour. |
+| 6   | Should the body edit land in the proposal commit or the approval commit?                                                                    | The proposal commit. Deferring it was only ever a workaround for a reader mistaking unapproved content for decided content — a job `Amending` now does directly and more visibly.                                                                                                                                                                                               |
+| 7   | Does the `lib/decisions.js` `Supersedes`-parse fix ship inside this decision's implementing Epic or as a standalone correction ahead of it? | Deferred to Epic decomposition, to be settled with Tech-Lead when the Epic is written. This record states only that the fix must land before the index describes the new rungs; it does not constrain how that work is packaged.                                                                                                                                                |
+| 8   | Are existing records retrofitted with `Last Amended`, or do they acquire it lazily?                                                         | Forward-looking only — no retrofit. The field is optional, and a record gains it on first amendment, so its presence is itself the signal that a record has ever been amended.                                                                                                                                                                                                  |

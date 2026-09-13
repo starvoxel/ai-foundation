@@ -4,15 +4,15 @@ Tracks the phased implementation of the `aif` CLI as defined in [AIF-ARCH-001](.
 
 ## Progress
 
-| Phase | Description | Status | Commit |
-|---|---|---|---|
-| 1 | CLI entry point, constants, manifest | ✅ Complete | Pre-session |
-| 2 | Bundle resolver (`lib/resolver.js`) | ✅ Complete | `7e5cb65` |
-| 3 | Kiro harness adapter (`lib/harnesses/kiro.js`) | ✅ Complete | `230675c` |
-| 4 | Command implementations (install, uninstall, status, list) | ✅ Complete | `4379c55` |
-| 5 | `aif validate` + `aif test` commands | ✅ Complete | `04fd21a` |
-| 6 | Claude Code adapter (`lib/harnesses/claude.js`) | ✅ Complete | `c98bca2` |
-| 7 | Copilot adapter | Planned | — |
+| Phase | Description                                                | Status      | Commit      |
+| ----- | ---------------------------------------------------------- | ----------- | ----------- |
+| 1     | CLI entry point, constants, manifest                       | ✅ Complete | Pre-session |
+| 2     | Bundle resolver (`lib/resolver.js`)                        | ✅ Complete | `7e5cb65`   |
+| 3     | Kiro harness adapter (`lib/harnesses/kiro.js`)             | ✅ Complete | `230675c`   |
+| 4     | Command implementations (install, uninstall, status, list) | ✅ Complete | `4379c55`   |
+| 5     | `aif validate` + `aif test` commands                       | ✅ Complete | `04fd21a`   |
+| 6     | Claude Code adapter (`lib/harnesses/claude.js`)            | ✅ Complete | `c98bca2`   |
+| 7     | Copilot adapter                                            | Planned     | —           |
 
 ## Commands
 

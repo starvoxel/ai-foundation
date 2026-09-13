@@ -41,18 +41,18 @@ Because `Type` and `project` are both just filter dimensions in YouTrack queries
 
 ### Custom fields — mirrors the DR Metadata table exactly
 
-| DR Metadata field | YouTrack field | Type |
-|---|---|---|
-| Decision ID | `idReadable` (built-in) or a `Decision ID` string field if the project's own ID scheme (`AIF-###`) must be preserved verbatim | string / built-in |
-| Project | `project` (built-in) | built-in |
-| Tier | `Tier` | enum: `A`, `B`, `C` |
-| Domain | `Domain` | enum, values per `AIF-META-001`'s domain list |
-| Status | `Status` | enum: `Draft`, `Approved`, `Deferred` |
-| Author (Agent) | `Author Agent` | string or enum (Architect, Tech-Lead, Engineering-Manager, ...) |
-| Approved By | `Approved By` | user field |
-| Created | `created` (built-in) | built-in |
-| Referenced By / References | Issue link type, not a field (see below) | link |
-| Supersedes | Issue link type, not a field (see below) | link |
+| DR Metadata field          | YouTrack field                                                                                                                | Type                                                            |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Decision ID                | `idReadable` (built-in) or a `Decision ID` string field if the project's own ID scheme (`AIF-###`) must be preserved verbatim | string / built-in                                               |
+| Project                    | `project` (built-in)                                                                                                          | built-in                                                        |
+| Tier                       | `Tier`                                                                                                                        | enum: `A`, `B`, `C`                                             |
+| Domain                     | `Domain`                                                                                                                      | enum, values per `AIF-META-001`'s domain list                   |
+| Status                     | `Status`                                                                                                                      | enum: `Draft`, `Approved`, `Deferred`                           |
+| Author (Agent)             | `Author Agent`                                                                                                                | string or enum (Architect, Tech-Lead, Engineering-Manager, ...) |
+| Approved By                | `Approved By`                                                                                                                 | user field                                                      |
+| Created                    | `created` (built-in)                                                                                                          | built-in                                                        |
+| Referenced By / References | Issue link type, not a field (see below)                                                                                      | link                                                            |
+| Supersedes                 | Issue link type, not a field (see below)                                                                                      | link                                                            |
 
 ### Link types
 
@@ -85,6 +85,7 @@ Because `Type` and `project` are both just filter dimensions in YouTrack queries
 3. **Migrate the existing 11+ `.decision.md` files.** One-time bulk-import script against the REST API: for each file, `parseDecisionRecord` (already pure per the AIF-002-014 split) supplies the field values, the script creates the Issue + Article pair, sets links (`references`/`supersedes`) after all records exist (so link targets resolve), and sets `Status = Approved` directly via the migration script's elevated/admin credential rather than the agent service account — the normal `DR Approvers`-gated workflow rule shouldn't need to be bypassed for records that were already human-approved historically, but the migration path itself needs an explicit note that it's exempt from the gate for exactly this reason, not a backdoor left open by accident. Old `.decision.md` files: keep in git history (do not delete) as the pre-migration audit trail, but stop treating `docs/decisions/*.md` as the live source of truth once migration completes — `index.json` generation switches fully to the YouTrack REST crawl at that point.
 
 Sources:
+
 - [Articles API — Developer Portal, YouTrack/Hub Documentation](https://www.jetbrains.com/help/youtrack/devportal/resource-api-articles.html)
 - [Custom Fields | YouTrack Server Documentation](https://www.jetbrains.com/help/youtrack/server/custom-fields.html)
 - [Manage Custom Fields Per Project | YouTrack Server Documentation](https://www.jetbrains.com/help/youtrack/server/manage-custom-fields-per-project.html)

@@ -1,7 +1,7 @@
 ---
-name: "complexity-tiers"
-version: "0.1.0"
-description: "Assesses task complexity and scales process rigor accordingly, from a quick fix to a full approved plan."
+name: 'complexity-tiers'
+version: '0.1.1'
+description: 'Assesses task complexity and scales process rigor accordingly, from a quick fix to a full approved plan.'
 ---
 
 ## Purpose
@@ -32,6 +32,7 @@ Before starting work, assess which tier applies and state it explicitly, with br
 **Examples:** fix a typo, update a version, add a tool to an existing agent, tweak wording.
 
 **Process:**
+
 1. Clarify (if anything is ambiguous — skip if intent is obvious)
 2. Implement — follow the governing schema/standard exactly
 3. Self-validate — run tests, verify cross-references
@@ -43,6 +44,7 @@ Before starting work, assess which tier applies and state it explicitly, with br
 **Examples:** author a new steering file, add a new skill following an established pattern, create a new server definition.
 
 **Process:**
+
 1. Clarify — ask questions if anything is unclear
 2. Outline approach — brief paragraph or bullet list of what will be created/changed
 3. **Stop. Wait for human approval before implementing.**
@@ -56,6 +58,7 @@ Before starting work, assess which tier applies and state it explicitly, with br
 **Examples:** redesigning a component into multiple roles, creating a new interconnected set of components, introducing a new convention, changing a schema.
 
 **Process:**
+
 1. Clarify — ask focused questions to bound scope
 2. Produce a written plan
 3. **Stop. Wait for human approval before implementing.**

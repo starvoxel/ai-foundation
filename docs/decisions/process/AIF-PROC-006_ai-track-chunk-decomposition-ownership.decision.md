@@ -2,27 +2,27 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-PROC-006 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | process |
-| Status | Approved |
-| Author (Agent) | Architect |
-| Approved By | Jeremy |
-| Created | 2026-08-13 |
-| Referenced By | — |
-| References | AIF-PROC-001, AIF-PROC-002 |
-| Tags | chunk-boundaries, decomposition |
+| Field          | Value                           |
+| -------------- | ------------------------------- |
+| Decision ID    | AIF-PROC-006                    |
+| Project        | ai-foundation                   |
+| Tier           | A                               |
+| Domain         | process                         |
+| Status         | Approved                        |
+| Author (Agent) | Architect                       |
+| Approved By    | Jeremy                          |
+| Created        | 2026-08-13                      |
+| Referenced By  | —                               |
+| References     | AIF-PROC-001, AIF-PROC-002      |
+| Tags           | chunk-boundaries, decomposition |
 
 ---
 
 ## Problem Statement
 
-AIF-PROC-002 settled how AI-track chunks *dispatch and pipeline* once they exist in `chunks.json`, but it left one thing unexamined: **who decides where the chunk boundaries and dependencies are in the first place.** As written, AIF-PROC-002 still has Tech-Lead deciding this for both tracks — "Tech-Lead's Epic Section 8 decomposition assigns `agents: ["AI-Engineer"]` to AI-track chunks with only a scope summary and `depends_on`." Tech-Lead only delegates writing the *detailed* chunk plan to AI-Engineer; it still makes the judgment call of how many AI-track chunks an Epic needs and how they depend on each other.
+AIF-PROC-002 settled how AI-track chunks _dispatch and pipeline_ once they exist in `chunks.json`, but it left one thing unexamined: **who decides where the chunk boundaries and dependencies are in the first place.** As written, AIF-PROC-002 still has Tech-Lead deciding this for both tracks — "Tech-Lead's Epic Section 8 decomposition assigns `agents: ["AI-Engineer"]` to AI-track chunks with only a scope summary and `depends_on`." Tech-Lead only delegates writing the _detailed_ chunk plan to AI-Engineer; it still makes the judgment call of how many AI-track chunks an Epic needs and how they depend on each other.
 
-That's a real gap by AIF-PROC-001's own logic: Tech-Lead isn't expected to write AGENTS.md-schema-level *detail*, but deciding chunk boundaries for AI-component work requires knowing which components are tightly coupled (e.g. a skill change and the steering file that references it) versus genuinely independent — exactly the kind of judgment AIF-PROC-001 already said shouldn't sit with Tech-Lead. `epic-planning`'s own Section 5 template (`New Components` typed as Model/Service/ViewModel/View) confirms Tech-Lead's architecture-overview thinking is built for software, not AI-component structure.
+That's a real gap by AIF-PROC-001's own logic: Tech-Lead isn't expected to write AGENTS.md-schema-level _detail_, but deciding chunk boundaries for AI-component work requires knowing which components are tightly coupled (e.g. a skill change and the steering file that references it) versus genuinely independent — exactly the kind of judgment AIF-PROC-001 already said shouldn't sit with Tech-Lead. `epic-planning`'s own Section 5 template (`New Components` typed as Model/Service/ViewModel/View) confirms Tech-Lead's architecture-overview thinking is built for software, not AI-component structure.
 
 The question: does Tech-Lead need help — a peer agent, or a delegated sub-decomposition step to AI-Engineer — to set AI-track chunk boundaries correctly?
 
@@ -31,11 +31,13 @@ The question: does Tech-Lead need help — a peer agent, or a delegated sub-deco
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - `chunks.json` remains a single file with one DAG per Epic — whatever the answer, it must not require Engineering-Manager to merge two independently-authored dependency graphs.
 - Must not silently weaken the human-approval gate — Epic-level approval already covers scope; any further decomposition step must not bypass it.
-- Must not introduce a new agent unless the coordination cost of *not* doing so is demonstrably worse than the cost of maintaining one.
+- Must not introduce a new agent unless the coordination cost of _not_ doing so is demonstrably worse than the cost of maintaining one.
 
 What was a preference but not a hard requirement:
+
 - Prefer reusing existing agents/skills over adding new ones, consistent with AIF-PROC-001/AIF-PROC-002's general bias toward extending what exists.
 
 ---
@@ -57,7 +59,7 @@ What was a preference but not a hard requirement:
 
 ### Option C: AI-Engineer self-decomposes its own portion
 
-**Summary**: Tech-Lead's Epic Section 8 only identifies *that* AI-track work exists and its rough boundary against the software track (which deliverables are AI-component work vs. code) — not exact chunk count or internal dependencies.
+**Summary**: Tech-Lead's Epic Section 8 only identifies _that_ AI-track work exists and its rough boundary against the software track (which deliverables are AI-component work vs. code) — not exact chunk count or internal dependencies.
 AI-Engineer is then dispatched once for the Epic's whole AI-track scope, further decomposes it into however many chunks make AGENTS.md-domain sense, and appends those nodes/edges directly into the shared `chunks.json`, running `dag-validate` itself before Engineering-Manager proceeds.
 **Strengths**: Domain-appropriate boundary decisions without a new agent — reuses AI-Engineer, which already has the relevant expertise and already reasons via `skill/complexity-tiers` about "is this one unit of work or several." Chunk count stays right-sized without a Tech-Lead↔AI-Engineer round trip.
 **Weaknesses**: Requires a new AI-Engineer skill (e.g. `skill/ai-chunk-decomposition`)
@@ -72,6 +74,7 @@ to safely append to a shared file — avoiding ID collisions with Tech-Lead's so
 **Rationale**: This is the first Epic that will ever contain AI-track chunks — the orchestration-skill update AIF-PROC-002 itself requires hasn't landed yet, so there is no evidence yet that Tech-Lead's coarse, taxonomy-based boundary-setting actually produces bad splits often enough to justify Option B's new-agent maintenance cost or Option C's new-skill/DAG-append complexity. Both alternatives solve a problem that is currently hypothetical by adding real, permanent surface area. The existing Rule 4 discovery-and-escalate path already handles a wrong boundary when one occurs, at the cost of a revision round trip — an acceptable cost for a rare event, and the correct one to pay before building infrastructure for a recurring one that hasn't been demonstrated.
 
 **Trade-offs accepted**:
+
 - AI-track Epics with several non-obviously-coupled chunks may cost a Tech-Lead revision round trip more often than software-track Epics do, until/unless this becomes frequent enough to revisit.
 
 **Revisit trigger**: If, after AIF-PROC-002's orchestration update ships and a handful of real AI-track Epics have been decomposed, Tech-Lead's chunk boundaries are wrong often enough that the round-trip cost is materially slowing work down, reopen this decision in favor of Option C first (lower cost than Option B) before considering a dedicated peer agent.
@@ -88,7 +91,7 @@ to safely append to a shared file — avoiding ID collisions with Tech-Lead's so
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Does AI-Engineer need a Tech-Lead-equivalent agent to decompose AI-track chunk boundaries? | Not now. Tech-Lead remains the sole `chunks.json` author for both tracks; a misjudged boundary is handled via the existing discovery/escalation path, not a new agent. |
-| 2 | Under what condition should this be revisited? | If, after real AI-track Epics run through AIF-PROC-002's dispatch mechanism, boundary misjudgments prove frequent/costly — revisit toward Option C (AI-Engineer self-decomposes) before considering a new peer agent (Option B). |
+| #   | Item                                                                                       | Resolution                                                                                                                                                                                                                       |
+| --- | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Does AI-Engineer need a Tech-Lead-equivalent agent to decompose AI-track chunk boundaries? | Not now. Tech-Lead remains the sole `chunks.json` author for both tracks; a misjudged boundary is handled via the existing discovery/escalation path, not a new agent.                                                           |
+| 2   | Under what condition should this be revisited?                                             | If, after real AI-track Epics run through AIF-PROC-002's dispatch mechanism, boundary misjudgments prove frequent/costly — revisit toward Option C (AI-Engineer self-decomposes) before considering a new peer agent (Option B). |

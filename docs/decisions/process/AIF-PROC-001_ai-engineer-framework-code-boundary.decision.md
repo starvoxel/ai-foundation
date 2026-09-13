@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-PROC-001 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | process |
-| Status | Approved |
-| Author (Agent) | Architect |
-| Approved By | Jeremy |
-| Created | 2026-08-13 |
-| Referenced By | AIF-PROC-002, AIF-PROC-004, AIF-PROC-005, AIF-PROC-006 |
-| References | — |
-| Tags | boundary, ownership, application-code |
+| Field          | Value                                                  |
+| -------------- | ------------------------------------------------------ |
+| Decision ID    | AIF-PROC-001                                           |
+| Project        | ai-foundation                                          |
+| Tier           | A                                                      |
+| Domain         | process                                                |
+| Status         | Approved                                               |
+| Author (Agent) | Architect                                              |
+| Approved By    | Jeremy                                                 |
+| Created        | 2026-08-13                                             |
+| Referenced By  | AIF-PROC-002, AIF-PROC-004, AIF-PROC-005, AIF-PROC-006 |
+| References     | —                                                      |
+| Tags           | boundary, ownership, application-code                  |
 
 ---
 
@@ -34,11 +34,13 @@ The `ai-foundation` repo now contains two distinct kinds of artifact:
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - The resolution must not leave `ai-engineer`'s hard rules self-contradictory.
 - The resolution must generalize — the same reasoning should apply in any repo that mixes declarative AI config with real application code, not just this one.
 - Existing agent tool/skill surfaces should stay coherent with the work the agent actually performs (e.g. an agent should not be doing general JS engineering with only schema-authoring skills available).
 
 What was a preference but not a hard requirement:
+
 - Minimize cross-agent coordination overhead within a single small repo.
 
 ---
@@ -78,6 +80,7 @@ is irrelevant to writing a manifest resolver or harness adapter. Sets a preceden
 The repo's own file layout already draws this line: `tests/validation/` (schema compliance checks) versus `tests/unit/` + `tests/integration/` (code behaviour tests) is exactly the declarative/code split. `ai-engineer`'s existing hard rule ("never modify application/product code") is correct as written — the only thing wrong is the prompt sentence claiming blanket ownership of "the ai-foundation framework," which predates `lib/`/`bin/` existing as real code. Fixing that sentence, rather than carving an exception into the hard rule, keeps the boundary consistent across every repo `ai-engineer` might work in, not just this one.
 
 **Trade-offs accepted**:
+
 - Cross-cutting changes (declarative schema change + resolver code change) require two agents and a coordinated Epic/Chunk breakdown instead of one agent handling it end-to-end. Accepted because it mirrors how any other repo with mixed declarative/code concerns would be planned, and keeps each agent's scope legible.
 
 ---
@@ -86,11 +89,11 @@ The repo's own file layout already draws this line: `tests/validation/` (schema 
 
 ### Boundary definition
 
-| Path | Owner | Pipeline |
-|---|---|---|
-| `agents/`, `skills/`, `steering/`, `standards/`, `servers/`, `bundles/`, `docs/`, `projects/` | `ai-engineer` | `skill/complexity-tiers` → `skill/ai-engineering-plan` (Tier 3) |
-| `tests/validation/` | `ai-engineer` | Same as above (schema/cross-reference checks are AI-domain knowledge) |
-| `bin/`, `lib/`, `tests/unit/`, `tests/integration/` | `software-engineer` | `tech-lead` Epic/Chunk Plan → `software-engineer` implementation → `principal-engineer` review, per `javascript`/`node` standards |
+| Path                                                                                          | Owner               | Pipeline                                                                                                                          |
+| --------------------------------------------------------------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `agents/`, `skills/`, `steering/`, `standards/`, `servers/`, `bundles/`, `docs/`, `projects/` | `ai-engineer`       | `skill/complexity-tiers` → `skill/ai-engineering-plan` (Tier 3)                                                                   |
+| `tests/validation/`                                                                           | `ai-engineer`       | Same as above (schema/cross-reference checks are AI-domain knowledge)                                                             |
+| `bin/`, `lib/`, `tests/unit/`, `tests/integration/`                                           | `software-engineer` | `tech-lead` Epic/Chunk Plan → `software-engineer` implementation → `principal-engineer` review, per `javascript`/`node` standards |
 
 ### Required follow-up changes
 
@@ -110,7 +113,7 @@ The repo's own file layout already draws this line: `tests/validation/` (schema 
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Does `ai-engineer` maintain the `ai-foundation` framework's own CLI code (`bin/`, `lib/`)? | No. That is `software-engineer`'s domain, planned via the normal `tech-lead` pipeline, per Option B above. |
-| 2 | Does `ai-engineer` still own declarative AI components within `ai-foundation`? | Yes, unchanged — `agents/`, `skills/`, `steering/`, `standards/`, `servers/`, `bundles/`, `docs/`, and `tests/validation/`. |
+| #   | Item                                                                                       | Resolution                                                                                                                  |
+| --- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Does `ai-engineer` maintain the `ai-foundation` framework's own CLI code (`bin/`, `lib/`)? | No. That is `software-engineer`'s domain, planned via the normal `tech-lead` pipeline, per Option B above.                  |
+| 2   | Does `ai-engineer` still own declarative AI components within `ai-foundation`?             | Yes, unchanged — `agents/`, `skills/`, `steering/`, `standards/`, `servers/`, `bundles/`, `docs/`, and `tests/validation/`. |

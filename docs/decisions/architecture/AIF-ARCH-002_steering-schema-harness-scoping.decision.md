@@ -2,16 +2,16 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-ARCH-002 |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | Architect |
-| Approved By | Jeremy |
-| Created | 2026-08-01 13:55 |
-| Referenced By | AIF-ARCH-001 |
-| Supersedes | — |
+| Field          | Value            |
+| -------------- | ---------------- |
+| Decision ID    | AIF-ARCH-002     |
+| Project        | ai-foundation    |
+| Status         | Approved         |
+| Author (Agent) | Architect        |
+| Approved By    | Jeremy           |
+| Created        | 2026-08-01 13:55 |
+| Referenced By  | AIF-ARCH-001     |
+| Supersedes     | —                |
 
 > **Note:** This decision predates the AIF-META-001 Tier × Domain model (approved
 > 2026-08-14) and has not been reformatted to the current template. Its content
@@ -26,12 +26,14 @@ The steering frontmatter schema needs to support conditional loading (not all ru
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - The schema must be harness-agnostic — no Kiro/Copilot/Claude-specific concepts in the source files
 - Must support unconditional loading (always on) and file-pattern-conditional loading
 - Must support agent/role scoping so the resolver can skip irrelevant files at install time
 - Adapters must be able to mechanically translate to each harness's native format without ambiguity
 
 What was a preference but not a hard requirement:
+
 - Keep the schema minimal — don't add fields for features that aren't used
 - Prefer explicit over implicit — frontmatter should let an agent decide "is this for me?" without reading the body
 
@@ -70,6 +72,7 @@ What was a preference but not a hard requirement:
 A single `file_patterns` field captures the portable intent: "this file applies unconditionally" vs "this file applies when working with these file patterns." Each harness adapter has a mechanical mapping from this field to its native format. No harness-specific concepts leak into the source schema.
 
 **Trade-offs accepted**:
+
 - The `manual` inclusion mode is dropped. Mitigation: files that shouldn't auto-load simply aren't included in bundles.
 - Adapters need to know each harness's native format. This is expected — it's their job.
 
@@ -81,19 +84,19 @@ A single `file_patterns` field captures the portable intent: "this file applies 
 
 ```yaml
 ---
-name: "steering-name"
-version: "0.1.0"
-description: "One sentence."
-file_patterns: []          # When: [] = always | ["glob", ...] = conditional
+name: 'steering-name'
+version: '0.1.0'
+description: 'One sentence.'
+file_patterns: [] # When: [] = always | ["glob", ...] = conditional
 ---
 ```
 
 ### Adapter Translation Table
 
-| `file_patterns` value | Kiro | Copilot | Claude Code |
-|---|---|---|---|
-| `[]` (or omitted) | `inclusion: "always"` | `applyTo: "**"` | no `paths` field |
-| `["**/*.test.js"]` | `inclusion: "fileMatch"` | `applyTo: "**/*.test.js"` | `paths: ["**/*.test.js"]` |
+| `file_patterns` value  | Kiro                     | Copilot                     | Claude Code                   |
+| ---------------------- | ------------------------ | --------------------------- | ----------------------------- |
+| `[]` (or omitted)      | `inclusion: "always"`    | `applyTo: "**"`             | no `paths` field              |
+| `["**/*.test.js"]`     | `inclusion: "fileMatch"` | `applyTo: "**/*.test.js"`   | `paths: ["**/*.test.js"]`     |
 | `["src/**", "lib/**"]` | `inclusion: "fileMatch"` | `applyTo: "src/**, lib/**"` | `paths: ["src/**", "lib/**"]` |
 
 ### Agent/Role Scoping — Removed
@@ -119,14 +122,14 @@ The `applies_to` field was initially included to let agents skip irrelevant stee
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Whether `inclusion` or `file_patterns` is the right field name | `file_patterns` — harness-agnostic, self-contained with actual globs. |
-| 2 | What happens to the `manual` case | Dropped. Files not in a bundle don't get installed. Equivalent outcome. |
-| 3 | Whether `applies_to` should exist | Removed. No harness supports agent-role scoping. Whole file loads or nothing — frontmatter doesn't help skip context. Use bundle composition or agent `prompt` field instead. |
-| 4 | Copilot format for conditional instructions | `.instructions.md` files with `applyTo: "glob"` in YAML frontmatter. Lives in `.github/instructions/`. |
-| 5 | Claude Code format for conditional rules | `.md` files in `.claude/rules/` with optional `paths: ["glob"]` in YAML frontmatter. No paths = always loaded. |
-| 6 | Kiro format for conditional steering | `.md` files in `.kiro/steering/` with `inclusion: "always"` or `inclusion: "fileMatch"` in frontmatter. **See caveat below.** |
+| #   | Item                                                           | Resolution                                                                                                                                                                    |
+| --- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Whether `inclusion` or `file_patterns` is the right field name | `file_patterns` — harness-agnostic, self-contained with actual globs.                                                                                                         |
+| 2   | What happens to the `manual` case                              | Dropped. Files not in a bundle don't get installed. Equivalent outcome.                                                                                                       |
+| 3   | Whether `applies_to` should exist                              | Removed. No harness supports agent-role scoping. Whole file loads or nothing — frontmatter doesn't help skip context. Use bundle composition or agent `prompt` field instead. |
+| 4   | Copilot format for conditional instructions                    | `.instructions.md` files with `applyTo: "glob"` in YAML frontmatter. Lives in `.github/instructions/`.                                                                        |
+| 5   | Claude Code format for conditional rules                       | `.md` files in `.claude/rules/` with optional `paths: ["glob"]` in YAML frontmatter. No paths = always loaded.                                                                |
+| 6   | Kiro format for conditional steering                           | `.md` files in `.kiro/steering/` with `inclusion: "always"` or `inclusion: "fileMatch"` in frontmatter. **See caveat below.**                                                 |
 
 ---
 
@@ -136,7 +139,7 @@ The `applies_to` field was initially included to let agents skip irrelevant stee
 
 Kiro's `inclusion: "fileMatch"` is documented to conditionally load steering files when working with files matching a pattern. However:
 
-1. **The glob pattern field is undocumented.** Kiro's official CLI docs only describe `inclusion: "fileMatch"` as a mode that "excludes from automatic loading" — they don't document how to specify *which* file patterns trigger it. Community usage suggests a `fileMatchPattern` frontmatter field, but this isn't in official docs.
+1. **The glob pattern field is undocumented.** Kiro's official CLI docs only describe `inclusion: "fileMatch"` as a mode that "excludes from automatic loading" — they don't document how to specify _which_ file patterns trigger it. Community usage suggests a `fileMatchPattern` frontmatter field, but this isn't in official docs.
 
 2. **It doesn't work reliably.** GitHub issue [kirodotdev/Kiro#6171](https://github.com/kirodotdev/Kiro/issues/6171)
    (March 2026, closed as duplicate) reports that `fileMatch` steering files are never injected into context regardless of matching files. The issue was reported for both global (`~/.kiro/steering/`) and workspace-level files.

@@ -1,7 +1,7 @@
 ---
-name: "bundle-authoring"
-version: "0.1.0"
-description: "Creates a bundle definition that specifies what components to install for a harness."
+name: 'bundle-authoring'
+version: '0.1.1'
+description: 'Creates a bundle definition that specifies what components to install for a harness.'
 ---
 
 ## Purpose
@@ -28,15 +28,16 @@ Create `bundles/{name}/bundle.yaml`. Use the schema in `skills/bundle-authoring/
 
 ### Step 2 — Choose a resolution strategy
 
-| Strategy | When to use |
-|---|---|
-| `domain` only | Install everything for a domain (most common) |
-| Explicit lists only | Cherry-pick specific components across domains |
-| Both | Domain discovery + additional components from outside the domain |
+| Strategy            | When to use                                                      |
+| ------------------- | ---------------------------------------------------------------- |
+| `domain` only       | Install everything for a domain (most common)                    |
+| Explicit lists only | Cherry-pick specific components across domains                   |
+| Both                | Domain discovery + additional components from outside the domain |
 
 ### Step 3 — Configure domain discovery (if using)
 
 Set `domain: "{name}"`. The resolver will:
+
 1. Find all agents where `agent.domain == bundle.domain`
 2. Collect skills from those agents' `skills` fields
 3. Include `steering/global/**/*.md` + `steering/{domain}/**/*.md`
@@ -47,10 +48,10 @@ Set `domain: "{name}"`. The resolver will:
 Append components that domain discovery doesn't catch:
 
 ```yaml
-agents: ["extra-agent.yaml"]
-skills: ["extra-skill"]
-steering: ["steering/other/file.md"]
-servers: ["extra-server"]
+agents: ['extra-agent.yaml']
+skills: ['extra-skill']
+steering: ['steering/other/file.md']
+servers: ['extra-server']
 ```
 
 Explicit lists are appended after discovery. Duplicates are removed automatically.

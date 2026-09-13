@@ -2,27 +2,28 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-ARCH-004 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | architecture |
-| Status | Draft |
-| Author (Agent) | Architect |
-| Approved By | Pending |
-| Created | 2026-08-13 |
-| Referenced By | — |
-| References | AIF-PROC-004 |
-| Tags | standards-sync, cli, filesystem-sync, config-schema, conflict-detection |
+| Field          | Value                                                                   |
+| -------------- | ----------------------------------------------------------------------- |
+| Decision ID    | AIF-ARCH-004                                                            |
+| Project        | ai-foundation                                                           |
+| Tier           | A                                                                       |
+| Domain         | architecture                                                            |
+| Status         | Draft                                                                   |
+| Author (Agent) | Architect                                                               |
+| Approved By    | Pending                                                                 |
+| Created        | 2026-08-13                                                              |
+| Referenced By  | —                                                                       |
+| References     | AIF-PROC-004                                                            |
+| Tags           | standards-sync, cli, filesystem-sync, config-schema, conflict-detection |
 
 ---
 
 ## Problem Statement
 
-AIF-PROC-004 settled *who* implements the standards push/pull/sync feature from `PLAN.md` (v1.3) — split between Software-Engineer (CLI mechanism) and AI-Engineer (schema/docs) — but explicitly deferred *how the mechanism works*, flagging it as a required follow-up given the risk of a tool that can write into a repo other than the one it's currently running in. This record resolves that design.
+AIF-PROC-004 settled _who_ implements the standards push/pull/sync feature from `PLAN.md` (v1.3) — split between Software-Engineer (CLI mechanism) and AI-Engineer (schema/docs) — but explicitly deferred _how the mechanism works_, flagging it as a required follow-up given the risk of a tool that can write into a repo other than the one it's currently running in. This record resolves that design.
 
 Confirmed context (human input, this session):
+
 - `ai-foundation` will always be cloned locally alongside project repos, for the foreseeable future — no artifactory, no requirement to support a machine that only has the project repo checked out. Team growth is handled by every member cloning `ai-foundation` locally, not by a hosted package registry.
 - Pushing a **brand-new** standard (one that doesn't yet exist in `ai-foundation`)
   must be in scope for v1 — projects are expected to be where new frameworks/stacks get integrated first, making them the most likely origin of new standards, not just refinements of existing ones.
@@ -32,6 +33,7 @@ Confirmed context (human input, this session):
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - Must not require network access, hosted PR automation, or cross-repo git credentials — the local-sibling-clone assumption is confirmed and should be exploited to keep the mechanism simple.
 - Must not create a new commit-authority path. Any change that lands in `ai-foundation` still goes through the same human-approval gate every other change there goes through (`skill/complexity-tiers` + `skill/plan-lifecycle`) — the sync tool moves file content, it never commits on `ai-foundation`'s behalf.
 - Must support pushing an entirely new standard, not just updating an existing one.
@@ -39,6 +41,7 @@ What was non-negotiable:
 - Must reuse existing hash/diff infrastructure (`lib/snapshot/pure.js`) rather than building parallel logic.
 
 What was a preference but not a hard requirement:
+
 - Command surface should match the existing CLI's shape (`lib/commands/`, same argument-parsing conventions as `install`/`status`/`list`).
 
 ---
@@ -74,6 +77,7 @@ What was a preference but not a hard requirement:
 **Rationale**: Every constraint in this record points at Option A: the sibling-clone assumption is confirmed indefinitely, network/PR automation solves a problem that doesn't currently exist, and keeping commit authority exactly where it already lives avoids inventing new governance rather than reusing what AIF-PROC-001/ `skill/plan-lifecycle` already established. The only real cost — a human needs to notice and commit the resulting working-tree change — is a UX concern (clear CLI output), not an architectural one.
 
 **Trade-offs accepted**:
+
 - If the sibling-clone assumption is ever invalidated (artifactory, CI-driven sync, contributors without a local `ai-foundation` clone), this mechanism needs a v2 extension along the lines of Option B. Not a blocker now; flagged for future revisit if that happens.
 - A `push` that lands in `ai-foundation`'s working tree but is never noticed/ committed is silently inert. Mitigated by CLI output design (see below), not by the sync mechanism itself.
 
@@ -94,14 +98,16 @@ New sidecar file per repo, `.standards-sync.yaml` (gitignored, same treatment as
 ### Conflict rule (applies to both directions)
 
 Given source hash (at last sync), and current hashes on both sides:
-- Only the *remote* side (the one being pulled/pushed *from*) changed → clean copy, update both sides' sync-state hash.
-- Only the *local* side changed → no-op (nothing new to pull/push), or in the `push` direction, this **is** the change being pushed — proceed.
+
+- Only the _remote_ side (the one being pulled/pushed _from_) changed → clean copy, update both sides' sync-state hash.
+- Only the _local_ side changed → no-op (nothing new to pull/push), or in the `push` direction, this **is** the change being pushed — proceed.
 - Both changed since last sync → refuse. Report both file paths and both hashes.
   Human resolves manually (edit one side, re-run). No auto-merge.
 
 ### New-standard handling (push only)
 
 If the pushed standard name does not exist in `ai-foundation`'s `standards/` directory:
+
 - No baseline hash exists — treat as an unconditional add, not a conflict case.
 - Validate front-matter (`name`, `tags`, `depends_on`) against the schema documented in `AGENTS.md` / enforced by `tests/validation/schemas.test.js` **before** writing the file into `ai-foundation`'s working tree — a malformed standard should not land even as an uncommitted change.
 - Check for a name collision against `resolver.js`'s existing `listStandards()` output (case-insensitive) — refuse if a differently-scoped standard already uses that filename.
@@ -109,16 +115,18 @@ If the pushed standard name does not exist in `ai-foundation`'s `standards/` dir
 ### Command surface
 
 `lib/commands/`, alongside `install`/`status`/`list`:
+
 - `aif pull --standard <name> | --all`
 - `aif push --standard <name> | --all`
 
 Both print an explicit next-step message rather than silently succeeding:
-- `pull`: confirms the file was written into the project's `paths.standards` directory; reminds the human it's an uncommitted change in *this* repo.
+
+- `pull`: confirms the file was written into the project's `paths.standards` directory; reminds the human it's an uncommitted change in _this_ repo.
 - `push`: confirms the file was written into `ai-foundation`'s working tree at `{ai_foundation_path}`; explicitly states it has **not** been committed, and that it needs to go through `ai-foundation`'s normal AI-Engineer/plan-lifecycle process before landing.
 
 ### Explicit non-goals (v1)
 
-- No automatic propagation of a pushed standard to *other* projects — each project pulls independently, on its own schedule.
+- No automatic propagation of a pushed standard to _other_ projects — each project pulls independently, on its own schedule.
 - No automated commit, PR, or notification in `ai-foundation` triggered by `push` — purely a file-content handoff.
 - No support for syncing without a local `ai-foundation` clone (see Option B, deferred).
 
@@ -134,9 +142,9 @@ Both print an explicit next-step message rather than silently succeeding:
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Does sync require network/cross-repo git credentials? | No — local filesystem copy between a project repo and a locally-cloned `ai-foundation`, per the confirmed always-local-clone assumption. |
-| 2 | Who/what commits a pushed change into `ai-foundation`? | Nobody, automatically. `push` stages the file in `ai-foundation`'s working tree only; a human/AI-Engineer commits it through the existing, unchanged governance process. |
-| 3 | Is pushing a brand-new standard in scope for v1? | Yes — treated as an unconditional add (no baseline hash to conflict against), gated by front-matter schema validation and a name-collision check before the file is written. |
-| 4 | How are conflicting concurrent edits handled? | Refused outright if both sides changed since the last recorded sync hash — no auto-merge, human resolves manually. |
+| #   | Item                                                   | Resolution                                                                                                                                                                   |
+| --- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Does sync require network/cross-repo git credentials?  | No — local filesystem copy between a project repo and a locally-cloned `ai-foundation`, per the confirmed always-local-clone assumption.                                     |
+| 2   | Who/what commits a pushed change into `ai-foundation`? | Nobody, automatically. `push` stages the file in `ai-foundation`'s working tree only; a human/AI-Engineer commits it through the existing, unchanged governance process.     |
+| 3   | Is pushing a brand-new standard in scope for v1?       | Yes — treated as an unconditional add (no baseline hash to conflict against), gated by front-matter schema validation and a name-collision check before the file is written. |
+| 4   | How are conflicting concurrent edits handled?          | Refused outright if both sides changed since the last recorded sync hash — no auto-merge, human resolves manually.                                                           |

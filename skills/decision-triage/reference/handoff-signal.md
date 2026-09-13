@@ -8,13 +8,13 @@ Tier C never reaches this signal — Step 4 (and the domain-owner check) only ap
 
 ## Fields
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `domain` | string (Domain code, e.g. `PROC`, `ARCH`) | Yes | From the `reference/tier-and-domain.md` Domain table |
-| `tier` | string (`A` or `B`) | Yes | Tier C never reaches this signal — no domain check applies to Tier C |
-| `owning_agent` | string (agent name, e.g. `Engineering-Manager`) | Yes | From the `reference/tier-and-domain.md` Domain table |
-| `invoking_agent` | string (agent name) | Yes | The agent that invoked `decision-triage` |
-| `problem_summary` | string | Yes | One to two sentences — enough for the domain owner or human to understand what decision is needed without re-deriving it |
+| Field             | Type                                            | Required | Notes                                                                                                                    |
+| ----------------- | ----------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `domain`          | string (Domain code, e.g. `PROC`, `ARCH`)       | Yes      | From the `reference/tier-and-domain.md` Domain table                                                                     |
+| `tier`            | string (`A` or `B`)                             | Yes      | Tier C never reaches this signal — no domain check applies to Tier C                                                     |
+| `owning_agent`    | string (agent name, e.g. `Engineering-Manager`) | Yes      | From the `reference/tier-and-domain.md` Domain table                                                                     |
+| `invoking_agent`  | string (agent name)                             | Yes      | The agent that invoked `decision-triage`                                                                                 |
+| `problem_summary` | string                                          | Yes      | One to two sentences — enough for the domain owner or human to understand what decision is needed without re-deriving it |
 
 ---
 

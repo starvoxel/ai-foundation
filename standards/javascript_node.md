@@ -1,6 +1,6 @@
 ---
 name: javascript_node
-version: 1.0.0
+version: 1.0.1
 description: Node.js runtime conventions for JavaScript projects
 tags: [javascript, node]
 depends_on: [javascript_base]
@@ -16,12 +16,12 @@ This file assumes `javascript_base` is already loaded (per `depends_on`). Langua
 
 ## Stack Baseline
 
-| Layer           | Convention                                          |
-|------------------|------------------------------------------------------|
-| Runtime          | Node.js 22+ (LTS)                                     |
-| Module system    | ES Modules — `"type": "module"` in `package.json`    |
-| Package manager  | npm, unless a project standard specifies otherwise    |
-| Testing          | Node's built-in `node:test` + `node:assert/strict`    |
+| Layer           | Convention                                         |
+| --------------- | -------------------------------------------------- |
+| Runtime         | Node.js 22+ (LTS)                                  |
+| Module system   | ES Modules — `"type": "module"` in `package.json`  |
+| Package manager | npm, unless a project standard specifies otherwise |
+| Testing         | Node's built-in `node:test` + `node:assert/strict` |
 
 ---
 
@@ -137,13 +137,13 @@ Standard layout for a Node package or CLI project:
 
 ## Logging Requirements
 
-- CLI tools and scripts: `console.log`/`console.error` is acceptable — output *is* the product.
+- CLI tools and scripts: `console.log`/`console.error` is acceptable — output _is_ the product.
 - Long-running services or servers: use structured logging (e.g. a library such as Pino) instead of `console.*`, so log output is machine-parseable and includes consistent metadata (timestamp, level, context).
 - Never log secrets, tokens, or full file contents that may contain sensitive data.
 - Log level guide:
 
-| Level | When to use                                              |
-|-------|-----------------------------------------------------------|
+| Level | When to use                                               |
+| ----- | --------------------------------------------------------- |
 | debug | Verbose internal state, useful only when troubleshooting  |
 | info  | Normal operational milestones (started, completed, saved) |
 | warn  | Recoverable but unexpected conditions                     |
@@ -200,6 +200,7 @@ describe('parseSkillRef', () => {
 ### Minimum Coverage Rule
 
 Every exported function must have:
+
 - At least one happy-path test
 - At least one test for each documented failure condition (thrown errors, null returns, etc.)
 - At least one empty/missing-input test if the function accepts strings, arrays, or objects

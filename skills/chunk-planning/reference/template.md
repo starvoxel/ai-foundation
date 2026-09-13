@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | {EpicID}-{ChunkNumber} |
-| Parent Epic | {Epic ID} or None |
-| Chunk | {e.g. 3 of 6} or None |
-| Depends On | {Chunk Plan IDs} or None |
-| Can Parallel | {Chunk Plan IDs} or None |
-| Project | {Project name} |
-| Status | Draft / Approved / Done / Deferred |
-| Author (Agent) | Tech-Lead |
-| Reviewed By | {human name or "Pending"} |
-| Created | {YYYY-MM-DD HH:mm} |
-| Last Updated | {YYYY-MM-DD HH:mm} |
-| Standards | {e.g. csharp-avalonia, project-standards link} |
+| Field          | Value                                          |
+| -------------- | ---------------------------------------------- |
+| Plan ID        | {EpicID}-{ChunkNumber}                         |
+| Parent Epic    | {Epic ID} or None                              |
+| Chunk          | {e.g. 3 of 6} or None                          |
+| Depends On     | {Chunk Plan IDs} or None                       |
+| Can Parallel   | {Chunk Plan IDs} or None                       |
+| Project        | {Project name}                                 |
+| Status         | Draft / Approved / Done / Deferred             |
+| Author (Agent) | Tech-Lead                                      |
+| Reviewed By    | {human name or "Pending"}                      |
+| Created        | {YYYY-MM-DD HH:mm}                             |
+| Last Updated   | {YYYY-MM-DD HH:mm}                             |
+| Standards      | {e.g. csharp-avalonia, project-standards link} |
 
 ---
 
@@ -46,9 +46,11 @@
 ## 5. Scope
 
 ### In Scope
+
 - {Exactly what will be built in this chunk}
 
 ### Out of Scope
+
 - {Explicitly deferred — at least one required}
 
 ---
@@ -64,9 +66,11 @@
 ## 7. Architecture & Design
 
 ### Project Structure Changes
+
 {New files/folders. Mark with ← NEW or ← MODIFIED.}
 
 ### Key Design Decisions
+
 1. **Decision**: {What}
    **Rationale**: {Why}
 
@@ -81,6 +85,7 @@
 > should be promoted via `skill/decision-triage`, not silently re-explained.
 
 ### Patterns & Conventions Applied
+
 {Which standards patterns are being used.}
 
 ---
@@ -96,11 +101,13 @@
 {Method signatures, inputs, outputs. Enough to implement without ambiguity.}
 
 **Key Behaviour**:
+
 - {What it does}
 - {Edge cases}
 - {Error handling}
 
 **Dependencies**:
+
 - {Component or service} — for {reason}
 
 ---
@@ -111,9 +118,9 @@
 
 **Purpose**: {One sentence.}
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| {name} | {type} | Yes/No | {constraints} |
+| Field  | Type   | Required | Notes         |
+| ------ | ------ | -------- | ------------- |
+| {name} | {type} | Yes/No   | {constraints} |
 
 ---
 
@@ -132,9 +139,9 @@
 
 > This section must never be empty.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| {Event} | {Level} | {Safe fields} | {Excluded data} |
+| Event   | Level   | What is logged | What is NOT logged |
+| ------- | ------- | -------------- | ------------------ |
+| {Event} | {Level} | {Safe fields}  | {Excluded data}    |
 
 ---
 
@@ -142,9 +149,9 @@
 
 ### {ComponentName} Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| {ID}-T01 | {Happy path} | Unit | {Expected result} |
+| Test ID  | Description    | Type | Pass Criteria        |
+| -------- | -------------- | ---- | -------------------- |
+| {ID}-T01 | {Happy path}   | Unit | {Expected result}    |
 | {ID}-T02 | {Failure case} | Unit | {Expected exception} |
 
 ---
@@ -160,9 +167,9 @@
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | {Describe} | Risk/Question | H/M/L | {Mitigation or decision needed} |
+| #   | Risk / Question | Type          | Impact | Mitigation                      |
+| --- | --------------- | ------------- | ------ | ------------------------------- |
+| 1   | {Describe}      | Risk/Question | H/M/L  | {Mitigation or decision needed} |
 
 ---
 

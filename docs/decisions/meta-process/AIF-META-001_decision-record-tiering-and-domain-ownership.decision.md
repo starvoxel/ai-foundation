@@ -2,18 +2,18 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-META-001 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | meta-process |
-| Status | Approved |
-| Author (Agent) | Generic Agent |
-| Approved By | Jeremy Smellie |
-| Created | 2026-08-14 |
-| Referenced By | — |
-| References | AIF-004, AIF-005, AIF-011 (current numbering; see migration table) |
+| Field          | Value                                                              |
+| -------------- | ------------------------------------------------------------------ |
+| Decision ID    | AIF-META-001                                                       |
+| Project        | ai-foundation                                                      |
+| Tier           | A                                                                  |
+| Domain         | meta-process                                                       |
+| Status         | Approved                                                           |
+| Author (Agent) | Generic Agent                                                      |
+| Approved By    | Jeremy Smellie                                                     |
+| Created        | 2026-08-14                                                         |
+| Referenced By  | —                                                                  |
+| References     | AIF-004, AIF-005, AIF-011 (current numbering; see migration table) |
 
 ---
 
@@ -33,12 +33,14 @@ Continuing to route every non-code decision through Architect (or, worse, throug
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - Must not weaken `skill/plan-lifecycle`'s human-approval gate for any decision, regardless of tier or domain.
 - Must not make Tech-Lead a catch-all owner for "everything non-architectural" — its charter is Epic/Chunk decomposition, not decision research.
 - Must not silently widen web-search/fetch access across every agent that gains decision-authoring capability — tool grants stay tied to demonstrated need, not to "might need to research something someday."
 - Must preserve global uniqueness of decision IDs across every project repo this framework is installed into (this repo is a framework other project repos install from — a bare domain-only ID scheme would collide across projects).
 
 What was a preference but not a hard requirement:
+
 - Reuse existing infrastructure (`knowledge/index.json`, the `scope` field already defined in `skill/knowledge-authoring`) rather than inventing a second, parallel discovery mechanism.
 - Keep the migration cost for this repo's existing 11 records low where possible (favor renumbering `Draft` records over already-`Approved` ones when the two are otherwise equivalent).
 
@@ -89,9 +91,10 @@ Existing records AIF-001 through AIF-011 need a one-time migration to the new do
 **Chosen approach**: Option C — Tier × Domain model, with per-domain ID/location scoping and a single cross-domain index for interconnectivity.
 
 **Rationale**:
-The two problems motivating this decision are independent: ceremony mismatch is a question of *how much rigor a decision needs*, while authorship mismatch is a question of *who has standing context to evaluate it*. Option B's single-author assumption reproduces the authorship problem it was meant to help fix, just with better formatting. Option C is the only option that lets both axes vary independently, and it does so by extending a pattern this repo has already validated once (AIF-004's AI-Engineer/Software-Engineer split) to the rest of the agent roster rather than inventing new authorship logic from scratch. Restricting `knowledge/index.json` consumption to domains without a canonical implementing artifact (Architecture, AI-component) follows directly from how this repo's `knowledge-authoring` skill already distinguishes prescriptive material (belongs in standards/steering, loaded because it constrains future work directly) from descriptive reference (belongs in knowledge) — a Process, Planning, Quality-gate, or Test-strategy decision's real effect lives entirely in the skill/template/steering file it changed, which agents already consult; a second, driftable knowledge copy adds no information a decision's implementing artifact doesn't already carry.
+The two problems motivating this decision are independent: ceremony mismatch is a question of _how much rigor a decision needs_, while authorship mismatch is a question of _who has standing context to evaluate it_. Option B's single-author assumption reproduces the authorship problem it was meant to help fix, just with better formatting. Option C is the only option that lets both axes vary independently, and it does so by extending a pattern this repo has already validated once (AIF-004's AI-Engineer/Software-Engineer split) to the rest of the agent roster rather than inventing new authorship logic from scratch. Restricting `knowledge/index.json` consumption to domains without a canonical implementing artifact (Architecture, AI-component) follows directly from how this repo's `knowledge-authoring` skill already distinguishes prescriptive material (belongs in standards/steering, loaded because it constrains future work directly) from descriptive reference (belongs in knowledge) — a Process, Planning, Quality-gate, or Test-strategy decision's real effect lives entirely in the skill/template/steering file it changed, which agents already consult; a second, driftable knowledge copy adds no information a decision's implementing artifact doesn't already carry.
 
 **Trade-offs accepted**:
+
 - Six domain subfolders and counters (Architecture, Process, Planning, AI-component, Quality, Testing) plus a meta-process bucket, instead of one flat folder and counter. Judged acceptable because per-domain discoverability was the explicit goal, not an incidental cost.
 - Engineering-Manager's charter expands to include decision-authoring, a real capability it does not have today (no options-exploration mode in its current prompt/skill surface). This is deliberate, not incidental scope creep — it is the direct fix for the authorship-mismatch problem.
 - Existing records AIF-001 through AIF-011 require a one-time migration (new ID, new folder, updated cross-references). See Impact on Planning for the full table and sequencing recommendation.
@@ -104,13 +107,14 @@ The two problems motivating this decision are independent: ceremony mismatch is 
 
 ### Tier definitions (rigor axis, independent of domain)
 
-| Tier | Format | Gate |
-|---|---|---|
-| **A — Researched** | Full options-exploration skeleton: Metadata, Problem Statement, Constraints, Options Explored (2-4 genuinely distinct options with strengths/weaknesses/verdict), Decision, optional Design, Impact on Planning, Resolved/Open Items. `Design` and `Impact on Planning` content is shaped by domain-specific guidance (see Domain table) rather than a forked template. | Full `plan-lifecycle` cycle: Draft → any number of revision commits → Approved (or Deferred), each its own commit. |
-| **B — Structural** | Slim skeleton: Metadata (including Tier/Domain), Problem, Decision, Rationale, Impact. No Options-Explored ceremony. | Lighter one-shot confirmation — Draft committed, human confirms, Approved committed. No expectation of a multi-round revision cycle, though one may still happen if needed. |
-| **C — Embedded** | No standalone artifact. Recorded inline in the governing plan's own body or its sibling worklog file (per AIF-011's worklog-split convention, once migrated — see below), using a short "Decision: ... **Why:** ..." convention. | Rides the governing plan's own `plan-lifecycle` gate. Nothing separate. |
+| Tier               | Format                                                                                                                                                                                                                                                                                                                                                                  | Gate                                                                                                                                                                        |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **A — Researched** | Full options-exploration skeleton: Metadata, Problem Statement, Constraints, Options Explored (2-4 genuinely distinct options with strengths/weaknesses/verdict), Decision, optional Design, Impact on Planning, Resolved/Open Items. `Design` and `Impact on Planning` content is shaped by domain-specific guidance (see Domain table) rather than a forked template. | Full `plan-lifecycle` cycle: Draft → any number of revision commits → Approved (or Deferred), each its own commit.                                                          |
+| **B — Structural** | Slim skeleton: Metadata (including Tier/Domain), Problem, Decision, Rationale, Impact. No Options-Explored ceremony.                                                                                                                                                                                                                                                    | Lighter one-shot confirmation — Draft committed, human confirms, Approved committed. No expectation of a multi-round revision cycle, though one may still happen if needed. |
+| **C — Embedded**   | No standalone artifact. Recorded inline in the governing plan's own body or its sibling worklog file (per AIF-011's worklog-split convention, once migrated — see below), using a short "Decision: ... **Why:** ..." convention.                                                                                                                                        | Rides the governing plan's own `plan-lifecycle` gate. Nothing separate.                                                                                                     |
 
 **Promotion threshold** (Tier C is the default for any decision made during planning or implementation):
+
 1. Genuine trade-off between 2+ viable approaches with lasting cross-component impact → **Tier A**.
 2. Else, can you name a plausible second, currently-unwritten piece of work that will need to cite this decision independently of the plan that made it? → **Tier B**.
 3. Else → **Tier C**.
@@ -118,16 +122,16 @@ The two problems motivating this decision are independent: ceremony mismatch is 
 
 ### Domain ownership (subject-matter axis, independent of tier)
 
-| Domain | Code | Owner | Template guidance for Design/Impact on Planning | `knowledge/index.json`? |
-|---|---|---|---|---|
-| Architecture | `ARCH` | Architect | Schemas, component boundaries, system-structure diagrams | Yes — scope `all` or close to it |
-| Process/orchestration | `PROC` | Engineering-Manager *(charter expansion)* | Dispatch/pipeline flow changes, orchestration-state effects | No — implemented effect lives in `chunk-orchestration`/`worktree-management`/git-workflow steering directly |
-| Planning-artifact conventions | `PLAN` | Tech-Lead | Chunk/Epic Plan shape, worklog structure, plan-lifecycle mechanics | No — implemented effect lives in the relevant plan template |
-| AI-component/declarative-system | `AIC` | AI-Engineer *(existing precedent, AIF-004)* | Agent/skill/steering/schema impact | Yes — scoped to AI-Engineer + adjacent authoring skills |
-| Quality-gate/review-process | `QA` | Principal-Engineer | Review-criteria and severity-gate changes | No — implemented effect lives in the review skill/template |
-| Test-strategy | `TEST` | Test-Engineer | Test-execution/coverage-strategy changes | No — implemented effect lives in the test-execution skill |
-| *(none — intentional)* | — | Software-Engineer | — | Tech-Lead's Epic/Chunk process already covers Software-Engineer's decision needs |
-| Meta-process (decisions about the decision-system itself) | `META` | Generic/catch-all agent for now; reserve **Project-Manager** as the name for a future dedicated agent | Effect on `skill/decision-record` and related skills/steering | No |
+| Domain                                                    | Code   | Owner                                                                                                 | Template guidance for Design/Impact on Planning                    | `knowledge/index.json`?                                                                                     |
+| --------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
+| Architecture                                              | `ARCH` | Architect                                                                                             | Schemas, component boundaries, system-structure diagrams           | Yes — scope `all` or close to it                                                                            |
+| Process/orchestration                                     | `PROC` | Engineering-Manager _(charter expansion)_                                                             | Dispatch/pipeline flow changes, orchestration-state effects        | No — implemented effect lives in `chunk-orchestration`/`worktree-management`/git-workflow steering directly |
+| Planning-artifact conventions                             | `PLAN` | Tech-Lead                                                                                             | Chunk/Epic Plan shape, worklog structure, plan-lifecycle mechanics | No — implemented effect lives in the relevant plan template                                                 |
+| AI-component/declarative-system                           | `AIC`  | AI-Engineer _(existing precedent, AIF-004)_                                                           | Agent/skill/steering/schema impact                                 | Yes — scoped to AI-Engineer + adjacent authoring skills                                                     |
+| Quality-gate/review-process                               | `QA`   | Principal-Engineer                                                                                    | Review-criteria and severity-gate changes                          | No — implemented effect lives in the review skill/template                                                  |
+| Test-strategy                                             | `TEST` | Test-Engineer                                                                                         | Test-execution/coverage-strategy changes                           | No — implemented effect lives in the test-execution skill                                                   |
+| _(none — intentional)_                                    | —      | Software-Engineer                                                                                     | —                                                                  | Tech-Lead's Epic/Chunk process already covers Software-Engineer's decision needs                            |
+| Meta-process (decisions about the decision-system itself) | `META` | Generic/catch-all agent for now; reserve **Project-Manager** as the name for a future dedicated agent | Effect on `skill/decision-record` and related skills/steering      | No                                                                                                          |
 
 No domain owner is granted `WebSearch`/`WebFetch` solely to support decision-authoring.
 
@@ -167,6 +171,7 @@ checks that every `references`/`referenced_by` pair is bidirectional and every `
 What Tech-Lead must know when decomposing the Epic that implements this decision:
 
 **Skills/files requiring edits:**
+
 - `skills/decision-record/` — scope explicitly to Tier A; add `Tier`/`Domain` metadata fields; add "update `index.json`" as a required Output step; add per-domain guidance stubs for `Design`/`Impact on Planning` content.
 - New skill (or extension of `skills/knowledge-authoring`) for Tier B — slim template, same `Tier`/`Domain` fields, same index-update requirement, lighter gate per the Tier table.
 - `skills/plan-lifecycle/` — document the Tier B abbreviated gate; reference the index-update step; document that Tier C rides its parent plan's gate.
@@ -179,23 +184,24 @@ What Tech-Lead must know when decomposing the Epic that implements this decision
 
 > **Note (added AIF-002-015):** The table below is this decision's original, point-in-time proposal and remains valid as historical record, but it is no longer the current source of truth for the old→new ID mapping. Epic `AIF-002` Section 4 (migration table) is the authoritative, up-to-date reference — see it for the final resolved IDs, domains, and migration treatment actually applied.
 
-| Old ID | Title | Status | New Domain | New ID | New Folder | `knowledge/index.json`? | Notes |
-|---|---|---|---|---|---|---|---|
-| AIF-001 | Install CLI Redesign | Approved | Architecture | `AIF-ARCH-001` | `architecture/` | Yes | |
-| AIF-002 | Steering Schema & Harness Adapter Scoping | Approved | Architecture | `AIF-ARCH-002` | `architecture/` | Yes | `Referenced By: AIF-001` → update to `AIF-ARCH-001` |
-| AIF-003 | Shared Resource Lifecycle Management | Approved | Architecture | `AIF-ARCH-003` | `architecture/` | Yes | Originally authored by AI-Engineer, predating the AIF-004 boundary and this domain-ownership model. Historical inconsistency — no retroactive re-authorship, note only. |
-| AIF-004 | AI-Engineer/Software-Engineer Boundary | Approved | Process | `AIF-PROC-001` | `process/` | No | `Referenced By: AIF-005, AIF-007, AIF-009` → update IDs |
-| AIF-005 | AI-Track Chunk Orchestration Dispatch | Approved | Process | `AIF-PROC-002` | `process/` | No | References/Referenced By set needs updating (AIF-004, AIF-007, AIF-009, AIF-010) |
-| AIF-006 | Parallel Chunk Isolation (Worktrees) | Draft | Process | `AIF-PROC-003` | `process/` | No | Still Draft — cheapest of the batch to renumber |
-| AIF-007 | Standards Sync Ownership | Draft | Process | `AIF-PROC-004` | `process/` | No | Still Draft |
-| AIF-008 | Standards Sync Mechanism | Draft | **Architecture** | `AIF-ARCH-004` | `architecture/` | Yes | Reclassified — this is concrete mechanism/system design (sync protocol, conflict handling, config schema), not process/orchestration, despite sitting numerically inside the 004–011 cluster |
-| AIF-009 | Git Workflow Mode | Draft | Process | `AIF-PROC-005` | `process/` | No | Still Draft |
-| AIF-010 | Who Sets AI-Track Chunk Boundaries | Approved | Process | `AIF-PROC-006` | `process/` | No | Borderline Process/Planning — classified Process because it concerns `chunks.json`/orchestration authorship, not artifact shape |
-| AIF-011 | Epic/Chunk Colocation, Worklog Split | Approved | Planning | `AIF-PLAN-001` | `planning/` | No | |
+| Old ID  | Title                                     | Status   | New Domain       | New ID         | New Folder      | `knowledge/index.json`? | Notes                                                                                                                                                                                        |
+| ------- | ----------------------------------------- | -------- | ---------------- | -------------- | --------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| AIF-001 | Install CLI Redesign                      | Approved | Architecture     | `AIF-ARCH-001` | `architecture/` | Yes                     |                                                                                                                                                                                              |
+| AIF-002 | Steering Schema & Harness Adapter Scoping | Approved | Architecture     | `AIF-ARCH-002` | `architecture/` | Yes                     | `Referenced By: AIF-001` → update to `AIF-ARCH-001`                                                                                                                                          |
+| AIF-003 | Shared Resource Lifecycle Management      | Approved | Architecture     | `AIF-ARCH-003` | `architecture/` | Yes                     | Originally authored by AI-Engineer, predating the AIF-004 boundary and this domain-ownership model. Historical inconsistency — no retroactive re-authorship, note only.                      |
+| AIF-004 | AI-Engineer/Software-Engineer Boundary    | Approved | Process          | `AIF-PROC-001` | `process/`      | No                      | `Referenced By: AIF-005, AIF-007, AIF-009` → update IDs                                                                                                                                      |
+| AIF-005 | AI-Track Chunk Orchestration Dispatch     | Approved | Process          | `AIF-PROC-002` | `process/`      | No                      | References/Referenced By set needs updating (AIF-004, AIF-007, AIF-009, AIF-010)                                                                                                             |
+| AIF-006 | Parallel Chunk Isolation (Worktrees)      | Draft    | Process          | `AIF-PROC-003` | `process/`      | No                      | Still Draft — cheapest of the batch to renumber                                                                                                                                              |
+| AIF-007 | Standards Sync Ownership                  | Draft    | Process          | `AIF-PROC-004` | `process/`      | No                      | Still Draft                                                                                                                                                                                  |
+| AIF-008 | Standards Sync Mechanism                  | Draft    | **Architecture** | `AIF-ARCH-004` | `architecture/` | Yes                     | Reclassified — this is concrete mechanism/system design (sync protocol, conflict handling, config schema), not process/orchestration, despite sitting numerically inside the 004–011 cluster |
+| AIF-009 | Git Workflow Mode                         | Draft    | Process          | `AIF-PROC-005` | `process/`      | No                      | Still Draft                                                                                                                                                                                  |
+| AIF-010 | Who Sets AI-Track Chunk Boundaries        | Approved | Process          | `AIF-PROC-006` | `process/`      | No                      | Borderline Process/Planning — classified Process because it concerns `chunks.json`/orchestration authorship, not artifact shape                                                              |
+| AIF-011 | Epic/Chunk Colocation, Worklog Split      | Approved | Planning         | `AIF-PLAN-001` | `planning/`     | No                      |                                                                                                                                                                                              |
 
 Sequencing recommendation: migrate the four still-`Draft` records (AIF-006, AIF-007, AIF-008, AIF-009) first — cheapest, since no downstream work has been built against their current IDs yet. Migrate the seven `Approved` records afterward, and as part of that pass, grep the repo for each old ID string (`AIF-001` through `AIF-011`) to catch any prose reference outside the `docs/decisions/` tree itself (commit messages are historical and are not rewritten; live documentation and skills are).
 
 **Not required by this decision:**
+
 - No `.aiconfig.json` path changes beyond adding the domain subfolders under the existing `paths.decisions` (or its equivalent) resolution.
 - No change to `plan-lifecycle`'s core Draft → Approved mechanics — only which artifacts use the full cycle versus the Tier B abbreviated one.
 
@@ -203,15 +209,15 @@ Sequencing recommendation: migrate the four still-`Draft` records (AIF-006, AIF-
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Should ceremony scale independently of who owns a decision? | Yes — Tier (rigor) and Domain (ownership) are independent axes, not a single combined classification. |
-| 2 | Who owns process/orchestration decisions? | Engineering-Manager, via a deliberate charter expansion — not Architect, and not Tech-Lead as a catch-all. |
-| 3 | Who owns planning-artifact-convention decisions? | Tech-Lead, narrowly scoped to the shape of its own output artifacts — not "everything non-architectural." |
-| 4 | Does Software-Engineer need its own decision domain? | No — intentional. Tech-Lead's Epic/Chunk process already covers Software-Engineer's decision needs. |
-| 5 | Who owns meta-process decisions (decisions about the decision-system itself, including this one)? | A generic/catch-all agent for now. "Project-Manager" is reserved as the name for a future purpose-built agent if that becomes warranted. |
-| 6 | Should every domain-owning agent gain research tools (`WebSearch`/`WebFetch`)? | No — none are added by default. Widening web access across every decision-authoring agent was judged a real security-surface cost for a benefit not yet demonstrated. Revisit per-agent only if a specific decision genuinely requires it. |
-| 7 | Should decision IDs be domain-only (e.g. `PROC-002`), or retain the project prefix? | Retain the project prefix — `{ProjectID}-{DomainCode}-{###}`. This repo is a framework other project repos install from; a domain-only prefix would collide across projects. |
-| 8 | Should every decision live in the same folder with the same naming convention? | No — each domain gets its own subfolder and its own `(project, domain)`-scoped ID counter. A single cross-domain `index.json` provides unified discoverability without requiring uniform physical location. |
-| 9 | Should all Decision Records be loaded via `knowledge/index.json`? | No — only Architecture and AI-component, the two domains without a single canonical implementing artifact that already captures the decision's effect. The other domains' decisions are traceable via `index.json` for history/audit, but not proactively loaded — their implemented effect already lives in the skill/template/steering file agents consult directly. |
-| 10 | What domain do AIF-004 through AIF-011 fall under? | See the migration table above. Ten of the eleven existing records fall into Architecture (4) or Process (6); one (AIF-011) falls into Planning. |
+| #   | Item                                                                                              | Resolution                                                                                                                                                                                                                                                                                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Should ceremony scale independently of who owns a decision?                                       | Yes — Tier (rigor) and Domain (ownership) are independent axes, not a single combined classification.                                                                                                                                                                                                                                                                  |
+| 2   | Who owns process/orchestration decisions?                                                         | Engineering-Manager, via a deliberate charter expansion — not Architect, and not Tech-Lead as a catch-all.                                                                                                                                                                                                                                                             |
+| 3   | Who owns planning-artifact-convention decisions?                                                  | Tech-Lead, narrowly scoped to the shape of its own output artifacts — not "everything non-architectural."                                                                                                                                                                                                                                                              |
+| 4   | Does Software-Engineer need its own decision domain?                                              | No — intentional. Tech-Lead's Epic/Chunk process already covers Software-Engineer's decision needs.                                                                                                                                                                                                                                                                    |
+| 5   | Who owns meta-process decisions (decisions about the decision-system itself, including this one)? | A generic/catch-all agent for now. "Project-Manager" is reserved as the name for a future purpose-built agent if that becomes warranted.                                                                                                                                                                                                                               |
+| 6   | Should every domain-owning agent gain research tools (`WebSearch`/`WebFetch`)?                    | No — none are added by default. Widening web access across every decision-authoring agent was judged a real security-surface cost for a benefit not yet demonstrated. Revisit per-agent only if a specific decision genuinely requires it.                                                                                                                             |
+| 7   | Should decision IDs be domain-only (e.g. `PROC-002`), or retain the project prefix?               | Retain the project prefix — `{ProjectID}-{DomainCode}-{###}`. This repo is a framework other project repos install from; a domain-only prefix would collide across projects.                                                                                                                                                                                           |
+| 8   | Should every decision live in the same folder with the same naming convention?                    | No — each domain gets its own subfolder and its own `(project, domain)`-scoped ID counter. A single cross-domain `index.json` provides unified discoverability without requiring uniform physical location.                                                                                                                                                            |
+| 9   | Should all Decision Records be loaded via `knowledge/index.json`?                                 | No — only Architecture and AI-component, the two domains without a single canonical implementing artifact that already captures the decision's effect. The other domains' decisions are traceable via `index.json` for history/audit, but not proactively loaded — their implemented effect already lives in the skill/template/steering file agents consult directly. |
+| 10  | What domain do AIF-004 through AIF-011 fall under?                                                | See the migration table above. Ten of the eleven existing records fall into Architecture (4) or Process (6); one (AIF-011) falls into Planning.                                                                                                                                                                                                                        |
