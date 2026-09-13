@@ -53,7 +53,7 @@ The actual channels and protocols behind the exchanges above:
 | git / HTTPS | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself. |
 | MCP over stdio | Locally-implemented servers (`servers/dag`, `servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime. |
 | MCP over HTTP (vendor-hosted) | `servers/youtrack` is a declarative pointer to JetBrains' own hosted MCP endpoint (`hosted: vendor` in its YAML) — no local process; bearer-token auth over HTTPS. |
-| Per-server credentials | Gmail uses OAuth2 (`servers/gmail/auth.js`); YouTrack a static bearer token from `${YOUTRACK_TOKEN}`. Two patterns, no unifying mechanism yet — flagged as an undocumented decision in `docs/process-model.md`'s New ADRs list. |
+| Per-server credentials | Gmail uses OAuth2 (`servers/gmail/auth.js`); YouTrack a static bearer token from `${YOUTRACK_TOKEN}`. |
 
 ## Out of scope here
 
