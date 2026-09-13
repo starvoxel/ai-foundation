@@ -80,7 +80,31 @@ Only reference skills that exist in `skills/`. Format: `"skill/{name}"`.
 
 If the agent needs no skills, set `skills: []` or omit the field.
 
-### Step 7 — Self-validate
+### Step 7 — Set preload_skills (if any skill should preload)
+
+`preload_skills` controls which of the agent's declared `skills` get their
+full content loaded into context automatically at startup on Claude Code,
+versus staying reachable only via on-demand `Skill` invocation. Omitting
+the field means **preload nothing** — adding or changing `preload_skills`
+must never be the only way an agent gets a skill's content; it only changes
+whether that content is already in context up front or has to be fetched
+on demand.
+
+- Use the literal single-element array `preload_skills: ["*"]` to preload
+  every skill in `skills` — this is the right choice for an agent whose
+  skill list is small and used on effectively every dispatch (e.g. one
+  skill it always follows for its core deliverable).
+- Use a named subset (e.g. `preload_skills: ["skill/foo"]`) when the
+  agent's `skills` list mixes something used on every dispatch with others
+  that are conditional or subsystem-specific — preload only the universal
+  one(s), leave the rest for on-demand discovery.
+- Every entry (other than the `["*"]` sentinel) must also appear in
+  `skills` — validated as a subset, same as `approved_tools ⊆ tools`.
+- `"*"` must be the sole entry when used — never mixed with named skills.
+- Kiro ignores this field entirely; it always resources the full `skills`
+  list regardless.
+
+### Step 8 — Self-validate
 
 Verify against the checklist:
 
@@ -93,6 +117,7 @@ Verify against the checklist:
 - [ ] `tools` only contains tools from the canonical list or `@server/tool` refs
 - [ ] `approved_tools` is a subset of `tools`
 - [ ] All entries in `skills` reference existing folders in `skills/`
+- [ ] `preload_skills`, if present, is either `["*"]` or a subset of `skills`
 
 ---
 
