@@ -1,5 +1,5 @@
 <!-- Instructions live in comments like this one and won't appear in the rendered PR. -->
-<!-- Keep this brief — a couple sentences per section is plenty. CI already checks lint/types/format/tests, so no need to restate that here. -->
+<!-- Keep this brief — a couple sentences per section is plenty. -->
 
 ## Summary
 
@@ -7,6 +7,7 @@
 
 ## Checklist
 
+- [ ] CI passes (lint, typecheck, format, tests)
 - [ ] Documentation updated where applicable <!-- README, docs/, standards/, etc. -->
 - [ ] Test coverage added/updated for the change
 
