@@ -30,9 +30,8 @@ just by describing them.
 | Priority | Goal | Motivation |
 |---|---|---|
 | 1 | Portability | One definition installs into multiple harnesses (Claude Code, Kiro today) without per-harness rewrites. |
-| 2 | Vendor neutrality | "Define once, install anywhere" (README) — not locked to one AI tool's proprietary format. |
-| 3 | Consistent enforcement | Same roles, tool boundaries, and standards apply identically wherever installed — not reinterpreted per project. |
-| 4 | Minimal-dependency tooling | Plain Node.js, small dependency footprint — the framework itself avoids becoming a supply-chain or portability liability. |
+| 2 | Ease of use | `aif install`/`init` work with sensible defaults — a project adopts without hand-editing config, bundles resolve the right components automatically. |
+| 3 | Minimal-dependency tooling | Plain Node.js, small dependency footprint — the framework itself avoids becoming a supply-chain or portability liability. |
 
 ## Stakeholders
 
