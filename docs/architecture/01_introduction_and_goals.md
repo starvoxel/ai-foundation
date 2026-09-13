@@ -25,13 +25,21 @@ repository's `.aiconfig.json`, `agents/`, `skills/`, and `docs/` follow the same
 schemas a downstream project would, so changes here are validated by using them, not
 just by describing them.
 
-## Goals
+### Non-goals
 
-| Priority | Goal | Motivation |
-|---|---|---|
-| 1 | Portability | One definition installs into multiple harnesses (Claude Code, Kiro today) without per-harness rewrites. |
-| 2 | Ease of use | `aif install`/`init` work with sensible defaults — a project adopts without hand-editing config, bundles resolve the right components automatically. |
-| 3 | Minimal-dependency tooling | Plain Node.js, small dependency footprint — the framework itself avoids becoming a supply-chain or portability liability. |
+- Not an agent runtime — `aif` installs configuration; the harness executes it.
+- Not a project-tracking system — Feature/Task state lives in flat files an agent or
+  human edits directly, not a hosted service.
+- Not a model-provider abstraction — it doesn't wrap or proxy LLM APIs.
+- Not a build system or CI runner for the projects that adopt it.
+
+## Quality Goals
+
+| Priority | Goal | Motivation | Measurable criterion |
+|---|---|---|---|
+| 1 | Portability | One definition installs into multiple harnesses without per-harness rewrites. | Installs into 2 harnesses today (Claude Code, Kiro) from one component set — zero harness-specific source duplication in `agents/`/`skills/`/`steering/`. |
+| 2 | Ease of use | `aif install`/`init` work with sensible defaults. | `aif init --name X` needs only that one flag; `aif install` resolves a full component set from a single `--bundle` argument. |
+| 3 | Minimal-dependency tooling | Small dependency footprint avoids the framework becoming a supply-chain or portability liability itself. | 3 runtime dependencies total (`package.json`): `@modelcontextprotocol/sdk`, `googleapis`, `yaml`. |
 
 ## Stakeholders
 
