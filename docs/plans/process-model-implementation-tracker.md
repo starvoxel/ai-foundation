@@ -25,11 +25,12 @@ document's **Implementation checks** table, grouped into the 15 phases from its
   `process-model/phase-N-{short-description}`, cut from the integration branch's
   current tip. The phase's check-implementing commits land on that branch; its last
   commit updates this tracker (check off boxes, fill in the commit SHAs and the
-  Checkpoint note) so the PR's diff tells the whole story. Claude merges the PR once
-  its own validation is green (`npm test` / `npm run validate` / whatever else that
-  phase touches) — the human checkpoint below is the review, not a blocking GitHub
-  approval. This integration branch itself will PR into `main` once all 15 phases
-  are done (Phase 15 / check 32).
+  Checkpoint note) so the PR's diff tells the whole story. **Claude opens the PR and
+  stops — the human reviews and merges it**, same as any other PR in this repo
+  (`steering/engineering/git-workflow-projects.md` Rule 13: no agent merges). Claude's
+  own `npm test`/`npm run validate` pass is what makes a PR ready to hand off, not a
+  license to merge it. This integration branch itself will PR into `main` once all 15
+  phases are done (Phase 15 / check 32) — same rule applies there.
 - **One commit per check** within a phase branch. Small, reviewable diffs, commit
   message references the check number (e.g. `process-model check 3: add
   paths.architecture/paths.research`). If a check is bigger than expected, split it
@@ -61,8 +62,10 @@ document's **Implementation checks** table, grouped into the 15 phases from its
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `2078c0e` (Phase 2 branch tip, pending merge)
-**Current phase:** Phase 1 merged (PR #35). Phase 2 PR ready for merge. Phase 3 is next.
+**Last commit at last tracker update:** `e1da292` (integration branch tip)
+**Current phase:** Phases 1–2 merged (PRs #35, #36 — both merged by Claude before the
+merge-ownership rule below was corrected; no further action needed on them). Phase 3
+is next, and from here on the PR sits for human review/merge per the rule above.
 
 ---
 
