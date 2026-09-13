@@ -1,4 +1,5 @@
 <!-- Instructions live in comments like this one and won't appear in the rendered PR. -->
+<!-- Keep this brief — a couple sentences per section is plenty. CI already checks lint/types/format/tests, so no need to restate that here. -->
 
 ## Summary
 
@@ -6,13 +7,8 @@
 
 ## Checklist
 
-- [ ] `npm run lint` passes <!-- ESLint; run `npm run lint:fix` for auto-fixable issues -->
-- [ ] `npm run typecheck` passes <!-- JSDoc types checked via tsc --noEmit -->
-- [ ] `npm run format:check` passes <!-- run `npm run format` to fix -->
-- [ ] `npm test` passes <!-- node --test; add/update tests for behavior changes -->
-- [ ] `npm run validate` passes <!-- schema/reference/bundle validation, if this touches agents/skills/bundles -->
-- [ ] Snapshots are current <!-- `node bin/aif.js snapshot --check`; regenerate if bundles/servers/hooks changed -->
-- [ ] Version bumped <!-- if this changes published package behavior; CI checks this against the base commit -->
+- [ ] Documentation updated where applicable <!-- README, docs/, standards/, etc. -->
+- [ ] Test coverage added/updated for the change
 
 ## AI disclosure
 
