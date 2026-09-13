@@ -37,6 +37,5 @@ just by describing them.
 
 | Role | Concern |
 |---|---|
-| Human developer | One set of AI-development rules, trusted across every project/harness; retains final approval over anything AI-authored. |
-| AI agent (see `agents/README.md`) | An unambiguous role, tool grant, and procedure — `agents/`, `skills/`, `steering/` are its operating definition. |
-| Harness (Claude Code, Kiro, future ones) | A stable adapter contract (`lib/harnesses/*`) so component sources need no harness-specific knowledge. |
+| Project adopter | One set of AI-development rules, trusted across every project/harness; retains final approval over anything AI-authored. |
+| Framework maintainer | Evolves the agent/skill/steering schemas and harness adapters that adopters install. |
