@@ -9,8 +9,10 @@
   "paths": {
     "plans": "docs/plans",
     "knowledge": "docs",
-    "epics": "docs/plans/epics",
-    "chunks": "docs/plans/chunks",
+    "features": "docs/plans/features",
+    "tasks": "docs/plans/tasks",
+    "architecture": "docs/architecture",
+    "research": "docs/research",
     "decisions": "docs/decisions",
     "worktrees": "../worktrees/ai-foundation"
   },

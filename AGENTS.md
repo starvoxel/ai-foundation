@@ -130,11 +130,14 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `ai_identity.git_token_env` | string | No | Name of env var holding the PAT for push/PR ops |
 | `paths` | object | No | Artifact output directories (relative to repo root) |
 | `paths.plans` | string | No | Root for all plan artifacts. Default: `plans` |
-| `paths.epics` | string | No | Epic plan location. Default: `plans/epics` |
-| `paths.chunks` | string | No | Chunk plans and chunks.json. Default: `plans/chunks` |
-| `paths.decisions` | string | No | Decision Records. Default: `knowledge/decisions` |
+| `paths.features` | string | No | Feature plan location. Default: `plans/features` |
+| `paths.tasks` | string | No | Task list (`tasks.json`) and any per-Task plans. Default: `plans/tasks` |
+| `paths.decisions` | string | No | Decision Records (MADR), flat directory, no domain subfolders. Default: `knowledge/decisions` |
 | `paths.orchestration` | string | No | Orchestration state files. Default: `plans/orchestration` |
 | `paths.knowledge` | string | No | Knowledge directory. Default: `knowledge` |
+| `paths.architecture` | string | No | arc42 architecture sections, flat directory. Default: `knowledge/architecture` |
+| `paths.research` | string | No | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research` |
+| `paths.product` | string | No | Reserved for a future product-doc agent. No default — omitted from generated configs until that agent exists; set it explicitly only if you're building that agent yourself. |
 | `paths.worktrees` | string | No | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}` |
 | `orchestration` | object | No | Orchestration behaviour configuration |
 | `orchestration.max_concurrent` | number | No | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4` |
@@ -166,11 +169,14 @@ If no config file exists, agents fall back to:
 - `project_shortname`: same as `project_name`
 - `standards`: none (agent must ask or search `standards/`)
 - `paths.plans`: `plans`
-- `paths.epics`: `plans/epics`
-- `paths.chunks`: `plans/chunks`
+- `paths.features`: `plans/features`
+- `paths.tasks`: `plans/tasks`
 - `paths.decisions`: `knowledge/decisions`
 - `paths.orchestration`: `plans/orchestration`
 - `paths.knowledge`: `knowledge`
+- `paths.architecture`: `knowledge/architecture`
+- `paths.research`: `knowledge/research`
+- `paths.product`: not set (reserved, no default)
 - `paths.worktrees`: `../worktrees/{project_shortname}`
 
 ---
