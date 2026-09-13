@@ -61,8 +61,8 @@ document's **Implementation checks** table, grouped into the 15 phases from its
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `138dce0` (Phase 1 branch tip, pending merge)
-**Current phase:** Phase 1 PR ready for merge into the integration branch. Phase 2 is next.
+**Last commit at last tracker update:** `2078c0e` (Phase 2 branch tip, pending merge)
+**Current phase:** Phase 1 merged (PR #35). Phase 2 PR ready for merge. Phase 3 is next.
 
 ---
 
@@ -76,28 +76,40 @@ Branch: `process-model/phase-1-retire-abandoned-work`
 
 **Checkpoint 1:** Both epics archived (`docs/plans/archive/AIF-003/`,
 `docs/plans/archive/AIF-004.epic.md`), `npm test` 724/724 and `aif validate` clean.
-**Outstanding:** deleting the 5 stale remote branches named in check 1
-(`AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`,
+Merged via PR #35. **Outstanding:** deleting the 5 stale remote branches named in
+check 1 (`AIF-003/002-amendment-index-fields`, `AIF-003/006-plan-lifecycle-ladder-docs`,
 `AIF-001/003-epic-planning-ai-track`, `AIF-002/010-migrate-aif-006`,
-`AIF-002/015-backfill-decisions-index`) is blocked by the auto-mode destructive-action
-classifier (retried on this branch, still refused). Verified all 5 first: none merged
-into `origin/main` (`git branch -r --no-merged origin/main`), and PRs #23/#24 (the two
-`AIF-003` branches) confirmed `closed`/`merged: false` via the GitHub API. Needs a
-human to run the deletes (or grant permission):
-`git push origin --delete <branch>` for each of the 5.
+`AIF-002/015-backfill-decisions-index`) plus the now-merged
+`process-model/phase-1-retire-abandoned-work` is blocked by the auto-mode
+destructive-action classifier (retried twice, still refused). Verified all 5 first:
+none merged into `origin/main` (`git branch -r --no-merged origin/main`), and PRs
+#23/#24 (the two `AIF-003` branches) confirmed `closed`/`merged: false` via the GitHub
+API. Needs a human to run the deletes (or grant permission):
+`git push origin --delete <branch>` for each.
 
 ---
 
 ## Phase 2 — Config scaffolding (checks 3–4)
 
-- [ ] **Check 3** — `.aiconfig.json` schema: `paths.features`/`paths.tasks`, add
-      `paths.architecture`/`paths.research`, reserve `paths.product`; update
-      `resolveKnowledgePath`/`resolveDecisionsPath` in `lib/commands/index.js`;
-      `AGENTS.md` field table; this repo's own `.aiconfig.json`. Commit: `_____`
-- [ ] **Check 4** — `docs/architecture/` flat arc42 directory + section template;
-      only §1/§2/§3/§5 created now. Commit: `_____`
+Branch: `process-model/phase-2-config-scaffolding`
 
-**Checkpoint 2:** _____
+- [x] **Check 3** — `.aiconfig.json` schema: `paths.features`/`paths.tasks`, add
+      `paths.architecture`/`paths.research`, reserve `paths.product`; this repo's own
+      `.aiconfig.json` + `AGENTS.md` field table updated. Commit: `e066376`.
+      `resolveKnowledgePath`/`resolveDecisionsPath` in `lib/commands/index.js` checked
+      and confirmed unaffected (neither reads `paths.epics`/`paths.chunks`, only the
+      unchanged `paths.knowledge`/`paths.decisions` keys) — no code change needed
+      there. `projects/_template/` and `lib/project-init.js`'s `buildAiConfig` are
+      check 13's scope, not this one.
+- [x] **Check 4** — `docs/architecture/` flat arc42 directory + section template;
+      only §1/§2/§3/§5 created now (`01_introduction_and_goals.md`,
+      `02_constraints.md`, `03_context.md`, `05_building_blocks.md`, plus
+      `_template.md`). Commit: `2078c0e`.
+
+**Checkpoint 2:** `npm test` 724/724 and `aif validate` clean after each commit.
+Confirmed running the existing generic knowledge indexer (`aif index knowledge`)
+against this repo silently skips the new arc42 files (no `type` frontmatter field)
+rather than erroring — arc42-aware indexing is check 5's job.
 
 ---
 
