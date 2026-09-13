@@ -16,21 +16,22 @@ key_files:
 ## Context diagram
 
 ```mermaid
-C4Context
-  title ai-foundation — System Context
+graph TD
+  Dev["Human Developer\n(Person)"]
+  CLI["ai-foundation CLI (aif)\nInstalls, validates, indexes"]
+  Harness["AI Harness\nClaude Code, Kiro, or any tool\nthat loads installed files"]
+  Project["Target Project Repo\nowns .aiconfig.json, knowledge/, plans/"]
+  GitHub["GitHub\nsource, PRs, CI checks"]
 
-  Person(dev, "Human Developer", "Approves plans/ADRs, reviews and merges PRs")
-  System(aif, "ai-foundation CLI (aif)", "Installs, validates, and indexes framework components")
-  System_Ext(harness, "AI Harness", "Claude Code, Kiro, or any tool that loads installed agent/skill/steering files")
-  System_Ext(project, "Target Project Repo", "Consumes installed components; holds its own .aiconfig.json and knowledge/decisions")
-  System_Ext(github, "GitHub", "Hosts source, PRs, CI checks")
-
-  Rel(dev, aif, "Runs install/validate/index")
-  Rel(dev, github, "Reviews and merges PRs")
-  Rel(aif, project, "Writes harness-native components into")
-  Rel(harness, project, "Loads installed components from, at agent runtime")
-  Rel(aif, github, "Reads/writes via git (source, not a runtime dependency)")
+  Dev -->|runs install/validate/index| CLI
+  Dev -->|reviews and merges PRs| GitHub
+  CLI -->|writes harness-native components into| Project
+  Harness -->|loads installed components from,\nat agent runtime| Project
+  CLI -.->|reads/writes via git\nsource, not a runtime dependency| GitHub
 ```
+
+(A `C4Context`-notation version of this diagram renders broken on GitHub — its Mermaid
+C4 support is inconsistent — so this uses a plain flowchart instead, same as §5.)
 
 ## Business context
 

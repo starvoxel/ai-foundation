@@ -42,6 +42,14 @@ resolver, write the transformed output, return a manifest-ready `{path, hash}`
 record. Neither `claude.js` nor `kiro.js` re-implements that loop; they each supply
 a config object closing over their own format.
 
+## Motivation for this decomposition
+
+The split is drawn at exactly the line between "true for every harness" and
+"true for one harness": `base.js` holds everything harness-agnostic (the read →
+transform → write → manifest-record loop), so adding a harness means writing a
+new config object, never touching the loop itself — the structural mechanism
+behind the portability quality goal (§1), not just a convention.
+
 ## Where Claude Code and Kiro actually diverge
 
 | Aspect | Claude Code (`claude.js`) | Kiro (`kiro.js`) |
