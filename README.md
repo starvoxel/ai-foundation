@@ -36,16 +36,13 @@ For details on component types, field requirements, and loading rules, see [`AGE
 
 ## Agents
 
-| Agent                   | Role                                                                       |
-| ----------------------- | -------------------------------------------------------------------------- |
-| ai-engineer             | Builds and maintains AI infrastructure — agents, skills, steering, servers |
-| architect               | Technical decision-making, produces Decision Records                       |
-| engineering-manager     | Orchestrates parallel chunk plan execution across agents                   |
-| tech-lead               | Planning and decomposition — Epic Plans and Chunk Plans                    |
-| software-engineer       | Implements code from approved Chunk Plans                                  |
-| test-engineer           | Writes and executes tests against plan test cases                          |
-| principal-engineer      | Code review — enforces quality, security, and standards                    |
-| engineering-tech-writer | Documentation — inline docs, READMEs, changelogs                           |
+| Agent                  | Role                                                                                                  |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- |
+| architect              | Rare, contested, costly-to-reverse decisions — produces Decision Records                              |
+| engineering-manager    | Planning (Epic/Chunk decomposition) and orchestration across agents                                   |
+| software-engineer      | Owns a Chunk end-to-end: design, implement, test, document — product code and AI-component work alike |
+| engineering-researcher | Web research — decision-ready briefs for Architect, Engineering Manager, or Software Engineer         |
+| principal-engineer     | Code review — enforces quality, security, and standards                                               |
 
 ---
 
