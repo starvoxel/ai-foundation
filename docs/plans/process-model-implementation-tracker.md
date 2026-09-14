@@ -147,10 +147,32 @@ All fixes verified with `npm test`/`aif validate` at each step; merged via PR #3
 
 ## Phase 3 — Index tooling (check 5)
 
-- [ ] **Check 5** — `aif index` extended for arc42 sections (reverse `key_files`
-      index + `stale` flag from `last_verified`). Commit: `_____`
+Branch: `process-model/phase-3-index-tooling`
 
-**Checkpoint 3:** _____
+- [x] **Check 5** — `aif index architecture` (+ `--check`) added: new
+      `lib/architecture.js` (mirrors `lib/decisions.js`'s pure/io split),
+      generalized `entriesEqual` (decisions.js) reused for both doc sets,
+      `stale` computed per-doc from `last_verified` vs. real git history of
+      `key_files`, reverse index (`source path → [docs]`) built from
+      `key_files`. Commit: `08b190d`.
+      Docs updated to match (`05_building_blocks.md` gains the new block +
+      `key_files`; `03_context.md` had an over-broad `lib/commands` directory
+      entry removed after the new indexer caught it as a false-positive stale
+      flag); `docs/architecture/index.json` generated for the first time and
+      committed. Commit: `666e696`.
+
+**Checkpoint 3:** 33 new tests (19 unit, 14 integration — the integration
+suite spins up a real throwaway git repo to test staleness detection against
+actual commit history). `npm test` 757/757, `aif validate`/`lint`/`typecheck`
+all clean, `aif index architecture --check` passes against this repo's real
+`docs/architecture/`. Two things worth flagging from actually dogfooding
+this: (1) caught a real parsing bug before it shipped — a multi-line summary
+blockquote (most of this repo's own arc42 docs use one) was silently
+truncated to its first line; (2) caught a real over-broad `key_files` entry
+in already-merged content (`lib/commands` as a whole directory in
+`03_context.md`) the moment the tool was pointed at real data — exactly the
+kind of drift check 14/18's new completeness rule exists to catch, just
+demonstrated in the "too broad" direction rather than "missing entirely".
 
 ---
 
