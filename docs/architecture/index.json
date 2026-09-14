@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T11:31:24.428Z",
+  "generated_at": "2026-09-14T15:55:58.599Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -102,9 +102,10 @@
         "lib/resolver.js",
         "lib/harnesses/base.js",
         "lib/manifest.js",
-        "lib/architecture.js"
+        "lib/architecture.js",
+        "lib/index-diff.js"
       ],
-      "last_verified": "08b190d",
+      "last_verified": "9776f12",
       "stale": false
     }
   ],
@@ -153,6 +154,9 @@
       "05_building_blocks.md"
     ],
     "lib/architecture.js": [
+      "05_building_blocks.md"
+    ],
+    "lib/index-diff.js": [
       "05_building_blocks.md"
     ]
   }

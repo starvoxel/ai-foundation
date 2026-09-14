@@ -161,6 +161,13 @@ Branch: `process-model/phase-3-index-tooling`
       entry removed after the new indexer caught it as a false-positive stale
       flag); `docs/architecture/index.json` generated for the first time and
       committed. Commit: `666e696`.
+      **Follow-up fix:** `entriesEqual` living inside `decisions.js` meant
+      `architecture.js` had to import from a same-level, unrelated domain
+      module for a function that was already documented as generic and
+      shared — decisions.js's own public API absorbing logic that isn't
+      decision-record-specific. Extracted to a new `lib/index-diff.js`
+      (no domain knowledge, just the structural-comparison primitive); both
+      `decisions.js` and `architecture.js` now import it from there instead.
 
 **Checkpoint 3:** 33 new tests (19 unit, 14 integration — the integration
 suite spins up a real throwaway git repo to test staleness detection against
