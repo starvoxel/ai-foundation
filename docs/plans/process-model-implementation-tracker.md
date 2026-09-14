@@ -62,8 +62,10 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `328b0bf` (integration branch tip)
-**Current phase:** Phases 1–2 fully merged (PRs #35, #36, #38). Phase 3 is next.
+**Last commit at last tracker update:** `76624c4` (integration branch tip)
+**Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
+(`process-model/phase-4-agent-roster`, check 6) implemented and validated on
+its own branch, not yet PR'd/merged.
 
 ---
 
@@ -186,12 +188,24 @@ demonstrated in the "too broad" direction rather than "missing entirely".
 
 ## Phase 4 — Agent roster (check 6)
 
-- [ ] **Check 6** — Agent YAMLs: retire `tech-lead`/`test-engineer`/
-      `engineering-tech-writer`/`ai-engineer`; modify `architect`/`software-engineer`/
-      `engineering-manager`/`principal-engineer`; add `engineering-researcher`. States
-      explicitly which agent commits Architect's output. Commit: `_____`
+- [x] **Check 6** — Agent YAMLs: retired `tech-lead`/`test-engineer`/
+      `engineering-tech-writer`/`ai-engineer`; modified `architect`/`software-engineer`/
+      `engineering-manager`/`principal-engineer`; added `engineering-researcher`. States
+      explicitly which agent commits Architect's output. Commit: `8708a79`.
 
-  **Also fold in while touching these files** (2026-09-13, a parallel session added
+      Deliberately kept `skill/epic-planning`/`skill/chunk-planning`/
+              `skill/chunk-orchestration`/`chunks.json` under their pre-rename names
+              throughout the three affected agent prompts — checks 7-9 own that rename,
+              not this check (per human decision during this session: "old names now,
+              make wording in phase 5 extremely clear"). `docs/process-model.md`'s
+              checks 6-8 cells now say so explicitly, including that
+              `skills/epic-planning`, `skills/chunk-planning`, and
+              `skills/chunk-orchestration` themselves are untouched and still describe
+              the pre-roster world (literal Tech-Lead/AI-Engineer/Test-Engineer names,
+              software/AI-track branching) — not just the check-6 agent YAMLs.
+
+  **Also fold in while touching these files — done, all 5 items incorporated
+  into the check-6 commit above:** (2026-09-13, a parallel session added
   these framework capabilities then reverted the `agents/*.yaml` grants themselves —
   net diff from our branch point is zero, confirmed via
   `git diff 29e6018 HEAD -- agents/` — deferring them explicitly to this check):
@@ -228,8 +242,13 @@ demonstrated in the "too broad" direction rather than "missing entirely".
     native equivalent) — already implemented in `lib/harnesses/kiro.js`, nothing
     to redo here.
 
-**Checkpoint 4:** _____ (everything downstream derives from this — good place to
-slow down even though it's a single check)
+**Checkpoint 4:** 732/732 tests passing (test-helpers.test.js fixtures updated
+off the two deleted agent files it referenced), `aif validate`/`lint`/
+`typecheck`/`format:check` clean, `bundles/engineering` snapshot regenerated
+(46 sources — the new `skill/test-execution` reference on Software-Engineer
+pulled in that skill's files), `aif index architecture|decisions --check` both
+clean. Everything downstream derives from this — good place to slow down even
+though it's a single check.
 
 ---
 
