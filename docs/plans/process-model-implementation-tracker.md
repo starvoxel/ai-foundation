@@ -62,10 +62,8 @@ document's **Implementation checks** table, grouped into the 15 phases from its
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `e1da292` (integration branch tip)
-**Current phase:** Phases 1–2 merged (PRs #35, #36 — both merged by Claude before the
-merge-ownership rule below was corrected; no further action needed on them). Phase 3
-is next, and from here on the PR sits for human review/merge per the rule above.
+**Last commit at last tracker update:** `328b0bf` (integration branch tip)
+**Current phase:** Phases 1–2 fully merged (PRs #35, #36, #38). Phase 3 is next.
 
 ---
 
@@ -112,7 +110,38 @@ Branch: `process-model/phase-2-config-scaffolding`
 **Checkpoint 2:** `npm test` 724/724 and `aif validate` clean after each commit.
 Confirmed running the existing generic knowledge indexer (`aif index knowledge`)
 against this repo silently skips the new arc42 files (no `type` frontmatter field)
-rather than erroring — arc42-aware indexing is check 5's job.
+rather than erroring — arc42-aware indexing is check 5's job. Merged via PR #36.
+
+**Post-merge review pass (PR #38, `process-model/phase-2-fixup-goals-stakeholders`,
+merged into #36's content):** the §1/§2/§3/§5 content got a full correctness pass
+against arc42's actual official section definitions (fetched directly from
+docs.arc42.org and cross-checked with user-provided reference PDFs), not just a
+first-draft summary:
+- §1: Goals table was restating `docs/process-model.md`'s own rework rationale
+  instead of ai-foundation's product goals — replaced with real ones (portability,
+  ease of use, minimal-dependency tooling), each with a measurable criterion;
+  renamed Goals → Quality Goals; added the required Non-goals; Stakeholders fixed
+  to human roles only (Project adopter / Framework maintainer — AI agent and
+  Harness are §3 actors, not stakeholders).
+- §2: added the missing Conventions category; reworded Node.js as primarily-Node,
+  not Node-only (MCP servers under `servers/` may be non-Node, e.g. a third-party
+  Python YouTrack MCP).
+- §3: split into Business context / Technical context (arc42 keeps these separate);
+  replaced the broken `C4Context`-notation diagram (renders garbled on GitHub —
+  confirmed by screenshot) with a plain flowchart.
+- §5: deep-reviewed the actual code (every export across `lib/`, `bin/`,
+  `servers/`) and rewrote as a properly detailed whitebox with the required
+  decomposition-motivation paragraph, plus two new white-box expansions —
+  `05_01_bundle_resolution.md` and `05_02_harness_adapters.md` — each also given
+  their own required motivation paragraph once checked against arc42's Level-2
+  template (the same three-element template applies recursively).
+- `docs/process-model.md` itself amended (checks 14/18): closed a real gap where
+  staleness detection (checks 5/31) can never notice a *new* file that should have
+  been added to a `key_files` list but wasn't — now an explicit doc-update
+  acceptance-gate/review-checklist item, since only a human/review step can catch
+  that, not CI.
+
+All fixes verified with `npm test`/`aif validate` at each step; merged via PR #38.
 
 ---
 
