@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-PROC-004 |
-| Project | ai-foundation |
-| Tier | B |
-| Domain | process |
-| Status | Draft |
-| Author (Agent) | Architect |
-| Approved By | Pending |
-| Created | 2026-08-13 |
-| Referenced By | AIF-ARCH-004 |
-| References | AIF-PROC-001, AIF-PROC-002, AIF-PROC-005 |
-| Tags | standards-sync, ownership |
+| Field          | Value                                    |
+| -------------- | ---------------------------------------- |
+| Decision ID    | AIF-PROC-004                             |
+| Project        | ai-foundation                            |
+| Tier           | B                                        |
+| Domain         | process                                  |
+| Status         | Draft                                    |
+| Author (Agent) | Architect                                |
+| Approved By    | Pending                                  |
+| Created        | 2026-08-13                               |
+| Referenced By  | AIF-ARCH-004                             |
+| References     | AIF-PROC-001, AIF-PROC-002, AIF-PROC-005 |
+| Tags           | standards-sync, ownership                |
 
 ---
 
@@ -40,6 +40,7 @@ Tech-Lead decomposes this as an Epic with a software-track chunk — the CLI mec
 This repo already has a settled answer for "which agent owns which kind of change" (AIF-PROC-001) and a settled mechanism for expressing a mixed-track Epic (AIF-PROC-002). This feature is declarative-schema-plus-CLI-code by nature — exactly the shape those decisions were built for. Assigning it entirely to one agent would mean re-litigating a boundary that's already decided: putting schema/doc authorship in the wrong agent's hands, or narrowing the feature until it no longer needs real engineering work just to avoid a two-agent split. This decision does not weigh genuinely distinct technical designs against each other — it applies an already-settled precedent to a new feature, which is why it is recorded at Tier B rather than Tier A.
 
 **Trade-offs accepted**:
+
 - This Epic may need to be sequenced manually (AI-track chunk before/alongside the software-track chunk, without automatic track-aware dispatch) if planned before AIF-PROC-002's orchestration-skill updates land. Tech-Lead should check whether that follow-up work is done before decomposing this Epic.
 
 ---

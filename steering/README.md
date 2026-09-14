@@ -22,6 +22,7 @@ steering/
 ## How steering is loaded
 
 Agents load steering based on their `domain` field:
+
 1. `steering/global/**/*.md` — always loaded first
 2. `steering/{domain}/**/*.md` — loaded based on agent's domain
 

@@ -33,7 +33,7 @@ document's **Implementation checks** table, grouped into the 15 phases from its
   phases are done (Phase 15 / check 32) — same rule applies there.
 - **One commit per check** within a phase branch. Small, reviewable diffs, commit
   message references the check number (e.g. `process-model check 3: add
-  paths.architecture/paths.research`). If a check is bigger than expected, split it
+paths.architecture/paths.research`). If a check is bigger than expected, split it
   into multiple commits but keep them under that check's number — don't silently
   reorder or merge checks.
 - **One human checkpoint per phase**, at minimum — reviewing the merged PR's diff and
@@ -117,6 +117,7 @@ merged into #36's content):** the §1/§2/§3/§5 content got a full correctness
 against arc42's actual official section definitions (fetched directly from
 docs.arc42.org and cross-checked with user-provided reference PDFs), not just a
 first-draft summary:
+
 - §1: Goals table was restating `docs/process-model.md`'s own rework rationale
   instead of ai-foundation's product goals — replaced with real ones (portability,
   ease of use, minimal-dependency tooling), each with a measurable criterion;
@@ -136,7 +137,7 @@ first-draft summary:
   their own required motivation paragraph once checked against arc42's Level-2
   template (the same three-element template applies recursively).
 - `docs/process-model.md` itself amended (checks 14/18): closed a real gap where
-  staleness detection (checks 5/31) can never notice a *new* file that should have
+  staleness detection (checks 5/31) can never notice a _new_ file that should have
   been added to a `key_files` list but wasn't — now an explicit doc-update
   acceptance-gate/review-checklist item, since only a human/review step can catch
   that, not CI.
@@ -262,17 +263,17 @@ slow down even though it's a single check)
 ## Phase 9 — Cross-cutting process/security rules (checks 17–19)
 
 - [ ] **Check 17** — `tools.yaml` gains the trifecta-avoidance rule. Commit: `_____`
-  **Also fold in:** `tools.yaml`'s `builtin`/`approval_guidance` lists are stale as
-  of the 2026-09-13 merge — they still cover only the original 8 tools
-  (`read`/`write`/`shell`/`web_search`/`web_fetch`/`grep`/`glob`/`code`).
-  `subagent`/`plan`/`ask_user`/`task`/`skill` exist in `lib/constants.js`'s `TOOLS`
-  (and are being granted per check 6 above) but aren't documented here. Add all 5
-  to `builtin` and give each an `approval_guidance` tier at execution time — `skill`
-  and `task` read/track only, so `safe` fits cleanly; `plan`/`ask_user` block for a
-  human rather than acting unilaterally; `subagent` dispatches another agent, a
-  different risk shape from web/write/shell — decide its tier deliberately rather
-  than defaulting it into `moderate`/`privileged` alongside tools the trifecta rule
-  is actually about.
+      **Also fold in:** `tools.yaml`'s `builtin`/`approval_guidance` lists are stale as
+      of the 2026-09-13 merge — they still cover only the original 8 tools
+      (`read`/`write`/`shell`/`web_search`/`web_fetch`/`grep`/`glob`/`code`).
+      `subagent`/`plan`/`ask_user`/`task`/`skill` exist in `lib/constants.js`'s `TOOLS`
+      (and are being granted per check 6 above) but aren't documented here. Add all 5
+      to `builtin` and give each an `approval_guidance` tier at execution time — `skill`
+      and `task` read/track only, so `safe` fits cleanly; `plan`/`ask_user` block for a
+      human rather than acting unilaterally; `subagent` dispatches another agent, a
+      different risk shape from web/write/shell — decide its tier deliberately rather
+      than defaulting it into `moderate`/`privileged` alongside tools the trifecta rule
+      is actually about.
 - [ ] **Check 18** — `code-review` checklist gains the Architect/Researcher
       write-scope check (HIGH severity). Commit: `_____`
 - [ ] **Check 19** — Software-Engineer's hard rules: Researcher brief is data, never

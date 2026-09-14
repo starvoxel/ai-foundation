@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-002-010 |
-| Parent Epic | AIF-002 |
-| Chunk | 10 of 15 |
-| Depends On | AIF-002-002 |
-| Can Parallel | AIF-002-011, AIF-002-012, AIF-002-013, AIF-002-014 |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer (self-planned, per AIF-PROC-002/AIF-005 dual-authorship model) |
-| Reviewed By | Jeremy Smellie |
-| Created | 2026-08-17 |
-| Last Updated | 2026-08-17 |
-| Standards | AGENTS.md declarative-component schemas — this chunk produces only `docs/decisions/**/*.decision.md` content; no code standards apply (docs-only, per AIF-004/AIF-PROC-001's boundary table) |
+| Field          | Value                                                                                                                                                                                        |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-010                                                                                                                                                                                  |
+| Parent Epic    | AIF-002                                                                                                                                                                                      |
+| Chunk          | 10 of 15                                                                                                                                                                                     |
+| Depends On     | AIF-002-002                                                                                                                                                                                  |
+| Can Parallel   | AIF-002-011, AIF-002-012, AIF-002-013, AIF-002-014                                                                                                                                           |
+| Project        | ai-foundation                                                                                                                                                                                |
+| Status         | Approved                                                                                                                                                                                     |
+| Author (Agent) | AI-Engineer (self-planned, per AIF-PROC-002/AIF-005 dual-authorship model)                                                                                                                   |
+| Reviewed By    | Jeremy Smellie                                                                                                                                                                               |
+| Created        | 2026-08-17                                                                                                                                                                                   |
+| Last Updated   | 2026-08-17                                                                                                                                                                                   |
+| Standards      | AGENTS.md declarative-component schemas — this chunk produces only `docs/decisions/**/*.decision.md` content; no code standards apply (docs-only, per AIF-004/AIF-PROC-001's boundary table) |
 
 ---
 
@@ -78,11 +78,11 @@ Migrate `AIF-006` ("Parallel Chunk Isolation (Worktrees)", currently `Draft`) to
 
 ## 6. Prerequisites
 
-- [X] AIF-002 Epic Plan `Status: Approved` (rev 6) — verified, §3 migration table and §8 Wave 2 decomposition
-- [X] AIF-002-002 (`skill/decision-record` Tier A scoping) `Status: Approved` — verified, provides the finalized 11-field Metadata table contract and per-domain guidance stub this chunk reformats against
-- [X] Current `docs/decisions/AIF-006_parallel-chunk-branch-isolation.decision.md` read and understood in full
-- [X] Repo-wide grep for `AIF-006` run and every hit evaluated (Section 7, Key Design Decision 3)
-- [X] No blocking dependency on AIF-002-009/011/012/013/014 — all Wave 2/adjacent chunks touch disjoint files (confirmed: none of them write to `docs/decisions/process/AIF-PROC-003_*` or edit `docs/decisions/AIF-006_*`)
+- [x] AIF-002 Epic Plan `Status: Approved` (rev 6) — verified, §3 migration table and §8 Wave 2 decomposition
+- [x] AIF-002-002 (`skill/decision-record` Tier A scoping) `Status: Approved` — verified, provides the finalized 11-field Metadata table contract and per-domain guidance stub this chunk reformats against
+- [x] Current `docs/decisions/AIF-006_parallel-chunk-branch-isolation.decision.md` read and understood in full
+- [x] Repo-wide grep for `AIF-006` run and every hit evaluated (Section 7, Key Design Decision 3)
+- [x] No blocking dependency on AIF-002-009/011/012/013/014 — all Wave 2/adjacent chunks touch disjoint files (confirmed: none of them write to `docs/decisions/process/AIF-PROC-003_*` or edit `docs/decisions/AIF-006_*`)
 
 ---
 
@@ -102,11 +102,11 @@ Migrate `AIF-006` ("Parallel Chunk Isolation (Worktrees)", currently `Draft`) to
 2. **Decision**: `Tags` value (`worktrees, orchestration, parallel-dispatch, chunk-isolation, git`) is chosen by this chunk's own judgment at migration time.
    **Rationale**: `Tags` is a free-text, author-judgment field per AIF-002-002's template contract (Epic rev 6, Open Question 6) — there is no controlled vocabulary to derive it from. Chosen to reflect the record's actual subject matter for future cross-domain discovery via `docs/decisions/index.json` (AIF-002-015).
 
-3. **Decision**: Scope the repo-wide `AIF-006` grep sweep to *live, functioning cross-references* only — not historical citations in other Epic/Decision-Record prose that exist specifically to document what happened.
+3. **Decision**: Scope the repo-wide `AIF-006` grep sweep to _live, functioning cross-references_ only — not historical citations in other Epic/Decision-Record prose that exist specifically to document what happened.
    **Rationale, with full disposition of every hit found** (`grep -r "AIF-006"` across the repo, 7 files):
    - `docs/decisions/AIF-006_parallel-chunk-branch-isolation.decision.md` — the record itself. **In scope** (this is the migration).
    - `docs/decisions/AIF-009_git-workflow-mode.decision.md` (Metadata table, `Referenced By: AIF-006, AIF-007`) — a live cross-reference, but it lives inside a record owned by AIF-002-012 (the interlinked Process cluster chunk), not this chunk. **Out of scope for this chunk** — flagged for AIF-002-012 to update when it reformats AIF-009. Confirmed non-blocking: even if AIF-002-012 lands before or after this chunk, `aif index -d` (AIF-002-014/015) computes `referenced_by` by inversion across the whole corpus at backfill time, so a temporarily-stale hand-written field in AIF-009 does not produce an incorrect final `index.json` — it only affects the human-readable table inside AIF-009's own file until AIF-002-012 updates it, same as AIF-005's own pre-existing gap discovered here (AIF-005's `Referenced By` today already omits AIF-006, despite AIF-006 citing it — a pre-existing inconsistency this chunk did not create and is not the chunk to fix).
-   - `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md` (Design-section prose, line 28) — a historical citation ("decision-authorship has so far defaulted to Architect for process/orchestration decisions (AIF-005, AIF-006, AIF-009, AIF-010)") documenting the state of the repo *at the time AIF-META-001 was authored*, used as evidence for the decision it made. `AIF-META-001` is `Approved` and is not itself one of the 11 records in the Epic's migration table (it already has a domain-scoped ID). Rewriting `Approved` content to update a historical illustration is out of this chunk's scope and would require its own reformat/re-approval cycle if ever done — not implied by "migrate AIF-006." **Out of scope.**
+   - `docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md` (Design-section prose, line 28) — a historical citation ("decision-authorship has so far defaulted to Architect for process/orchestration decisions (AIF-005, AIF-006, AIF-009, AIF-010)") documenting the state of the repo _at the time AIF-META-001 was authored_, used as evidence for the decision it made. `AIF-META-001` is `Approved` and is not itself one of the 11 records in the Epic's migration table (it already has a domain-scoped ID). Rewriting `Approved` content to update a historical illustration is out of this chunk's scope and would require its own reformat/re-approval cycle if ever done — not implied by "migrate AIF-006." **Out of scope.**
    - `docs/plans/epics/AIF-002.epic.md` (the migration table itself, plus the Work Log narrative) — cites `AIF-006` by design, to document the old→new mapping. **Out of scope** — rewriting this would destroy, not preserve, the migration record.
    - `docs/plans/chunks/AIF-002/chunks.json` (chunk 010's own title, `"Migrate AIF-006 (Draft, Process, full reformat, standalone)"`) — same reasoning; this is the chunk's own historical label. **Out of scope.**
    - `docs/plans/chunks/AIF-002/015_backfill-decisions-index.plan.md` (its own Prerequisites/Acceptance-Criteria checklist item, `"AIF-002-010 Status: Approved and implemented (AIF-006 migrated)"`) — a sibling chunk plan's own tracking language, not this chunk's file to edit. **Out of scope.**
@@ -130,26 +130,28 @@ Migrate `AIF-006` ("Parallel Chunk Isolation (Worktrees)", currently `Draft`) to
 **Purpose**: The reformatted Tier A, Process-domain Decision Record ratifying git worktrees as the parallel-chunk-isolation mechanism, replacing `AIF-006` under its new domain-scoped identity.
 
 **Key Behaviour**:
+
 - Metadata table follows the exact 11-field shape and order from AIF-002-002 §6/§7:
 
-  | Field | Value |
-  |---|---|
-  | Decision ID | AIF-PROC-003 |
-  | Project | ai-foundation |
-  | Tier | A |
-  | Domain | process |
-  | Status | Draft |
-  | Author (Agent) | Architect |
-  | Approved By | Pending |
-  | Created | 2026-08-13 |
-  | Referenced By | — |
-  | References | AIF-PROC-002, AIF-PROC-005 |
-  | Tags | worktrees, orchestration, parallel-dispatch, chunk-isolation, git |
+  | Field          | Value                                                             |
+  | -------------- | ----------------------------------------------------------------- |
+  | Decision ID    | AIF-PROC-003                                                      |
+  | Project        | ai-foundation                                                     |
+  | Tier           | A                                                                 |
+  | Domain         | process                                                           |
+  | Status         | Draft                                                             |
+  | Author (Agent) | Architect                                                         |
+  | Approved By    | Pending                                                           |
+  | Created        | 2026-08-13                                                        |
+  | Referenced By  | —                                                                 |
+  | References     | AIF-PROC-002, AIF-PROC-005                                        |
+  | Tags           | worktrees, orchestration, parallel-dispatch, chunk-isolation, git |
 
 - Problem Statement's two inline citations updated: "AIF-005 confirmed..." → "AIF-PROC-002 confirmed...", "AIF-009 confirmed..." → "AIF-PROC-005 confirmed...".
 - All other sections (Constraints & Requirements, Options Explored A-D, Decision, Design, Impact on Planning, Resolved Items) carried over verbatim — no substantive content change, per the "full reformat" (not "content rewrite") treatment.
 
 **Dependencies**:
+
 - `skills/decision-record/reference/template.md` (AIF-002-002) — the Metadata-table contract this migration conforms to.
 - `skills/decision-record/reference/domain-guidance.md` (AIF-002-002) — confirms the record's existing Design/Impact on Planning framing already matches Process-domain guidance; no additional content needed.
 
@@ -166,19 +168,19 @@ Migrate `AIF-006` ("Parallel Chunk Isolation (Worktrees)", currently `Draft`) to
 
 **Purpose**: The concrete field values `AIF-PROC-003` carries after migration, conforming to AIF-002-002's contract.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| Decision ID | string | Yes | `AIF-PROC-003` (new) |
-| Project | string | Yes | `ai-foundation` (unchanged) |
-| Tier | string | Yes | `A` (new field, added by this migration) |
-| Domain | string | Yes | `process` (new field, added by this migration) |
-| Status | string | Yes | `Draft` (unchanged — no round-trip needed) |
-| Author (Agent) | string | Yes | `Architect` (unchanged, historical) |
-| Approved By | string | Yes | `Pending` (unchanged) |
-| Created | datetime string | Yes | `2026-08-13` (unchanged, historical) |
-| Referenced By | string | Yes | `—` (unchanged — confirmed no live citation exists) |
-| References | string | Yes | `AIF-PROC-002, AIF-PROC-005` (updated from `AIF-005, AIF-009`) |
-| Tags | string | No | `worktrees, orchestration, parallel-dispatch, chunk-isolation, git` (new field, added by this migration) |
+| Field          | Type            | Required | Notes                                                                                                    |
+| -------------- | --------------- | -------- | -------------------------------------------------------------------------------------------------------- |
+| Decision ID    | string          | Yes      | `AIF-PROC-003` (new)                                                                                     |
+| Project        | string          | Yes      | `ai-foundation` (unchanged)                                                                              |
+| Tier           | string          | Yes      | `A` (new field, added by this migration)                                                                 |
+| Domain         | string          | Yes      | `process` (new field, added by this migration)                                                           |
+| Status         | string          | Yes      | `Draft` (unchanged — no round-trip needed)                                                               |
+| Author (Agent) | string          | Yes      | `Architect` (unchanged, historical)                                                                      |
+| Approved By    | string          | Yes      | `Pending` (unchanged)                                                                                    |
+| Created        | datetime string | Yes      | `2026-08-13` (unchanged, historical)                                                                     |
+| Referenced By  | string          | Yes      | `—` (unchanged — confirmed no live citation exists)                                                      |
+| References     | string          | Yes      | `AIF-PROC-002, AIF-PROC-005` (updated from `AIF-005, AIF-009`)                                           |
+| Tags           | string          | No       | `worktrees, orchestration, parallel-dispatch, chunk-isolation, git` (new field, added by this migration) |
 
 ---
 
@@ -189,7 +191,7 @@ Migrate `AIF-006` ("Parallel Chunk Isolation (Worktrees)", currently `Draft`) to
 - [ ] All external inputs validated before use — N/A, this chunk edits static markdown content only; no external input is parsed or executed.
 - [ ] No secrets or credentials in source code or logs — verified; no credential-shaped content exists in or is introduced to this record.
 - [ ] Errors exposed to users contain no internal system details — N/A, no runtime error paths (documentation only).
-- [ ] Referential integrity of `References`/`Referenced By` fields is preserved across the migration — verified via Section 7 Key Design Decision 3's full grep disposition: `References` correctly updated to the new IDs (`AIF-PROC-002`, `AIF-PROC-005`), `Referenced By` correctly left at `—` (no live citation found), and the one known cross-reference this chunk does *not* own (AIF-009's `Referenced By` field, still reading `AIF-006`) is explicitly flagged for AIF-002-012 rather than silently left inconsistent with no owner. This satisfies AIF-002 Epic Plan §6's requirement that "a broken cross-reference during migration is a data-integrity defect, not merely cosmetic."
+- [ ] Referential integrity of `References`/`Referenced By` fields is preserved across the migration — verified via Section 7 Key Design Decision 3's full grep disposition: `References` correctly updated to the new IDs (`AIF-PROC-002`, `AIF-PROC-005`), `Referenced By` correctly left at `—` (no live citation found), and the one known cross-reference this chunk does _not_ own (AIF-009's `Referenced By` field, still reading `AIF-006`) is explicitly flagged for AIF-002-012 rather than silently left inconsistent with no owner. This satisfies AIF-002 Epic Plan §6's requirement that "a broken cross-reference during migration is a data-integrity defect, not merely cosmetic."
 - [ ] `Status: Draft` is not accidentally flipped to `Approved` during reformat — verified; this record requires no round-trip (Epic §3 explicit carve-out for already-`Draft` records), so `Status` is copied unchanged, not touched by any commit-gate re-confirmation step.
 - [ ] No `WebSearch`/`WebFetch` grant or agent tool-grant change is introduced or implied by this chunk — this chunk does not touch any agent config file at all (verified; out of scope, Section 5).
 
@@ -201,11 +203,11 @@ Migrate `AIF-006` ("Parallel Chunk Isolation (Worktrees)", currently `Draft`) to
 
 This chunk produces only a static documentation artifact (a migrated Decision Record) — it introduces no runtime software component, so there is no application log stream to define events for. The Decision Record template itself (per AIF-002-002) has no Work Log section of its own (unlike Epic/Chunk Plans), so no in-file logging convention applies to the migrated record either. The applicable logging requirements are the ones already mandated by `skill/plan-lifecycle`'s Work Log convention, for this Chunk Plan document:
 
-| Event | Level (Work Log equivalent) | What is logged | What is NOT logged |
-|---|---|---|---|
-| Chunk Plan Draft committed | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Created`, Plan ID, one-line summary | Full migrated-record content duplicated into the log entry |
-| Chunk Plan Approved/Deferred | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Approved`/`Deferred`, Plan ID, approver name | — |
-| Migration implementation commit (post-approval) | Git commit message | Plan ID (`AIF-002-010`), old ID (`AIF-006`), new ID (`AIF-PROC-003`) | Token values, credentials (N/A — none touched) |
+| Event                                           | Level (Work Log equivalent)     | What is logged                                                         | What is NOT logged                                         |
+| ----------------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- |
+| Chunk Plan Draft committed                      | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Created`, Plan ID, one-line summary          | Full migrated-record content duplicated into the log entry |
+| Chunk Plan Approved/Deferred                    | Work Log entry, this file's §14 | Timestamp, Agent, Action=`Approved`/`Deferred`, Plan ID, approver name | —                                                          |
+| Migration implementation commit (post-approval) | Git commit message              | Plan ID (`AIF-002-010`), old ID (`AIF-006`), new ID (`AIF-PROC-003`)   | Token values, credentials (N/A — none touched)             |
 
 ---
 
@@ -215,15 +217,15 @@ This chunk has no executable code — "testing" here means self-validation of th
 
 ### `AIF-PROC-003` Migration Tests
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| M6-T01 | New file exists at `docs/decisions/process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md` | Manual/self-validate | File present, old `docs/decisions/AIF-006_*.decision.md` no longer present |
-| M6-T02 | Metadata table matches Section 8/7's 11-field contract exactly (field names, order) | Manual/self-validate | Diff against AIF-002-002's template shows no discrepancy |
-| M6-T03 | `Decision ID` (`AIF-PROC-003`) and `Domain` (`process`) agree — Domain Code embedded in the ID matches the Domain field's folder name | Manual/self-validate | `PROC` ↔ `process` consistent, per AIF-002-002's Key Behaviour rule |
-| M6-T04 | `References` field and Problem Statement prose both cite `AIF-PROC-002`/`AIF-PROC-005`, not the old `AIF-005`/`AIF-009` strings | Manual/self-validate | Grep for `AIF-005` and `AIF-009` inside the new file returns zero hits |
-| M6-T05 | No other in-scope live document still contains the string `AIF-006` after this chunk (per Section 7's disposition — records/plans explicitly marked out of scope are the only remaining hits) | Manual/self-validate | Repo-wide grep for `AIF-006` returns only the disposition list from Section 7 (AIF-009, AIF-META-001, AIF-002.epic.md, chunks.json, 015 plan, AIF-001.epic.md) — no new/unaccounted hit |
-| M6-T06 | `Status` remains `Draft`; `Author (Agent)`/`Approved By`/`Created` remain unchanged from the original record | Manual/self-validate | Byte-for-byte match against the pre-migration values for those four fields |
-| M6-T07 | `npm test` (repo-wide validation suite) still passes after this change | Automated | Exit code 0, no new failures introduced |
+| Test ID | Description                                                                                                                                                                                   | Type                 | Pass Criteria                                                                                                                                                                           |
+| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M6-T01  | New file exists at `docs/decisions/process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md`                                                                                       | Manual/self-validate | File present, old `docs/decisions/AIF-006_*.decision.md` no longer present                                                                                                              |
+| M6-T02  | Metadata table matches Section 8/7's 11-field contract exactly (field names, order)                                                                                                           | Manual/self-validate | Diff against AIF-002-002's template shows no discrepancy                                                                                                                                |
+| M6-T03  | `Decision ID` (`AIF-PROC-003`) and `Domain` (`process`) agree — Domain Code embedded in the ID matches the Domain field's folder name                                                         | Manual/self-validate | `PROC` ↔ `process` consistent, per AIF-002-002's Key Behaviour rule                                                                                                                     |
+| M6-T04  | `References` field and Problem Statement prose both cite `AIF-PROC-002`/`AIF-PROC-005`, not the old `AIF-005`/`AIF-009` strings                                                               | Manual/self-validate | Grep for `AIF-005` and `AIF-009` inside the new file returns zero hits                                                                                                                  |
+| M6-T05  | No other in-scope live document still contains the string `AIF-006` after this chunk (per Section 7's disposition — records/plans explicitly marked out of scope are the only remaining hits) | Manual/self-validate | Repo-wide grep for `AIF-006` returns only the disposition list from Section 7 (AIF-009, AIF-META-001, AIF-002.epic.md, chunks.json, 015 plan, AIF-001.epic.md) — no new/unaccounted hit |
+| M6-T06  | `Status` remains `Draft`; `Author (Agent)`/`Approved By`/`Created` remain unchanged from the original record                                                                                  | Manual/self-validate | Byte-for-byte match against the pre-migration values for those four fields                                                                                                              |
+| M6-T07  | `npm test` (repo-wide validation suite) still passes after this change                                                                                                                        | Automated            | Exit code 0, no new failures introduced                                                                                                                                                 |
 
 ---
 
@@ -238,12 +240,12 @@ This chunk has no executable code — "testing" here means self-validation of th
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Impact | Mitigation |
-|---|---|---|---|
-| 1 | Epic §8's chunk-grouping rationale states AIF-006 has "no cross-reference coupling" to the interlinked Process cluster, but AIF-006 actually cites AIF-005/AIF-009, and AIF-009 cites AIF-006 back. | L | Documented transparently in Section 7, Key Design Decision 3, as a factual correction. Does not change any chunk boundary, dependency, or introduce blocking work — all new IDs are pre-fixed by the Epic's migration table, and `aif index -d`'s inversion-based computation (AIF-002-014/015) makes the final `index.json` correct regardless of hand-written-field staleness in AIF-009 until AIF-002-012 updates it. Not escalated as a new Epic-level Open Question per Rule 4, since no additional work is required beyond what is already scoped here and in AIF-002-012. |
-| 2 | The Epic's "grep the repo for old ID strings... in live documentation and skills" bullet is ambiguous about whether it includes other Epic Plans'/Decision Records' own historical citations of the old ID (e.g. AIF-META-001's Design-section prose, the Epic's own migration table). | L | Resolved via delegated judgment (global Rule 2 exception): scoped the sweep to live, functioning cross-references only, with the full disposition of every grep hit documented in Section 7. If the human disagrees with this scoping when reviewing this Draft plan, it is a one-line adjustment before implementation begins — no implementation has started under this assumption. |
-| 3 | AIF-002-012 (interlinked Process cluster) has not yet landed at the time this chunk may execute, so AIF-009's `Referenced By` field will temporarily still read `AIF-006` instead of `AIF-PROC-003` until AIF-002-012 runs. | L | Non-blocking by design (Section 7) — `aif index -d`'s corpus-wide inversion (AIF-002-015) is the actual source of truth for `index.json`'s `referenced_by`, not any individual record's hand-written field. Flagged for AIF-002-012's own scope, not this chunk's to fix. |
-| 4 | Resolved by Epic OQ8, see docs/plans/epics/AIF-002.epic.md §7 | — | — |
+| #   | Risk / Question                                                                                                                                                                                                                                                                        | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Epic §8's chunk-grouping rationale states AIF-006 has "no cross-reference coupling" to the interlinked Process cluster, but AIF-006 actually cites AIF-005/AIF-009, and AIF-009 cites AIF-006 back.                                                                                    | L      | Documented transparently in Section 7, Key Design Decision 3, as a factual correction. Does not change any chunk boundary, dependency, or introduce blocking work — all new IDs are pre-fixed by the Epic's migration table, and `aif index -d`'s inversion-based computation (AIF-002-014/015) makes the final `index.json` correct regardless of hand-written-field staleness in AIF-009 until AIF-002-012 updates it. Not escalated as a new Epic-level Open Question per Rule 4, since no additional work is required beyond what is already scoped here and in AIF-002-012. |
+| 2   | The Epic's "grep the repo for old ID strings... in live documentation and skills" bullet is ambiguous about whether it includes other Epic Plans'/Decision Records' own historical citations of the old ID (e.g. AIF-META-001's Design-section prose, the Epic's own migration table). | L      | Resolved via delegated judgment (global Rule 2 exception): scoped the sweep to live, functioning cross-references only, with the full disposition of every grep hit documented in Section 7. If the human disagrees with this scoping when reviewing this Draft plan, it is a one-line adjustment before implementation begins — no implementation has started under this assumption.                                                                                                                                                                                            |
+| 3   | AIF-002-012 (interlinked Process cluster) has not yet landed at the time this chunk may execute, so AIF-009's `Referenced By` field will temporarily still read `AIF-006` instead of `AIF-PROC-003` until AIF-002-012 runs.                                                            | L      | Non-blocking by design (Section 7) — `aif index -d`'s corpus-wide inversion (AIF-002-015) is the actual source of truth for `index.json`'s `referenced_by`, not any individual record's hand-written field. Flagged for AIF-002-012's own scope, not this chunk's to fix.                                                                                                                                                                                                                                                                                                        |
+| 4   | Resolved by Epic OQ8, see docs/plans/epics/AIF-002.epic.md §7                                                                                                                                                                                                                          | —      | —                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 ---
 

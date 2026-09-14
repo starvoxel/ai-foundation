@@ -28,19 +28,19 @@ UI/UX exploration ahead of any implementation plan, not implementation itself.
 
 Source: [FluentAvalonia Fluent v2 Resources docs](https://amwx.github.io/FluentAvaloniaDocs/pages/Resources)
 
-| Token | Value | Notes |
-|---|---|---|
-| `ControlCornerRadius` | 4px | Standard controls (buttons, text fields, cards) |
-| `OverlayCornerRadius` | 8px | Flyouts, dialogs, menus |
-| `ControlContentThemeFontSize` | 14px | Base control text size |
-| `TextControlThemeMinHeight` | 32px | Minimum height for text inputs |
-| `TextControlThemeMinWidth` | 64px | Minimum width for text inputs |
-| `TabItemMinHeight` | 48px | Tab strip item height |
-| `ButtonPadding` | 11, 5, 11, 6 | Left, top, right, bottom |
-| `FlyoutContentPadding` | 16, 15, 16, 17 | Left, top, right, bottom |
-| `MenuFlyoutItemThemePadding` | 11, 8, 11, 9 | Left, top, right, bottom |
-| `TabItemHeaderFontSize` | 24px | Larger tab header text |
-| `TabItemHeaderThemeFontWeight` | SemiLight | Tab header weight |
+| Token                          | Value          | Notes                                           |
+| ------------------------------ | -------------- | ----------------------------------------------- |
+| `ControlCornerRadius`          | 4px            | Standard controls (buttons, text fields, cards) |
+| `OverlayCornerRadius`          | 8px            | Flyouts, dialogs, menus                         |
+| `ControlContentThemeFontSize`  | 14px           | Base control text size                          |
+| `TextControlThemeMinHeight`    | 32px           | Minimum height for text inputs                  |
+| `TextControlThemeMinWidth`     | 64px           | Minimum width for text inputs                   |
+| `TabItemMinHeight`             | 48px           | Tab strip item height                           |
+| `ButtonPadding`                | 11, 5, 11, 6   | Left, top, right, bottom                        |
+| `FlyoutContentPadding`         | 16, 15, 16, 17 | Left, top, right, bottom                        |
+| `MenuFlyoutItemThemePadding`   | 11, 8, 11, 9   | Left, top, right, bottom                        |
+| `TabItemHeaderFontSize`        | 24px           | Larger tab header text                          |
+| `TabItemHeaderThemeFontWeight` | SemiLight      | Tab header weight                               |
 
 **General shape language:** small radius (4px) on interactive controls, larger radius
 (8px) on floating/overlay surfaces. Flat surfaces, minimal drop shadow, generous
@@ -53,18 +53,19 @@ distinguishes Fluent from Material (sharper, less padding) or iOS-style systems
 ## Resolved decisions
 
 ### Accent color — RESOLVED
+
 Fluent's accent color is dynamic by default (follows the host OS theme), but this app
 fixes it to the standard "Windows blue" reference value rather than tracking system
 accent, so Claude Design has something concrete and consistent to target. Full state
 ramp, built from the `#0078D4` base using standard Fluent accent-ramp conventions
 (rest/hover/pressed/subtle-fill):
 
-| Role | Light theme | Dark theme |
-|---|---|---|
-| Accent (rest) | `#0078D4` | `#0078D4` |
-| Accent (hover) | `#106EBE` | `#2B88D8` |
-| Accent (pressed) | `#005A9E` | `#005A9E` |
-| Accent light fill (subtle backgrounds) | `#DEECF9` | `#004275` |
+| Role                                   | Light theme | Dark theme |
+| -------------------------------------- | ----------- | ---------- |
+| Accent (rest)                          | `#0078D4`   | `#0078D4`  |
+| Accent (hover)                         | `#106EBE`   | `#2B88D8`  |
+| Accent (pressed)                       | `#005A9E`   | `#005A9E`  |
+| Accent light fill (subtle backgrounds) | `#DEECF9`   | `#004275`  |
 
 Note: `#0078D4` is a well-established Fluent/WinUI reference value; the hover/pressed/
 subtle-fill shades follow standard Fluent ramp construction but were not pulled from a
@@ -72,6 +73,7 @@ live FluentAvalonia resource file — verify against the repo's actual `AccentCo
 resources if pixel-exact parity matters.
 
 ### Font — RESOLVED
+
 FluentAvalonia's default type resources reference Segoe UI Variable, which is
 Windows-only and cannot be redistributed off Windows (Microsoft ClearType font
 licensing). This app bundles **Inter** (OFL-licensed, free) as a single embedded font
@@ -90,7 +92,7 @@ subtly different rendering per OS.
   docs during research for this brief. If Claude Design's repo import doesn't surface
   these adequately from the XAML source itself, pull them directly from
   `FluentAvalonia`'s resource dictionaries in the repo rather than approximating from
-  the general (web-targeted) Fluent 2 design token site — that site's token *names* are
+  the general (web-targeted) Fluent 2 design token site — that site's token _names_ are
   shared with FluentAvalonia's conceptual model, but its documented pixel/hex values
   are not confirmed to match FluentAvalonia's Avalonia-specific implementation.
 - Claude Design's code-export target is React/Tailwind, not XAML — mockups produced

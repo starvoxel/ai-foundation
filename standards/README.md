@@ -21,18 +21,19 @@ depends_on: []
 # Standards: {Display Name}
 
 ## {Section}
+
 ...
 ```
 
 ### Front-matter Fields
 
-| Field | Type | Required | Description |
-|---|---|---|---|
-| `name` | string | Yes | Unique identifier. Matches filename without `.md`. |
-| `version` | string | Yes | SemVer version of this standard. |
-| `description` | string | Yes | One-line summary for discovery without loading full content. |
-| `tags` | string[] | Yes | Tags used for matching against `.aiconfig.json`. |
-| `depends_on` | string[] | Yes | List of standard `name`s that must be loaded before this one. Empty array if none. |
+| Field         | Type     | Required | Description                                                                        |
+| ------------- | -------- | -------- | ---------------------------------------------------------------------------------- |
+| `name`        | string   | Yes      | Unique identifier. Matches filename without `.md`.                                 |
+| `version`     | string   | Yes      | SemVer version of this standard.                                                   |
+| `description` | string   | Yes      | One-line summary for discovery without loading full content.                       |
+| `tags`        | string[] | Yes      | Tags used for matching against `.aiconfig.json`.                                   |
+| `depends_on`  | string[] | Yes      | List of standard `name`s that must be loaded before this one. Empty array if none. |
 
 ## Tag-Based Resolution
 
@@ -51,12 +52,12 @@ Standards are matched to projects via tags declared in `.aiconfig.json`:
 
 **Examples:**
 
-| Project tags | Standard tags | Loaded? |
-|---|---|---|
-| `["csharp"]` | `[csharp]` | ✓ All tags present |
-| `["csharp"]` | `[csharp, avalonia]` | ✗ Missing `avalonia` |
-| `["csharp", "avalonia"]` | `[csharp]` | ✓ All tags present |
-| `["csharp", "avalonia"]` | `[csharp, avalonia]` | ✓ All tags present |
+| Project tags             | Standard tags        | Loaded?              |
+| ------------------------ | -------------------- | -------------------- |
+| `["csharp"]`             | `[csharp]`           | ✓ All tags present   |
+| `["csharp"]`             | `[csharp, avalonia]` | ✗ Missing `avalonia` |
+| `["csharp", "avalonia"]` | `[csharp]`           | ✓ All tags present   |
+| `["csharp", "avalonia"]` | `[csharp, avalonia]` | ✓ All tags present   |
 
 **Dependency resolution:** After matching, resolve `depends_on` chains. Load dependencies first (topological order). If a dependency is not already in the matched set, load it anyway — dependencies are unconditional.
 

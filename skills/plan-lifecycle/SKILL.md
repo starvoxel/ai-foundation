@@ -1,7 +1,7 @@
 ---
-name: "plan-lifecycle"
-version: "0.1.0"
-description: "Shared commit-gate procedure and status vocabulary for any artifact requiring human approval before dependent work begins."
+name: 'plan-lifecycle'
+version: '0.1.1'
+description: 'Shared commit-gate procedure and status vocabulary for any artifact requiring human approval before dependent work begins.'
 ---
 
 ## Purpose
@@ -52,10 +52,10 @@ When the work the artifact describes is finished (implementation merged, decisio
 
 ### Decision Record Tier Variants
 
-*(AIF-002-004)* AIF-META-001 (Decision ID) introduced three rigor Tiers for Decision Records — A (Researched), B (Structural), C (Embedded). This skill does not redefine what those Tiers mean; see AIF-META-001's Design section Tier table (`docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`) for the source of truth. What follows is how the commit-gate procedure above differs once a Tier has already been assigned (by `skill/decision-triage`):
+_(AIF-002-004)_ AIF-META-001 (Decision ID) introduced three rigor Tiers for Decision Records — A (Researched), B (Structural), C (Embedded). This skill does not redefine what those Tiers mean; see AIF-META-001's Design section Tier table (`docs/decisions/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md`) for the source of truth. What follows is how the commit-gate procedure above differs once a Tier has already been assigned (by `skill/decision-triage`):
 
 - **Tier A** — no change. A Tier A Decision Record follows Steps 1-5 above exactly as already documented, the same as a Chunk Plan or Epic Plan.
-- **Tier B** — abbreviated gate: Draft (Step 1) → present for review (Step 2) → one round of human confirmation → Approved (Step 4), with no expected multi-round revision cycle. This does not remove Step 3 (revision) — if the human requests a change, follow Step 3 exactly as for Tier A. "Abbreviated" describes the *expected* number of rounds, not a relaxation of the approval requirement itself: Step 4's committed `Approved` status is still mandatory before dependent work may proceed.
+- **Tier B** — abbreviated gate: Draft (Step 1) → present for review (Step 2) → one round of human confirmation → Approved (Step 4), with no expected multi-round revision cycle. This does not remove Step 3 (revision) — if the human requests a change, follow Step 3 exactly as for Tier A. "Abbreviated" describes the _expected_ number of rounds, not a relaxation of the approval requirement itself: Step 4's committed `Approved` status is still mandatory before dependent work may proceed.
 - **Tier C** — not a gate at all. A Tier C decision is never presented to this skill as a standalone artifact — it has no `Status` field of its own. It is recorded inline in the governing plan (per `skill/chunk-planning`/`skill/epic-planning`) and is fully covered by that plan's own Draft → Approved cycle; consult the governing plan's status, not a separate one.
 
 Tier A and Tier B Decision Records must also update `{paths.decisions}/index.json` as part of producing or updating the record — see `skill/decision-record`/`skill/decision-brief` for that step's own procedure. This skill's commit-gate applies in addition to, not instead of, that requirement; `plan-lifecycle` does not own or duplicate the index-update step itself.

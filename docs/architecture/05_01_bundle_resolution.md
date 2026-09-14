@@ -1,6 +1,6 @@
 ---
-section: "05.01"
-title: "Bundle resolution"
+section: '05.01'
+title: 'Bundle resolution'
 lifecycle: published
 last_verified: e066376
 tags: [building-blocks, resolver]
@@ -66,22 +66,22 @@ Private helper functions `discoverByDomain` calls, in this fixed order. None of
 these are exported — they're internal to `resolver.js` (see Interface below for
 what actually crosses the file's boundary).
 
-| Function | Responsibility |
-|---|---|
-| `findAgentsByDomain` | Every `agents/*.yaml` (excluding `_template.yaml`) whose own `domain` field matches. |
-| `collectSkillsFromAgents` | Union of `skill/*` entries across those matched agents' `skills` fields, de-prefixed via `parseSkillRef`. |
-| `collectSteering` | `steering/global/**/*.md` plus `steering/{domain}/**/*.md`, via the shared recursive `collectMdFiles` walk. |
+| Function                   | Responsibility                                                                                                                                                                          |
+| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `findAgentsByDomain`       | Every `agents/*.yaml` (excluding `_template.yaml`) whose own `domain` field matches.                                                                                                    |
+| `collectSkillsFromAgents`  | Union of `skill/*` entries across those matched agents' `skills` fields, de-prefixed via `parseSkillRef`.                                                                               |
+| `collectSteering`          | `steering/global/**/*.md` plus `steering/{domain}/**/*.md`, via the shared recursive `collectMdFiles` walk.                                                                             |
 | `resolveServersFromAgents` | Any `@server/tool`-format tool reference in a matched agent's `tools` list, parsed via `parseServerToolRef` — filtered to server names that actually have a directory under `servers/`. |
 
 ## Interface
 
-| Export | Purpose |
-|---|---|
-| `resolveBundle(bundleName, repoRoot)` | The entry point above — returns a `ResolvedBundle`. |
-| `parseSkillRef(ref)` | `"skill/decision-record"` → `"decision-record"`; bare names pass through; empty string → `null`. |
-| `parseServerToolRef(tool)` | Parses an agent's `@server/tool`-format tool entry into its server name. |
-| `listStandards/Bundles/Servers/HookResources(repoRoot)` | Directory listings used by `aif list` — independent of bundle resolution itself. |
-| `dedupe(arr)` | Order-preserving de-duplication, shared by all four resolved lists. |
+| Export                                                  | Purpose                                                                                          |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `resolveBundle(bundleName, repoRoot)`                   | The entry point above — returns a `ResolvedBundle`.                                              |
+| `parseSkillRef(ref)`                                    | `"skill/decision-record"` → `"decision-record"`; bare names pass through; empty string → `null`. |
+| `parseServerToolRef(tool)`                              | Parses an agent's `@server/tool`-format tool entry into its server name.                         |
+| `listStandards/Bundles/Servers/HookResources(repoRoot)` | Directory listings used by `aif list` — independent of bundle resolution itself.                 |
+| `dedupe(arr)`                                           | Order-preserving de-duplication, shared by all four resolved lists.                              |
 
 ## Consumers
 

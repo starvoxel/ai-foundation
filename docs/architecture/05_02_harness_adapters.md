@@ -1,6 +1,6 @@
 ---
-section: "05.02"
-title: "Harness adapters"
+section: '05.02'
+title: 'Harness adapters'
 lifecycle: published
 last_verified: e066376
 tags: [building-blocks, harnesses]
@@ -52,30 +52,30 @@ behind the portability quality goal (§1), not just a convention.
 
 ## Where Claude Code and Kiro actually diverge
 
-| Aspect | Claude Code (`claude.js`) | Kiro (`kiro.js`) |
-|---|---|---|
-| `TARGETS` | `.claude/{agents,rules,skills,servers,standards,scripts}`, plus `~/.claude.json` for MCP settings | `.kiro/{agents,steering,skills,servers,standards}`, plus `.kiro/settings/mcp.json` |
-| Agent output format | Markdown with frontmatter (`agentExt` handled by `base.js`) | JSON |
-| `TOOL_MAP` shape | Generic tool name → **array** of native tool names (a cluster, since e.g. `write` needs both `Write` and `Edit`); an empty array means "verified absent," never guessed | Generic tool name → a **single** native name, or `null` for "verified absent" (Kiro's names are close enough to ai-foundation's own that most entries are identity mappings) |
-| Tools with no native equivalent | `code` → `[]` (no LSP/code-nav tool exists in Claude Code) | `plan`, `ask_user`, `task`, `skill` → `null` (no confirmed native equivalent) |
-| Subagent dispatch | `subagent` → `['Agent', 'ListAgents', 'SendMessage']` | `subagent` → `'subagent'` (identity mapping) |
-| Skill preloading | Honors `preload_skills` via `resolvePreloadSkills()` (shared, `base.js`) — full content for listed skills goes into the subagent's frontmatter at install time | Ignored — Kiro always resources the full `skills` list regardless, via the shared `stripSkillPrefix` helper |
-| Shared resources | `detectSharedResource()` + `installSharedResources()` install a shared `block-command` hook script once, referenced by every agent that needs it, instead of duplicating it per agent | No shared-resource mechanism (not yet needed for anything Kiro installs) |
-| MCP settings removal | `removeMcpSetting(serverName)` edits `~/.claude.json` | `removeMcpSetting(serverName)` edits `.kiro/settings/mcp.json` |
+| Aspect                          | Claude Code (`claude.js`)                                                                                                                                                             | Kiro (`kiro.js`)                                                                                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TARGETS`                       | `.claude/{agents,rules,skills,servers,standards,scripts}`, plus `~/.claude.json` for MCP settings                                                                                     | `.kiro/{agents,steering,skills,servers,standards}`, plus `.kiro/settings/mcp.json`                                                                                           |
+| Agent output format             | Markdown with frontmatter (`agentExt` handled by `base.js`)                                                                                                                           | JSON                                                                                                                                                                         |
+| `TOOL_MAP` shape                | Generic tool name → **array** of native tool names (a cluster, since e.g. `write` needs both `Write` and `Edit`); an empty array means "verified absent," never guessed               | Generic tool name → a **single** native name, or `null` for "verified absent" (Kiro's names are close enough to ai-foundation's own that most entries are identity mappings) |
+| Tools with no native equivalent | `code` → `[]` (no LSP/code-nav tool exists in Claude Code)                                                                                                                            | `plan`, `ask_user`, `task`, `skill` → `null` (no confirmed native equivalent)                                                                                                |
+| Subagent dispatch               | `subagent` → `['Agent', 'ListAgents', 'SendMessage']`                                                                                                                                 | `subagent` → `'subagent'` (identity mapping)                                                                                                                                 |
+| Skill preloading                | Honors `preload_skills` via `resolvePreloadSkills()` (shared, `base.js`) — full content for listed skills goes into the subagent's frontmatter at install time                        | Ignored — Kiro always resources the full `skills` list regardless, via the shared `stripSkillPrefix` helper                                                                  |
+| Shared resources                | `detectSharedResource()` + `installSharedResources()` install a shared `block-command` hook script once, referenced by every agent that needs it, instead of duplicating it per agent | No shared-resource mechanism (not yet needed for anything Kiro installs)                                                                                                     |
+| MCP settings removal            | `removeMcpSetting(serverName)` edits `~/.claude.json`                                                                                                                                 | `removeMcpSetting(serverName)` edits `.kiro/settings/mcp.json`                                                                                                               |
 
 ## Interface
 
 Both adapters export the identical surface (enforced by convention, not a shared
 TypeScript interface, since this codebase has none — §2 Constraints):
 
-| Export | Purpose |
-|---|---|
-| `TARGETS` | Absolute install paths for this harness, keyed by component type. |
-| `TOOL_MAP` | Generic tool name → native name(s), or the harness's own "verified absent" marker. |
-| `mapToolName(name)` | Single-name convenience lookup (tests, logging) — not what install itself uses. |
-| `transformAgent(agent)` | Parsed `AgentDef` → this harness's native agent file content. |
-| `transformSteering(content)` | Steering Markdown → this harness's native form. |
-| `removeMcpSetting(serverName)` | Uninstall-time cleanup of this harness's own MCP config file. |
+| Export                                                            | Purpose                                                                                                |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `TARGETS`                                                         | Absolute install paths for this harness, keyed by component type.                                      |
+| `TOOL_MAP`                                                        | Generic tool name → native name(s), or the harness's own "verified absent" marker.                     |
+| `mapToolName(name)`                                               | Single-name convenience lookup (tests, logging) — not what install itself uses.                        |
+| `transformAgent(agent)`                                           | Parsed `AgentDef` → this harness's native agent file content.                                          |
+| `transformSteering(content)`                                      | Steering Markdown → this harness's native form.                                                        |
+| `removeMcpSetting(serverName)`                                    | Uninstall-time cleanup of this harness's own MCP config file.                                          |
 | `installAgents/Steering/Skills/Servers/SharedResources/Standards` | Re-exported straight from the `base.js`-built `Adapter` — the harness itself never reimplements these. |
 
 ## Consumers

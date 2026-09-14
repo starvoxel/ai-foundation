@@ -1,7 +1,7 @@
 ---
-name: "global-core"
-version: "0.1.0"
-description: "Core rules that apply to all agents in every session."
+name: 'global-core'
+version: '0.1.1'
+description: 'Core rules that apply to all agents in every session.'
 file_patterns: []
 ---
 

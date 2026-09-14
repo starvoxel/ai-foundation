@@ -36,16 +36,16 @@ For details on component types, field requirements, and loading rules, see [`AGE
 
 ## Agents
 
-| Agent | Role |
-|---|---|
-| ai-engineer | Builds and maintains AI infrastructure — agents, skills, steering, servers |
-| architect | Technical decision-making, produces Decision Records |
-| engineering-manager | Orchestrates parallel chunk plan execution across agents |
-| tech-lead | Planning and decomposition — Epic Plans and Chunk Plans |
-| software-engineer | Implements code from approved Chunk Plans |
-| test-engineer | Writes and executes tests against plan test cases |
-| principal-engineer | Code review — enforces quality, security, and standards |
-| engineering-tech-writer | Documentation — inline docs, READMEs, changelogs |
+| Agent                   | Role                                                                       |
+| ----------------------- | -------------------------------------------------------------------------- |
+| ai-engineer             | Builds and maintains AI infrastructure — agents, skills, steering, servers |
+| architect               | Technical decision-making, produces Decision Records                       |
+| engineering-manager     | Orchestrates parallel chunk plan execution across agents                   |
+| tech-lead               | Planning and decomposition — Epic Plans and Chunk Plans                    |
+| software-engineer       | Implements code from approved Chunk Plans                                  |
+| test-engineer           | Writes and executes tests against plan test cases                          |
+| principal-engineer      | Code review — enforces quality, security, and standards                    |
+| engineering-tech-writer | Documentation — inline docs, READMEs, changelogs                           |
 
 ---
 
@@ -83,11 +83,11 @@ aif init --interactive
 
 ### Harness Support
 
-| Harness | Status |
-|---|---|
-| Kiro | Supported |
+| Harness     | Status    |
+| ----------- | --------- |
+| Kiro        | Supported |
 | Claude Code | Supported |
-| Copilot | Planned |
+| Copilot     | Planned   |
 
 Installs are copies (transformed per-harness), tracked by a manifest for clean uninstall and update detection. Snapshots detect source staleness so `aif install --update` only reinstalls what changed.
 
