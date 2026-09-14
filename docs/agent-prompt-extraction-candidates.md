@@ -1,8 +1,8 @@
 ---
-name: "agent-prompt-extraction-candidates"
-type: "reference"
-tags: ["agent-authoring", "prompt-design", "skills"]
-scope: "ai-engineer"
+name: 'agent-prompt-extraction-candidates'
+type: 'reference'
+tags: ['agent-authoring', 'prompt-design', 'skills']
+scope: 'ai-engineer'
 description: "Prompt content that reads like a reusable rule/procedure but currently lives in only one agent's prompt — tracked so it can be promoted to a skill or steering rule if a second agent needs the same behavior."
 ---
 
@@ -10,7 +10,7 @@ description: "Prompt content that reads like a reusable rule/procedure but curre
 
 Some content in an agent's prompt is genuinely agent-specific (identity, scope boundaries, judgment calls unique to that role). Other content is a self-contained procedure or rule that simply hasn't been extracted into a skill or steering file yet — usually because only one agent currently needs it, and extracting on day one would add an indirection layer with no reuse benefit (see `skill/skill-authoring` Edge Cases: "unclear whether to use a script or prose step" — the same "don't abstract prematurely" principle applies to skill extraction).
 
-This file is the record of that second category: things that *look* extractable but aren't extracted *yet*, why, and the condition that should trigger extraction.
+This file is the record of that second category: things that _look_ extractable but aren't extracted _yet_, why, and the condition that should trigger extraction.
 It exists so the decision not to extract is a tracked, revisitable choice — not a silent one that gets rediscovered from scratch each time.
 
 Checked and updated per `skill/agent-authoring` Step 5 whenever a prompt is written or revised.
@@ -31,7 +31,7 @@ Checked and updated per `skill/agent-authoring` Step 5 whenever a prompt is writ
 
 **Where:** `agents/architect.yaml` Hard Rules — "Never set a Decision Record's Status to 'Approved' or fill in 'Approved By'. Only a human may approve. Always set Status to 'Draft' and Approved By to 'Pending'."
 
-**Why not extracted:** This is a specific instance of the general commit-gate principle already centralized in `skill/plan-lifecycle` (only a human-committed `Approved` status satisfies the gate). Architect is currently the only agent that *drafts* Decision Records, so the instruction to leave Status/Approved-By unfilled has no second consumer yet.
+**Why not extracted:** This is a specific instance of the general commit-gate principle already centralized in `skill/plan-lifecycle` (only a human-committed `Approved` status satisfies the gate). Architect is currently the only agent that _drafts_ Decision Records, so the instruction to leave Status/Approved-By unfilled has no second consumer yet.
 
 **Extraction trigger:** A second agent is introduced that also drafts human-approval-gated artifacts directly (not via an existing planning skill like `epic-planning`/`chunk-planning`, which already encode this via `skill/plan-lifecycle`). If that happens, promote this instruction into `skill/plan-lifecycle` itself as an explicit "drafting agents never self-approve" step, rather than repeating it per agent.
 

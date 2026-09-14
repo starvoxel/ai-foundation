@@ -2,26 +2,26 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-003-008 |
-| Parent Epic | AIF-003 |
-| Chunk | 8 of 8 |
-| Depends On | AIF-003-006 |
-| Can Parallel | AIF-003-007 (wave 3) |
-| Project | ai-foundation |
-| Status | Draft |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
-| Created | 2026-08-25 |
-| Last Updated | 2026-08-25 (rev 2 — revised to cite AIF-003-006's finalized anchors precisely, now that AIF-003-006's Chunk Plan is committed) |
-| Standards | `skills/agent-authoring/reference/schema.md`, AGENTS.md agent schema. AI-track chunk per `AIF-PROC-001` — declarative component work owned by AI-Engineer. |
+| Field          | Value                                                                                                                                                      |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-003-008                                                                                                                                                |
+| Parent Epic    | AIF-003                                                                                                                                                    |
+| Chunk          | 8 of 8                                                                                                                                                     |
+| Depends On     | AIF-003-006                                                                                                                                                |
+| Can Parallel   | AIF-003-007 (wave 3)                                                                                                                                       |
+| Project        | ai-foundation                                                                                                                                              |
+| Status         | Draft                                                                                                                                                      |
+| Author (Agent) | AI-Engineer                                                                                                                                                |
+| Reviewed By    | Pending                                                                                                                                                    |
+| Created        | 2026-08-25                                                                                                                                                 |
+| Last Updated   | 2026-08-25 (rev 2 — revised to cite AIF-003-006's finalized anchors precisely, now that AIF-003-006's Chunk Plan is committed)                             |
+| Standards      | `skills/agent-authoring/reference/schema.md`, AGENTS.md agent schema. AI-track chunk per `AIF-PROC-001` — declarative component work owned by AI-Engineer. |
 
 ---
 
 ## 2. Goal
 
-Update the two domain-owner agent prompts that author Decision Records — `agents/architect.yaml` and `agents/engineering-manager.yaml` — so they know the three-rung amendment ladder exists and route to it correctly, and so `architect.yaml` specifically reflects Epic Question 6's resolution: Architect may *write* `Status: Approved` (and the corresponding `Approved By`/amendment `Outcome` field) into a Decision Record once the human has explicitly decided, but must *never commit* that change — the human commits it.
+Update the two domain-owner agent prompts that author Decision Records — `agents/architect.yaml` and `agents/engineering-manager.yaml` — so they know the three-rung amendment ladder exists and route to it correctly, and so `architect.yaml` specifically reflects Epic Question 6's resolution: Architect may _write_ `Status: Approved` (and the corresponding `Approved By`/amendment `Outcome` field) into a Decision Record once the human has explicitly decided, but must _never commit_ that change — the human commits it.
 
 ---
 
@@ -107,8 +107,8 @@ No new files.
 3. **Decision**: the set-but-do-not-commit rule is scoped to `agents/architect.yaml` only; `agents/engineering-manager.yaml` keeps committing its own Decision Record status transitions unchanged.
    **Why:** Epic Section 5 ("Who makes the second commit") states this in the negative and the positive in the same sentence — "For most domain owners this is unchanged from `skill/plan-lifecycle` Step 4 — the agent edits and commits after the human has decided. Architect is the exception." EM is not named as an exception anywhere in the Epic; widening the restriction to EM would be an undirected scope expansion.
 
-4. **Decision**: the rewritten Architect rule covers *both* initial approval (`Draft` → `Approved`) and amendment outcomes (`Amending` → `Approved`), not only the amendment case.
-   **Why:** the current line 36 rule ("Never set ... Status to Approved") is unconditional — it already covers initial approval, and Epic Section 5 states the *same* mechanic (write, don't commit) applies to "confirming or rejecting a proposed amendment alike," explicitly generalizing beyond the amendment cycle rather than replacing the old rule with an amendment-only carve-out. Scoping the new rule to amendments only would leave initial approval governed by contradictory old wording. This is also consistent with AIF-003-006 Section 5's Out of Scope note that the "who commits" sentence in `SKILL.md` is deliberately generic and names no agent — this chunk is where the Architect-specific carve-out belongs.
+4. **Decision**: the rewritten Architect rule covers _both_ initial approval (`Draft` → `Approved`) and amendment outcomes (`Amending` → `Approved`), not only the amendment case.
+   **Why:** the current line 36 rule ("Never set ... Status to Approved") is unconditional — it already covers initial approval, and Epic Section 5 states the _same_ mechanic (write, don't commit) applies to "confirming or rejecting a proposed amendment alike," explicitly generalizing beyond the amendment cycle rather than replacing the old rule with an amendment-only carve-out. Scoping the new rule to amendments only would leave initial approval governed by contradictory old wording. This is also consistent with AIF-003-006 Section 5's Out of Scope note that the "who commits" sentence in `SKILL.md` is deliberately generic and names no agent — this chunk is where the Architect-specific carve-out belongs.
 
 > **Tier C decisions.** All four are Tier C per `skill/decision-triage` — local implementation choices inside an already-decided design (Epic Question 6, Section 5, Section 7), riding this plan's own `skill/plan-lifecycle` cycle. None warrants a standalone record.
 
@@ -130,11 +130,13 @@ No new files.
 **Change 1 — replace the existing hard rule** (currently line 36):
 
 Before:
+
 ```yaml
-  - Never set a Decision Record's Status to "Approved" or fill in "Approved By". Only a human may approve. Always set Status to "Draft" and Approved By to "Pending".
+- Never set a Decision Record's Status to "Approved" or fill in "Approved By". Only a human may approve. Always set Status to "Draft" and Approved By to "Pending".
 ```
 
 After:
+
 ```yaml
   - Only a human may approve a Decision Record — never assume approval. When drafting a new record, always set Status to "Draft" and Approved By to "Pending".
   - Once the human has explicitly confirmed a decision (including confirming or rejecting a proposed amendment), you may write Status: "Approved" and the corresponding Approved By / amendment Outcome field into the record file — but you must never commit that change yourself. Stop after writing the file; the human makes that commit.
@@ -154,21 +156,24 @@ After:
 **Change 3 — `skills:` list**:
 
 Before:
+
 ```yaml
 skills:
-  - "skill/decision-record"
+  - 'skill/decision-record'
 ```
 
 After:
+
 ```yaml
 skills:
-  - "skill/decision-record"
-  - "skill/plan-lifecycle"
+  - 'skill/decision-record'
+  - 'skill/plan-lifecycle'
 ```
 
 **Change 4 — version bump**: `0.3.0` → `0.4.0`.
 
 **Key Behaviour**:
+
 - `tools`, `approved_tools`, `blocked_commands` are byte-for-byte unchanged.
 - The rewritten rule applies uniformly to initial-approval and amendment-confirmation cases — no separate rule per case (Design Decision 4).
 - The rule text names AIF-003-006's exact anchors (Design Decision 1), not just the containing skill.
@@ -194,29 +199,32 @@ skills:
 **Change 2 — `skills:` list**:
 
 Before:
+
 ```yaml
 skills:
-  - "skill/chunk-orchestration"
-  - "skill/worktree-management"
-  - "skill/decision-triage"
-  - "skill/decision-record"
-  - "skill/decision-brief"
+  - 'skill/chunk-orchestration'
+  - 'skill/worktree-management'
+  - 'skill/decision-triage'
+  - 'skill/decision-record'
+  - 'skill/decision-brief'
 ```
 
 After:
+
 ```yaml
 skills:
-  - "skill/chunk-orchestration"
-  - "skill/worktree-management"
-  - "skill/decision-triage"
-  - "skill/decision-record"
-  - "skill/decision-brief"
-  - "skill/plan-lifecycle"
+  - 'skill/chunk-orchestration'
+  - 'skill/worktree-management'
+  - 'skill/decision-triage'
+  - 'skill/decision-record'
+  - 'skill/decision-brief'
+  - 'skill/plan-lifecycle'
 ```
 
 **Change 3 — version bump**: `0.6.0` → `0.7.0`.
 
 **Key Behaviour**:
+
 - No existing responsibility, process step, or hard rule is altered — this is purely additive.
 - EM's existing "Never resume a chunk past the decision point until it reaches Approved. Deferred never satisfies the gate." rule is untouched and continues to govern the Decision Hand-off Sub-Flow.
 - `tools`, `approved_tools`, `blocked_commands` are byte-for-byte unchanged.
@@ -236,7 +244,7 @@ Not applicable — this chunk edits agent-prompt YAML (`prompt`, `skills`, `vers
 > This section must never be empty.
 
 - [ ] **No widening of Architect's git/shell surface.** `tools`, `approved_tools`, and `blocked_commands` are unchanged on both files — `blocked_commands` still denies `git *`/`gh *` on `architect.yaml`, and `write` remains outside `approved_tools` (requires runtime human confirmation). This is the chunk's primary security-relevant constraint, per Epic Section 7: "Chunks touching `agents/architect.yaml` must not widen this beyond the single field-write permission."
-- [ ] **No self-approval path introduced.** The rewritten Architect rule permits *writing* `Status: Approved` only after the human has already, explicitly decided — never as an assumption of intent — and forbids Architect from being the one to commit that write. The human's commit remains the artifact that satisfies the approval gate (`skill/plan-lifecycle` Step 4), unchanged by this chunk.
+- [ ] **No self-approval path introduced.** The rewritten Architect rule permits _writing_ `Status: Approved` only after the human has already, explicitly decided — never as an assumption of intent — and forbids Architect from being the one to commit that write. The human's commit remains the artifact that satisfies the approval gate (`skill/plan-lifecycle` Step 4), unchanged by this chunk.
 - [ ] **Audit integrity preserved.** Neither prompt change touches the append-only nature of `## Amendments`/`## Errata` rows (owned by AIF-003-003/006); this chunk only tells the agents where the rule lives.
 - [ ] All external inputs validated before use — not applicable; this chunk contains no code, only static YAML prompt text validated by `tests/validation/schemas.test.js`.
 - [ ] No secrets or credentials in source code or logs — not applicable; no secrets touched.
@@ -250,10 +258,10 @@ Not applicable — this chunk edits agent-prompt YAML (`prompt`, `skills`, `vers
 
 Agent `.yaml` definitions carry no runtime logging of their own — they are static configuration consumed by the harness. Nothing in this chunk adds, removes, or changes any log statement anywhere in the repo.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| Architect writes `Status: Approved` into a record file (post-human-decision) | — | Nothing from this chunk's changes; any commit/audit trail is produced by the human's own commit per `skill/plan-lifecycle`, unchanged by this chunk | The write itself is not separately logged — the file diff and the human's commit message are the record |
-| `npm test` validates both edited `.yaml` files | — | Existing `tests/validation/schemas.test.js`/`tools.test.js` output, unchanged format | n/a |
+| Event                                                                        | Level | What is logged                                                                                                                                      | What is NOT logged                                                                                      |
+| ---------------------------------------------------------------------------- | ----- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Architect writes `Status: Approved` into a record file (post-human-decision) | —     | Nothing from this chunk's changes; any commit/audit trail is produced by the human's own commit per `skill/plan-lifecycle`, unchanged by this chunk | The write itself is not separately logged — the file diff and the human's commit message are the record |
+| `npm test` validates both edited `.yaml` files                               | —     | Existing `tests/validation/schemas.test.js`/`tools.test.js` output, unchanged format                                                                | n/a                                                                                                     |
 
 The audit trail this chunk relies on is git history (the human's commit), not application logging — consistent with how the rest of the amendment ladder records its own audit trail (Epic Section 7 "Audit integrity").
 
@@ -263,16 +271,16 @@ The audit trail this chunk relies on is git history (the human's commit), not ap
 
 No new automated test cases are added by this chunk — `tests/validation/schemas.test.js` and `tests/validation/tools.test.js` already exercise every `agents/*.yaml` file generically (schema shape, `approved_tools ⊆ tools`, skill-reference existence) and require no chunk-specific additions. Verification is self-validation against the existing generic suite plus the checklist below.
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 008-T01 | `agents/architect.yaml` still parses as valid YAML and matches `skills/agent-authoring/reference/schema.md` | Validation (existing) | `tests/validation/schemas.test.js` passes for this file |
-| 008-T02 | `agents/engineering-manager.yaml` still parses as valid YAML and matches the schema | Validation (existing) | `tests/validation/schemas.test.js` passes for this file |
-| 008-T03 | `approved_tools ⊆ tools` still holds for both files | Validation (existing) | `tests/validation/tools.test.js` passes for both files |
-| 008-T04 | Every entry in both files' `skills:` list (including the newly added `skill/plan-lifecycle`) resolves to an existing folder under `skills/` | Validation (existing, generic skill-reference check) | No dangling skill reference reported |
-| 008-T05 | Manual read-through: the rewritten Architect hard rule contains no residual wording forbidding *writing* `Status: Approved`/`Approved By` post-human-decision, and explicitly forbids *committing* it | Manual | Confirmed by inspection against Epic AIF-003 Section 10's acceptance criterion, quoted verbatim in Section 4 above |
-| 008-T06 | Manual read-through: `agents/engineering-manager.yaml` gained no set-but-do-not-commit restriction | Manual | Confirmed by inspection — EM's existing commit behaviour is untouched |
-| 008-T07 | Manual read-through: both ladder-routing rules cite AIF-003-006's exact anchor strings (`### Decision Record Amendment Ladder` in `SKILL.md`; `## Decision Record Amendment Ladder` in `reference/commit-gate-procedure.md`) and, at implementation time, those anchors are confirmed present in the landed files by direct read (not assumed from this plan) | Manual | Anchor strings byte-match AIF-003-006's Section 8 component headers; direct read of the landed `skills/plan-lifecycle/SKILL.md` and `reference/commit-gate-procedure.md` confirms the headings exist |
-| 008-T08 | Full suite regression | Unit+Integration+Validation | `npm test` passes |
+| Test ID | Description                                                                                                                                                                                                                                                                                                                                                   | Type                                                 | Pass Criteria                                                                                                                                                                                        |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 008-T01 | `agents/architect.yaml` still parses as valid YAML and matches `skills/agent-authoring/reference/schema.md`                                                                                                                                                                                                                                                   | Validation (existing)                                | `tests/validation/schemas.test.js` passes for this file                                                                                                                                              |
+| 008-T02 | `agents/engineering-manager.yaml` still parses as valid YAML and matches the schema                                                                                                                                                                                                                                                                           | Validation (existing)                                | `tests/validation/schemas.test.js` passes for this file                                                                                                                                              |
+| 008-T03 | `approved_tools ⊆ tools` still holds for both files                                                                                                                                                                                                                                                                                                           | Validation (existing)                                | `tests/validation/tools.test.js` passes for both files                                                                                                                                               |
+| 008-T04 | Every entry in both files' `skills:` list (including the newly added `skill/plan-lifecycle`) resolves to an existing folder under `skills/`                                                                                                                                                                                                                   | Validation (existing, generic skill-reference check) | No dangling skill reference reported                                                                                                                                                                 |
+| 008-T05 | Manual read-through: the rewritten Architect hard rule contains no residual wording forbidding _writing_ `Status: Approved`/`Approved By` post-human-decision, and explicitly forbids _committing_ it                                                                                                                                                         | Manual                                               | Confirmed by inspection against Epic AIF-003 Section 10's acceptance criterion, quoted verbatim in Section 4 above                                                                                   |
+| 008-T06 | Manual read-through: `agents/engineering-manager.yaml` gained no set-but-do-not-commit restriction                                                                                                                                                                                                                                                            | Manual                                               | Confirmed by inspection — EM's existing commit behaviour is untouched                                                                                                                                |
+| 008-T07 | Manual read-through: both ladder-routing rules cite AIF-003-006's exact anchor strings (`### Decision Record Amendment Ladder` in `SKILL.md`; `## Decision Record Amendment Ladder` in `reference/commit-gate-procedure.md`) and, at implementation time, those anchors are confirmed present in the landed files by direct read (not assumed from this plan) | Manual                                               | Anchor strings byte-match AIF-003-006's Section 8 component headers; direct read of the landed `skills/plan-lifecycle/SKILL.md` and `reference/commit-gate-procedure.md` confirms the headings exist |
+| 008-T08 | Full suite regression                                                                                                                                                                                                                                                                                                                                         | Unit+Integration+Validation                          | `npm test` passes                                                                                                                                                                                    |
 
 ---
 
@@ -288,10 +296,10 @@ No new automated test cases are added by this chunk — `tests/validation/schema
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | **`agents/ai-engineer.yaml`'s `skills:` list includes `skill/ai-engineering-plan` but neither `skill/chunk-planning` nor `skill/plan-lifecycle`, despite AI-Engineer owning 6 of this Epic's 8 chunks and therefore authoring and following Chunk Plans (including this one).** This looks like a genuine agent/skill cross-reference gap, discovered while reading this chunk's required inputs. It was independently flagged twice: once by this chunk's own rev 1 draft, and separately by AIF-003-003's chunk-planning agent while it read the same dependency files for its own plan. | Question | M | **Resolved by human decision (2026-08-25, chat): deferred, not fixed.** `skill/chunk-planning` itself is being removed and AI-task planning linked to Epics is being reworked under `AIF-004`. Patching `agents/ai-engineer.yaml`'s `skills:` list now would reference a skill scheduled for removal, so no follow-up chunk is opened against AIF-003. Any fix belongs to `AIF-004`'s redesign, not this Epic. Not implemented as part of AIF-003-008. |
-| 2 | Both new ladder-routing rules use identical wording across the two files (citing the same two anchors verbatim). If `AIF-003-007`'s ladder pointer (in `skill/decision-record`/`skill/decision-brief`) ends up phrased very differently, a future reader could see two similar-but-not-identical descriptions of the same routing decision. | Risk | L | Accepted — `007` and `008` are parallel wave-3 chunks with no dependency between them (`chunks.json`), and both point at the same source of truth (`skill/plan-lifecycle`) rather than restating the ladder's content, so drift in restatement wording carries no governance risk. No action needed. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Type     | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1   | **`agents/ai-engineer.yaml`'s `skills:` list includes `skill/ai-engineering-plan` but neither `skill/chunk-planning` nor `skill/plan-lifecycle`, despite AI-Engineer owning 6 of this Epic's 8 chunks and therefore authoring and following Chunk Plans (including this one).** This looks like a genuine agent/skill cross-reference gap, discovered while reading this chunk's required inputs. It was independently flagged twice: once by this chunk's own rev 1 draft, and separately by AIF-003-003's chunk-planning agent while it read the same dependency files for its own plan. | Question | M      | **Resolved by human decision (2026-08-25, chat): deferred, not fixed.** `skill/chunk-planning` itself is being removed and AI-task planning linked to Epics is being reworked under `AIF-004`. Patching `agents/ai-engineer.yaml`'s `skills:` list now would reference a skill scheduled for removal, so no follow-up chunk is opened against AIF-003. Any fix belongs to `AIF-004`'s redesign, not this Epic. Not implemented as part of AIF-003-008. |
+| 2   | Both new ladder-routing rules use identical wording across the two files (citing the same two anchors verbatim). If `AIF-003-007`'s ladder pointer (in `skill/decision-record`/`skill/decision-brief`) ends up phrased very differently, a future reader could see two similar-but-not-identical descriptions of the same routing decision.                                                                                                                                                                                                                                                | Risk     | L      | Accepted — `007` and `008` are parallel wave-3 chunks with no dependency between them (`chunks.json`), and both point at the same source of truth (`skill/plan-lifecycle`) rather than restating the ladder's content, so drift in restatement wording carries no governance risk. No action needed.                                                                                                                                                   |
 
 ---
 

@@ -1,7 +1,7 @@
 ---
-name: "gmail-irreversible-action-approval"
-version: "0.1.0"
-description: "Requires explicit, per-action human approval before any Gmail tool call that sends an email or permanently deletes data."
+name: 'gmail-irreversible-action-approval'
+version: '0.1.1'
+description: 'Requires explicit, per-action human approval before any Gmail tool call that sends an email or permanently deletes data.'
 file_patterns: []
 ---
 

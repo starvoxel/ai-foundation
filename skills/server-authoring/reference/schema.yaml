@@ -2,21 +2,21 @@
 # Lives at servers/{name}/{name}.yaml
 
 fields:
-  name:        "kebab-case identifier, matches folder name"
-  version:     "semver (0.1.0)"
-  protocol:    "mcp"
-  transport:   "stdio | http"
+  name: "kebab-case identifier, matches folder name"
+  version: "semver (0.1.0)"
+  protocol: "mcp"
+  transport: "stdio | http"
   description: "One sentence — what tools this server exposes"
-  hosted:      "self | vendor [optional, default: self] — see 'hosted' below"
-  url:         "Endpoint URL. Required when transport is http. Not secret — safe to commit literally."
-  headers:     "Object of HTTP header name -> value, sent on every request [optional, http transport only]. See 'headers and secrets' below."
-  tools:       "Array of tool definitions (see below)"
+  hosted: "self | vendor [optional, default: self] — see 'hosted' below"
+  url: "Endpoint URL. Required when transport is http. Not secret — safe to commit literally."
+  headers: "Object of HTTP header name -> value, sent on every request [optional, http transport only]. See 'headers and secrets' below."
+  tools: "Array of tool definitions (see below)"
 
 tool_definition:
-  name:        "Tool name — agents reference as @server/tool_name. Must be kebab-case for hosted: self. For hosted: vendor, use the tool's real name exactly as the vendor registers it (may be snake_case or other casing) — do not rename it to fit our convention, since the name here must match what actually gets called at runtime."
+  name: "Tool name — agents reference as @server/tool_name. Must be kebab-case for hosted: self. For hosted: vendor, use the tool's real name exactly as the vendor registers it (may be snake_case or other casing) — do not rename it to fit our convention, since the name here must match what actually gets called at runtime."
   description: "When to use this tool (one or two sentences)"
-  inputs:      "Array of 'param (type): description [optional]'"
-  outputs:     "What is returned and in what format"
+  inputs: "Array of 'param (type): description [optional]'"
+  outputs: "What is returned and in what format"
 
 # Input types: string, number, boolean, array, object
 # Mark optional params with [optional] or [optional, default: value]

@@ -2,19 +2,19 @@
 
 ## 1. Metadata
 
-| Field          | Value                                                                                                                                                                                                                                                           |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Plan ID        | AIF-002-001                                                                                                                                                                                                                                                     |
-| Parent Epic    | AIF-002                                                                                                                                                                                                                                                         |
-| Chunk          | 1 of 15                                                                                                                                                                                                                                                         |
-| Depends On     | None                                                                                                                                                                                                                                                            |
-| Can Parallel   | AIF-002-002, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-006, AIF-002-007, AIF-002-008, AIF-002-009 (Wave 1 siblings, per`docs/plans/chunks/AIF-002/chunks.json`)                                                                                          |
-| Project        | ai-foundation                                                                                                                                                                                                                                                   |
-| Status         | Approved                                                                                                                                                                                                                                                        |
-| Author (Agent) | AI-Engineer                                                                                                                                                                                                                                                     |
-| Reviewed By    | Jeremy                                                                                                                                                                                                                                                          |
-| Created        | 2026-08-14                                                                                                                                                                                                                                                      |
-| Last Updated   | 2026-08-14                                                                                                                                                                                                                                                      |
+| Field          | Value                                                                                                                                                                                                                                                |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-002-001                                                                                                                                                                                                                                          |
+| Parent Epic    | AIF-002                                                                                                                                                                                                                                              |
+| Chunk          | 1 of 15                                                                                                                                                                                                                                              |
+| Depends On     | None                                                                                                                                                                                                                                                 |
+| Can Parallel   | AIF-002-002, AIF-002-003, AIF-002-004, AIF-002-005, AIF-002-006, AIF-002-007, AIF-002-008, AIF-002-009 (Wave 1 siblings, per`docs/plans/chunks/AIF-002/chunks.json`)                                                                                 |
+| Project        | ai-foundation                                                                                                                                                                                                                                        |
+| Status         | Approved                                                                                                                                                                                                                                             |
+| Author (Agent) | AI-Engineer                                                                                                                                                                                                                                          |
+| Reviewed By    | Jeremy                                                                                                                                                                                                                                               |
+| Created        | 2026-08-14                                                                                                                                                                                                                                           |
+| Last Updated   | 2026-08-14                                                                                                                                                                                                                                           |
 | Standards      | None apply — this chunk produces only declarative skill content (`SKILL.md` + `reference/`), governed by AGENTS.md schemas and `skill/skill-authoring`, not by the project's `javascript`/`node` engineering standards (no runtime code is produced) |
 
 ---
@@ -69,11 +69,11 @@ Author `skills/decision-triage/` as the single entry point every agent uses when
 
 ## 6. Prerequisites
 
-- [X] AIF-META-001 (Decision Record: Tiering, Domain Ownership, Interconnectivity)
-  is `Approved` — governs the Tier promotion threshold and Domain ownership table this skill implements.
-- [X] Epic AIF-002 is `Approved` and decomposed (`chunks.json`, Wave 1, no dependencies for this chunk).
-- [X] `skill/skill-authoring` and `skill/plan-lifecycle` exist and define the folder structure, required sections, and commit-gate procedure this chunk follows.
-- [X] No dependency on any sibling Wave 1 chunk's output — this chunk references `skill/decision-record`, `skill/decision-brief`, and the Tier C convention by *name* only, not by reading their finalized content, so it can be authored in parallel with AIF-002-002/003/005 without a file-level dependency.
+- [x] AIF-META-001 (Decision Record: Tiering, Domain Ownership, Interconnectivity)
+      is `Approved` — governs the Tier promotion threshold and Domain ownership table this skill implements.
+- [x] Epic AIF-002 is `Approved` and decomposed (`chunks.json`, Wave 1, no dependencies for this chunk).
+- [x] `skill/skill-authoring` and `skill/plan-lifecycle` exist and define the folder structure, required sections, and commit-gate procedure this chunk follows.
+- [x] No dependency on any sibling Wave 1 chunk's output — this chunk references `skill/decision-record`, `skill/decision-brief`, and the Tier C convention by _name_ only, not by reading their finalized content, so it can be authored in parallel with AIF-002-002/003/005 without a file-level dependency.
 
 ---
 
@@ -94,7 +94,7 @@ No `assets/` or `scripts/` subfolder — nothing in this skill is copied into an
 ### Key Design Decisions
 
 1. **Decision**: `decision-triage` never writes a decision artifact itself — it only selects Tier/Domain and either dispatches to `decision-record`/ `decision-brief` or points back to the Tier C convention.
-   **Rationale**: Matches Epic AIF-002 Section 5 (Data Flow) exactly and keeps a clean separation of concerns: triage decides *what kind* of record is needed, the target skill decides *how* to produce it. Avoids duplicating `plan-lifecycle` gating logic inside `decision-triage`.
+   **Rationale**: Matches Epic AIF-002 Section 5 (Data Flow) exactly and keeps a clean separation of concerns: triage decides _what kind_ of record is needed, the target skill decides _how_ to produce it. Avoids duplicating `plan-lifecycle` gating logic inside `decision-triage`.
 2. **Decision**: The Domain ownership table and promotion threshold are reproduced in `reference/tier-and-domain.md` rather than requiring every invocation to re-read the full AIF-META-001 record.
    **Rationale**: AIF-META-001 is a full options-exploration Decision Record (Tier A shape) with substantial narrative content around the Design section this skill actually needs operationally. A trimmed, purpose-built reference file is faster to consult during triage and matches the existing pattern of `skill/decision-record/reference/template.md` being a distinct, focused file from the decision that motivated the skill. The file explicitly cites AIF-META-001 as the source of truth so a future edit to the table only needs to flow one direction (AIF-META-001 is Approved and stable; this chunk does not plan to further revise it).
 3. **Decision**: The cross-domain hand-off is a structured signal (`domain`, `tier`, `owning_agent`, `invoking_agent`, `problem_summary`) rather than free prose, even though this chunk does not implement anything that parses it yet.
@@ -133,8 +133,7 @@ No `assets/` or `scripts/` subfolder — nothing in this skill is copied into an
 **Key Behaviour**:
 
 - Never writes a decision artifact and never touches `{paths.decisions}/index.json` itself — those are the dispatched skill's responsibility.
-- Runs identically whether invoked interactively by a single agent or as part of an orchestrated chunk — the difference is only in how the hand-off signal (Step
-  4) gets surfaced onward (see Edge Cases).
+- Runs identically whether invoked interactively by a single agent or as part of an orchestrated chunk — the difference is only in how the hand-off signal (Step 4) gets surfaced onward (see Edge Cases).
 
 **Dependencies**:
 
@@ -173,13 +172,13 @@ No `assets/` or `scripts/` subfolder — nothing in this skill is copied into an
 **Purpose**: The structured payload `decision-triage` produces on a domain-owner mismatch (Key Design Decision 3). Consumed by chunk AIF-002-006's Decision Hand-off Sub-Flow when orchestrated, or presented directly to the human otherwise.
 This is a documented shape for other skills/prose to follow — not a JSON Schema enforced by any script, since this skill has no `scripts/` (see Section 7).
 
-| Field               | Type                                             | Required | Notes                                                                                                                     |
-| ------------------- | ------------------------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------------- |
-| `domain`          | string (Domain code, e.g.`PROC`, `ARCH`)     | Yes      | From the AIF-META-001 Domain table                                                                                        |
-| `tier`            | string (`A` or `B`)                          | Yes      | Tier C never reaches this signal — no domain check applies to Tier C                                                     |
-| `owning_agent`    | string (agent name, e.g.`Engineering-Manager`) | Yes      | From the AIF-META-001 Domain table                                                                                        |
-| `invoking_agent`  | string (agent name)                              | Yes      | The agent that invoked`decision-triage`                                                                                 |
-| `problem_summary` | string                                           | Yes      | One to two sentences — enough for the domain owner or human to understand what decision is needed without re-deriving it |
+| Field             | Type                                           | Required | Notes                                                                                                                    |
+| ----------------- | ---------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `domain`          | string (Domain code, e.g.`PROC`, `ARCH`)       | Yes      | From the AIF-META-001 Domain table                                                                                       |
+| `tier`            | string (`A` or `B`)                            | Yes      | Tier C never reaches this signal — no domain check applies to Tier C                                                     |
+| `owning_agent`    | string (agent name, e.g.`Engineering-Manager`) | Yes      | From the AIF-META-001 Domain table                                                                                       |
+| `invoking_agent`  | string (agent name)                            | Yes      | The agent that invoked`decision-triage`                                                                                  |
+| `problem_summary` | string                                         | Yes      | One to two sentences — enough for the domain owner or human to understand what decision is needed without re-deriving it |
 
 ---
 
@@ -187,13 +186,13 @@ This is a documented shape for other skills/prose to follow — not a JSON Schem
 
 > This section must never be empty.
 
-This chunk produces documentation-only skill content (`SKILL.md` + `reference/` markdown files) — no runtime code, no scripts, no execution path, no credential handling, and no network calls. The applicable security considerations are therefore about the *design* the documentation encodes, not code-level hardening:
+This chunk produces documentation-only skill content (`SKILL.md` + `reference/` markdown files) — no runtime code, no scripts, no execution path, no credential handling, and no network calls. The applicable security considerations are therefore about the _design_ the documentation encodes, not code-level hardening:
 
-- [X] No new attack surface — no code execution, no `scripts/` folder (per Section 7, deterministic-vs-judgment analysis), no network-facing behavior.
-- [X] No secrets or credentials referenced anywhere in the skill content.
-- [X] `decision-triage` does not grant, reference, or imply any change to tool access for any agent — it is pure routing logic. In particular, it does not add `WebSearch`/`WebFetch` to any agent, consistent with AIF-META-001's Resolved Item 6 and Epic AIF-002 Section 7's non-negotiable.
-- [X] The cross-domain hand-off check (Step 4) is a documented convention, not an enforcement mechanism — this is a deliberate, Epic-confirmed choice (Section 6 Error States), not a gap this chunk silently introduces. It is called out here so it is not mistaken for a security control it isn't.
-- [X] No PII or sensitive data is handled — `problem_summary` in the hand-off signal is expected to contain only project/technical decision context.
+- [x] No new attack surface — no code execution, no `scripts/` folder (per Section 7, deterministic-vs-judgment analysis), no network-facing behavior.
+- [x] No secrets or credentials referenced anywhere in the skill content.
+- [x] `decision-triage` does not grant, reference, or imply any change to tool access for any agent — it is pure routing logic. In particular, it does not add `WebSearch`/`WebFetch` to any agent, consistent with AIF-META-001's Resolved Item 6 and Epic AIF-002 Section 7's non-negotiable.
+- [x] The cross-domain hand-off check (Step 4) is a documented convention, not an enforcement mechanism — this is a deliberate, Epic-confirmed choice (Section 6 Error States), not a gap this chunk silently introduces. It is called out here so it is not mistaken for a security control it isn't.
+- [x] No PII or sensitive data is handled — `problem_summary` in the hand-off signal is expected to contain only project/technical decision context.
 
 ---
 
@@ -203,9 +202,9 @@ This chunk produces documentation-only skill content (`SKILL.md` + `reference/` 
 
 This chunk produces no runtime code, so there are no application log statements to define here. The relevant logging is defined and implemented elsewhere:
 
-| Event                                | Level | What is logged | What is NOT logged |
-| ------------------------------------ | ----- | -------------- | ------------------ |
-| N/A — no runtime code in this chunk | —    | —             | —                 |
+| Event                               | Level | What is logged | What is NOT logged |
+| ----------------------------------- | ----- | -------------- | ------------------ |
+| N/A — no runtime code in this chunk | —     | —              | —                  |
 
 The three log actions that consume this chunk's hand-off signal (`decision_handoff_detected`, `decision_authored`, `decision_handoff_resolved`) are defined in `skill/chunk-orchestration/reference/state-schema.md`, which is chunk AIF-002-006's scope, not this chunk's. This chunk's only obligation toward that future logging is that `reference/handoff-signal.md`'s field names (`domain`, `tier`, `owning_agent`) are stable and match what Epic AIF-002 Section 4 already describes those log entries carrying — verified in Section 4 below.
 
@@ -217,21 +216,21 @@ This chunk has no executable code (no `scripts/`), so "testing" here means struc
 
 ### `decision-triage` Skill Tests
 
-| Test ID | Description                                                                                                                                                                                                                                                                                 | Type                     | Pass Criteria                                                |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ | ------------------------------------------------------------ |
-| DT-T01  | `SKILL.md` frontmatter has `name`, `version`, `description`; `name` is kebab-case and matches folder name; `version` is valid semver                                                                                                                                            | Structural               | All fields present and well-formed                           |
-| DT-T02  | `SKILL.md` has all five required sections (Purpose, Inputs, Steps, Outputs, Edge Cases) in order                                                                                                                                                                                          | Structural               | All five present, correctly ordered                          |
-| DT-T03  | `SKILL.md` Steps reference `skill/decision-record` and `skill/decision-brief` by name and do not embed their internal logic                                                                                                                                                           | Structural               | Names present; no duplicated Steps content from either skill |
-| DT-T04  | `reference/tier-and-domain.md` promotion threshold and Domain table match AIF-META-001's Design section content                                                                                                                                                                           | Structural (manual diff) | No divergence; source-of-truth note present                  |
-| DT-T05  | `reference/handoff-signal.md` field list matches what Epic AIF-002 Section 4 describes the Decision Hand-off Sub-Flow's `blocked_reason` needing (domain, tier, owning agent)                                                                                                           | Structural (manual diff) | Fields present and named consistently                        |
-| DT-T06  | Skill is self-contained — no hardcoded reference to a single specific agent's identity in`SKILL.md` prose (agent names appear only inside the Domain table, as data)                                                                                                                     | Structural               | Confirmed by read-through                                    |
+| Test ID | Description                                                                                                                                                                                                                                                                    | Type                     | Pass Criteria                                                |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ | ------------------------------------------------------------ |
+| DT-T01  | `SKILL.md` frontmatter has `name`, `version`, `description`; `name` is kebab-case and matches folder name; `version` is valid semver                                                                                                                                           | Structural               | All fields present and well-formed                           |
+| DT-T02  | `SKILL.md` has all five required sections (Purpose, Inputs, Steps, Outputs, Edge Cases) in order                                                                                                                                                                               | Structural               | All five present, correctly ordered                          |
+| DT-T03  | `SKILL.md` Steps reference `skill/decision-record` and `skill/decision-brief` by name and do not embed their internal logic                                                                                                                                                    | Structural               | Names present; no duplicated Steps content from either skill |
+| DT-T04  | `reference/tier-and-domain.md` promotion threshold and Domain table match AIF-META-001's Design section content                                                                                                                                                                | Structural (manual diff) | No divergence; source-of-truth note present                  |
+| DT-T05  | `reference/handoff-signal.md` field list matches what Epic AIF-002 Section 4 describes the Decision Hand-off Sub-Flow's `blocked_reason` needing (domain, tier, owning agent)                                                                                                  | Structural (manual diff) | Fields present and named consistently                        |
+| DT-T06  | Skill is self-contained — no hardcoded reference to a single specific agent's identity in`SKILL.md` prose (agent names appear only inside the Domain table, as data)                                                                                                           | Structural               | Confirmed by read-through                                    |
 | DT-T07  | Cross-reference check — every skill named in`SKILL.md` (`decision-record`, `decision-brief`, `chunk-planning`, `epic-planning`) exists (or is a sibling Wave 1 chunk not yet landed, in which case its target folder name is confirmed against `chunks.json`, not its content) | Structural               | All named skills resolve to a real or planned folder         |
 
 ---
 
 ## 13. Documentation Requirements
 
-- [X] `SKILL.md` itself *is* the documentation for this component — no separate README needed (skills are self-documenting per `skill/skill-authoring`).
+- [x] `SKILL.md` itself _is_ the documentation for this component — no separate README needed (skills are self-documenting per `skill/skill-authoring`).
 - [ ] File header / Plan ID reference — `SKILL.md` and both `reference/` files will note "Authored under AIF-002-001" in a brief comment or footer line, per engineering steering Rule 2 (every artifact must reference its Plan ID).
 - [ ] No CHANGELOG entry from this chunk alone — Epic AIF-002's own Work Log and the Epic-level CHANGELOG entry (Acceptance Criteria item, confirmed at Epic-implementation time) cover the Epic as a whole; individual Wave 1 chunks do not each add a separate CHANGELOG line.
 
@@ -239,11 +238,11 @@ This chunk has no executable code (no `scripts/`), so "testing" here means struc
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question                                                                                                                                                                                                                                                                     | Impact | Mitigation                                                                                                                                                                                                                                       |
-| - | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1 | `reference/tier-and-domain.md` duplicates content from AIF-META-001 — risk of drift if AIF-META-001 is ever superseded or amended                                                                                                                                                | M      | Explicit source-of-truth note directs future editors back to AIF-META-001; since AIF-META-001 is`Approved` and this Epic does not plan to revise it further, near-term drift risk is low. Flagged, not blocking.                               |
-| 2 | The hand-off signal format (Section 9) is designed here but has no consumer until AIF-002-006 lands — if AIF-002-006 finds the shape insufficient once it designs the actual Decision Hand-off Sub-Flow, this chunk's`reference/handoff-signal.md` may need a follow-up revision | L      | Acceptable per dependency graph — AIF-002-006 has no`depends_on` this chunk (both are Wave 1, parallel, no file dependency), so it is free to request a revision to this file if needed. Not a blocking risk for this chunk's own completion. |
-| 3 | Domain-mismatch handling is a documented convention only, not enforced by tooling (Key Design Decision 4) — an agent could, in practice, ignore Step 4 and self-author outside its domain                                                                                          | L      | Explicitly accepted by the Epic (Section 6 Error States: "not blocked at a tooling level... deviations are caught in review"). No mitigation needed beyond what this chunk already documents.                                                    |
+| #   | Risk / Question                                                                                                                                                                                                                                                                  | Impact | Mitigation                                                                                                                                                                                                                                    |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `reference/tier-and-domain.md` duplicates content from AIF-META-001 — risk of drift if AIF-META-001 is ever superseded or amended                                                                                                                                                | M      | Explicit source-of-truth note directs future editors back to AIF-META-001; since AIF-META-001 is`Approved` and this Epic does not plan to revise it further, near-term drift risk is low. Flagged, not blocking.                              |
+| 2   | The hand-off signal format (Section 9) is designed here but has no consumer until AIF-002-006 lands — if AIF-002-006 finds the shape insufficient once it designs the actual Decision Hand-off Sub-Flow, this chunk's`reference/handoff-signal.md` may need a follow-up revision | L      | Acceptable per dependency graph — AIF-002-006 has no`depends_on` this chunk (both are Wave 1, parallel, no file dependency), so it is free to request a revision to this file if needed. Not a blocking risk for this chunk's own completion. |
+| 3   | Domain-mismatch handling is a documented convention only, not enforced by tooling (Key Design Decision 4) — an agent could, in practice, ignore Step 4 and self-author outside its domain                                                                                        | L      | Explicitly accepted by the Epic (Section 6 Error States: "not blocked at a tooling level... deviations are caught in review"). No mitigation needed beyond what this chunk already documents.                                                 |
 
 ---
 

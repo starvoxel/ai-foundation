@@ -17,6 +17,7 @@ Add a knowledge layer and standards resolution system to ai-foundation that give
 ### Standards Resolution
 
 Any agent can reference a standard by name. Resolution order:
+
 1. Project-local: `./standards/{name}.md`
 2. Global installed: `{harness_standards_path}/{name}.md`
 
@@ -48,16 +49,16 @@ Standards are mapped by domain so agents only load what's relevant:
 
 ### What Lives Where
 
-| Content | Location | Why |
-|---|---|---|
-| Language/domain golden rules | `standards/{name}.md` (in aif, installed to harness) | Universal, shared across projects |
-| Project overrides | `{project}/standards/{name}.md` | Project-specific, trumps global |
-| Project defaults | `.aiconfig.json` `standards` map | Tells agents which standards apply |
-| API docs, schemas, business rules | `{project}/knowledge/` | Project-specific reference |
-| Confirmed decisions | `{project}/knowledge/decisions/` | Settled truth that constrains work |
-| Draft decisions | `{project}/knowledge/decisions/` | Same location, `status: Draft` gates usage |
-| Epic/chunk plans | `{project}/plans/` | Transient work artifacts |
-| Orchestration state | `{project}/plans/orchestration/` | Runtime state, not reference |
+| Content                           | Location                                             | Why                                        |
+| --------------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| Language/domain golden rules      | `standards/{name}.md` (in aif, installed to harness) | Universal, shared across projects          |
+| Project overrides                 | `{project}/standards/{name}.md`                      | Project-specific, trumps global            |
+| Project defaults                  | `.aiconfig.json` `standards` map                     | Tells agents which standards apply         |
+| API docs, schemas, business rules | `{project}/knowledge/`                               | Project-specific reference                 |
+| Confirmed decisions               | `{project}/knowledge/decisions/`                     | Settled truth that constrains work         |
+| Draft decisions                   | `{project}/knowledge/decisions/`                     | Same location, `status: Draft` gates usage |
+| Epic/chunk plans                  | `{project}/plans/`                                   | Transient work artifacts                   |
+| Orchestration state               | `{project}/plans/orchestration/`                     | Runtime state, not reference               |
 
 ---
 

@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-003-006 |
-| Parent Epic | AIF-003 |
-| Chunk | 6 of 8 |
-| Depends On | AIF-003-004 |
-| Can Parallel | AIF-003-002 (wave 2) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
-| Created | 2026-08-25 |
-| Last Updated | 2026-08-25 |
-| Standards | `skill/skill-authoring` (existing-skill extension, not a new skill), `skill/plan-lifecycle` (this chunk's own governing gate). AI-track chunk per `AIF-PROC-001`; complexity assessed as Tier 3 per `skill/complexity-tiers` — see Section 3. |
+| Field          | Value                                                                                                                                                                                                                                         |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-003-006                                                                                                                                                                                                                                   |
+| Parent Epic    | AIF-003                                                                                                                                                                                                                                       |
+| Chunk          | 6 of 8                                                                                                                                                                                                                                        |
+| Depends On     | AIF-003-004                                                                                                                                                                                                                                   |
+| Can Parallel   | AIF-003-002 (wave 2)                                                                                                                                                                                                                          |
+| Project        | ai-foundation                                                                                                                                                                                                                                 |
+| Status         | Approved                                                                                                                                                                                                                                      |
+| Author (Agent) | AI-Engineer                                                                                                                                                                                                                                   |
+| Reviewed By    | Pending                                                                                                                                                                                                                                       |
+| Created        | 2026-08-25                                                                                                                                                                                                                                    |
+| Last Updated   | 2026-08-25                                                                                                                                                                                                                                    |
+| Standards      | `skill/skill-authoring` (existing-skill extension, not a new skill), `skill/plan-lifecycle` (this chunk's own governing gate). AI-track chunk per `AIF-PROC-001`; complexity assessed as Tier 3 per `skill/complexity-tiers` — see Section 3. |
 
 ---
 
@@ -66,7 +66,7 @@ Document the three-rung amendment ladder that `AIF-META-002` defines — `## Err
 - **Editing `skills/plan-lifecycle/reference/status-vocabulary.md`.** `AIF-003-004` owns that file and adds the `Amending` status plus its two transitions. This chunk depends on that work existing but does not touch the file — see Prerequisites.
 - **Editing `skill/decision-record` or `skill/decision-brief`.** `AIF-003-007` points those skills at this chunk's output; this chunk does not pre-empt that by writing pointer text into the record skills itself.
 - **Editing `agents/architect.yaml` or `agents/engineering-manager.yaml`.** `AIF-003-008` owns the agent-prompt alignment, including the "Architect may set `Status: Approved` but must not commit it" carve-out (Epic Question 6). That carve-out is agent-specific and belongs in the agent's own prompt, not restated here — this chunk's documentation states the gate generically (an agent commits the transition after the human decides, per `skill/plan-lifecycle` Step 4, applied unchanged to the amendment gate) and leaves agent-specific exceptions to the agent's own file, exactly as the existing Step 4 language already does for every other artifact type.
-- **Editing the record templates (`skills/decision-record/reference/template.md`, `skills/decision-brief/reference/template.md`).** `AIF-003-003` owns the `## Amendments`/`## Errata` section shapes and the `Last Amended`/`Supersedes` Metadata fields as they appear *inside a record*. This chunk documents the *procedure* those shapes support, not the shapes themselves, and does not reproduce the table column headers as a second source of truth — it references `AIF-META-002` Design → Record-shape changes for readers who need the exact markup.
+- **Editing the record templates (`skills/decision-record/reference/template.md`, `skills/decision-brief/reference/template.md`).** `AIF-003-003` owns the `## Amendments`/`## Errata` section shapes and the `Last Amended`/`Supersedes` Metadata fields as they appear _inside a record_. This chunk documents the _procedure_ those shapes support, not the shapes themselves, and does not reproduce the table column headers as a second source of truth — it references `AIF-META-002` Design → Record-shape changes for readers who need the exact markup.
 - **Editing `AIF-META-002` itself.** Explicitly Out of Scope for the whole Epic. This chunk implements the record's currently-committed text (including its Tier A/B section lists) verbatim in substance; it does not correct the two cosmetic defects the record's own errata test would classify as errata (a code-span rendering glitch and an under-inclusive worked-examples row) — those are governed by the ladder this chunk is documenting, not by this chunk itself, and the Epic's Risk 14 was explicitly removed by the human with no chunk required to fix them.
 - **Any change to `lib/decisions.js`, `lib/commands/index.js`, or `tests/`.** Software-track, owned by `AIF-003-001`/`AIF-003-002`.
 - **The mechanisms `AIF-META-002` ruled out.** Child amendment records with their own IDs (Option B), inline section-level version stamps (Option C), whole-record versioned reissue (Option E). Must not reappear in either file.
@@ -135,6 +135,7 @@ Documentation components — each is a markdown section added at a named, stable
 **Purpose**: Tell an agent authoring or amending a Decision Record which rung applies and where to find the exact procedure.
 
 **Content requirements**:
+
 - Opens with `*(AIF-003-006)*` per Design Decision 5.
 - One sentence scoping it: applies to Decision Records only, alongside the existing Tier scoping — mirrors how the Tier Variants section opens.
 - A short prose statement of the three rungs (errata / amendment / supersede) and the one-line test for choosing between them: "does this provably leave the rendered meaning of a substantive section unchanged?" (errata) vs. "does the original rationale still hold?" (amendment) vs. neither (supersede).
@@ -143,6 +144,7 @@ Documentation components — each is a markdown section added at a named, stable
 - Closes with an explicit pointer: "See `reference/commit-gate-procedure.md` → Decision Record Amendment Ladder for the rung-selection table, the errata test, and the exact two-commit sequence." This is the one-line pointer from Design Decision 2 — it must not restate the table or the test.
 
 **Dependencies**:
+
 - `reference/status-vocabulary.md` (`AIF-003-004`'s output) — referenced, not duplicated.
 - `reference/commit-gate-procedure.md` (this chunk's other component) — referenced by relative pointer.
 
@@ -157,15 +159,15 @@ Documentation components — each is a markdown section added at a named, stable
 
 1. **`### The Ladder`** — reproduces the rung-selection table from `AIF-META-002` Design → The ladder, in the same three-row shape (Change / Path / Author / Gate):
 
-   | Change | Path | Author | Gate |
-   |---|---|---|---|
-   | Provably cannot alter the decision | `## Errata` entry | Anyone | None |
-   | Alters the record, but the original rationale still holds | `## Amendments` entry + in-place edit | Domain owner | `Amending` + two-commit confirmation |
-   | The original rationale no longer holds, or the decision reverses | `Status: Superseded` + new record | Domain owner | Full Tier A cycle |
+   | Change                                                           | Path                                  | Author       | Gate                                 |
+   | ---------------------------------------------------------------- | ------------------------------------- | ------------ | ------------------------------------ |
+   | Provably cannot alter the decision                               | `## Errata` entry                     | Anyone       | None                                 |
+   | Alters the record, but the original rationale still holds        | `## Amendments` entry + in-place edit | Domain owner | `Amending` + two-commit confirmation |
+   | The original rationale no longer holds, or the decision reverses | `Status: Superseded` + new record     | Domain owner | Full Tier A cycle                    |
 
 2. **`### The Errata Test`** — states the test in full: "a change that provably leaves the rendered meaning of a record's substantive sections unchanged — `Options Explored`, `Decision`, `Design`, and `Impact on Planning` at Tier A; `Rationale`, `Decision`, and `Impact` at Tier B." Immediately follows with both required properties, stated as rules (per Epic Section 7, not as guidance):
-   - *It is about meaning, not location* — a typo inside `Decision` is errata; a clarifying rewrite of an option's stated weakness in `Options Explored` (or its Tier B analogue, a rewrite of `Rationale`) is not.
-   - *Doubt disqualifies* — if it is not obvious that a change leaves meaning unchanged, it is not errata. Default-deny.
+   - _It is about meaning, not location_ — a typo inside `Decision` is errata; a clarifying rewrite of an option's stated weakness in `Options Explored` (or its Tier B analogue, a rewrite of `Rationale`) is not.
+   - _Doubt disqualifies_ — if it is not obvious that a change leaves meaning unchanged, it is not errata. Default-deny.
    - `Status`, `Tier`, and `Domain` changes are never errata; other metadata corrections may be.
    - The worked-examples table, carried across from `AIF-META-002` Design → The errata test, in full (four rows: typos/grammar/formatting; broken or moved link/path fixes; ID renumbering where the referent is identical; metadata corrections other than `Status`/`Tier`/`Domain` — each paired with its "not errata" counterpart).
    - The one-sentence warning that the record itself calls out: a factual correction to an option's strengths/weaknesses is the case most often misfiled as errata, because it undermines the reasoning that rejected an option rather than merely fixing prose.
@@ -191,6 +193,7 @@ Documentation components — each is a markdown section added at a named, stable
    - A closing note, matching Rule set 2 above (`### The Ladder`... no — matches the existing "Rules" list style at the top of this file): "Every gate checks positively for `Approved` only. `Amending` requires no new gate-checking logic anywhere — see `reference/status-vocabulary.md`."
 
 **Dependencies**:
+
 - `docs/decisions/meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md` — source text for all three sub-sections; read directly at implementation time per Prerequisites.
 - `reference/status-vocabulary.md` (`AIF-003-004`) — the `Amending` status and its two transitions are referenced, not redefined.
 
@@ -221,32 +224,32 @@ Not applicable — this chunk produces documentation, not a data structure or sc
 
 Not applicable. This chunk adds no runtime code, no CLI behaviour, and no execution path — it is documentation content only. `lib/decisions.js` and `lib/commands/index.js` are untouched by this chunk (owned by `AIF-003-001`/`002`), so there is no logging surface for this chunk to specify. Recorded here per template requirement rather than left blank.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| N/A | N/A | This chunk produces no code and no log statements. | N/A |
+| Event | Level | What is logged                                     | What is NOT logged |
+| ----- | ----- | -------------------------------------------------- | ------------------ |
+| N/A   | N/A   | This chunk produces no code and no log statements. | N/A                |
 
 ---
 
 ## 12. Cross-Reference Checklist
 
-*(Substituted for the template's Section 12 "Testing Plan," which assumes executable test cases. This is a documentation chunk; its validation is cross-reference and content-fidelity checking, run by AI-Engineer as self-validation per `skill/chunk-planning`'s AI-Track Chunks process, and confirmed again by Principal-Engineer review.)*
+_(Substituted for the template's Section 12 "Testing Plan," which assumes executable test cases. This is a documentation chunk; its validation is cross-reference and content-fidelity checking, run by AI-Engineer as self-validation per `skill/chunk-planning`'s AI-Track Chunks process, and confirmed again by Principal-Engineer review.)_
 
-| Check ID | Description | Pass Criteria |
-|---|---|---|
-| 006-C01 | `### Decision Record Amendment Ladder` exists in `skills/plan-lifecycle/SKILL.md` at the specified position | Heading present, positioned between `### Decision Record Tier Variants` and `## Outputs` |
-| 006-C02 | `## Decision Record Amendment Ladder` exists in `skills/plan-lifecycle/reference/commit-gate-procedure.md` at the specified position | Heading present, positioned after `## Decision Record Tier Variants`, is the new final section |
-| 006-C03 | The rung table in `commit-gate-procedure.md` matches `AIF-META-002` Design → The ladder in substance (3 rows, 4 columns each) | Row-by-row comparison against the record's current committed text |
-| 006-C04 | The errata test's protected-section lists match `AIF-META-002`'s currently committed text exactly as a set (4 Tier A sections, 3 Tier B sections) | Set comparison against the record, independent of the record's own code-span rendering defect (Design Decision 4) |
-| 006-C05 | The default-deny sentence and the `Status`/`Tier`/`Domain` exclusion are both present, each as an explicit rule sentence | Manual read-through against Section 10's security checklist |
-| 006-C06 | The worked-examples table carries all four rows from `AIF-META-002` | Row-by-row comparison |
-| 006-C07 | The two-commit sequence's three commit-message strings match `AIF-META-002` exactly: `Propose amendment: ...`, `Amend decision: ...`, `Reject amendment: ...` | String comparison |
-| 006-C08 | No mention of child-record IDs, section-level version stamps, or versioned reissue appears anywhere in either file | Full-text search for the ruled-out mechanisms' characteristic phrases (e.g. "Amends"/"Amended By" as field names, "v2" reissue) returns nothing |
-| 006-C09 | Neither file states or implies new gate-checking logic beyond "check positively for `Approved`" | Manual read-through; cross-check against `reference/status-vocabulary.md`'s "Checking whether dependent work may proceed" section for contradiction |
-| 006-C10 | Neither file names `Architect`, `Engineering-Manager`, or any other specific agent | Full-text search for agent names returns nothing in the two new sections |
-| 006-C11 | `skills/plan-lifecycle/SKILL.md` frontmatter `version` reads `0.2.0` | Direct read of the frontmatter block |
-| 006-C12 | `skills/decision-record/SKILL.md`, `skills/decision-brief/SKILL.md`, `agents/architect.yaml`, `agents/engineering-manager.yaml` are byte-identical to their pre-chunk state | `git diff` shows no changes to any file outside the two named in Section 5 |
-| 006-C13 | `AIF-META-002`'s file is untouched | `git diff` shows no changes to the record |
-| 006-C14 | Prerequisite check: `reference/status-vocabulary.md` documents `Amending` and its two transitions before this chunk's prose is finalized | Direct read of the file at implementation time (Section 6 Prerequisites) |
+| Check ID | Description                                                                                                                                                                 | Pass Criteria                                                                                                                                       |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 006-C01  | `### Decision Record Amendment Ladder` exists in `skills/plan-lifecycle/SKILL.md` at the specified position                                                                 | Heading present, positioned between `### Decision Record Tier Variants` and `## Outputs`                                                            |
+| 006-C02  | `## Decision Record Amendment Ladder` exists in `skills/plan-lifecycle/reference/commit-gate-procedure.md` at the specified position                                        | Heading present, positioned after `## Decision Record Tier Variants`, is the new final section                                                      |
+| 006-C03  | The rung table in `commit-gate-procedure.md` matches `AIF-META-002` Design → The ladder in substance (3 rows, 4 columns each)                                               | Row-by-row comparison against the record's current committed text                                                                                   |
+| 006-C04  | The errata test's protected-section lists match `AIF-META-002`'s currently committed text exactly as a set (4 Tier A sections, 3 Tier B sections)                           | Set comparison against the record, independent of the record's own code-span rendering defect (Design Decision 4)                                   |
+| 006-C05  | The default-deny sentence and the `Status`/`Tier`/`Domain` exclusion are both present, each as an explicit rule sentence                                                    | Manual read-through against Section 10's security checklist                                                                                         |
+| 006-C06  | The worked-examples table carries all four rows from `AIF-META-002`                                                                                                         | Row-by-row comparison                                                                                                                               |
+| 006-C07  | The two-commit sequence's three commit-message strings match `AIF-META-002` exactly: `Propose amendment: ...`, `Amend decision: ...`, `Reject amendment: ...`               | String comparison                                                                                                                                   |
+| 006-C08  | No mention of child-record IDs, section-level version stamps, or versioned reissue appears anywhere in either file                                                          | Full-text search for the ruled-out mechanisms' characteristic phrases (e.g. "Amends"/"Amended By" as field names, "v2" reissue) returns nothing     |
+| 006-C09  | Neither file states or implies new gate-checking logic beyond "check positively for `Approved`"                                                                             | Manual read-through; cross-check against `reference/status-vocabulary.md`'s "Checking whether dependent work may proceed" section for contradiction |
+| 006-C10  | Neither file names `Architect`, `Engineering-Manager`, or any other specific agent                                                                                          | Full-text search for agent names returns nothing in the two new sections                                                                            |
+| 006-C11  | `skills/plan-lifecycle/SKILL.md` frontmatter `version` reads `0.2.0`                                                                                                        | Direct read of the frontmatter block                                                                                                                |
+| 006-C12  | `skills/decision-record/SKILL.md`, `skills/decision-brief/SKILL.md`, `agents/architect.yaml`, `agents/engineering-manager.yaml` are byte-identical to their pre-chunk state | `git diff` shows no changes to any file outside the two named in Section 5                                                                          |
+| 006-C13  | `AIF-META-002`'s file is untouched                                                                                                                                          | `git diff` shows no changes to the record                                                                                                           |
+| 006-C14  | Prerequisite check: `reference/status-vocabulary.md` documents `Amending` and its two transitions before this chunk's prose is finalized                                    | Direct read of the file at implementation time (Section 6 Prerequisites)                                                                            |
 
 No unit or integration test suite exists for skill markdown content in this repo; `npm test` is unaffected by this chunk and is not expected to change its result count.
 
@@ -264,12 +267,12 @@ No unit or integration test suite exists for skill markdown content in this repo
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | **This chunk depends on `AIF-003-004`, which had not landed as of this plan's drafting** — `reference/status-vocabulary.md` does not yet document `Amending` at the time this plan is written. | Risk | M | Not a blocker for planning (the interface is fully specified in `AIF-META-002` Design → Status handling and restated in `chunks.json`'s dependency edge), but is a hard implementation-time check — Prerequisites (Section 6) requires the AI-Engineer implementing this chunk to read the landed `status-vocabulary.md` directly, not assume the plan's description of it is still accurate, mirroring how `AIF-003-002` verified `AIF-003-001`'s actual landed state rather than trusting its own plan's summary. |
-| 2 | **Two cosmetic defects exist in `AIF-META-002`'s current errata-test text** (a broken code span, an under-inclusive worked-examples row) that this chunk must not silently propagate as if they were correct, and must not "fix" by editing the record (Out of Scope). | Risk | L | Resolved by Design Decision 4: this chunk writes independently correct prose describing the same test, rather than transcribing the record's markdown byte-for-byte. Cross-reference check 006-C04 verifies the *substance* (the section sets) matches, not the record's rendering. |
-| 3 | **Scope-boundary risk between this chunk and `AIF-003-008`** on the "who commits the confirm/reject commit" sentence — writing it too specifically could pre-empt `AIF-003-008`'s Architect-specific carve-out; writing it too vague could leave `AIF-003-008` without a generic rule to specialize. | Risk | M | Resolved by Section 5's Out of Scope entry and the exact sentence specified in Section 8's `SKILL.md` component: state the existing Step 4 rule generically, name no agent, and explicitly point future readers to "that agent's own definition" for exceptions. `AIF-003-008`'s implementer should read this exact sentence before drafting the Architect-specific wording, so the two chunks compose without contradiction. |
-| 4 | **`AIF-003-007` and `AIF-003-008` are the actual consumers of the anchors this chunk creates**, but neither has been implemented yet, so the anchor strings in Section 8 cannot be validated against real consuming text — only against the Epic's stated dependency graph. | Risk | L | Accepted. The anchor strings are chosen to be stable and mirror an existing, already-proven pattern (Tier Variants), minimizing the chance `AIF-003-007`/`008` need a different anchor than what is specified here. If either downstream chunk's author finds the anchors insufficient, that is a discovery to raise per engineering-core Rule 4, not a silent deviation. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                      | Type | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **This chunk depends on `AIF-003-004`, which had not landed as of this plan's drafting** — `reference/status-vocabulary.md` does not yet document `Amending` at the time this plan is written.                                                                                                       | Risk | M      | Not a blocker for planning (the interface is fully specified in `AIF-META-002` Design → Status handling and restated in `chunks.json`'s dependency edge), but is a hard implementation-time check — Prerequisites (Section 6) requires the AI-Engineer implementing this chunk to read the landed `status-vocabulary.md` directly, not assume the plan's description of it is still accurate, mirroring how `AIF-003-002` verified `AIF-003-001`'s actual landed state rather than trusting its own plan's summary. |
+| 2   | **Two cosmetic defects exist in `AIF-META-002`'s current errata-test text** (a broken code span, an under-inclusive worked-examples row) that this chunk must not silently propagate as if they were correct, and must not "fix" by editing the record (Out of Scope).                               | Risk | L      | Resolved by Design Decision 4: this chunk writes independently correct prose describing the same test, rather than transcribing the record's markdown byte-for-byte. Cross-reference check 006-C04 verifies the _substance_ (the section sets) matches, not the record's rendering.                                                                                                                                                                                                                                 |
+| 3   | **Scope-boundary risk between this chunk and `AIF-003-008`** on the "who commits the confirm/reject commit" sentence — writing it too specifically could pre-empt `AIF-003-008`'s Architect-specific carve-out; writing it too vague could leave `AIF-003-008` without a generic rule to specialize. | Risk | M      | Resolved by Section 5's Out of Scope entry and the exact sentence specified in Section 8's `SKILL.md` component: state the existing Step 4 rule generically, name no agent, and explicitly point future readers to "that agent's own definition" for exceptions. `AIF-003-008`'s implementer should read this exact sentence before drafting the Architect-specific wording, so the two chunks compose without contradiction.                                                                                       |
+| 4   | **`AIF-003-007` and `AIF-003-008` are the actual consumers of the anchors this chunk creates**, but neither has been implemented yet, so the anchor strings in Section 8 cannot be validated against real consuming text — only against the Epic's stated dependency graph.                          | Risk | L      | Accepted. The anchor strings are chosen to be stable and mirror an existing, already-proven pattern (Tier Variants), minimizing the chance `AIF-003-007`/`008` need a different anchor than what is specified here. If either downstream chunk's author finds the anchors insufficient, that is a discovery to raise per engineering-core Rule 4, not a silent deviation.                                                                                                                                           |
 
 ---
 

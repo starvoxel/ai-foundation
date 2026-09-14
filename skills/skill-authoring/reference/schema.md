@@ -4,9 +4,9 @@
 
 ```yaml
 ---
-name: "skill-name"            # Required. Kebab-case. Must match folder name.
-version: "0.1.0"              # Required. Semver.
-description: "One sentence."  # Required. What this skill produces.
+name: 'skill-name' # Required. Kebab-case. Must match folder name.
+version: '0.1.1' # Required. Semver.
+description: 'One sentence.' # Required. What this skill produces.
 ---
 ```
 
@@ -30,8 +30,8 @@ skills/{name}/
 └── scripts/              ← Deterministic operations.
 ```
 
-| Question | Folder |
-|---|---|
-| Agent reads this to understand what to do? | `reference/` |
-| Copied into output or consumed by a script? | `assets/` |
-| Code that runs deterministically? | `scripts/` |
+| Question                                    | Folder       |
+| ------------------------------------------- | ------------ |
+| Agent reads this to understand what to do?  | `reference/` |
+| Copied into output or consumed by a script? | `assets/`    |
+| Code that runs deterministically?           | `scripts/`   |

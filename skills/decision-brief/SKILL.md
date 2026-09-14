@@ -1,6 +1,6 @@
 ---
-name: "decision-brief"
-version: "0.1.0"
+name: 'decision-brief'
+version: '0.1.1'
 description: "Produces a slim Tier B Decision Brief for structural decisions that don't need full options-exploration ceremony."
 ---
 

@@ -1,7 +1,7 @@
 ---
-name: "worktree-management"
-version: "0.1.0"
-description: "Manages git worktree lifecycle for parallel agent isolation — creation, setup, and teardown."
+name: 'worktree-management'
+version: '0.1.1'
+description: 'Manages git worktree lifecycle for parallel agent isolation — creation, setup, and teardown.'
 ---
 
 ## Purpose
@@ -33,6 +33,7 @@ Provides the Engineering Manager with a structured procedure for creating, confi
 4. If `{project_shortname}` appears in the configured path as a literal placeholder, substitute with the actual `project_shortname` value from `.aiconfig.json` (or `project_name` if unset)
 
 Example resolution:
+
 - Config: `paths.worktrees: "../worktrees/myapp"`
 - Epic: `MYAPP-001`, Chunk: `001`, Description: `add-user-service`
 - Result: `../worktrees/myapp/MYAPP-001/001-add-user-service`

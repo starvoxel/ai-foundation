@@ -1,6 +1,6 @@
 ---
-name: "decision-record"
-version: "0.3.0"
+name: 'decision-record'
+version: '0.3.1'
 description: "Produces a structured Tier A ('Researched') Decision Record capturing options explored and the chosen approach. Invoked by skill/decision-triage, or directly by an agent that already knows it needs Tier A."
 ---
 
@@ -37,6 +37,7 @@ If not already triaged via `skill/decision-triage`, confirm Tier A genuinely app
 ### Step 2 — Generate Options
 
 Propose 2-4 genuinely distinct approaches. For each:
+
 - Name it clearly
 - Describe it in plain language
 - State strengths in this specific context
@@ -86,5 +87,5 @@ Follow `skill/plan-lifecycle` to save the record with `Status: Draft`, commit it
 - **Closing section** — use `## Resolved Items` if every open question raised during the decision was answered by the time the record was written. Use `## Open Items` if questions remain unresolved. A record may include either or, if genuinely warranted, both — but never neither.
 - **Decision doesn't clearly belong to exactly one domain** — select the
   closest matching domain per Step 1 and note the ambiguity in `Impact on
-  Planning`/`Design`. If genuinely unclear and materially affects who should
+Planning`/`Design`. If genuinely unclear and materially affects who should
   author the record, raise to the human rather than guessing (global Rule 2).

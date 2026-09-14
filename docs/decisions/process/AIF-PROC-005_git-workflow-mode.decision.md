@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-PROC-005 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | process |
-| Status | Draft |
-| Author (Agent) | Architect |
-| Approved By | Pending |
-| Created | 2026-08-13 |
-| Referenced By | AIF-PROC-003, AIF-PROC-004 |
-| References | AIF-PROC-001, AIF-PROC-002 |
-| Tags | git-workflow, orchestration, worktrees |
+| Field          | Value                                  |
+| -------------- | -------------------------------------- |
+| Decision ID    | AIF-PROC-005                           |
+| Project        | ai-foundation                          |
+| Tier           | A                                      |
+| Domain         | process                                |
+| Status         | Draft                                  |
+| Author (Agent) | Architect                              |
+| Approved By    | Pending                                |
+| Created        | 2026-08-13                             |
+| Referenced By  | AIF-PROC-003, AIF-PROC-004             |
+| References     | AIF-PROC-001, AIF-PROC-002             |
+| Tags           | git-workflow, orchestration, worktrees |
 
 ---
 
@@ -27,10 +27,12 @@ Engineering-Manager's branch+PR cycle already contradicts the repo's declared wo
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - The resolution must not contradict Engineering-Manager's existing hard rule without either changing the rule or changing `repo_type` — leaving both as-is is not an option.
 - Whatever the resolution, it must not silently weaken the human-approval gate (`skill/plan-lifecycle`).
 
 What was a preference but not a hard requirement:
+
 - Keep ceremony proportional to risk (declarative one-line changes shouldn't cost as much process as a resolver rewrite).
 
 ---
@@ -64,9 +66,10 @@ directly govern every future agent's behavior across every repo that installs th
 **Chosen approach**: Option B — keep `repo_type: framework`, document the existing Engineering-Manager branch→PR→merge cycle as an explicit exception for any Epic/Chunk-orchestrated work.
 
 **Rationale**: Engineering-Manager's "non-negotiable" branch-per-chunk rule — and the PR-and-human-merge cycle that follows it — already exists and already runs today for any orchestrated work; this decision does not change agent behavior, it resolves a documentation contradiction so the steering files stop asserting something Engineering-Manager doesn't do. It also directly answers the mechanical question of how `git worktree` (AIF-PROC-003) is even possible under a `framework` classification:
-worktrees require distinct branches, and this exception is what guarantees every orchestrated chunk has one, regardless of what `repo_type` says about the repo's *default* workflow. Given AIF-PROC-001 already funnels all `bin`/`lib` code work through Tech-Lead's Epic/Chunk pipeline, the actually-risky path is already covered by the full cycle under this option, without imposing PR ceremony on the routine declarative edits that make up most of this repo's activity.
+worktrees require distinct branches, and this exception is what guarantees every orchestrated chunk has one, regardless of what `repo_type` says about the repo's _default_ workflow. Given AIF-PROC-001 already funnels all `bin`/`lib` code work through Tech-Lead's Epic/Chunk pipeline, the actually-risky path is already covered by the full cycle under this option, without imposing PR ceremony on the routine declarative edits that make up most of this repo's activity.
 
 **Trade-offs accepted**:
+
 - The repo now has a documented conditional rule ("full branch→PR→merge cycle if orchestrated, direct commit otherwise") instead of one flat rule. Mitigated by making the condition itself unambiguous: any work dispatched via `chunk-orchestration` goes through the full cycle; any work done directly by an agent outside that pipeline does not.
 
 ---
@@ -80,7 +83,7 @@ worktrees require distinct branches, and this exception is what guarantees every
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Should `ai-foundation` switch `repo_type` to `project`? | No — stays `framework`. Engineering-Manager's existing branch → worktree → PR → human-merge cycle is documented as an explicit exception for orchestrated work instead. |
-| 2 | If `repo_type` stays `framework`, how can `git worktree` work for parallel orchestrated chunks, given each worktree requires a distinct branch? | It already does — this exception guarantees every Engineering-Manager-dispatched chunk gets its own branch unconditionally, regardless of `repo_type`. The `framework` classification only ever described the *default* (non-orchestrated) path; it never applied to Engineering-Manager's dispatch loop, which has never checked `repo_type` at all. See also AIF-PROC-003 for the worktree mechanism itself. |
+| #   | Item                                                                                                                                            | Resolution                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Should `ai-foundation` switch `repo_type` to `project`?                                                                                         | No — stays `framework`. Engineering-Manager's existing branch → worktree → PR → human-merge cycle is documented as an explicit exception for orchestrated work instead.                                                                                                                                                                                                                                        |
+| 2   | If `repo_type` stays `framework`, how can `git worktree` work for parallel orchestrated chunks, given each worktree requires a distinct branch? | It already does — this exception guarantees every Engineering-Manager-dispatched chunk gets its own branch unconditionally, regardless of `repo_type`. The `framework` classification only ever described the _default_ (non-orchestrated) path; it never applied to Engineering-Manager's dispatch loop, which has never checked `repo_type` at all. See also AIF-PROC-003 for the worktree mechanism itself. |

@@ -1,7 +1,7 @@
 ---
-name: "server-authoring"
-version: "0.2.0"
-description: "Creates a server definition with tool documentation, implementation, and tests."
+name: 'server-authoring'
+version: '0.2.1'
+description: 'Creates a server definition with tool documentation, implementation, and tests.'
 ---
 
 ## Purpose
@@ -46,15 +46,15 @@ servers/{name}/
 
 **File naming conventions:**
 
-| File | Purpose |
-|---|---|
-| `{name}.yaml` | Protocol-agnostic server definition. Declares tools, inputs, outputs. |
-| `index.js` | Protocol entry point. Registers tools with the protocol SDK and connects the transport. This is what gets spawned at runtime. |
-| `logic.js` | Pure business logic. No protocol awareness, no transport code. All tool implementations live here as exported functions. |
-| `package.json` | Declares runtime dependencies needed when the server is installed standalone (away from the monorepo). |
-| `tests/unit/{name}.test.js` | Tests pure logic functions directly. No I/O, no protocol. |
-| `tests/integration/{name}.test.js` | Tests I/O layer functions against real filesystem. |
-| `tests/integration/{name}.mcp.test.js` | Tests MCP protocol layer via in-memory transport (tool listing + invocation). |
+| File                                   | Purpose                                                                                                                       |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `{name}.yaml`                          | Protocol-agnostic server definition. Declares tools, inputs, outputs.                                                         |
+| `index.js`                             | Protocol entry point. Registers tools with the protocol SDK and connects the transport. This is what gets spawned at runtime. |
+| `logic.js`                             | Pure business logic. No protocol awareness, no transport code. All tool implementations live here as exported functions.      |
+| `package.json`                         | Declares runtime dependencies needed when the server is installed standalone (away from the monorepo).                        |
+| `tests/unit/{name}.test.js`            | Tests pure logic functions directly. No I/O, no protocol.                                                                     |
+| `tests/integration/{name}.test.js`     | Tests I/O layer functions against real filesystem.                                                                            |
+| `tests/integration/{name}.mcp.test.js` | Tests MCP protocol layer via in-memory transport (tool listing + invocation).                                                 |
 
 ### Step 1a — Vendor-hosted servers (`hosted: "vendor"`)
 
@@ -72,6 +72,7 @@ When a third party implements and runs the server (e.g. a product's own official
 Use the schema in `skills/server-authoring/reference/schema.yaml`.
 
 Every tool must document:
+
 - `name` — what agents reference via `@server/tool_name`
 - `description` — when to use it (one or two sentences)
 - `inputs` — every parameter with type and description
@@ -80,6 +81,7 @@ Every tool must document:
 ### Step 3 — Implement pure logic (`logic.js`)
 
 All business logic goes in `logic.js` as exported functions:
+
 - Functions take data in and return data out
 - No protocol awareness (no MCP types, no transport references)
 - I/O (file reads, network calls) is acceptable here but should be minimal
@@ -88,6 +90,7 @@ All business logic goes in `logic.js` as exported functions:
 ### Step 4 — Implement the protocol entry point (`index.js`)
 
 The entry point is a thin wrapper that:
+
 1. Imports logic functions from `logic.js`
 2. Registers each tool with the protocol SDK
 3. Connects the transport and starts listening
@@ -119,17 +122,20 @@ Only include dependencies that are needed at runtime. Dev/test dependencies live
 Tests are organized into `tests/unit/` and `tests/integration/`:
 
 **Unit tests** (`tests/unit/{name}.test.js`):
+
 - Import pure functions from `logic.js`
 - Call functions directly with in-memory data
 - No filesystem, no network, no protocol
 - Cover happy paths, error cases, edge cases
 
 **Integration tests** (`tests/integration/{name}.test.js`):
+
 - Import I/O-layer functions from `logic.js`
 - Test against real filesystem (temp files)
 - Cover file read errors, invalid content, end-to-end flows
 
 **MCP protocol tests** (`tests/integration/{name}.mcp.test.js`):
+
 - Instantiate the server with an in-memory transport
 - Connect a test client
 - Verify tool listing and invocation end-to-end via the MCP protocol
@@ -147,6 +153,7 @@ Use `node:test` with `describe/it` structure. Group tests under descriptive pref
 - [ ] No literal secrets in `headers` — `${ENV_VAR_NAME}` placeholders only
 
 For `hosted: "self"` (default) additionally:
+
 - [ ] `logic.js` contains only pure business logic — no protocol imports
 - [ ] `index.js` is a thin protocol wrapper — imports from `logic.js`, registers tools
 - [ ] `package.json` declares runtime dependencies for standalone install
@@ -157,6 +164,7 @@ For `hosted: "self"` (default) additionally:
 - [ ] Tool `name`s are kebab-case (we control the naming)
 
 For `hosted: "vendor"` additionally:
+
 - [ ] Only `{name}.yaml` exists — no `index.js`/`logic.js`/`package.json`/`tests/`
 - [ ] `url` is set (http transport) and is a literal value, not a placeholder
 - [ ] Tool list was sourced from a live `listTools()` call, not transcribed from vendor docs (or the gap is explicitly noted per tool)
@@ -182,17 +190,21 @@ const server = new McpServer({
   version: '{version}',
 });
 
-server.registerTool('{tool-name}', {
-  description: '{tool description}',
-  inputSchema: {
-    param_name: z.string().describe('Parameter description'),
+server.registerTool(
+  '{tool-name}',
+  {
+    description: '{tool description}',
+    inputSchema: {
+      param_name: z.string().describe('Parameter description'),
+    },
   },
-}, async ({ param_name }) => {
-  const result = myToolFunction(param_name);
-  return {
-    content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
-  };
-});
+  async ({ param_name }) => {
+    const result = myToolFunction(param_name);
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+    };
+  },
+);
 
 async function main() {
   const transport = new StdioServerTransport();
@@ -242,6 +254,7 @@ const result = await client.callTool({ name: 'tool-name', arguments: { ... } });
 ```
 
 Protocol tests must verify:
+
 - All declared tools appear in `listTools()` response
 - Each tool has a description and input schema
 - Tool invocation returns expected results for valid input

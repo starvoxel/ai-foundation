@@ -1,7 +1,7 @@
 ---
-name: "skill-authoring"
-version: "0.1.0"
-description: "Creates a well-formed, self-contained skill with proper folder structure and documentation."
+name: 'skill-authoring'
+version: '0.1.1'
+description: 'Creates a well-formed, self-contained skill with proper folder structure and documentation.'
 ---
 
 ## Purpose
@@ -37,11 +37,11 @@ skills/{name}/
 
 **Folder purposes:**
 
-| Folder | Contents | Used by | Example |
-|---|---|---|---|
-| `reference/` | Schemas, templates, examples, style guides | The agent, during execution | `reference/schema.md` — field definitions |
-| `assets/` | Output templates, boilerplate files, images | Scripts or copied into output | `assets/template.yaml` — file the skill outputs |
-| `scripts/` | Validation, transforms, generators, checks | The agent via `shell` tool | `scripts/validate.js` — schema validator |
+| Folder       | Contents                                    | Used by                       | Example                                         |
+| ------------ | ------------------------------------------- | ----------------------------- | ----------------------------------------------- |
+| `reference/` | Schemas, templates, examples, style guides  | The agent, during execution   | `reference/schema.md` — field definitions       |
+| `assets/`    | Output templates, boilerplate files, images | Scripts or copied into output | `assets/template.yaml` — file the skill outputs |
+| `scripts/`   | Validation, transforms, generators, checks  | The agent via `shell` tool    | `scripts/validate.js` — schema validator        |
 
 ### Step 2 — Write SKILL.md frontmatter
 
@@ -49,9 +49,9 @@ Use the schema documented in `skills/skill-authoring/reference/schema.md`:
 
 ```yaml
 ---
-name: "skill-name"
-version: "0.1.0"
-description: "One sentence describing what this skill produces."
+name: 'skill-name'
+version: '0.1.0'
+description: 'One sentence describing what this skill produces.'
 ---
 ```
 
@@ -68,6 +68,7 @@ Every SKILL.md must have these sections in order:
 ### Step 4 — Add reference material (if needed)
 
 Place files in `reference/` that the agent needs to read during execution:
+
 - Schema definitions
 - Format specifications
 - Examples of good output
@@ -78,6 +79,7 @@ Reference files are **read by the agent** to inform its work.
 ### Step 5 — Add assets (if needed)
 
 Place files in `assets/` that are used in the output or by scripts:
+
 - Output templates that get copied/filled
 - Boilerplate files
 - Static resources included in deliverables
@@ -89,6 +91,7 @@ Assets are **used in production of output**, not read for understanding.
 **Every operation that is deterministic and repeatable MUST be a script, not prose instructions for the agent.** The agent invokes scripts via the `shell` tool. AI reasoning is expensive and unreliable for mechanical tasks.
 
 Scripts go in `scripts/`. Examples:
+
 - Schema validation (`scripts/validate.js`)
 - File generation from templates (`scripts/generate.js`)
 - Cross-reference checks (`scripts/check-refs.js`)

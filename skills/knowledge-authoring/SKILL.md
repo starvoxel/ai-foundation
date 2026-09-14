@@ -1,7 +1,7 @@
 ---
-name: "knowledge-authoring"
-version: "0.1.0"
-description: "Creates a well-formed knowledge entry with proper frontmatter and placement."
+name: 'knowledge-authoring'
+version: '0.1.1'
+description: 'Creates a well-formed knowledge entry with proper frontmatter and placement.'
 ---
 
 ## Purpose
@@ -26,24 +26,26 @@ Use this skill when capturing information that agents will need repeatedly acros
 ### Step 1 — Determine if this belongs in knowledge
 
 Knowledge is the right place when:
+
 - Multiple agents or sessions will reference this information
 - The information is stable (not changing every sprint)
-- It describes *what is* or *what was decided*, not *what to do next*
+- It describes _what is_ or _what was decided_, not _what to do next_
 
 **Not knowledge — use these instead:**
+
 - Prescriptive rules that must always be followed → `standards/` or `project-standards.md`
 - A plan for future work → `plans/`
 - A one-time instruction → agent prompt or task description
 
 ### Step 2 — Choose the type
 
-| Type | Use when... |
-|---|---|
-| `decision` | Recording a technical decision — use `skill/decision-triage` as the entry point instead. Once triaged, the decision is added to `knowledge/index.json` only if its Domain is Architecture or AI-component; all other domains (Process, Planning, Quality, Testing, Meta-process) are never added here — they remain traceable via `{paths.decisions}/index.json` instead. |
-| `reference` | General reference: patterns, conventions, prior art, onboarding context |
-| `architecture` | System structure: components, relationships, data flow, deployment |
-| `api` | Endpoint docs, schemas, request/response formats, auth patterns |
-| `business-rule` | Domain logic, validation rules, business constraints, compliance requirements |
+| Type            | Use when...                                                                                                                                                                                                                                                                                                                                                               |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `decision`      | Recording a technical decision — use `skill/decision-triage` as the entry point instead. Once triaged, the decision is added to `knowledge/index.json` only if its Domain is Architecture or AI-component; all other domains (Process, Planning, Quality, Testing, Meta-process) are never added here — they remain traceable via `{paths.decisions}/index.json` instead. |
+| `reference`     | General reference: patterns, conventions, prior art, onboarding context                                                                                                                                                                                                                                                                                                   |
+| `architecture`  | System structure: components, relationships, data flow, deployment                                                                                                                                                                                                                                                                                                        |
+| `api`           | Endpoint docs, schemas, request/response formats, auth patterns                                                                                                                                                                                                                                                                                                           |
+| `business-rule` | Domain logic, validation rules, business constraints, compliance requirements                                                                                                                                                                                                                                                                                             |
 
 Architecture and AI-component decisions are added to `knowledge/index.json` because they lack a single canonical implementing artifact (a skill, template, or steering file) that already captures the decision's effect — the knowledge entry is that artifact. Decisions in every other domain already have such an artifact, so a second, driftable knowledge copy isn't needed. Per AIF-META-001 (Decision Record).
 
@@ -52,17 +54,19 @@ Architecture and AI-component decisions are added to `knowledge/index.json` beca
 **Location:** `{paths.knowledge}/{name}.md` (from `.aiconfig.json`, default: `knowledge/`)
 
 **Frontmatter:**
+
 ```yaml
 ---
-name: "{kebab-case-name}"
-type: "{type}"
-tags: ["{tag1}", "{tag2}"]
-scope: "{all | domain | agent-name}"
-description: "{One sentence — agents read this to decide whether to load the file}"
+name: '{kebab-case-name}'
+type: '{type}'
+tags: ['{tag1}', '{tag2}']
+scope: '{all | domain | agent-name}'
+description: '{One sentence — agents read this to decide whether to load the file}'
 ---
 ```
 
 **Body:** Standard markdown. Prefer:
+
 - Scannable structure (headers, tables, bullet lists)
 - Concrete examples over abstract descriptions
 - Concise content — agents have context limits
@@ -79,6 +83,7 @@ When in doubt, start with `all`. Narrow later if it's consuming context unnecess
 ### Step 5 — Choose tags
 
 Tags enable agents to find relevant knowledge by topic. Use:
+
 - The component or service name (`user-service`, `auth`)
 - The domain concept (`payments`, `notifications`)
 - The technology (`postgres`, `redis`, `graphql`)

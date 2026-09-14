@@ -1,6 +1,6 @@
 ---
 name: csharp_base
-version: 1.1.0
+version: 1.1.1
 description: Core C# coding standards for all .NET projects
 tags: [csharp]
 depends_on: []
@@ -12,12 +12,12 @@ depends_on: []
 
 ## Stack Baseline
 
-| Layer        | Library / Version             |
-|--------------|-------------------------------|
-| Language     | C# 12+ (.NET 8+)             |
-| Serialization| System.Text.Json (preferred)  |
-| Testing      | xUnit                         |
-| Logging      | Microsoft.Extensions.Logging (structured) |
+| Layer         | Library / Version                         |
+| ------------- | ----------------------------------------- |
+| Language      | C# 12+ (.NET 8+)                          |
+| Serialization | System.Text.Json (preferred)              |
+| Testing       | xUnit                                     |
+| Logging       | Microsoft.Extensions.Logging (structured) |
 
 ---
 
@@ -56,18 +56,18 @@ See `aif init` for the project template. If no `.editorconfig` exists, the agent
 
 ## Naming Conventions
 
-| Construct           | Convention                         | Example                        |
-|---------------------|------------------------------------|--------------------------------|
-| Classes             | PascalCase                         | `DataParser`                   |
-| Interfaces          | PascalCase with `I` prefix         | `IDataParser`                  |
-| Methods             | PascalCase                         | `ParseFile()`                  |
-| Async methods       | PascalCase + `Async` suffix        | `ParseFileAsync()`             |
-| Properties          | PascalCase                         | `FileName`                     |
-| Private fields      | `_camelCase`                       | `_dataParser`                  |
-| Local variables     | camelCase                          | `parsedResult`                 |
-| Constants           | PascalCase                         | `MaxRetryCount`                |
-| Enums               | PascalCase (type and values)       | `FileFormat.Csv`               |
-| Namespaces          | `{Project}.{Layer}`                | `CNS.Core.Services`            |
+| Construct       | Convention                   | Example             |
+| --------------- | ---------------------------- | ------------------- |
+| Classes         | PascalCase                   | `DataParser`        |
+| Interfaces      | PascalCase with `I` prefix   | `IDataParser`       |
+| Methods         | PascalCase                   | `ParseFile()`       |
+| Async methods   | PascalCase + `Async` suffix  | `ParseFileAsync()`  |
+| Properties      | PascalCase                   | `FileName`          |
+| Private fields  | `_camelCase`                 | `_dataParser`       |
+| Local variables | camelCase                    | `parsedResult`      |
+| Constants       | PascalCase                   | `MaxRetryCount`     |
+| Enums           | PascalCase (type and values) | `FileFormat.Csv`    |
+| Namespaces      | `{Project}.{Layer}`          | `CNS.Core.Services` |
 
 ---
 
@@ -393,6 +393,7 @@ List<ReportRow> rows = grouped
 ### Materialisation
 
 Materialise (`.ToList()`, `.ToArray()`) before:
+
 - Passing results across method boundaries
 - Storing in fields or properties
 - Iterating multiple times
@@ -428,11 +429,11 @@ No exceptions. If a namespace has only one class, that is a signal to merge it u
 
 ### Service Lifetimes
 
-| Lifetime   | When to use                                                       |
-|------------|-------------------------------------------------------------------|
-| Singleton  | Stateless services, caches, configuration, connection pools       |
-| Scoped     | Per-request/per-operation state (DB contexts, unit of work)       |
-| Transient  | Lightweight, no shared state, cheap to construct                  |
+| Lifetime  | When to use                                                 |
+| --------- | ----------------------------------------------------------- |
+| Singleton | Stateless services, caches, configuration, connection pools |
+| Scoped    | Per-request/per-operation state (DB contexts, unit of work) |
+| Transient | Lightweight, no shared state, cheap to construct            |
 
 **Lifetime rule:** A service may only depend on services with an equal or longer lifetime. Transient can depend on anything. Scoped can depend on Scoped or Singleton.
 Singleton can only depend on Singleton.
@@ -493,6 +494,7 @@ Every `.cs` file must begin with a header comment:
 ```
 
 Rules:
+
 - **Never omit the header.** Every `.cs` file gets one regardless of size or purpose.
 - `Author` is whoever created the file. If an AI agent creates it, use the configured AI identity name.
 - `Plan` is the chunk plan ID that caused this file to be created or meaningfully modified.
@@ -514,6 +516,7 @@ public async Task<ParseResult> ParseAsync(string filePath, CancellationToken ct 
 ```
 
 Rules:
+
 - `<summary>` is mandatory on all public types, methods, and properties.
 - `<param>` is mandatory for every parameter.
 - `<returns>` is mandatory for non-void methods.
@@ -543,6 +546,7 @@ Blank line between each group.
 ### Equality
 
 For types used in collections, comparisons, or reactive bindings, implement:
+
 - `IEquatable<T>`
 - `override bool Equals(object? obj)`
 - `override int GetHashCode()`
@@ -564,6 +568,7 @@ public interface I{ServiceName}
 ```
 
 Rules:
+
 - Services are accessed via interface — never instantiate concrete classes directly from consumers.
 - Use constructor injection for dependency resolution.
 - Factory pattern for services that differ between environments (e.g., real filesystem vs test double).
@@ -617,13 +622,13 @@ For smaller projects where MEL is not yet configured, `Debug.WriteLine` is accep
 
 ### Log Level Guide
 
-| Level   | When to use                                                    |
-|---------|----------------------------------------------------------------|
-| Debug   | Entry/exit of significant methods, state transitions           |
-| Info    | User-visible milestones (file saved, data loaded)              |
-| Warning | Handled exceptions, unexpected but recoverable states          |
-| Error   | Operation failed, action could not complete                    |
-| Fatal   | Application cannot continue                                    |
+| Level   | When to use                                           |
+| ------- | ----------------------------------------------------- |
+| Debug   | Entry/exit of significant methods, state transitions  |
+| Info    | User-visible milestones (file saved, data loaded)     |
+| Warning | Handled exceptions, unexpected but recoverable states |
+| Error   | Operation failed, action could not complete           |
+| Fatal   | Application cannot continue                           |
 
 ---
 
@@ -646,6 +651,7 @@ Framework: `xUnit`
 ```
 
 Examples:
+
 ```csharp
 [Fact]
 public void Parse_ValidCsvInput_ReturnsExpectedRows() { }
@@ -660,6 +666,7 @@ public async Task ParseAsync_FileNotFound_ThrowsFileNotFoundException() { }
 ### Minimum Coverage Rule
 
 Every public method must have:
+
 - At least one happy-path test
 - At least one test for each documented failure condition
 - At least one null/empty input test if the method accepts reference types or strings

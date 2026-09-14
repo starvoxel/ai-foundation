@@ -1,7 +1,7 @@
 ---
-name: "steering-authoring"
-version: "0.1.0"
-description: "Creates a well-formed steering file with enforced rules, rationale, and exceptions."
+name: 'steering-authoring'
+version: '0.1.1'
+description: 'Creates a well-formed steering file with enforced rules, rationale, and exceptions.'
 ---
 
 ## Purpose
@@ -24,9 +24,9 @@ Use this skill when adding new behavioural rules for agents in a global or domai
 
 ### Step 1 — Determine scope and location
 
-| Scope | Directory | When loaded |
-|---|---|---|
-| All agents | `steering/global/` | Every session |
+| Scope         | Directory            | When loaded                 |
+| ------------- | -------------------- | --------------------------- |
+| All agents    | `steering/global/`   | Every session               |
 | Domain agents | `steering/{domain}/` | When agent's domain matches |
 
 Agent-specific rules do NOT go in steering — they go in the agent's `prompt` field.
@@ -38,6 +38,7 @@ Create `steering/{scope}/{name}.md`. Use the schema in `skills/steering-authorin
 ### Step 3 — Write rules
 
 Each rule must have:
+
 - **Clear imperative** — unambiguous statement of what must or must not happen
 - **Rationale** — why it exists (helps agents apply it in edge cases)
 - **Exceptions** — how to deviate, or explicit "No exceptions"
@@ -47,6 +48,7 @@ Rules without rationale are unenforceable. Rules without exceptions are absolute
 ### Step 4 — Write enforcement section
 
 Define what happens when a rule is violated:
+
 - Who catches it (review, automated check, human)
 - What severity it carries
 - What action is taken

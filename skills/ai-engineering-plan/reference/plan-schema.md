@@ -27,14 +27,15 @@ One or two sentences stating what this work accomplishes.
 
 Table or list of components that will be created, modified, or removed:
 
-| Component | Action | Notes |
-|---|---|---|
-| `agents/example.yaml` | Modify | Adding new skill reference |
-| `skills/new-thing/SKILL.md` | Create | New procedure for X |
+| Component                   | Action | Notes                      |
+| --------------------------- | ------ | -------------------------- |
+| `agents/example.yaml`       | Modify | Adding new skill reference |
+| `skills/new-thing/SKILL.md` | Create | New procedure for X        |
 
 ### Approach
 
 Numbered steps describing the implementation order. Each step should be independently verifiable. Include:
+
 - What is created or changed
 - Why (brief rationale if non-obvious)
 - Dependencies between steps
@@ -50,6 +51,7 @@ What could go wrong or what trade-offs are being made. If none, state "None."
 ### Validation
 
 How the work will be verified after implementation:
+
 - Which tests will be run
 - What cross-references will be checked
 - Any manual verification needed

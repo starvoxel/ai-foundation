@@ -46,13 +46,13 @@ simultaneously. This plan closes that alongside the pipeline consolidation.
 
 ## Target roster
 
-| Agent | Domain role | Write | Shell | Web | Subagent dispatch |
-|---|---|---|---|---|---|
-| **Architect** | ADRs only — rare, contested, costly-to-reverse forks | Yes, scoped to `docs/decisions/**` | **No** | Yes (`web_search`/`web_fetch`) | Callable as a subagent by EM |
-| **Engineering Manager** | Absorbs Tech-Lead: PRD/request → technical outline → task decomposition → dispatch → orchestration | Yes (plans, orchestration state) | Yes (`ai-git`, dag tools) | **No** | Dispatches SE, Architect (decision hand-off), Researcher |
-| **Software Engineer** | Absorbs Test-Engineer + Engineering-Tech-Writer + AI-Engineer + chunk-level design (part of old Tech-Lead). Handles both product code and AI-component work (agents/skills/steering/servers/bundles), loading whichever skill set the task calls for. | Yes | Yes | **No** | Gated `subagent` → Researcher (not in `approved_tools`, human confirms each dispatch) |
-| **Engineering Researcher** *(new)* | Web research → decision-ready brief, for SE/EM | Yes, scoped to a notes/scratch path (`.md` only) | **No** | Yes | No |
-| **Principal Engineer** | Review gate — standards + the feature's outline, not full implementation history | No (findings only) | No | No | No |
+| Agent                              | Domain role                                                                                                                                                                                                                                           | Write                                            | Shell                     | Web                            | Subagent dispatch                                                                     |
+| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
+| **Architect**                      | ADRs only — rare, contested, costly-to-reverse forks                                                                                                                                                                                                  | Yes, scoped to `docs/decisions/**`               | **No**                    | Yes (`web_search`/`web_fetch`) | Callable as a subagent by EM                                                          |
+| **Engineering Manager**            | Absorbs Tech-Lead: PRD/request → technical outline → task decomposition → dispatch → orchestration                                                                                                                                                    | Yes (plans, orchestration state)                 | Yes (`ai-git`, dag tools) | **No**                         | Dispatches SE, Architect (decision hand-off), Researcher                              |
+| **Software Engineer**              | Absorbs Test-Engineer + Engineering-Tech-Writer + AI-Engineer + chunk-level design (part of old Tech-Lead). Handles both product code and AI-component work (agents/skills/steering/servers/bundles), loading whichever skill set the task calls for. | Yes                                              | Yes                       | **No**                         | Gated `subagent` → Researcher (not in `approved_tools`, human confirms each dispatch) |
+| **Engineering Researcher** _(new)_ | Web research → decision-ready brief, for SE/EM                                                                                                                                                                                                        | Yes, scoped to a notes/scratch path (`.md` only) | **No**                    | Yes                            | No                                                                                    |
+| **Principal Engineer**             | Review gate — standards + the feature's outline, not full implementation history                                                                                                                                                                      | No (findings only)                               | No                        | No                             | No                                                                                    |
 
 Net: 8 agents → 5. `Tech-Lead`, `Test-Engineer`, `Engineering-Tech-Writer`, and
 `AI-Engineer` are retired as standalone agents; their charters are absorbed
@@ -87,13 +87,13 @@ branching its checklist by artifact type — not a second reviewer role.
 
 ### Security: net trifecta posture after this change
 
-| Agent | Legs held | Residual risk |
-|---|---|---|
-| Architect | write + web, no shell | Confirm the web tool is read-only fetch, not a generic HTTP client with outbound POST |
-| Engineering Manager | write + shell, no web | Clean — only ever sees compressed briefs from Architect/Researcher, never raw content |
-| Software Engineer | write + shell, no web | Clean — research need routes through gated Researcher dispatch |
-| Engineering Researcher | web only, write scoped to non-executable `.md` output | Clean — the one agent allowed to hold the web leg freely holds nothing else |
-| Principal Engineer | none | Clean |
+| Agent                  | Legs held                                             | Residual risk                                                                         |
+| ---------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| Architect              | write + web, no shell                                 | Confirm the web tool is read-only fetch, not a generic HTTP client with outbound POST |
+| Engineering Manager    | write + shell, no web                                 | Clean — only ever sees compressed briefs from Architect/Researcher, never raw content |
+| Software Engineer      | write + shell, no web                                 | Clean — research need routes through gated Researcher dispatch                        |
+| Engineering Researcher | web only, write scoped to non-executable `.md` output | Clean — the one agent allowed to hold the web leg freely holds nothing else           |
+| Principal Engineer     | none                                                  | Clean                                                                                 |
 
 Compare to today: `architect` and `ai-engineer` each currently hold all three
 legs at once (write + shell + `web_search`/`web_fetch`), mitigated only by a
@@ -134,7 +134,7 @@ old model's coordination overhead.
 ## Resolved design questions
 
 **How detailed should EM's technical outline be, going into a Task?**
-Coarse — *what*, not *how*: goal/acceptance criteria, interface/contract
+Coarse — _what_, not _how_: goal/acceptance criteria, interface/contract
 boundaries the task owns vs. depends on, binding standards and already-Approved
 ADRs, non-functional requirements as an explicit checklist (security, logging,
 perf — still a PE gate), and explicit out-of-scope. Not function-level design,
@@ -154,7 +154,7 @@ conventions, reshapes how other components work") stops and escalates back to
 Engineering Manager to become (or fold into) a Feature — matching the
 disposition `docs/process-model.md` already recorded for retiring
 `ai-engineering-plan` ("Tier 1/2 via `complexity-tiers`; larger becomes a
-Feature"). This *is* the "refuse if too large / needs too much research" carve-
+Feature"). This _is_ the "refuse if too large / needs too much research" carve-
 out: it already exists in the framework, it just needs to become
 Software-Engineer's universal front door instead of a parallel AI-only case.
 
@@ -173,6 +173,7 @@ actually be scrutinizing that class of diff for the gate to hold.
 ## Master change checklist
 
 ### Agent definitions (`agents/*.yaml`)
+
 - [ ] `architect.yaml` — drop `shell`; scope `write` to `docs/decisions/**`
 - [ ] `engineering-manager.yaml` — absorb `tech-lead`'s charter; add gated `subagent` → Researcher
 - [ ] `tech-lead.yaml` — retire (folded into `engineering-manager.yaml`)
@@ -184,6 +185,7 @@ actually be scrutinizing that class of diff for the gate to hold.
 - [ ] `engineering-researcher.yaml` — new: web tools, no shell, write scoped to a notes/scratch path, no `git`/`gh` capability
 
 ### Skills
+
 - [ ] `epic-planning` + `chunk-planning` — merge into EM's Feature-level outline skill
 - [ ] `ai-engineering-plan` — retire per existing `docs/process-model.md` disposition (Tier 1/2 via `complexity-tiers`; Tier 3 escalates to a Feature, no separate plan artifact)
 - [ ] `complexity-tiers` — re-point as Software-Engineer's primary gate (currently referenced only by `ai-engineer.yaml`)
@@ -197,25 +199,30 @@ actually be scrutinizing that class of diff for the gate to hold.
 - [ ] Optional: light `engineering-researcher` skill (or keep it prompt-only) defining "return a decision-ready brief, cite sources, never raw dumps"
 
 ### Steering
+
 - [ ] `steering/engineering/core.md` Rule 1 — replace blanket "approved Chunk Plan required" with the `complexity-tiers` gate
 - [ ] Rule 2 — add fallback for Tier 1/2 work with no formal plan artifact (precedent: AI-track's existing "no written plan needed" determination)
 - [ ] Rules 4/5/8/9 — "parent Epic"/"Chunk Plan"/"Epic Plan" wording → Feature Plan terminology
 - [ ] `git-workflow-framework.md` / `git-workflow-projects.md` — verify no stale agent/track references (not fully audited yet)
 
 ### Standards / servers
+
 - [ ] No structural change identified; confirm no stack standard assumes a Test-Engineer/Software-Engineer split
 
 ### Bundles
+
 - [ ] `bundles/engineering/bundle.yaml` — no edit needed (pure `domain: engineering` auto-discovery absorbs the roster shrink automatically)
 - [ ] `bundles/engineering/snapshot.json` — regenerate after agent files change (generated artifact, not hand-edited)
 
 ### Tooling / schema
+
 - [ ] `skills/agent-authoring/reference/tools.yaml` — add an explicit rule against holding `moderate` (web) and `privileged` (write/shell) tools simultaneously without documented isolation justification
 - [ ] `tests/validation/schemas.test.js` / `tools.test.js` — schema-generic, should pass unchanged against the new roster; verify after the fact
 - [ ] `lib/resolver.js`, `lib/constants.js` — doc-comment examples only (`@example "architect.yaml"`), cosmetic pass
 - [ ] Test fixtures referencing old agent names as example data (`tests/unit/decisions.test.js`, `tests/integration/decisions-index.test.js`, `knowledge-index.test.js`, `base.test.js`, `claude-adapter.test.js`, `kiro-adapter.test.js`) — low-risk cosmetic pass
 
 ### Documentation
+
 - [ ] `AGENTS.md` — pass for any agent-specific prose beyond the already-roster-agnostic component/loading-rules sections
 - [ ] `agents/README.md`, `skills/README.md`, `servers/README.md`, `standards/README.md` — human-reference only, update to reflect new roster
 - [ ] Root `README.md`, `PLAN.md` — reference old agent names, need a pass
@@ -223,6 +230,7 @@ actually be scrutinizing that class of diff for the gate to hold.
 - [ ] `docs/agent-prompt-extraction-candidates.md` — resolve/reassign tracked candidates whose originating agents merge
 
 ### Decision records (legacy flags only — not a redesign of ADR process)
+
 - [ ] `AIF-PROC-001` (AI-Engineer/SE code boundary) — superseded by the merge
 - [ ] `AIF-PROC-002` (AI-track orchestration dispatch), `AIF-PROC-006` (AI-track chunk decomposition ownership) — superseded by dropping the track distinction
 - [ ] `AIF-META-001` (decision-record tiering and domain ownership) — needs the same owner remap as its two `reference/*.md` mirrors

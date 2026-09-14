@@ -60,6 +60,7 @@ node servers/gmail/scripts/authorize.js
 ```
 
 This will:
+
 1. Print a Google consent screen URL — open it in your browser and approve access.
 2. Catch the redirect on a local loopback listener (`http://127.0.0.1:8765` by default — override the port with `GMAIL_AUTH_PORT` if that's taken).
 3. Exchange the authorization code for a refresh token.

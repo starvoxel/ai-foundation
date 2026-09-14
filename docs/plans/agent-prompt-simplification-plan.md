@@ -9,25 +9,25 @@
 ## Goal
 
 Remove confirmed duplication between agent prompts and the skills/steering those agents already load, shrinking prompts to identity + agent-specific rules only.
-Extract the one genuinely reusable, non-agent-specific block (`ai-engineer`'s complexity-tier framework) into a skill. Establish a durable, lightweight place to record prompt content that is agent-specific *today* but procedural enough to become a shared skill if a second agent needs the same behavior later (relevant given possible future specialized agents).
+Extract the one genuinely reusable, non-agent-specific block (`ai-engineer`'s complexity-tier framework) into a skill. Establish a durable, lightweight place to record prompt content that is agent-specific _today_ but procedural enough to become a shared skill if a second agent needs the same behavior later (relevant given possible future specialized agents).
 
 ---
 
 ## Components Affected
 
-| Component | Action | Notes |
-|---|---|---|
-| `agents/principal-engineer.yaml` | Modify | Collapse restated `skill/code-review` Steps into a pointer; remove inline severity table (moves to the skill) |
-| `agents/test-engineer.yaml` | Modify | Collapse restated `skill/test-execution` Steps into a pointer; drop restated ai-git rule |
-| `agents/tech-lead.yaml` | Modify | Collapse restated `skill/epic-planning`/`skill/chunk-planning` Steps into a pointer; drop restated Decision-Record-approval sentence |
-| `agents/engineering-manager.yaml` | Modify | Drop restated Decision-Record-approval sentence; remove intra-file duplication of the branch/worktree creation steps |
-| `agents/software-engineer.yaml` | Modify | Drop restated ai-git rule (keep the commit-before-done rule — not duplicated elsewhere) |
-| `agents/ai-engineer.yaml` | Modify | Replace inline Tier 1/2/3 framework with a pointer to the new skill |
-| `skills/complexity-tiers/SKILL.md` | Create | New shared skill housing the tier definitions, signals, and per-tier process |
-| `docs/agent-prompt-extraction-candidates.md` | Create | Knowledge file (type: `reference`) codifying prompt blocks that are agent-specific today but are candidates for skill extraction if reused |
-| `skills/agent-authoring/SKILL.md` | Modify | Add a checkpoint in Step 5 (write the prompt) referencing the extraction-candidates file, and an Edge Case describing when/how to add an entry |
-| `skills/code-review/SKILL.md` | Modify | Add CRITICAL/HIGH/MEDIUM/LOW severity definitions (moved from `principal-engineer.yaml`) so the skill is self-contained |
-| Frontmatter `version` on all modified/created files | Modify | Minor version bump (patch for the new skill: `0.1.0`) |
+| Component                                           | Action | Notes                                                                                                                                          |
+| --------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `agents/principal-engineer.yaml`                    | Modify | Collapse restated `skill/code-review` Steps into a pointer; remove inline severity table (moves to the skill)                                  |
+| `agents/test-engineer.yaml`                         | Modify | Collapse restated `skill/test-execution` Steps into a pointer; drop restated ai-git rule                                                       |
+| `agents/tech-lead.yaml`                             | Modify | Collapse restated `skill/epic-planning`/`skill/chunk-planning` Steps into a pointer; drop restated Decision-Record-approval sentence           |
+| `agents/engineering-manager.yaml`                   | Modify | Drop restated Decision-Record-approval sentence; remove intra-file duplication of the branch/worktree creation steps                           |
+| `agents/software-engineer.yaml`                     | Modify | Drop restated ai-git rule (keep the commit-before-done rule — not duplicated elsewhere)                                                        |
+| `agents/ai-engineer.yaml`                           | Modify | Replace inline Tier 1/2/3 framework with a pointer to the new skill                                                                            |
+| `skills/complexity-tiers/SKILL.md`                  | Create | New shared skill housing the tier definitions, signals, and per-tier process                                                                   |
+| `docs/agent-prompt-extraction-candidates.md`        | Create | Knowledge file (type: `reference`) codifying prompt blocks that are agent-specific today but are candidates for skill extraction if reused     |
+| `skills/agent-authoring/SKILL.md`                   | Modify | Add a checkpoint in Step 5 (write the prompt) referencing the extraction-candidates file, and an Edge Case describing when/how to add an entry |
+| `skills/code-review/SKILL.md`                       | Modify | Add CRITICAL/HIGH/MEDIUM/LOW severity definitions (moved from `principal-engineer.yaml`) so the skill is self-contained                        |
+| Frontmatter `version` on all modified/created files | Modify | Minor version bump (patch for the new skill: `0.1.0`)                                                                                          |
 
 ---
 
@@ -46,8 +46,8 @@ Extract the one genuinely reusable, non-agent-specific block (`ai-engineer`'s co
 
 4. **Extract `ai-engineer.yaml`'s Tier 1/2/3 framework into `skill/complexity-tiers`.** This block (tier signals, examples, and per-tier process) is fully generic — it contains no ai-engineer-specific content and is not currently referenced from any skill, so no other agent can reuse it even though the concept is broadly applicable. Create `skills/complexity-tiers/SKILL.md` with the tier definitions as its Steps (Purpose: assess complexity and scale process accordingly; Inputs:
    task description; Steps: Tier 1/2/3 definitions + process; Outputs: stated tier
-   + process followed; Edge Cases: override signals — "just do it" / "plan this").
-   `ai-engineer.yaml`'s prompt shrinks to: identity, responsibilities, a pointer ("Assess complexity per `skill/complexity-tiers` before starting work"), and the Hard Rules that are genuinely ai-engineer-specific (e.g. "never modify application code," "never decide what agents should exist").
+   - process followed; Edge Cases: override signals — "just do it" / "plan this").
+     `ai-engineer.yaml`'s prompt shrinks to: identity, responsibilities, a pointer ("Assess complexity per `skill/complexity-tiers` before starting work"), and the Hard Rules that are genuinely ai-engineer-specific (e.g. "never modify application code," "never decide what agents should exist").
 
 5. **Remove the restated "use ai-git" rule from `software-engineer.yaml` and `test-engineer.yaml`.** This exact rule is already the explicit subject of `steering/engineering/git-workflow-framework.md` (Rule 5) and `git-workflow-projects.md` (Rule 11), loaded for every engineering agent, and is separately enforced mechanically via `blocked_commands: ["git *", "gh *"]` on every agent. Drop the sentence from both prompts. Keep "always commit and push before reporting completion" — that behavioral emphasis is not stated anywhere else.
 
@@ -101,7 +101,7 @@ None. The severity-table gap raised in the prior revision was resolved by the hu
 - Any schema-level change to deduplicate identical `blocked_commands` across all 8 agents (would require an inheritance/default mechanism in the agent schema — a separate, larger change, mentioned in the prior discussion but not proposed here).
 - Modifying `architect.yaml` or `engineering-tech-writer.yaml` beyond adding their entries to the extraction-candidates file — no duplication was found in either that warrants a prompt change.
 - Splitting `skill/code-review` into domain-specific variants, or diverging severity-level descriptions per domain — deferred until that split actually happens.
-- Any change to agent behavior — this plan only removes duplicated *prose*; no process, rule, or constraint changes are intended.
+- Any change to agent behavior — this plan only removes duplicated _prose_; no process, rule, or constraint changes are intended.
 
 ---
 
@@ -121,4 +121,3 @@ Implemented in commits a6da212 through e39ca17 on main (2026-08-13). All ten app
 10. Version-bumped every modified/created file.
 
 Full test suite (unit + integration + validation): 409/409 passing. No Hard Rules were removed from any agent — only restated Process/prose duplication with skills, steering, or intra-file content.
-

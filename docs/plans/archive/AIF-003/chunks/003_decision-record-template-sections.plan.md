@@ -2,20 +2,20 @@
 
 ## 1. Metadata
 
-| Field | Value |
-|---|---|
-| Plan ID | AIF-003-003 |
-| Parent Epic | AIF-003 |
-| Chunk | 3 of 8 |
-| Depends On | None |
-| Can Parallel | AIF-003-001, AIF-003-004, AIF-003-005 (wave 1) |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | AI-Engineer |
-| Reviewed By | Pending |
-| Created | 2026-08-25 |
-| Last Updated | 2026-08-25 |
-| Standards | No language/stack standards apply — this chunk edits two declarative documentation templates (`skills/decision-record/reference/template.md`, `skills/decision-brief/reference/template.md`) governed by the AGENTS.md component schemas. AI-Engineer track per `AIF-PROC-001`. |
+| Field          | Value                                                                                                                                                                                                                                                                           |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Plan ID        | AIF-003-003                                                                                                                                                                                                                                                                     |
+| Parent Epic    | AIF-003                                                                                                                                                                                                                                                                         |
+| Chunk          | 3 of 8                                                                                                                                                                                                                                                                          |
+| Depends On     | None                                                                                                                                                                                                                                                                            |
+| Can Parallel   | AIF-003-001, AIF-003-004, AIF-003-005 (wave 1)                                                                                                                                                                                                                                  |
+| Project        | ai-foundation                                                                                                                                                                                                                                                                   |
+| Status         | Approved                                                                                                                                                                                                                                                                        |
+| Author (Agent) | AI-Engineer                                                                                                                                                                                                                                                                     |
+| Reviewed By    | Pending                                                                                                                                                                                                                                                                         |
+| Created        | 2026-08-25                                                                                                                                                                                                                                                                      |
+| Last Updated   | 2026-08-25                                                                                                                                                                                                                                                                      |
+| Standards      | No language/stack standards apply — this chunk edits two declarative documentation templates (`skills/decision-record/reference/template.md`, `skills/decision-brief/reference/template.md`) governed by the AGENTS.md component schemas. AI-Engineer track per `AIF-PROC-001`. |
 
 ---
 
@@ -114,7 +114,7 @@ No new files.
    **Why:** the brief template already omits the equivalent paragraph for `References`/`Referenced By` — it states the field in the table and nothing more. Adding prose only for `Supersedes` would make the brief inconsistent with its own existing style rather than with the record template, which is not the bar to match.
 
 5. **Decision**: the `## Amendments` example row's `Outcome` cell reads `Pending / Approved by {name} / Rejected by {name}` rather than the single literal example value `AIF-META-002` itself uses (`Approved by {name}`).
-   **Why:** `AIF-META-002` is a *filled* record illustrating one row; these files are *templates* an author fills in. Every other placeholder cell in both templates already shows the full range of legal values inline (e.g. `Status | Draft / Approved / Done / Deferred / Superseded`), so showing all three legal `Outcome` values in one cell matches the templates' own convention rather than the record's illustrative convention.
+   **Why:** `AIF-META-002` is a _filled_ record illustrating one row; these files are _templates_ an author fills in. Every other placeholder cell in both templates already shows the full range of legal values inline (e.g. `Status | Draft / Approved / Done / Deferred / Superseded`), so showing all three legal `Outcome` values in one cell matches the templates' own convention rather than the record's illustrative convention.
 
 > **Tier C decisions.** All five are Tier C per `skill/decision-triage` — local documentation/formatting choices inside an already-decided design (`AIF-META-002`), riding this plan's own `skill/plan-lifecycle` cycle. None changes what any parser reads or what any author is permitted to do.
 
@@ -137,11 +137,13 @@ No new files.
 ```
 | Last Amended | {YYYY-MM-DD} (Amendment {N}) — omit this row entirely until the record's first amendment is confirmed |
 ```
+
 — inserted immediately after the `Created` row.
 
 ```
 | Supersedes | {Decision ID(s) this record supersedes, or "—"} |
 ```
+
 — inserted immediately after the `References` row, before `Tags`.
 
 **Explanatory-paragraph change**: append one sentence to the existing paragraph below the Metadata table (the one explaining `Referenced By`/`References` ID shapes):
@@ -157,17 +159,17 @@ No new files.
 
 {Optional — omit this section entirely until this record is amended for the first time. Append-only: once a row's `Outcome` is filled in, existing rows are never edited or deleted — including rejected proposals. Mark the amended point in the body inline with `*(amended — see Amendment N)*`. See `skill/plan-lifecycle` for the amendment rung and its two-commit gate.}
 
-| # | Date | Section | Change | Rationale | Outcome |
-|---|---|---|---|---|---|
-| 1 | {YYYY-MM-DD} | {Section name} | {What changed} | {Why} | Pending / Approved by {name} / Rejected by {name} |
+| #   | Date         | Section        | Change         | Rationale | Outcome                                           |
+| --- | ------------ | -------------- | -------------- | --------- | ------------------------------------------------- |
+| 1   | {YYYY-MM-DD} | {Section name} | {What changed} | {Why}     | Pending / Approved by {name} / Rejected by {name} |
 
 ## Errata
 
 {Optional — omit this section entirely until this record has its first erratum. Ungated: anyone may append a row for a change that provably leaves the rendered meaning of the record's substantive sections unchanged. No inline marker, no `Status` change, no `Last Amended` change. See `skill/plan-lifecycle` for the errata test.}
 
-| # | Date | Change | Author |
-|---|---|---|---|
-| 1 | {YYYY-MM-DD} | {What changed} | {name} |
+| #   | Date         | Change         | Author |
+| --- | ------------ | -------------- | ------ |
+| 1   | {YYYY-MM-DD} | {What changed} | {name} |
 ```
 
 **Key Behaviour**: both new sections and both new fields are optional and forward-looking — nothing in this chunk causes an existing `.decision.md` file to need editing (`REQUIRED_FIELDS` in `lib/decisions.js` is untouched by this chunk, and stays that way per `AIF-003-002`'s acceptance criteria).
@@ -184,11 +186,13 @@ No new files.
 ```
 | Last Amended | {YYYY-MM-DD} (Amendment {N}) — omit this row entirely until the record's first amendment is confirmed |
 ```
+
 — inserted immediately after `Created`.
 
 ```
 | Supersedes | {Decision ID(s) this decision supersedes, or "—"} |
 ```
+
 — inserted immediately after `References`, before `Tags`.
 
 No explanatory-paragraph change (Design Decision 4 above — the brief template carries no such paragraph today for any Metadata field).
@@ -202,17 +206,17 @@ No explanatory-paragraph change (Design Decision 4 above — the brief template 
 
 {Optional — omit this section entirely until this decision is amended for the first time. Append-only: once a row's `Outcome` is filled in, existing rows are never edited or deleted — including rejected proposals. Mark the amended point in the body inline with `*(amended — see Amendment N)*`. See `skill/plan-lifecycle` for the amendment rung and its two-commit gate.}
 
-| # | Date | Section | Change | Rationale | Outcome |
-|---|---|---|---|---|---|
-| 1 | {YYYY-MM-DD} | {Section name} | {What changed} | {Why} | Pending / Approved by {name} / Rejected by {name} |
+| #   | Date         | Section        | Change         | Rationale | Outcome                                           |
+| --- | ------------ | -------------- | -------------- | --------- | ------------------------------------------------- |
+| 1   | {YYYY-MM-DD} | {Section name} | {What changed} | {Why}     | Pending / Approved by {name} / Rejected by {name} |
 
 ## Errata
 
 {Optional — omit this section entirely until this decision has its first erratum. Ungated: anyone may append a row for a change that provably leaves the rendered meaning of this decision's substantive sections (`Decision`, `Rationale`, `Impact`) unchanged. No inline marker, no `Status` change, no `Last Amended` change. See `skill/plan-lifecycle` for the errata test.}
 
-| # | Date | Change | Author |
-|---|---|---|---|
-| 1 | {YYYY-MM-DD} | {What changed} | {name} |
+| #   | Date         | Change         | Author |
+| --- | ------------ | -------------- | ------ |
+| 1   | {YYYY-MM-DD} | {What changed} | {name} |
 ```
 
 **Key Behaviour**: identical to the record template's, adjusted only for the Tier B protected-section list (`Decision`, `Rationale`, `Impact`, per `AIF-META-002`'s amended errata test) named in the `## Errata` instructional prose, since a Tier B author benefits from seeing that list at the point of use rather than having to cross-reference `AIF-META-002` or the future `AIF-003-006` documentation.
@@ -227,34 +231,34 @@ No explanatory-paragraph change (Design Decision 4 above — the brief template 
 
 **Purpose**: The two new optional rows both templates' Metadata tables gain.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `Last Amended` | string (verbatim, not parsed as a date) | No | `{YYYY-MM-DD} (Amendment {N})`. Omitted from a record's actual Metadata table until that record's first amendment is confirmed — never written as `—` or left blank; the row is absent entirely. Never added to `REQUIRED_FIELDS` (Epic Risk 11; enforced in `AIF-003-002`, not this chunk). |
-| `Supersedes` | comma-separated Decision ID list | No | Mirrors `References` exactly: comma-separated, `—` when empty. Decision IDs only — never an Epic ID, since only decisions can be superseded. |
+| Field          | Type                                    | Required | Notes                                                                                                                                                                                                                                                                                        |
+| -------------- | --------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Last Amended` | string (verbatim, not parsed as a date) | No       | `{YYYY-MM-DD} (Amendment {N})`. Omitted from a record's actual Metadata table until that record's first amendment is confirmed — never written as `—` or left blank; the row is absent entirely. Never added to `REQUIRED_FIELDS` (Epic Risk 11; enforced in `AIF-003-002`, not this chunk). |
+| `Supersedes`   | comma-separated Decision ID list        | No       | Mirrors `References` exactly: comma-separated, `—` when empty. Decision IDs only — never an Epic ID, since only decisions can be superseded.                                                                                                                                                 |
 
 ### `## Amendments` row shape
 
 **Purpose**: One proposed-and-resolved amendment cycle.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `#` | integer | Yes | Authored, monotonically increasing; not the source of truth for count (`AIF-003-002`'s `amendment_count` counts rows structurally, not by this column). |
-| `Date` | `YYYY-MM-DD` | Yes | Date the proposal commit was made. |
-| `Section` | string | Yes | The record section the amendment touches. |
-| `Change` | string | Yes | What changed. |
-| `Rationale` | string | Yes | Why — the original rationale still holds; this is what distinguishes an amendment from a supersede. |
-| `Outcome` | `Pending` \| `Approved by {name}` \| `Rejected by {name}` | Yes | `Pending` while `Status: Amending`; filled in once when the cycle closes and never edited again — including for rejected rows, which stay in the table. |
+| Field       | Type                                                      | Required | Notes                                                                                                                                                   |
+| ----------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#`         | integer                                                   | Yes      | Authored, monotonically increasing; not the source of truth for count (`AIF-003-002`'s `amendment_count` counts rows structurally, not by this column). |
+| `Date`      | `YYYY-MM-DD`                                              | Yes      | Date the proposal commit was made.                                                                                                                      |
+| `Section`   | string                                                    | Yes      | The record section the amendment touches.                                                                                                               |
+| `Change`    | string                                                    | Yes      | What changed.                                                                                                                                           |
+| `Rationale` | string                                                    | Yes      | Why — the original rationale still holds; this is what distinguishes an amendment from a supersede.                                                     |
+| `Outcome`   | `Pending` \| `Approved by {name}` \| `Rejected by {name}` | Yes      | `Pending` while `Status: Amending`; filled in once when the cycle closes and never edited again — including for rejected rows, which stay in the table. |
 
 ### `## Errata` row shape
 
 **Purpose**: One ungated non-substantive correction.
 
-| Field | Type | Required | Notes |
-|---|---|---|---|
-| `#` | integer | Yes | Authored, monotonically increasing. |
-| `Date` | `YYYY-MM-DD` | Yes | Date of the single errata commit. |
-| `Change` | string | Yes | What changed — must satisfy the errata test (default-deny; documented fully in `AIF-003-006`, not this chunk). |
-| `Author` | string | Yes | Anyone — errata authorship is not restricted to the domain owner. |
+| Field    | Type         | Required | Notes                                                                                                          |
+| -------- | ------------ | -------- | -------------------------------------------------------------------------------------------------------------- |
+| `#`      | integer      | Yes      | Authored, monotonically increasing.                                                                            |
+| `Date`   | `YYYY-MM-DD` | Yes      | Date of the single errata commit.                                                                              |
+| `Change` | string       | Yes      | What changed — must satisfy the errata test (default-deny; documented fully in `AIF-003-006`, not this chunk). |
+| `Author` | string       | Yes      | Anyone — errata authorship is not restricted to the domain owner.                                              |
 
 ---
 
@@ -265,7 +269,7 @@ No explanatory-paragraph change (Design Decision 4 above — the brief template 
 - [ ] All external inputs validated before use — not applicable; this chunk edits static documentation with no input path.
 - [ ] No secrets or credentials in source code or logs — not applicable; no code, no logging.
 - [ ] Errors exposed to users contain no internal system details — not applicable; no error paths introduced.
-- [ ] **No self-approval path introduced.** Per Epic Section 7, the new `## Amendments` instructional text must describe only what an author *does* (edit, mark, append `Outcome: Pending`, set `Status: Amending`) and must not state or imply that any agent — including Architect — may set `Status: Approved` without a preceding human decision, nor that any agent may commit that transition unilaterally. That rule belongs to `AIF-003-006`/`AIF-003-008`, and this chunk's templates must not pre-empt or contradict it.
+- [ ] **No self-approval path introduced.** Per Epic Section 7, the new `## Amendments` instructional text must describe only what an author _does_ (edit, mark, append `Outcome: Pending`, set `Status: Amending`) and must not state or imply that any agent — including Architect — may set `Status: Approved` without a preceding human decision, nor that any agent may commit that transition unilaterally. That rule belongs to `AIF-003-006`/`AIF-003-008`, and this chunk's templates must not pre-empt or contradict it.
 - [ ] **No reintroduction of ruled-out mechanisms.** The template text must not describe a child-record ID scheme (Option B), inline section-level version stamps (Option C), or versioned reissue (Option E) — all three explicitly ruled out by `AIF-META-002` and listed in the Epic's Out of Scope.
 - [ ] **Append-only framed as a rule, not a suggestion.** Both new sections' instructional prose must state plainly that rows are never edited or deleted once `Outcome` is filled in — this is the audit-integrity property Epic Section 7 calls a security property, not a style choice, and a template that hedges this (e.g. "should generally not be edited") would understate it.
 
@@ -277,9 +281,9 @@ No explanatory-paragraph change (Design Decision 4 above — the brief template 
 
 Not applicable. This chunk touches two static Markdown files with no runtime behaviour, no execution path, and no logging surface. `lib/decisions.js` (the only component in this Epic with a logging posture) is owned by `AIF-003-001`/`AIF-003-002` and is unmodified by this chunk.
 
-| Event | Level | What is logged | What is NOT logged |
-|---|---|---|---|
-| n/a | n/a | n/a — no code executes as a result of this chunk | n/a |
+| Event | Level | What is logged                                   | What is NOT logged |
+| ----- | ----- | ------------------------------------------------ | ------------------ |
+| n/a   | n/a   | n/a — no code executes as a result of this chunk | n/a                |
 
 ---
 
@@ -287,24 +291,24 @@ Not applicable. This chunk touches two static Markdown files with no runtime beh
 
 No automated test in this repo targets `reference/template.md` content directly (`tests/unit/decisions.test.js` and `tests/integration/decisions-index.test.js` exercise `lib/decisions.js` against synthetic fixtures, not the templates themselves). Validation is self-verification against the exact strings `AIF-003-001`/`AIF-003-002` depend on, plus a full-suite regression run to confirm this documentation-only chunk touches nothing executable.
 
-| Test ID | Description | Type | Pass Criteria |
-|---|---|---|---|
-| 003-T01 | `Supersedes` field name spelling | Self-check | Both templates spell the field exactly `Supersedes` (case-exact), matching the string `AIF-003-001`'s `parseDecisionRecord` reads via `fields['Supersedes']` |
-| 003-T02 | `Last Amended` field name spelling | Self-check | Both templates spell the field exactly `Last Amended`, matching the string `AIF-003-002`'s `parseDecisionRecord` reads via `fields['Last Amended']` |
-| 003-T03 | `## Amendments` heading spelling | Self-check | Both templates use the exact trimmed heading text `## Amendments`, matching what `AIF-003-002`'s `countAmendmentRows` locates |
-| 003-T04 | `## Errata` heading spelling | Self-check | Both templates use the exact trimmed heading text `## Errata`; confirm neither template's heading could be mistaken for `## Amendments` by a naive substring match |
-| 003-T05 | `Supersedes`/`References` shape parity | Self-check | Both fields' placeholder text describe identical shape: comma-separated Decision ID(s), `—` when empty |
-| 003-T06 | No `Superseded By` field anywhere | Self-check | `grep -i "superseded by"` on both templates returns no Metadata-row match |
-| 003-T07 | No ruled-out mechanism reintroduced | Self-check | Both templates contain no child-ID amendment scheme, no section-level version-stamp convention, no versioned-reissue (`v2`-style) convention |
-| 003-T08 | Markdown table well-formedness | Self-check | Both new tables render correctly (column counts consistent, separator row present) when previewed |
-| 003-T09 | Optional-and-forward-looking framing | Self-check | Both templates' instructional prose states the sections/fields are omitted, not filled with `—`, until first use — matching `AIF-META-002` Resolved Item 8 |
-| 003-T10 | Full suite regression | Unit+Integration | `npm test` passes unchanged — this chunk modifies no `.js` file, so this is a no-op confirmation that nothing was inadvertently touched |
+| Test ID | Description                            | Type             | Pass Criteria                                                                                                                                                      |
+| ------- | -------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 003-T01 | `Supersedes` field name spelling       | Self-check       | Both templates spell the field exactly `Supersedes` (case-exact), matching the string `AIF-003-001`'s `parseDecisionRecord` reads via `fields['Supersedes']`       |
+| 003-T02 | `Last Amended` field name spelling     | Self-check       | Both templates spell the field exactly `Last Amended`, matching the string `AIF-003-002`'s `parseDecisionRecord` reads via `fields['Last Amended']`                |
+| 003-T03 | `## Amendments` heading spelling       | Self-check       | Both templates use the exact trimmed heading text `## Amendments`, matching what `AIF-003-002`'s `countAmendmentRows` locates                                      |
+| 003-T04 | `## Errata` heading spelling           | Self-check       | Both templates use the exact trimmed heading text `## Errata`; confirm neither template's heading could be mistaken for `## Amendments` by a naive substring match |
+| 003-T05 | `Supersedes`/`References` shape parity | Self-check       | Both fields' placeholder text describe identical shape: comma-separated Decision ID(s), `—` when empty                                                             |
+| 003-T06 | No `Superseded By` field anywhere      | Self-check       | `grep -i "superseded by"` on both templates returns no Metadata-row match                                                                                          |
+| 003-T07 | No ruled-out mechanism reintroduced    | Self-check       | Both templates contain no child-ID amendment scheme, no section-level version-stamp convention, no versioned-reissue (`v2`-style) convention                       |
+| 003-T08 | Markdown table well-formedness         | Self-check       | Both new tables render correctly (column counts consistent, separator row present) when previewed                                                                  |
+| 003-T09 | Optional-and-forward-looking framing   | Self-check       | Both templates' instructional prose states the sections/fields are omitted, not filled with `—`, until first use — matching `AIF-META-002` Resolved Item 8         |
+| 003-T10 | Full suite regression                  | Unit+Integration | `npm test` passes unchanged — this chunk modifies no `.js` file, so this is a no-op confirmation that nothing was inadvertently touched                            |
 
 ---
 
 ## 13. Documentation Requirements
 
-- [ ] Inline documentation on all public members — not applicable (no code); the templates' own instructional prose *is* the documentation and is covered by Section 8/12
+- [ ] Inline documentation on all public members — not applicable (no code); the templates' own instructional prose _is_ the documentation and is covered by Section 8/12
 - [ ] File headers on all new source files — not applicable; no new files, and `reference/template.md` files in this repo do not carry the `Plan:`-header convention used by `.js` source files
 - [ ] README updated if user-facing — not applicable; no README references these template internals
 - [ ] CHANGELOG entry written
@@ -313,11 +317,11 @@ No automated test in this repo targets `reference/template.md` content directly 
 
 ## 14. Risks & Open Questions
 
-| # | Risk / Question | Type | Impact | Mitigation |
-|---|---|---|---|---|
-| 1 | **Field-name/heading-name coupling with `AIF-003-001`/`AIF-003-002`**, both of which read exact strings this chunk defines. If any of `Supersedes`, `Last Amended`, `## Amendments`, or `## Errata` is spelled differently between this chunk and the parser chunks, the parser silently reads nothing (absent-field behaviour) rather than failing loudly — this is `AIF-003-001`'s own Risk 2, restated from this chunk's side. | Risk | M | This plan copies every exact string directly from `AIF-META-002` Design → "Record-shape changes" rather than paraphrasing, and Section 12 (003-T01–T04) makes spelling an explicit self-check. No independent judgment calls on spelling are made anywhere in this plan. |
-| 2 | **Placement choices (Design Decisions 1–2) are this chunk's own inference**, not stated verbatim by `AIF-META-002` for every case (table row order is unstated entirely; Tier B section placement is inferred from "after the closing section"). | Risk | L | Both inferences are functionally inert — `parseMetadataTable`/`countAmendmentRows` are position/order-independent within their respective anchors — so a reviewer disagreeing with the placement can request a reorder with zero risk to `AIF-003-001`/`002`'s behavior. Documented explicitly in Section 7 rather than left implicit, so disagreement is easy to raise in review. |
-| 3 | **This chunk runs in wave 1, parallel with `AIF-003-001`, by specification rather than by file dependency** (Epic Section 9). If `AIF-003-001` lands with a field name other than `Supersedes`, this chunk's output would silently mismatch. | Risk | L | Both chunks were planned from the same source (`AIF-META-002`) and `AIF-003-001`'s already-`Approved` Chunk Plan is verified in this plan's own Prerequisites/Section 8 to use the identical string `Supersedes`. No action needed unless `AIF-003-001`'s implementation deviates from its approved plan, which would itself be a review-blocking finding on that chunk. |
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                                                                                                   | Type | Impact | Mitigation                                                                                                                                                                                                                                                                                                                                                                         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Field-name/heading-name coupling with `AIF-003-001`/`AIF-003-002`**, both of which read exact strings this chunk defines. If any of `Supersedes`, `Last Amended`, `## Amendments`, or `## Errata` is spelled differently between this chunk and the parser chunks, the parser silently reads nothing (absent-field behaviour) rather than failing loudly — this is `AIF-003-001`'s own Risk 2, restated from this chunk's side. | Risk | M      | This plan copies every exact string directly from `AIF-META-002` Design → "Record-shape changes" rather than paraphrasing, and Section 12 (003-T01–T04) makes spelling an explicit self-check. No independent judgment calls on spelling are made anywhere in this plan.                                                                                                           |
+| 2   | **Placement choices (Design Decisions 1–2) are this chunk's own inference**, not stated verbatim by `AIF-META-002` for every case (table row order is unstated entirely; Tier B section placement is inferred from "after the closing section").                                                                                                                                                                                  | Risk | L      | Both inferences are functionally inert — `parseMetadataTable`/`countAmendmentRows` are position/order-independent within their respective anchors — so a reviewer disagreeing with the placement can request a reorder with zero risk to `AIF-003-001`/`002`'s behavior. Documented explicitly in Section 7 rather than left implicit, so disagreement is easy to raise in review. |
+| 3   | **This chunk runs in wave 1, parallel with `AIF-003-001`, by specification rather than by file dependency** (Epic Section 9). If `AIF-003-001` lands with a field name other than `Supersedes`, this chunk's output would silently mismatch.                                                                                                                                                                                      | Risk | L      | Both chunks were planned from the same source (`AIF-META-002`) and `AIF-003-001`'s already-`Approved` Chunk Plan is verified in this plan's own Prerequisites/Section 8 to use the identical string `Supersedes`. No action needed unless `AIF-003-001`'s implementation deviates from its approved plan, which would itself be a review-blocking finding on that chunk.           |
 
 ---
 

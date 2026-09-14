@@ -2,19 +2,19 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-PROC-002 |
-| Project | ai-foundation |
-| Tier | A |
-| Domain | process |
-| Status | Approved |
-| Author (Agent) | Architect |
-| Approved By | Jeremy |
-| Created | 2026-08-13 |
-| Referenced By | AIF-PROC-004, AIF-PROC-005, AIF-PROC-006, AIF-ARCH-005 |
-| References | AIF-PROC-001 |
-| Tags | orchestration, dual-track, dispatch |
+| Field          | Value                                                  |
+| -------------- | ------------------------------------------------------ |
+| Decision ID    | AIF-PROC-002                                           |
+| Project        | ai-foundation                                          |
+| Tier           | A                                                      |
+| Domain         | process                                                |
+| Status         | Approved                                               |
+| Author (Agent) | Architect                                              |
+| Approved By    | Jeremy                                                 |
+| Created        | 2026-08-13                                             |
+| Referenced By  | AIF-PROC-004, AIF-PROC-005, AIF-PROC-006, AIF-ARCH-005 |
+| References     | AIF-PROC-001                                           |
+| Tags           | orchestration, dual-track, dispatch                    |
 
 ---
 
@@ -28,11 +28,13 @@ always dispatches Software-Engineer, and its monitored pipeline (Step 3) is hard
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - `chunks.json`'s existing `agents` field must be the mechanism used, not a new parallel schema — it already exists for exactly this purpose per `chunks-schema.md`.
 - Each track's plan must still be authored by the agent with the relevant domain expertise (Tech-Lead should not be forced to write AGENTS.md-schema-level detail it isn't equipped to write; AI-Engineer should not be forced to reverse-engineer a software Chunk Plan template that assumes interfaces/security/logging sections meant for code).
 - Whatever the resolution, it must not silently weaken the human-approval gate (`skill/plan-lifecycle`) for either track.
 
 What was a preference but not a hard requirement:
+
 - Minimize changes to `chunk-orchestration`/`chunk-planning`/`epic-planning` — reuse structure that already exists where possible.
 
 ---
@@ -57,7 +59,7 @@ AI-Engineer then authors that chunk's own plan — using `skill/complexity-tiers
 Step 3's pipeline branches too: AI-track = AI-Engineer implements + self-validates → Principal-Engineer review → Done (Test-Engineer skipped — AI-Engineer's own hard rule already requires running validation tests before declaring work complete).
 Software-track pipeline is unchanged (SE → TE → PE).
 **Strengths**: Each agent authors the plan for its own domain, matching AIF-PROC-001 and the escalation principle already in effect. Reuses the `agents` field exactly as `chunks-schema.md` already documents it — no schema change required. Preserves DAG dependency automation and parallel wave dispatch across both tracks in one Epic.
-Principal-Engineer remains the review gate for both tracks (schema/cross-reference review for AI-track, code review for software-track), so "never skip the quality pipeline" still holds — only the track-specific *tester* step is skipped, not review.
+Principal-Engineer remains the review gate for both tracks (schema/cross-reference review for AI-track, code review for software-track), so "never skip the quality pipeline" still holds — only the track-specific _tester_ step is skipped, not review.
 **Weaknesses**: `chunk-orchestration` and `chunk-planning` need branching logic (track-aware dispatch and track-aware plan authorship) added — real, if bounded, work. Two plan schemas now exist under one Epic, so anyone reading `chunks.json` must check `agents` to know which plan format to expect at a chunk's path.
 
 ### Option C: Fully decoupled tracks
@@ -76,8 +78,9 @@ and a plain-text "AI Component Work" list handled entirely outside orchestration
 **Rationale**: The `agents` field in `chunks.json` already exists specifically to assign "appropriate agent(s) to each chunk" (per `chunks-schema.md` Step 5) — the gap is purely that `chunk-orchestration` never reads it for dispatch or pipeline selection, and its "out-of-domain" edge case actively blocks the exact work AIF-PROC-001 just brought in-scope. Fixing dispatch to honor the field it already has is smaller and more consistent than either forcing one plan format on both tracks (Option A) or abandoning DAG automation (Option C). Keeping Principal-Engineer as the review gate for both tracks (just varying what precedes it) preserves "never skip the quality pipeline" without forcing Test-Engineer to review artifacts it has nothing to meaningfully test.
 
 **Trade-offs accepted**:
+
 - `chunk-orchestration`, `chunk-planning`, and `epic-planning` all need edits to become track-aware. This is real implementation work, tracked as its own planned change (see Impact on Planning) — not done as part of this Decision Record.
-- Two plan-artifact shapes coexist per Epic. Mitigated by keeping both gated through the same `skill/plan-lifecycle` procedure and the same file-path convention, so the *mechanics* stay uniform even though the *content* differs by track.
+- Two plan-artifact shapes coexist per Epic. Mitigated by keeping both gated through the same `skill/plan-lifecycle` procedure and the same file-path convention, so the _mechanics_ stay uniform even though the _content_ differs by track.
 
 ---
 
@@ -91,8 +94,8 @@ and a plain-text "AI Component Work" list handled entirely outside orchestration
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | How does an Epic route AI-component work to AI-Engineer automatically? | Tech-Lead assigns `agents: ["AI-Engineer"]` on the relevant chunk(s) in `chunks.json`; `chunk-orchestration` (once updated per this decision) dispatches and pipelines by that field instead of always assuming Software-Engineer. |
-| 2 | Who writes the detailed plan for an AI-track chunk? | AI-Engineer, using `skill/complexity-tiers` to select Tier 1/2/3 process and `skill/ai-engineering-plan` for Tier 3, gated by `skill/plan-lifecycle` at the chunk's plan path — not Tech-Lead. |
-| 3 | Does Test-Engineer review AI-track chunks? | No — AI-Engineer self-validates (existing hard rule) and Principal-Engineer still reviews before Done. Test-Engineer is skipped only for the AI track. |
+| #   | Item                                                                   | Resolution                                                                                                                                                                                                                         |
+| --- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | How does an Epic route AI-component work to AI-Engineer automatically? | Tech-Lead assigns `agents: ["AI-Engineer"]` on the relevant chunk(s) in `chunks.json`; `chunk-orchestration` (once updated per this decision) dispatches and pipelines by that field instead of always assuming Software-Engineer. |
+| 2   | Who writes the detailed plan for an AI-track chunk?                    | AI-Engineer, using `skill/complexity-tiers` to select Tier 1/2/3 process and `skill/ai-engineering-plan` for Tier 3, gated by `skill/plan-lifecycle` at the chunk's plan path — not Tech-Lead.                                     |
+| 3   | Does Test-Engineer review AI-track chunks?                             | No — AI-Engineer self-validates (existing hard rule) and Principal-Engineer still reviews before Done. Test-Engineer is skipped only for the AI track.                                                                             |

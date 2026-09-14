@@ -2,15 +2,15 @@
 
 ## Metadata
 
-| Field | Value |
-|---|---|
-| Decision ID | AIF-ARCH-001 |
-| Project | ai-foundation |
-| Status | Approved |
-| Author (Agent) | Architect |
-| Approved By | Jeremy |
-| Created | 2026-07-31 21:08 |
-| Referenced By | AIF-ARCH-002 |
+| Field          | Value            |
+| -------------- | ---------------- |
+| Decision ID    | AIF-ARCH-001     |
+| Project        | ai-foundation    |
+| Status         | Approved         |
+| Author (Agent) | Architect        |
+| Approved By    | Jeremy           |
+| Created        | 2026-07-31 21:08 |
+| Referenced By  | AIF-ARCH-002     |
 
 > **Note:** This decision predates the AIF-META-001 Tier × Domain model (approved
 > 2026-08-14) and has not been reformatted to the current template. Its content
@@ -25,6 +25,7 @@ The existing `install.ps1` is Windows/PowerShell-only, uses symlinks, assumes ag
 ## Constraints & Requirements
 
 What was non-negotiable:
+
 - Must be OS-agnostic (runs on Windows, macOS, Linux — testable via Git Bash)
 - Must support multiple harnesses with different file format expectations
 - Must be able to install/uninstall cleanly with manifest tracking
@@ -32,6 +33,7 @@ What was non-negotiable:
 - Must make skills discoverable to generic agents (not just agents that know about ai-foundation)
 
 What was a preference but not a hard requirement:
+
 - Minimal dependencies (Node.js stdlib + `yaml` package already in use)
 - Single CLI entry point rather than knowing individual script files
 - Keep it simple — no over-engineering for v1
@@ -71,6 +73,7 @@ What was a preference but not a hard requirement:
 Every harness has different expectations for file format and location. Kiro wants JSON agents, markdown steering, and MCP configs in specific directories. Future harnesses (Copilot, Claude Code) will have their own formats. A copy-based approach with transform adapters handles all of these uniformly. The manifest provides clean lifecycle management.
 
 **Trade-offs accepted**:
+
 - Files can go stale after source updates (mitigated by `aif status` showing hash mismatches and easy `aif install` re-run)
 - Slightly more disk usage than symlinks (negligible for text files)
 - Requires running `aif install` after pulling changes (acceptable given the transform requirement)
@@ -120,12 +123,12 @@ ai-foundation/
 ### Bundle Schema
 
 ```yaml
-name: "engineering"
-version: "1.0.0"
-description: "Full engineering domain bundle"
+name: 'engineering'
+version: '1.0.0'
+description: 'Full engineering domain bundle'
 
 # Auto-discover all components in this domain (optional)
-domain: "engineering"
+domain: 'engineering'
 
 # Append on top of auto-discovered components (all optional)
 agents: []
@@ -137,6 +140,7 @@ servers: []
 ### Bundle Resolution Logic
 
 When `domain` is specified:
+
 1. Find all agents where `agent.domain == bundle.domain`
 2. Collect skills from those agents' `skills` fields
 3. Include `steering/global/**/*.md` + `steering/{domain}/**/*.md`
@@ -150,31 +154,32 @@ Resolver deduplicates the final list. Resolver errors if nothing is specified (n
 
 ```yaml
 engineering_kiro:
-  version: "1.0.0"
+  version: '1.0.0'
   files:
-    - path: "~/.kiro/agents/architect.json"
-      hash: "sha256:abc123..."
-    - path: "~/.kiro/steering/core.md"
-      hash: "sha256:def456..."
-    - path: "~/.kiro/servers/git/server.js"
-      hash: "sha256:789abc..."
+    - path: '~/.kiro/agents/architect.json'
+      hash: 'sha256:abc123...'
+    - path: '~/.kiro/steering/core.md'
+      hash: 'sha256:def456...'
+    - path: '~/.kiro/servers/git/server.js'
+      hash: 'sha256:789abc...'
 ```
 
 Key format: `{bundleName}_{harness}`
 
 Used for:
+
 - **Uninstall**: iterate files, delete each, remove manifest entry
 - **Update detection**: compare source file hash to stored hash
 - **Status reporting**: show what's installed, flag stale files
 
 ### Kiro Harness Adapter
 
-| Component | Source | Target | Transform |
-|---|---|---|---|
-| Agent | `agents/{name}.yaml` | `~/.kiro/agents/{name}.json` | YAML → Kiro JSON (map prompt, tools, skills→resources, etc.) |
-| Steering | `steering/**/*.md` | `~/.kiro/steering/{name}.md` | Copy as-is |
-| Skills | `skills/{name}/SKILL.md` | `~/.kiro/skills/{name}/SKILL.md` | Copy as-is |
-| Servers | `servers/{name}/{name}.yaml` | `~/.kiro/servers/{name}/` (files) + merge into `~/.kiro/settings/mcp.json` (registration) | YAML → Kiro MCP JSON entry; copy server scripts/executables |
+| Component | Source                       | Target                                                                                    | Transform                                                    |
+| --------- | ---------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Agent     | `agents/{name}.yaml`         | `~/.kiro/agents/{name}.json`                                                              | YAML → Kiro JSON (map prompt, tools, skills→resources, etc.) |
+| Steering  | `steering/**/*.md`           | `~/.kiro/steering/{name}.md`                                                              | Copy as-is                                                   |
+| Skills    | `skills/{name}/SKILL.md`     | `~/.kiro/skills/{name}/SKILL.md`                                                          | Copy as-is                                                   |
+| Servers   | `servers/{name}/{name}.yaml` | `~/.kiro/servers/{name}/` (files) + merge into `~/.kiro/settings/mcp.json` (registration) | YAML → Kiro MCP JSON entry; copy server scripts/executables  |
 
 ### Scope
 
@@ -196,9 +201,9 @@ Used for:
 
 ## Resolved Items
 
-| # | Item | Resolution |
-|---|---|---|
-| 1 | Kiro MCP server install location | MCP settings live at `~/.kiro/settings/mcp.json` (for registration). Local-run server scripts/executables are copied to `~/.kiro/servers/{name}/` so they exist on disk for the MCP config to reference. The installer both copies server files and merges entries into `mcp.json`. |
-| 2 | Define Copilot/Claude Code adapter specs | Steering scoping resolved in AIF-ARCH-002. Full adapter implementation deferred to v2. |
-| 3 | `aif validate` vs existing `tests/` scripts | Deferred. Will replace them when implemented. |
-| 4 | Bundle `domain` field required or optional | Optional. Each component list (`agents`, `skills`, `steering`, `servers`) is also optional. A bundle with only `domain` is valid. A bundle with only explicit lists is valid. Resolver errors if nothing is specified (no domain and no lists). Resolver deduplicates components across domain-discovered and explicitly-listed entries. |
+| #   | Item                                        | Resolution                                                                                                                                                                                                                                                                                                                               |
+| --- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Kiro MCP server install location            | MCP settings live at `~/.kiro/settings/mcp.json` (for registration). Local-run server scripts/executables are copied to `~/.kiro/servers/{name}/` so they exist on disk for the MCP config to reference. The installer both copies server files and merges entries into `mcp.json`.                                                      |
+| 2   | Define Copilot/Claude Code adapter specs    | Steering scoping resolved in AIF-ARCH-002. Full adapter implementation deferred to v2.                                                                                                                                                                                                                                                   |
+| 3   | `aif validate` vs existing `tests/` scripts | Deferred. Will replace them when implemented.                                                                                                                                                                                                                                                                                            |
+| 4   | Bundle `domain` field required or optional  | Optional. Each component list (`agents`, `skills`, `steering`, `servers`) is also optional. A bundle with only `domain` is valid. A bundle with only explicit lists is valid. Resolver errors if nothing is specified (no domain and no lists). Resolver deduplicates components across domain-discovered and explicitly-listed entries. |
