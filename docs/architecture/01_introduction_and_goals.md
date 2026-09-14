@@ -1,6 +1,6 @@
 ---
-section: "01"
-title: "Introduction and Goals"
+section: '01'
+title: 'Introduction and Goals'
 lifecycle: published
 last_verified: e066376
 tags: [overview]
@@ -35,15 +35,15 @@ just by describing them.
 
 ## Quality Goals
 
-| Priority | Goal | Motivation | Measurable criterion |
-|---|---|---|---|
-| 1 | Portability | One definition installs into multiple harnesses without per-harness rewrites. | Installs into 2 harnesses today (Claude Code, Kiro) from one component set — zero harness-specific source duplication in `agents/`/`skills/`/`steering/`. |
-| 2 | Ease of use | `aif install`/`init` work with sensible defaults. | `aif init --name X` needs only that one flag; `aif install` resolves a full component set from a single `--bundle` argument. |
-| 3 | Minimal-dependency tooling | Small dependency footprint avoids the framework becoming a supply-chain or portability liability itself. | 3 runtime dependencies total (`package.json`): `@modelcontextprotocol/sdk`, `googleapis`, `yaml`. |
+| Priority | Goal                       | Motivation                                                                                               | Measurable criterion                                                                                                                                      |
+| -------- | -------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1        | Portability                | One definition installs into multiple harnesses without per-harness rewrites.                            | Installs into 2 harnesses today (Claude Code, Kiro) from one component set — zero harness-specific source duplication in `agents/`/`skills/`/`steering/`. |
+| 2        | Ease of use                | `aif install`/`init` work with sensible defaults.                                                        | `aif init --name X` needs only that one flag; `aif install` resolves a full component set from a single `--bundle` argument.                              |
+| 3        | Minimal-dependency tooling | Small dependency footprint avoids the framework becoming a supply-chain or portability liability itself. | 3 runtime dependencies total (`package.json`): `@modelcontextprotocol/sdk`, `googleapis`, `yaml`.                                                         |
 
 ## Stakeholders
 
-| Role | Concern |
-|---|---|
-| Project adopter | One set of AI-development rules, trusted across every project/harness; retains final approval over anything AI-authored. |
-| Framework maintainer | Evolves the agent/skill/steering schemas and harness adapters that adopters install. |
+| Role                 | Concern                                                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Project adopter      | One set of AI-development rules, trusted across every project/harness; retains final approval over anything AI-authored. |
+| Framework maintainer | Evolves the agent/skill/steering schemas and harness adapters that adopters install.                                     |

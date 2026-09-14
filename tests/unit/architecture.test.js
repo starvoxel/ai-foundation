@@ -67,10 +67,7 @@ describe('parseArchitectureSection', () => {
       summaryLines: ['First line of the summary', 'continues on a second line.'],
     });
     const result = parseArchitectureSection(content, '01.md');
-    assert.equal(
-      result.record.summary,
-      'First line of the summary continues on a second line.',
-    );
+    assert.equal(result.record.summary, 'First line of the summary continues on a second line.');
   });
 
   it('stops the summary at the first non-blockquote line', () => {
@@ -117,7 +114,9 @@ last_verified: abc1234
   for (const field of ['section', 'title', 'lifecycle', 'last_verified']) {
     it(`errors when "${field}" is missing`, () => {
       const lines = wellFormedSection().split('\n');
-      const filtered = lines.filter((l) => !l.startsWith(`${field}:`) && !l.startsWith(`${field} `));
+      const filtered = lines.filter(
+        (l) => !l.startsWith(`${field}:`) && !l.startsWith(`${field} `),
+      );
       const content = filtered.join('\n');
       const result = parseArchitectureSection(content, '01.md');
       assert.ok('error' in result, `expected an error when ${field} is missing`);
@@ -148,8 +147,26 @@ describe('buildReverseIndex', () => {
 describe('buildArchitectureIndex', () => {
   it('assembles entries with the injected stale predicate per record', () => {
     const records = [
-      { path: '01.md', section: '01', title: 'A', summary: 's', lifecycle: 'published', tags: [], key_files: ['a.js'], last_verified: 'x' },
-      { path: '02.md', section: '02', title: 'B', summary: 's', lifecycle: 'published', tags: [], key_files: ['b.js'], last_verified: 'y' },
+      {
+        path: '01.md',
+        section: '01',
+        title: 'A',
+        summary: 's',
+        lifecycle: 'published',
+        tags: [],
+        key_files: ['a.js'],
+        last_verified: 'x',
+      },
+      {
+        path: '02.md',
+        section: '02',
+        title: 'B',
+        summary: 's',
+        lifecycle: 'published',
+        tags: [],
+        key_files: ['b.js'],
+        last_verified: 'y',
+      },
     ];
     const index = buildArchitectureIndex(records, (r) => r.path === '02.md');
     assert.equal(index.entries.find((e) => e.path === '01.md').stale, false);
@@ -158,7 +175,16 @@ describe('buildArchitectureIndex', () => {
 
   it('includes a reverse_index built from the same records', () => {
     const records = [
-      { path: '01.md', section: '01', title: 'A', summary: 's', lifecycle: 'published', tags: [], key_files: ['a.js'], last_verified: 'x' },
+      {
+        path: '01.md',
+        section: '01',
+        title: 'A',
+        summary: 's',
+        lifecycle: 'published',
+        tags: [],
+        key_files: ['a.js'],
+        last_verified: 'x',
+      },
     ];
     const index = buildArchitectureIndex(records, () => false);
     assert.deepEqual(index.reverse_index, { 'a.js': ['01.md'] });
