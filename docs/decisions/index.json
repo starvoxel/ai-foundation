@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-25T18:29:05.744Z",
+  "generated_at": "2026-09-14T11:30:41.600Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -161,23 +161,6 @@
         "errata",
         "plan-lifecycle",
         "status-vocabulary"
-      ]
-    },
-    {
-      "id": "AIF-PLAN-001",
-      "tier": "A",
-      "domain": "planning",
-      "title": "Co-locate Epic/Chunk Plan Artifacts, Split Work Log from Plan Body",
-      "status": "Deferred",
-      "path": "planning/AIF-PLAN-001_epic-chunk-colocation-worklog-split.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [],
-      "referenced_by": [],
-      "tags": [
-        "epic-chunk-colocation",
-        "worklog-split",
-        "plan-lifecycle"
       ]
     },
     {
