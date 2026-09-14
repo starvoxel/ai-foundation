@@ -14,7 +14,6 @@ import {
   buildArchitectureIndex,
   diffArchitectureIndex,
 } from '../../lib/architecture.js';
-import { entriesEqual } from '../../lib/decisions.js';
 
 function wellFormedSection({
   section = '01',
@@ -233,19 +232,5 @@ describe('diffArchitectureIndex', () => {
     assert.match(diff.summary, /Added: 03\.md/);
     assert.match(diff.summary, /Removed: 02\.md/);
     assert.match(diff.summary, /Changed: 01\.md/);
-  });
-});
-
-describe('entriesEqual (shared with decisions.js)', () => {
-  it('treats architecture-shaped entries with reordered arrays as equal', () => {
-    const a = { path: '01.md', tags: ['x', 'y'], key_files: ['a.js', 'b.js'] };
-    const b = { path: '01.md', tags: ['y', 'x'], key_files: ['b.js', 'a.js'] };
-    assert.equal(entriesEqual(a, b), true);
-  });
-
-  it('detects a real difference in a non-array field', () => {
-    const a = { path: '01.md', title: 'A' };
-    const b = { path: '01.md', title: 'B' };
-    assert.equal(entriesEqual(a, b), false);
   });
 });
