@@ -1,0 +1,159 @@
+{
+  "generated_at": "2026-09-14T00:40:53.219Z",
+  "entries": [
+    {
+      "path": "01_introduction_and_goals.md",
+      "section": "01",
+      "title": "Introduction and Goals",
+      "summary": "What ai-foundation is, who it's for, and the quality goals its design serves.",
+      "lifecycle": "published",
+      "tags": [
+        "overview"
+      ],
+      "key_files": [
+        "README.md",
+        "AGENTS.md"
+      ],
+      "last_verified": "e066376",
+      "stale": false
+    },
+    {
+      "path": "02_constraints.md",
+      "section": "02",
+      "title": "Constraints",
+      "summary": "Technical and organizational constraints the design must work within.",
+      "lifecycle": "published",
+      "tags": [
+        "constraints"
+      ],
+      "key_files": [
+        "package.json",
+        "lib/harnesses/base.js",
+        "steering/engineering/git-workflow-projects.md"
+      ],
+      "last_verified": "e066376",
+      "stale": false
+    },
+    {
+      "path": "03_context.md",
+      "section": "03",
+      "title": "System Scope and Context",
+      "summary": "Who and what ai-foundation talks to, at the C4 System Context (L1) level.",
+      "lifecycle": "published",
+      "tags": [
+        "context",
+        "c4"
+      ],
+      "key_files": [
+        "bin/aif.js",
+        "servers/gmail/auth.js",
+        "servers/youtrack/youtrack.yaml"
+      ],
+      "last_verified": "e066376",
+      "stale": false
+    },
+    {
+      "path": "05_01_bundle_resolution.md",
+      "section": "05.01",
+      "title": "Bundle resolution",
+      "summary": "How `resolveBundle()` turns a `bundle.yaml` into the concrete set of agents/skills/steering/servers that get installed.",
+      "lifecycle": "published",
+      "tags": [
+        "building-blocks",
+        "resolver"
+      ],
+      "key_files": [
+        "lib/resolver.js"
+      ],
+      "last_verified": "e066376",
+      "stale": false
+    },
+    {
+      "path": "05_02_harness_adapters.md",
+      "section": "05.02",
+      "title": "Harness adapters",
+      "summary": "The shared adapter contract every harness implements, and exactly where Claude Code and Kiro diverge — this is what portability (§1 Quality Goals) actually rests on.",
+      "lifecycle": "published",
+      "tags": [
+        "building-blocks",
+        "harnesses"
+      ],
+      "key_files": [
+        "lib/harnesses/base.js",
+        "lib/harnesses/claude.js",
+        "lib/harnesses/kiro.js"
+      ],
+      "last_verified": "e066376",
+      "stale": false
+    },
+    {
+      "path": "05_building_blocks.md",
+      "section": "05",
+      "title": "Building Block View",
+      "summary": "Level-1 whitebox of the `aif` CLI and the component directories it resolves, transforms, and installs — decomposed into black boxes, each with its responsibility and interface.",
+      "lifecycle": "published",
+      "tags": [
+        "building-blocks",
+        "c4"
+      ],
+      "key_files": [
+        "bin/aif.js",
+        "lib/commands/index.js",
+        "lib/resolver.js",
+        "lib/harnesses/base.js",
+        "lib/manifest.js",
+        "lib/architecture.js"
+      ],
+      "last_verified": "08b190d",
+      "stale": false
+    }
+  ],
+  "reverse_index": {
+    "README.md": [
+      "01_introduction_and_goals.md"
+    ],
+    "AGENTS.md": [
+      "01_introduction_and_goals.md"
+    ],
+    "package.json": [
+      "02_constraints.md"
+    ],
+    "lib/harnesses/base.js": [
+      "02_constraints.md",
+      "05_02_harness_adapters.md",
+      "05_building_blocks.md"
+    ],
+    "steering/engineering/git-workflow-projects.md": [
+      "02_constraints.md"
+    ],
+    "bin/aif.js": [
+      "03_context.md",
+      "05_building_blocks.md"
+    ],
+    "servers/gmail/auth.js": [
+      "03_context.md"
+    ],
+    "servers/youtrack/youtrack.yaml": [
+      "03_context.md"
+    ],
+    "lib/resolver.js": [
+      "05_01_bundle_resolution.md",
+      "05_building_blocks.md"
+    ],
+    "lib/harnesses/claude.js": [
+      "05_02_harness_adapters.md"
+    ],
+    "lib/harnesses/kiro.js": [
+      "05_02_harness_adapters.md"
+    ],
+    "lib/commands/index.js": [
+      "05_building_blocks.md"
+    ],
+    "lib/manifest.js": [
+      "05_building_blocks.md"
+    ],
+    "lib/architecture.js": [
+      "05_building_blocks.md"
+    ]
+  }
+}

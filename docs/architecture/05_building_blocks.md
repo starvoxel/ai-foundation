@@ -2,13 +2,15 @@
 section: "05"
 title: "Building Block View"
 lifecycle: published
-last_verified: e066376
+last_verified: 08b190d
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
+  - lib/commands/index.js
   - lib/resolver.js
   - lib/harnesses/base.js
   - lib/manifest.js
+  - lib/architecture.js
 ---
 
 > Level-1 whitebox of the `aif` CLI and the component directories it resolves,
@@ -41,6 +43,7 @@ graph TD
     Manifest["manifest.js"]
     SnapLib["snapshot/io.js + pure.js"]
     Decisions["decisions.js"]
+    Architecture["architecture.js"]
     Knowledge["knowledge.js"]
     ProjInit["project-init.js"]
     AiGitLib["ai-git.js"]
@@ -76,6 +79,7 @@ graph TD
   Status --> SnapLib
   Snapshot --> SnapLib
   Index --> Decisions
+  Index --> Architecture
   Index --> Knowledge
   Init --> ProjInit
   ProjInit --> Template
@@ -127,7 +131,7 @@ cut across that boundary and hide it.
 | `validate.js` | Schema, cross-reference, and bundle-resolution integrity checks (`aif validate`). | `runValidate(parsed, repoRoot)` |
 | `test.js` | Thin wrapper invoking this repo's own `node:test` suite. | `runTest(parsed, repoRoot)` |
 | `snapshot.js` | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots. | `runSnapshot(parsed, repoRoot)` |
-| `index.js` | Generates the knowledge index and the decisions index (`aif index knowledge\|decisions`). | `runIndex(parsed, repoRoot)`, `buildKnowledgeIndex()`, `resolveDecisionsPath()` |
+| `index.js` | Generates the knowledge, decisions, and architecture indexes (`aif index knowledge\|decisions\|architecture`). | `runIndex(parsed, repoRoot)`, `buildKnowledgeIndex()`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
 | `init.js` | Scaffolds a new project from `projects/_template/`, interactively or via flags. | `runInit(parsed, repoRoot)`, `promptForConfig()` |
 
 ### Core libraries (`lib/*.js`)
@@ -137,7 +141,8 @@ cut across that boundary and hide it.
 | `resolver.js` | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01. | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
 | `manifest.js` | Tracks every file `aif install` writes, per bundle/server/hook, in `.installs.yaml` — what `uninstall` reads to know what to remove. | `readManifest()`/`writeManifest()`, `get/set/removeEntry()` |
 | `snapshot/io.js` + `snapshot/pure.js` | Builds and diffs source-file-hash snapshots per bundle/server/hook to detect drift between installed output and current source. | `buildSnapshot()`, `diffSnapshot()`, `isFreshnessCurrent()` |
-| `decisions.js` | Parses decision-record frontmatter, builds/diffs the decisions index, inverts `Supersedes` into `superseded_by`. | `parseDecisionRecord()`, `buildDecisionIndex()`, `diffDecisionIndex()` |
+| `decisions.js` | Parses decision-record frontmatter, builds/diffs the decisions index, inverts `Supersedes` into `superseded_by`. Also exports the generalized `entriesEqual` both this and `architecture.js` diff against. | `parseDecisionRecord()`, `buildDecisionIndex()`, `diffDecisionIndex()`, `entriesEqual()` |
+| `architecture.js` | Parses arc42 section frontmatter, builds/diffs the architecture index, computes each doc's `stale` flag from `last_verified` vs. real git history of its `key_files`, and inverts `key_files` into a `source path → [docs]` reverse index. | `parseArchitectureSection()`, `buildArchitectureIndex()`, `diffArchitectureIndex()`, `isStaleAgainstGit()` |
 | `knowledge.js` | Validates knowledge-file frontmatter, builds index entries for `aif index knowledge`. | `validateKnowledgeFrontmatter()`, `buildIndexEntry()` |
 | `project-init.js` | Validates project name/shortname, generates `.aiconfig.json` content, applies template placeholder substitution. | `buildAiConfig()`, `applyProjectConfig()` |
 | `ai-git.js` | Pure logic behind the `ai-git` CLI: identity resolution, env injection, gh-command detection and auth-arg construction. | `getIdentity()`, `buildGitEnv()`, `buildGhEnv()` |

@@ -6,7 +6,6 @@ last_verified: e066376
 tags: [context, c4]
 key_files:
   - bin/aif.js
-  - lib/commands
   - servers/gmail/auth.js
   - servers/youtrack/youtrack.yaml
 ---
