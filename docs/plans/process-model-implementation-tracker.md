@@ -193,16 +193,7 @@ demonstrated in the "too broad" direction rather than "missing entirely".
       `engineering-manager`/`principal-engineer`; added `engineering-researcher`. States
       explicitly which agent commits Architect's output. Commit: `8708a79`.
 
-      Deliberately kept `skill/epic-planning`/`skill/chunk-planning`/
-              `skill/chunk-orchestration`/`chunks.json` under their pre-rename names
-              throughout the three affected agent prompts — checks 7-9 own that rename,
-              not this check (per human decision during this session: "old names now,
-              make wording in phase 5 extremely clear"). `docs/process-model.md`'s
-              checks 6-8 cells now say so explicitly, including that
-              `skills/epic-planning`, `skills/chunk-planning`, and
-              `skills/chunk-orchestration` themselves are untouched and still describe
-              the pre-roster world (literal Tech-Lead/AI-Engineer/Test-Engineer names,
-              software/AI-track branching) — not just the check-6 agent YAMLs.
+      Deliberately kept `skill/epic-planning`/`skill/chunk-planning`/`skill/chunk-orchestration`/`chunks.json` under their pre-rename names throughout the three affected agent prompts — checks 7-9 own that rename, not this check (per human decision during this session: "old names now, make wording in phase 5 extremely clear"). `docs/process-model.md`'s checks 6-8 cells now say so explicitly, including that `skills/epic-planning`, `skills/chunk-planning`, and `skills/chunk-orchestration` themselves are untouched and still describe the pre-roster world (literal Tech-Lead/AI-Engineer/Test-Engineer names, software/AI-track branching) — not just the check-6 agent YAMLs.
 
   **Also fold in while touching these files — done, all 5 items incorporated
   into the check-6 commit above:** (2026-09-13, a parallel session added
