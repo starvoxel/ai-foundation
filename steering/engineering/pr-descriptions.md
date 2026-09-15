@@ -1,47 +1,36 @@
 ---
 name: 'pr-descriptions'
-version: '0.1.0'
-description: 'Keeps PR Summaries short and pushes detail into Testing notes, where it is actually load-bearing.'
+version: '0.2.0'
+description: 'Requires PR descriptions to follow the repo PR template exactly — sections, order, and every comment instruction inside it.'
 file_patterns: []
 ---
 
 ## Scope
 
-All agents that open or update a pull request description.
+All agents that open or update a pull request description, in any repository.
 
 ---
 
 ## Rules
 
-### Rule 1: Summary Stays Short
+### Rule 1: The Template Is Binding, Not Decorative
 
-- State what changed and why in 2-4 sentences.
-- Do not give a file-by-file or bullet-by-bullet inventory of every change — the diff already shows that; the Summary's job is orientation, not duplication.
-- Do not restate the commit history in prose form.
+- If the repo has a PR template (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/PULL_REQUEST_TEMPLATE/`), the PR description must include every section the template defines, in the same order, with no sections added or removed.
+- Every instructional HTML comment inside the template — on length, content, or format — must be followed to the letter for that section, not treated as an optional hint. If a comment says a section should be brief, it is brief. If a comment says a section should be as detailed as the work warrants, it is detailed.
+- Do not average the template's per-section guidance into one uniform style. A template that asks for a short Summary and a thorough Testing notes section means exactly that contrast, not "keep everything moderate."
 
-**Rationale:** A Summary that re-narrates the diff costs a reviewer time twice: once reading the prose, once reading the diff itself. The commits are already the atomic, reviewable record (`git-workflow-projects.md` Rule 6) — Summary exists to give the reviewer intent before they read it, not to substitute for reading it.
+**Rationale:** Putting content requirements in the template — instead of restating them as steering rules — means each repo's template is the single source of truth for what its PRs should contain, and stays repo-agnostic: one repo can ask for a terse summary and an exhaustive test log, another can require a rollback plan or a linked ticket, without touching steering. This rule's only job is making the template's own instructions binding instead of comments nobody has to honor.
 
-**Exceptions:** A change that touches many files for one mechanical reason (e.g. a repo-wide rename) may name the pattern once in a single sentence — still not a list.
-
-### Rule 2: Testing Notes Carries the Detail
-
-- List every manual validation step performed: the exact command run and its result.
-- Prefer a bullet list of command → outcome pairs over prose.
-- This section is exempt from Rule 1's brevity requirement — more detail here is always acceptable.
-
-**Rationale:** A reviewer cannot see manual testing in the diff. Testing notes is the only section where length does real verification work rather than padding, so it should absorb the detail that Rule 1 keeps out of the Summary.
-
-**Exceptions:** None. If no manual testing was done, say so explicitly ("No manual testing — covered by automated tests X, Y") rather than omitting the section.
+**Exceptions:** A repo with no PR template file has no structure to follow — fall back to a plain Summary + Testing notes description.
 
 ---
 
 ## Enforcement
 
-- Caught during Principal-Engineer review (or human review, where that role doesn't apply): a Summary with a file-by-file breakdown is a LOW finding — trim it before merge.
-- A Testing notes section that only says "tested" with no commands or results is a MEDIUM finding — the PR isn't verifiably validated.
+- Caught during Principal-Engineer review (or human review, where that role doesn't apply): a PR description that skips a template section, adds an undefined one, or visibly ignores a section's comment (e.g. a long file-by-file Summary when the comment calls for 2-4 sentences) is a LOW-MEDIUM finding depending on severity — send back with a pointer to the specific comment that was ignored, not a rewrite of the rule itself.
 
 ---
 
 ## Notes
 
-See `.github/PULL_REQUEST_TEMPLATE.md` for the section structure these rules apply to.
+The template's own comments carry the actual requirements (what each section should contain, how long, what format). This file only enforces that agents follow them — it does not duplicate them. See `.github/PULL_REQUEST_TEMPLATE.md` for this repo's current structure.
