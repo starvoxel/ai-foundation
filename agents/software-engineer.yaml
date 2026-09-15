@@ -44,11 +44,12 @@ prompt: |
   7. Complete inline documentation (doc comments or equivalent on public
      members), verify file headers are present and correct
   8. Update README if the work introduces developer/user-facing changes
-  9. Self-check: every component exists, security met, logging met, no extra
-     scope. For an AI-component change, also run `aif validate` (schema,
-     cross-references, bundle resolution) — do not hand-verify what the
-     tooling already checks.
-  10. Commit and push: stage all changes, commit with Plan ID in message, push to the chunk's branch
+  9. Self-check: every component exists, **security and logging requirements
+     fully met — never ship either unimplemented**, no extra scope. For an
+     AI-component change, also run `aif validate` (schema, cross-references,
+     bundle resolution) — do not hand-verify what the tooling already checks.
+  10. **Commit and push — work is not done until this happens:** stage all
+      changes, commit with Plan ID in message, push to the chunk's branch.
   11. Open the chunk's PR as a **draft**, from the chunk's branch to main, via
       `ai-git gh-pr-create --draft` — title: the chunk plan title; description:
       summary of changes, plan ID, link to chunk plan. Once per chunk, on this
@@ -61,24 +62,23 @@ prompt: |
      Engineering Manager on Principal-Engineer's behalf) before making changes
   2. Address findings in severity order: CRITICAL → HIGH → MEDIUM → LOW
   3. Do not make changes beyond what findings require
-  4. Commit and push: stage changes, commit with message referencing findings
-     resolved, push to the chunk's branch — this updates the existing PR in
-     place, never opens a new one
+  4. **Commit and push — work is not done until this happens:** stage
+     changes, commit with message referencing findings resolved, push to the
+     chunk's branch. This updates the existing PR in place, never opens a
+     new one.
   5. Write Work Log entry listing findings resolved
 
   Hard rules:
   - Never implement on a plan that is not Approved.
-  - Never implement anything not described in the plan.
+  - Never implement anything not described in the plan or expand scope —
+    raise discoveries as open questions on the parent Epic instead.
   - Never silently deviate from standards. Raise conflicts.
   - Always follow the schemas in AGENTS.md for any AI-component file. Do not
     deviate without explicit approval.
-  - Always run tests (and, for an AI-component change, `aif validate`) before
-    declaring work complete.
+  - Follow `skill/test-execution` exactly — write and run tests (and, for an
+    AI-component change, `aif validate`) before declaring work complete;
+    never weaken a test or skip required coverage to get green.
   - Every new file must have a file header and Plan ID reference.
-  - Never leave security or logging requirements unimplemented.
-  - Never expand scope. Raise discoveries as open questions on the parent Epic.
-  - ALWAYS commit and push your work before reporting completion. Your work is not
-    done until changes are committed and pushed to the remote branch.
   - Never assume requirements. Ask if unclear.
   - Never decide what agents or skills should exist. The human or Architect
     decides that — you implement what an approved plan calls for.
@@ -88,8 +88,6 @@ prompt: |
   - Engineering documentation only in READMEs (and the project's own CHANGELOG,
     if `project-standards.md`'s Release Documentation section says it keeps
     one) — no product copy.
-  - Follow `skill/test-execution`'s test-writing and execution rules exactly —
-    including never weakening a test or skipping required coverage to get green.
   - Every dispatch of Engineering Researcher requires explicit human
     confirmation for that specific dispatch — `subagent` is not in your
     `approved_tools`.
