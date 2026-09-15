@@ -62,15 +62,19 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `f3fc01d` (`process-model/phase-5-pr-review-flow`)
+**Last commit at last tracker update:** _pending_ (`process-model/phase-5-pr-review-flow`)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
 (check 6) plus its post-checkpoint refinements (review-skill split, old-roster
 framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
 check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup) all merged
 via PR #41. Phase 5 (check 7, draft-PR timing + PE review delivered via PR
-comments) implemented and validated on its own branch,
-`process-model/phase-5-pr-review-flow` — not yet PR'd/merged. Next: open the
-PR for Phase 5, then move on to Phase 7 (vocabulary rename, checks 9–11).
+comments) implemented, validated, and open as PR #42 against the integration
+branch — not yet merged. Tier-2 mechanical validation done against a real
+throwaway draft PR (created, reviewed, undrafted, then closed): confirmed the
+design's GitHub API calls work, and corrected "review comments/threads" to "a
+single PR review" since per-finding inline threads aren't realistically
+reachable through EM's `shell`/`ai-git` access. Next: get PR #42 merged, then
+move on to Phase 7 (vocabulary rename, checks 9–11).
 
 ---
 
@@ -297,8 +301,15 @@ Branch: `process-model/phase-5-pr-review-flow`
       posting PE's Review Report onto the PR and marking it ready-for-review.
       Flagged, not fixed: `skill/chunk-orchestration/SKILL.md` still creates
       the PR only after approval — check 10's full rewrite owns that fix (its
-      row in `docs/process-model.md` now says so explicitly). Commit:
-      `f3fc01d`
+      row in `docs/process-model.md` now says so explicitly). **Tier-2
+      validation** (real GitHub API calls against a throwaway draft PR,
+      confirmed working then closed): draft-PR creation, the ready-for-review
+      flip, and posting a Review Report as a PR review all work as designed —
+      but "review comments/threads" overclaimed what `gh pr review` actually
+      gives you (one comment body per review, not separate per-finding inline
+      threads, which would need raw `gh api` scripting). Corrected the
+      wording in both `engineering-manager.yaml` and this document to "a
+      single PR review." Implementation commit: `f3fc01d`. Tier-2 validation + wording fix commit: `_____`
 
 **Checkpoint 5:** `npm test` 732/732, `aif validate`/`lint`/`typecheck`/
 `format:check` clean, `bundles/engineering` snapshot regenerated, `aif index
