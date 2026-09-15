@@ -1,9 +1,9 @@
 <!-- Instructions live in comments like this one and won't appear in the rendered PR. -->
-<!-- Keep this brief — a couple sentences per section is plenty. -->
+<!-- Keep Summary and AI disclosure brief — a couple sentences apiece. Testing notes is the exception: the more detail there, the better. -->
 
 ## Summary
 
-<!-- What does this change do, and why? -->
+<!-- What does this change do, and why? 2-4 sentences — no file-by-file breakdown, the diff already shows that. -->
 
 ## Checklist
 
@@ -14,7 +14,7 @@
 
 ## Testing notes
 
-<!-- Outline the test plan you followed to validate this change. -->
+<!-- List every manual check you ran and its result — exact commands and outcomes, not just "tested". This is the one section where length is welcome. -->
 
 ## AI disclosure
 
