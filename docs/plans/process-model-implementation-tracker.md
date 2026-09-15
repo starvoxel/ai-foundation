@@ -62,7 +62,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `231de16` (`process-model/phase-4-agent-roster`)
+**Last commit at last tracker update:** `7ade218` (`process-model/phase-4-agent-roster`)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
 (check 6) implemented, validated, and open as PR #41 against the integration
 branch — not yet merged. Several post-checkpoint refinements have landed on
@@ -266,7 +266,7 @@ though it's a single check.
   (Tier 2 stop mechanism, Tier 3 hand-off destination), so SE's prompt now
   just points at its row instead of restating anything. This also delivers
   most of check 13's complexity-tiers scope early — see that check's note in
-  Phase 7 below. Commit: `_____`.
+  Phase 7 below. Commit: `7ade218`.
 
 ---
 
