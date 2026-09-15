@@ -2,15 +2,15 @@
 
 > This is a **working checkpoint file**, not a target-model artifact. It exists so
 > implementation of `docs/process-model.md` can pause and resume across sessions
-> without re-deriving state. Delete it once Phase 15 / check 32 lands — git history
+> without re-deriving state. Delete it once Phase 16 / check 33 lands — git history
 > is the permanent record, per the plan's own philosophy (`process-model.md` §
 > Context rules).
 
 ## How this works
 
 `docs/process-model.md` is the spec — this file never restates its content, only
-tracks status against it. Each row below is one of the 33 numbered checks from that
-document's **Implementation checks** table, grouped into the 15 phases from its
+tracks status against it. Each row below is one of the 34 numbered checks from that
+document's **Implementation checks** table, grouped into the 16 phases from its
 **Sequencing** section.
 
 **Ground rules for this implementation pass:**
@@ -29,8 +29,8 @@ document's **Implementation checks** table, grouped into the 15 phases from its
   stops — the human reviews and merges it**, same as any other PR in this repo
   (`steering/engineering/git-workflow-projects.md` Rule 13: no agent merges). Claude's
   own `npm test`/`npm run validate` pass is what makes a PR ready to hand off, not a
-  license to merge it. This integration branch itself will PR into `main` once all 15
-  phases are done (Phase 15 / check 32) — same rule applies there.
+  license to merge it. This integration branch itself will PR into `main` once all 16
+  phases are done (Phase 16 / check 33) — same rule applies there.
 - **One commit per check** within a phase branch. Small, reviewable diffs, commit
   message references the check number (e.g. `process-model check 3: add
 paths.architecture/paths.research`). If a check is bigger than expected, split it
@@ -39,16 +39,16 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 - **One human checkpoint per phase**, at minimum — reviewing the merged PR's diff and
   the tracker's Checkpoint note before the next phase's branch is cut. **Extra
   checkpoints on high-blast-radius phases:**
-  - **Phase 6** (checks 10–12, skill deletion/re-homing) — pause after check 10
-    (routing decided) before executing the deletions in check 11. If that pause is
-    worth keeping across a PR boundary, check 10 can land as its own commit reviewed
-    before check 11's commit is added to the same branch/PR.
-  - **Phase 12** (checks 24–29, decision conversion) — pause after **check 24**
+  - **Phase 7** (checks 11–13, skill deletion/re-homing) — pause after check 11
+    (routing decided) before executing the deletions in check 12. If that pause is
+    worth keeping across a PR boundary, check 11 can land as its own commit reviewed
+    before check 12's commit is added to the same branch/PR.
+  - **Phase 13** (checks 25–30, decision conversion) — pause after **check 25**
     specifically: it requires a human `Approved`/`Deferred` call on `ARCH-004`,
     `ARCH-007`, and `PROC-003` before any conversion proceeds. Pause again after the
-    bulk rewrite (checks 26–27) before the indexer retarget (check 28).
-- **Check 33 is out of scope for this tracker.** It's explicitly sequenced outside
-  the 15 phases (an Architect-authored ADR on tooling, written later) — never mark it
+    bulk rewrite (checks 27–28) before the indexer retarget (check 29).
+- **Check 34 is out of scope for this tracker.** It's explicitly sequenced outside
+  the 16 phases (an Architect-authored ADR on tooling, written later) — never mark it
   here.
 
 ## Resuming after a break
@@ -62,10 +62,15 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `76624c4` (integration branch tip)
+**Last commit at last tracker update:** `231de16` (`process-model/phase-4-agent-roster`)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
-(`process-model/phase-4-agent-roster`, check 6) implemented and validated on
-its own branch, not yet PR'd/merged.
+(check 6) implemented, validated, and open as PR #41 against the integration
+branch — not yet merged. Several post-checkpoint refinements have landed on
+that same branch/PR since (see Phase 4's post-checkpoint refinements note):
+the review-skill split, old-roster framing cleanup, and the
+`skill/complexity-tiers` rewrite that delivers most of check 13 early. Check
+7 (Phase 5) has been added to `docs/process-model.md` as a spec but not yet
+implemented — its agent-YAML work is still outstanding on this same branch.
 
 ---
 
@@ -103,7 +108,7 @@ Branch: `process-model/phase-2-config-scaffolding`
       and confirmed unaffected (neither reads `paths.epics`/`paths.chunks`, only the
       unchanged `paths.knowledge`/`paths.decisions` keys) — no code change needed
       there. `projects/_template/` and `lib/project-init.js`'s `buildAiConfig` are
-      check 13's scope, not this one.
+      check 14's scope, not this one.
 - [x] **Check 4** — `docs/architecture/` flat arc42 directory + section template;
       only §1/§2/§3/§5 created now (`01_introduction_and_goals.md`,
       `02_constraints.md`, `03_context.md`, `05_building_blocks.md`, plus
@@ -138,8 +143,8 @@ first-draft summary:
   `05_01_bundle_resolution.md` and `05_02_harness_adapters.md` — each also given
   their own required motivation paragraph once checked against arc42's Level-2
   template (the same three-element template applies recursively).
-- `docs/process-model.md` itself amended (checks 14/18): closed a real gap where
-  staleness detection (checks 5/31) can never notice a _new_ file that should have
+- `docs/process-model.md` itself amended (checks 15/19): closed a real gap where
+  staleness detection (checks 5/32) can never notice a _new_ file that should have
   been added to a `key_files` list but wasn't — now an explicit doc-update
   acceptance-gate/review-checklist item, since only a human/review step can catch
   that, not CI.
@@ -181,7 +186,7 @@ blockquote (most of this repo's own arc42 docs use one) was silently
 truncated to its first line; (2) caught a real over-broad `key_files` entry
 in already-merged content (`lib/commands` as a whole directory in
 `03_context.md`) the moment the tool was pointed at real data — exactly the
-kind of drift check 14/18's new completeness rule exists to catch, just
+kind of drift check 15/19's new completeness rule exists to catch, just
 demonstrated in the "too broad" direction rather than "missing entirely".
 
 ---
@@ -193,7 +198,7 @@ demonstrated in the "too broad" direction rather than "missing entirely".
       `engineering-manager`/`principal-engineer`; added `engineering-researcher`. States
       explicitly which agent commits Architect's output. Commit: `8708a79`.
 
-      Deliberately kept `skill/epic-planning`/`skill/chunk-planning`/`skill/chunk-orchestration`/`chunks.json` under their pre-rename names throughout the three affected agent prompts — checks 7-9 own that rename, not this check (per human decision during this session: "old names now, make wording in phase 5 extremely clear"). `docs/process-model.md`'s checks 6-8 cells now say so explicitly, including that `skills/epic-planning`, `skills/chunk-planning`, and `skills/chunk-orchestration` themselves are untouched and still describe the pre-roster world (literal Tech-Lead/AI-Engineer/Test-Engineer names, software/AI-track branching) — not just the check-6 agent YAMLs.
+      Deliberately kept `skill/epic-planning`/`skill/chunk-planning`/`skill/chunk-orchestration`/`chunks.json` under their pre-rename names throughout the three affected agent prompts — checks 8-10 own that rename, not this check (per human decision during this session: "old names now, make wording in phase 5 extremely clear"). `docs/process-model.md`'s checks 6-9 cells now say so explicitly, including that `skills/epic-planning`, `skills/chunk-planning`, and `skills/chunk-orchestration` themselves are untouched and still describe the pre-roster world (literal Tech-Lead/AI-Engineer/Test-Engineer names, software/AI-track branching) — not just the check-6 agent YAMLs.
 
   **Also fold in while touching these files — done, all 5 items incorporated
   into the check-6 commit above:** (2026-09-13, a parallel session added
@@ -215,7 +220,7 @@ demonstrated in the "too broad" direction rather than "missing entirely".
     each agent's own session-scoped implementation checklist; `tasks.json` /
     `orchestration-state.json` stay the sole cross-harness source of truth.
   - **`preload_skills` → set per agent once its final `skills:` list is known**
-    (depends on checks 7–12 landing content into each agent's skill list, so decide
+    (depends on checks 8–13 landing content into each agent's skill list, so decide
     the actual subset at execution time, not now). Principle carried over from the
     deferred commit: `["*"]` for an agent with one small list used on effectively
     every dispatch (Principal-Engineer's code-review skill is the clear case);
@@ -241,67 +246,117 @@ pulled in that skill's files), `aif index architecture|decisions --check` both
 clean. Everything downstream derives from this — good place to slow down even
 though it's a single check.
 
+**Post-checkpoint refinements on the same branch/PR (#41), not new checks:**
+
+- Extracted `skill/review-severity` (severity table, blocking rule, report
+  template) out of `skill/code-review`; added `skill/ai-component-review`
+  (previously an inline paragraph in Principal-Engineer's prompt). Both hand
+  findings to `review-severity`. `principal-engineer.yaml` prompt shrinks
+  accordingly. Commit: `0181aeb`.
+- Stripped "Absorbs Tech-Lead"/historical-framing language from
+  `engineering-manager.yaml`/`software-engineer.yaml`/`principal-engineer.yaml`
+  descriptions and prompts — an agent shouldn't need to know or care what came
+  before it; decision-record citations (e.g. `AIF-PROC-001`) kept since those
+  are permanent, the retired-agent-name/superseded-plan-ID context around them
+  is not. Commit: `ce9df0a`.
+- Trimmed `software-engineer.yaml`'s inline restatement of
+  `skill/complexity-tiers`'s generic Tier 1/2/3 definitions — first pass kept
+  only SE's genuine deviations as prose (commit `231de16`), second pass moved
+  even those into a new **Per-agent specifics** table in the skill itself
+  (Tier 2 stop mechanism, Tier 3 hand-off destination), so SE's prompt now
+  just points at its row instead of restating anything. This also delivers
+  most of check 13's complexity-tiers scope early — see that check's note in
+  Phase 7 below. Commit: `_____`.
+
 ---
 
-## Phase 5 — Vocabulary rename (checks 7–9)
+## Phase 5 — PR/review flow (check 7)
 
-- [ ] **Check 7** — `epic-planning` + `chunk-planning` → `feature-planning`. Commit: `_____`
-- [ ] **Check 8** — `chunk-orchestration`: `chunks.json` → `tasks.json`, tier gate
-      replaces per-Task plan, software/AI-track branching removed. Commit: `_____`
-- [ ] **Check 9** — DAG server + `lib` renamed chunk→task, including doc comments
-      and test fixtures in all three `servers/dag/tests/**` files. Commit: `_____`
+- [ ] **Check 7** — Software-Engineer opens the Task's PR as a **draft**
+      immediately after implementing, not after Principal-Engineer approval as
+      today; Principal-Engineer's Review Report is posted onto that PR as real
+      review comments/threads by **Engineering Manager** on its behalf
+      (Principal-Engineer gains no `shell`/`gh`/`ai-git` access — same pattern
+      as EM already committing an Architect-authored ADR). Correction loops
+      happen on the same PR; Engineering Manager marks it ready-for-review once
+      Principal-Engineer approves. **Spec-only so far** — `docs/process-model.md`
+      updated with this check, the End-to-end flow diagram, the Agent roster
+      table's Principal Engineer row, and a matching Resolved design question,
+      plus the checks-7-33/phases-5-15 renumbering that made room for it.
+      Commit: `66fa26d`. **The actual implementation (`engineering-manager.yaml`
+      and `software-engineer.yaml` changes for the draft-open/post-review/undraft
+      sequence) is still outstanding** — that's this check's real commit, not
+      the plan edit above. Commit: `_____`
 
 **Checkpoint 5:** _____
 
 ---
 
-## Phase 6 — Skill retirement & re-homing (checks 10–12)
+## Phase 6 — Vocabulary rename (checks 8–10)
 
-- [ ] **Check 10** — Decide re-homing for what `knowledge-authoring` carried
-      (steering rule + templates for MADR/arc42/external-reference). Commit: `_____`
-
-**Mid-phase checkpoint (routing sign-off before deletions):** _____
-
-- [ ] **Check 11** — Delete `decision-triage`, `decision-brief`, `decision-record`,
-      `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring`; all references
-      removed; `docs/knowledge-file-format.md` rewritten or deleted, plus its
-      referrers (`projects/_template/knowledge/example.md`, several `docs/plans/*.md`).
-      Commit: `_____`
-- [ ] **Check 12** — Trim `plan-lifecycle`/`complexity-tiers`; Tier 3 becomes
-      stop-and-hand-off; `plan this` documented as a Tier 2 floor. Commit: `_____`
+- [ ] **Check 8** — `epic-planning` + `chunk-planning` → `feature-planning`. Commit: `_____`
+- [ ] **Check 9** — `chunk-orchestration`: `chunks.json` → `tasks.json`, tier gate
+      replaces per-Task plan, software/AI-track branching removed. Commit: `_____`
+- [ ] **Check 10** — DAG server + `lib` renamed chunk→task, including doc comments
+      and test fixtures in all three `servers/dag/tests/**` files. Commit: `_____`
 
 **Checkpoint 6:** _____
 
 ---
 
-## Phase 7 — Template alignment (check 13)
+## Phase 7 — Skill retirement & re-homing (checks 11–13)
 
-- [ ] **Check 13** — `projects/_template/` rebuilt on the full new layout (paths,
-      `plans/{features,tasks,orchestration}/`, `knowledge/decisions/`,
-      `knowledge/architecture/`, `knowledge/research/`, no `knowledge/product/`);
-      `project-standards.md` references updated. Commit: `_____`
+- [ ] **Check 11** — Decide re-homing for what `knowledge-authoring` carried
+      (steering rule + templates for MADR/arc42/external-reference). Commit: `_____`
+
+**Mid-phase checkpoint (routing sign-off before deletions):** _____
+
+- [ ] **Check 12** — Delete `decision-triage`, `decision-brief`, `decision-record`,
+      `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring`; all references
+      removed; `docs/knowledge-file-format.md` rewritten or deleted, plus its
+      referrers (`projects/_template/knowledge/example.md`, several `docs/plans/*.md`).
+      Commit: `_____`
+- [ ] **Check 13** — Trim `plan-lifecycle`/`complexity-tiers`; Tier 3 becomes
+      stop-and-hand-off; `plan this` documented as a Tier 2 floor. **The
+      `complexity-tiers` portion already landed early** as Phase 4 follow-on
+      work (see that phase's post-checkpoint refinements note): Tier 3 now
+      defaults to stop-and-hand-off, `plan this` is documented as a Tier 2
+      floor not a Tier 3 jump, and a new Per-agent specifics table replaces
+      per-agent prose. `plan-lifecycle`'s own trim is still outstanding — that
+      remains this check's work. Commit: `_____`
 
 **Checkpoint 7:** _____
 
 ---
 
-## Phase 8 — Steering & reference sweep (checks 14–16)
+## Phase 8 — Template alignment (check 14)
 
-- [ ] **Check 14** — `steering/engineering/core.md` Rules 1/2/8/9 reworded;
-      `knowledge-consumption.md` moves decisions to index-only by default; doc-update
-      acceptance gate added. Commit: `_____`
-- [ ] **Check 15** — Full vocabulary/reference sweep across the listed skills,
-      standards, and steering files. Commit: `_____`
-- [ ] **Check 16** — `agent-authoring` and `docs/agent-prompt-extraction-candidates.md`
-      swept; product-doc ownership left unassigned. Commit: `_____`
+- [ ] **Check 14** — `projects/_template/` rebuilt on the full new layout (paths,
+      `plans/{features,tasks,orchestration}/`, `knowledge/decisions/`,
+      `knowledge/architecture/`, `knowledge/research/`, no `knowledge/product/`);
+      `project-standards.md` references updated. Commit: `_____`
 
 **Checkpoint 8:** _____
 
 ---
 
-## Phase 9 — Cross-cutting process/security rules (checks 17–19)
+## Phase 9 — Steering & reference sweep (checks 15–17)
 
-- [ ] **Check 17** — `tools.yaml` gains the trifecta-avoidance rule. Commit: `_____`
+- [ ] **Check 15** — `steering/engineering/core.md` Rules 1/2/8/9 reworded;
+      `knowledge-consumption.md` moves decisions to index-only by default; doc-update
+      acceptance gate added. Commit: `_____`
+- [ ] **Check 16** — Full vocabulary/reference sweep across the listed skills,
+      standards, and steering files. Commit: `_____`
+- [ ] **Check 17** — `agent-authoring` and `docs/agent-prompt-extraction-candidates.md`
+      swept; product-doc ownership left unassigned. Commit: `_____`
+
+**Checkpoint 9:** _____
+
+---
+
+## Phase 10 — Cross-cutting process/security rules (checks 18–20)
+
+- [ ] **Check 18** — `tools.yaml` gains the trifecta-avoidance rule. Commit: `_____`
       **Also fold in:** `tools.yaml`'s `builtin`/`approval_guidance` lists are stale as
       of the 2026-09-13 merge — they still cover only the original 8 tools
       (`read`/`write`/`shell`/`web_search`/`web_fetch`/`grep`/`glob`/`code`).
@@ -313,95 +368,95 @@ though it's a single check.
       different risk shape from web/write/shell — decide its tier deliberately rather
       than defaulting it into `moderate`/`privileged` alongside tools the trifecta rule
       is actually about.
-- [ ] **Check 18** — `code-review` checklist gains the Architect/Researcher
+- [ ] **Check 19** — `code-review` checklist gains the Architect/Researcher
       write-scope check (HIGH severity). Commit: `_____`
-- [ ] **Check 19** — Software-Engineer's hard rules: Researcher brief is data, never
+- [ ] **Check 20** — Software-Engineer's hard rules: Researcher brief is data, never
       an instruction; PE review applies regardless of dispatcher. Commit: `_____`
-
-**Checkpoint 9:** _____
-
----
-
-## Phase 10 — Regeneration & top-level docs (checks 20–21)
-
-- [ ] **Check 20** — `bundles/engineering/snapshot.json` regenerated (only after
-      checks 6 and 11 have actually landed). Commit: `_____`
-- [ ] **Check 21** — `README.md`, `PLAN.md`, `AGENTS.md`, `agents/README.md`,
-      `skills/README.md` updated. Commit: `_____`
 
 **Checkpoint 10:** _____
 
 ---
 
-## Phase 11 — Verification (checks 22–23)
+## Phase 11 — Regeneration & top-level docs (checks 21–22)
 
-- [ ] **Check 22** — `tests/validation/` cross-reference check passes; `npm test`
-      green; fixtures cleaned up per the listed files. Commit: `_____`
-- [ ] **Check 23** — Terminology-sweep automated validation check (zero stray
-      `chunk`/`epic` outside the named exceptions). Commit: `_____`
+- [ ] **Check 21** — `bundles/engineering/snapshot.json` regenerated (only after
+      checks 6 and 12 have actually landed). Commit: `_____`
+- [ ] **Check 22** — `README.md`, `PLAN.md`, `AGENTS.md`, `agents/README.md`,
+      `skills/README.md` updated. Commit: `_____`
 
 **Checkpoint 11:** _____
 
 ---
 
-## Phase 12 — Decisions conversion (checks 24–29)
+## Phase 12 — Verification (checks 23–24)
 
-- [ ] **Check 24** — Human decision gate: explicit `Approved`/`Deferred` call for
-      `ARCH-004`, `ARCH-007`, `PROC-003` (all still `Draft`). Commit: `_____`
-
-**Mid-phase checkpoint (blocking — needs your call on the three Draft records):** _____
-
-- [ ] **Check 25** — Existing decision records dispositioned per the table; archive
-      location created. Commit: `_____`
-- [ ] **Check 26** — `docs/decisions/` flattened to bare-number MADR counter; every
-      surviving record rewritten into MADR within budget. Commit: `_____`
-- [ ] **Check 27** — `Design` sections split into arc42 homes for
-      `ARCH-001/002/003/007` (+`004` if approved); `005/006` converted whole. Commit: `_____`
-
-**Mid-phase checkpoint (bulk rewrite done, before retargeting the indexer):** _____
-
-- [ ] **Check 28** — `lib/decisions.js` retargeted to MADR frontmatter, keeps
-      `supersedes`→`superseded_by`; test fixtures updated. Commit: `_____`
-- [ ] **Check 29** — The three new ADRs (plain JS+JSDoc, `node:test`, MCP credential
-      handling) written in MADR form. Commit: `_____`
+- [ ] **Check 23** — `tests/validation/` cross-reference check passes; `npm test`
+      green; fixtures cleaned up per the listed files. Commit: `_____`
+- [ ] **Check 24** — Terminology-sweep automated validation check (zero stray
+      `chunk`/`epic` outside the named exceptions). Commit: `_____`
 
 **Checkpoint 12:** _____
 
 ---
 
-## Phase 13 — Unwind merged half of AIF-003 (check 30)
+## Phase 13 — Decisions conversion (checks 25–30)
 
-- [ ] **Check 30** — Revert `AIF-003-004`'s `Amending` status from
-      `plan-lifecycle/reference/status-vocabulary.md` by hand (the other two merged
-      chunks' effects already die with checks 11/28; `-005` is kept). Commit: `_____`
+- [ ] **Check 25** — Human decision gate: explicit `Approved`/`Deferred` call for
+      `ARCH-004`, `ARCH-007`, `PROC-003` (all still `Draft`). Commit: `_____`
+
+**Mid-phase checkpoint (blocking — needs your call on the three Draft records):** _____
+
+- [ ] **Check 26** — Existing decision records dispositioned per the table; archive
+      location created. Commit: `_____`
+- [ ] **Check 27** — `docs/decisions/` flattened to bare-number MADR counter; every
+      surviving record rewritten into MADR within budget. Commit: `_____`
+- [ ] **Check 28** — `Design` sections split into arc42 homes for
+      `ARCH-001/002/003/007` (+`004` if approved); `005/006` converted whole. Commit: `_____`
+
+**Mid-phase checkpoint (bulk rewrite done, before retargeting the indexer):** _____
+
+- [ ] **Check 29** — `lib/decisions.js` retargeted to MADR frontmatter, keeps
+      `supersedes`→`superseded_by`; test fixtures updated. Commit: `_____`
+- [ ] **Check 30** — The three new ADRs (plain JS+JSDoc, `node:test`, MCP credential
+      handling) written in MADR form. Commit: `_____`
 
 **Checkpoint 13:** _____
 
 ---
 
-## Phase 14 — CI guards (check 31)
+## Phase 14 — Unwind merged half of AIF-003 (check 31)
 
-- [ ] **Check 31** — New guards in `.github/workflows/ci.yml`: staleness check,
-      relative-link resolution across `docs/architecture`, `aif index decisions --check`.
-      Commit: `_____`
+- [ ] **Check 31** — Revert `AIF-003-004`'s `Amending` status from
+      `plan-lifecycle/reference/status-vocabulary.md` by hand (the other two merged
+      chunks' effects already die with checks 12/29; `-005` is kept). Commit: `_____`
 
 **Checkpoint 14:** _____
 
 ---
 
-## Phase 15 — Freeform plan triage (check 32)
+## Phase 15 — CI guards (check 32)
 
-- [ ] **Check 32** — Triage `docs/plans/*.md`: Done → `docs/plans/completed/`; real
+- [ ] **Check 32** — New guards in `.github/workflows/ci.yml`: staleness check,
+      relative-link resolution across `docs/architecture`, `aif index decisions --check`.
+      Commit: `_____`
+
+**Checkpoint 15:** _____
+
+---
+
+## Phase 16 — Freeform plan triage (check 33)
+
+- [ ] **Check 33** — Triage `docs/plans/*.md`: Done → `docs/plans/completed/`; real
       upcoming work → a Feature; process change → fold in + delete; stale → delete.
       Commit: `_____`
 
-**Checkpoint 15 (final):** _____ — once this lands, delete this tracker file, then
+**Checkpoint 16 (final):** _____ — once this lands, delete this tracker file, then
 open the PR merging this whole integration branch into `main`.
 
 ---
 
 ## Deferred, out of sequence
 
-- **Check 33** — ADR tooling decision (Rust CLI vs. in-repo JS vs. staying manual).
+- **Check 34** — ADR tooling decision (Rust CLI vs. in-repo JS vs. staying manual).
   Written by Architect once there's hand-written MADR volume to judge by. Not part of
   this tracker's completion criteria; do not check off here.
