@@ -81,6 +81,22 @@ Any additions to the base testing standards — e.g. required integration test s
 
 ---
 
+## Release Documentation
+
+Optional. Leave "Keeps a CHANGELOG?" as `No` (or delete this section) unless this project
+actually ships versioned releases where a human-facing changelog earns its keep — most
+projects don't need one, and an unmaintained CHANGELOG is worse than none. Software-Engineer
+follows this section as part of the active standards file; no separate opt-in mechanism exists.
+
+| Field              | Value                                                         |
+| ------------------ | ------------------------------------------------------------- |
+| Keeps a CHANGELOG? | {Yes / No — default No}                                       |
+| Location           | {e.g. `CHANGELOG.md` at repo root}                            |
+| Format             | {e.g. Keep a Changelog — keepachangelog.com}                  |
+| Entry trigger      | {e.g. every Task with user-facing impact; every version bump} |
+
+---
+
 ## Known Constraints & Decisions
 
 Technical decisions and constraints are stored in `knowledge/decisions/`.

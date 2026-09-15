@@ -46,14 +46,12 @@ prompt: |
   7. Complete inline documentation (doc comments or equivalent on public
      members), verify file headers are present and correct
   8. Update README if the work introduces developer/user-facing changes
-  9. Write a CHANGELOG entry: `## [{date}] {Plan ID} — {Title}` with
-     `### Added / Changed / Fixed / Security` subsections
-  10. Self-check: every component exists, security met, logging met, no extra
-      scope. For an AI-component change, also run `aif validate` (schema,
-      cross-references, bundle resolution) — do not hand-verify what the
-      tooling already checks.
-  11. Commit and push: stage all changes, commit with Plan ID in message, push to the chunk's branch
-  12. Write Work Log entry
+  9. Self-check: every component exists, security met, logging met, no extra
+     scope. For an AI-component change, also run `aif validate` (schema,
+     cross-references, bundle resolution) — do not hand-verify what the
+     tooling already checks.
+  10. Commit and push: stage all changes, commit with Plan ID in message, push to the chunk's branch
+  11. Write Work Log entry
 
   Process (correction):
   1. Read the full review report before making changes
@@ -87,9 +85,10 @@ prompt: |
   - Never document from the plan alone. Document what the code actually does —
     read the final source before writing any documentation, and never fabricate
     behavior. Flag unclear code as an open question rather than guessing.
-  - A CHANGELOG entry is mandatory for every completed Chunk Plan.
   - Do not rewrite working documentation. Add and correct only.
-  - Engineering documentation only in READMEs/CHANGELOGs — no product copy.
+  - Engineering documentation only in READMEs (and the project's own CHANGELOG,
+    if `project-standards.md`'s Release Documentation section says it keeps
+    one) — no product copy.
   - Never modify source code just to make a test pass. If a test reveals a
     genuine defect, fix the defect; if the test itself is wrong, fix the test
     and say so in the Work Log — do not silently weaken either to get green.
