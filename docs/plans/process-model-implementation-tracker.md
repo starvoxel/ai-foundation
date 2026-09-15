@@ -62,7 +62,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** _pending_ (`process-model/phase-5-pr-review-flow`)
+**Last commit at last tracker update:** `29cf36f` (`process-model/phase-5-pr-review-flow`)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
 (check 6) plus its post-checkpoint refinements (review-skill split, old-roster
 framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
@@ -309,11 +309,15 @@ Branch: `process-model/phase-5-pr-review-flow`
       gives you (one comment body per review, not separate per-finding inline
       threads, which would need raw `gh api` scripting). Corrected the
       wording in both `engineering-manager.yaml` and this document to "a
-      single PR review." Implementation commit: `f3fc01d`. Tier-2 validation + wording fix commit: `_____`
+      single PR review." Implementation commit: `f3fc01d`. Tier-2 validation +
+      wording fix commit: `29cf36f`
 
 **Checkpoint 5:** `npm test` 732/732, `aif validate`/`lint`/`typecheck`/
 `format:check` clean, `bundles/engineering` snapshot regenerated, `aif index
-architecture|decisions --check` both clean. Not yet PR'd/merged.
+architecture|decisions --check` both clean. Tier-2 mechanical validation done
+against a real throwaway draft PR (#43, closed after validation) — draft
+creation, review posting, and the ready-for-review flip all confirmed working
+against the real GitHub API. Open as PR #42, not yet merged.
 
 ---
 
