@@ -62,16 +62,15 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `810772a` (`claude/process-model-implementation-plan-lty3ia`, merge commit)
+**Last commit at last tracker update:** `f3fc01d` (`process-model/phase-5-pr-review-flow`)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
 (check 6) plus its post-checkpoint refinements (review-skill split, old-roster
 framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
-check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup, fully
-implemented) all merged via PR #41. Check 7 (Phase 5) has been added to
-`docs/process-model.md` as a spec but not yet implemented — its agent-YAML
-work (`engineering-manager.yaml`/`software-engineer.yaml` draft-open/
-post-review/undraft sequence) is still outstanding, not yet on a branch.
-Next: implement check 7, or move on to Phase 7 (vocabulary rename).
+check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup) all merged
+via PR #41. Phase 5 (check 7, draft-PR timing + PE review delivered via PR
+comments) implemented and validated on its own branch,
+`process-model/phase-5-pr-review-flow` — not yet PR'd/merged. Next: open the
+PR for Phase 5, then move on to Phase 7 (vocabulary rename, checks 9–11).
 
 ---
 
@@ -276,23 +275,34 @@ though it's a single check.
 
 ## Phase 5 — PR/review flow (check 7)
 
-- [ ] **Check 7** — Software-Engineer opens the Task's PR as a **draft**
+Branch: `process-model/phase-5-pr-review-flow`
+
+- [x] **Check 7** — Software-Engineer opens the Task's PR as a **draft**
       immediately after implementing, not after Principal-Engineer approval as
       today; Principal-Engineer's Review Report is posted onto that PR as real
       review comments/threads by **Engineering Manager** on its behalf
       (Principal-Engineer gains no `shell`/`gh`/`ai-git` access — same pattern
       as EM already committing an Architect-authored ADR). Correction loops
       happen on the same PR; Engineering Manager marks it ready-for-review once
-      Principal-Engineer approves. **Spec-only so far** — `docs/process-model.md`
-      updated with this check, the End-to-end flow diagram, the Agent roster
-      table's Principal Engineer row, and a matching Resolved design question,
-      plus the checks-7-33/phases-5-15 renumbering that made room for it.
-      Commit: `66fa26d`. **The actual implementation (`engineering-manager.yaml`
-      and `software-engineer.yaml` changes for the draft-open/post-review/undraft
-      sequence) is still outstanding** — that's this check's real commit, not
-      the plan edit above. Commit: `_____`
+      Principal-Engineer approves. Plan-only work (`docs/process-model.md`'s
+      check text, flow diagram, roster table, resolved design question, and
+      the checks-8-34/phases-6-16 renumbering) landed earlier, commit
+      `66fa26d`. **This is the actual implementation**:
+      `software-engineer.yaml`'s separate "Process (PR creation)" section
+      removed, folded into a new step 11 (open draft PR on first pass only);
+      "Process (correction)" reworded to read findings off the PR instead of
+      an abstract report; two new hard rules (open as draft once, never
+      undraft it yourself). `engineering-manager.yaml` gets a new
+      orchestration responsibility + Process step 6 + three hard rules for
+      posting PE's Review Report onto the PR and marking it ready-for-review.
+      Flagged, not fixed: `skill/chunk-orchestration/SKILL.md` still creates
+      the PR only after approval — check 10's full rewrite owns that fix (its
+      row in `docs/process-model.md` now says so explicitly). Commit:
+      `f3fc01d`
 
-**Checkpoint 5:** _____
+**Checkpoint 5:** `npm test` 732/732, `aif validate`/`lint`/`typecheck`/
+`format:check` clean, `bundles/engineering` snapshot regenerated, `aif index
+architecture|decisions --check` both clean. Not yet PR'd/merged.
 
 ---
 
