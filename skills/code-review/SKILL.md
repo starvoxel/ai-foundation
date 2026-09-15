@@ -1,7 +1,7 @@
 ---
 name: 'code-review'
-version: '0.2.1'
-description: 'Produces a Review Report with severity-classified findings for completed source code.'
+version: '0.3.0'
+description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via skill/review-severity.'
 ---
 
 ## Purpose
@@ -41,29 +41,21 @@ Are interfaces implemented as specified?
 
 ### Step 5 — Produce Review Report
 
-Write the report using the template at `skills/code-review/reference/template.md`.
-Classify each finding by severity:
-
-| Severity | Meaning                                                                                    |
-| -------- | ------------------------------------------------------------------------------------------ |
-| CRITICAL | Security vulnerability, data loss risk, broken builds                                      |
-| HIGH     | Security/logging requirement unmet, major standards violation, acceptance criterion missed |
-| MEDIUM   | Standards violation not affecting correctness, missing docs                                |
-| LOW      | Style inconsistency, minor naming deviation                                                |
-
-Any CRITICAL or HIGH finding blocks approval.
+Hand the findings gathered in Steps 1-4 to `skill/review-severity` for severity classification, ordering, and
+the report itself — this skill defines what to check, not how findings are ranked or rendered.
 
 ---
 
 ## Outputs
 
-- **Review Report** — markdown following the template format
-- **Outcome:** Approved (no CRITICAL/HIGH) or Returned (has CRITICAL/HIGH findings)
+- **Review Report** — produced per `skill/review-severity`
+- **Outcome:** Approved or Returned, per `skill/review-severity`
 
 ---
 
 ## Edge Cases
 
-- **No findings at all** — still produce the report with outcome Approved and a brief summary of what was reviewed.
-- **Finding interacts with another finding** — note the relationship. Fixing one may resolve or change the other.
-- **Standards conflict with plan** — raise as a finding with both references. Do not silently pick one.
+See `skill/review-severity` for severity/reporting edge cases. Code-review-specific:
+
+- **A missing component overlaps a standards violation** — report the missing-component finding (Step 1);
+  don't also flag the standards rules it would have needed to follow.
