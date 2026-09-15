@@ -62,17 +62,16 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `fec0820` (`process-model/phase-4-agent-roster`)
+**Last commit at last tracker update:** `810772a` (`claude/process-model-implementation-plan-lty3ia`, merge commit)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
-(check 6) implemented, validated, and open as PR #41 against the integration
-branch — not yet merged. Several post-checkpoint refinements have landed on
-that same branch/PR since (see Phase 4's post-checkpoint refinements note):
-the review-skill split, old-roster framing cleanup, and the
-`skill/complexity-tiers` rewrite that delivers most of check 14 early. Phase 6
-(check 8, CHANGELOG mechanism cleanup) is fully implemented and merged into
-this same branch. Check 7 (Phase 5) has been added to `docs/process-model.md`
-as a spec but not yet implemented — its agent-YAML work is still outstanding
-on this same branch.
+(check 6) plus its post-checkpoint refinements (review-skill split, old-roster
+framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
+check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup, fully
+implemented) all merged via PR #41. Check 7 (Phase 5) has been added to
+`docs/process-model.md` as a spec but not yet implemented — its agent-YAML
+work (`engineering-manager.yaml`/`software-engineer.yaml` draft-open/
+post-review/undraft sequence) is still outstanding, not yet on a branch.
+Next: implement check 7, or move on to Phase 7 (vocabulary rename).
 
 ---
 
@@ -270,6 +269,9 @@ though it's a single check.
   most of check 14's complexity-tiers scope early — see that check's note in
   Phase 8 below. Commit: `7ade218`.
 
+**Phase 4 + all post-checkpoint refinements merged** via PR #41 into
+`claude/process-model-implementation-plan-lty3ia` (merge commit `810772a`).
+
 ---
 
 ## Phase 5 — PR/review flow (check 7)
@@ -313,7 +315,9 @@ though it's a single check.
       needs no new conditional logic, since "follow the active standards
       file" already covers it. Commit: `fec0820`
 
-**Checkpoint 6:** _____
+**Checkpoint 6:** `npm test` 732/732, `aif validate`/`lint`/`typecheck`/
+`format:check` clean, `bundles/engineering` snapshot regenerated. Merged via
+PR #41 (merge commit `810772a`), same PR as Phase 4/5's work above.
 
 ---
 
