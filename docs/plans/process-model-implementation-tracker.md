@@ -62,12 +62,13 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `a824a9c` (`process-model/phase-7-vocabulary-rename`)
+**Last commit at last tracker update:** `f7002a8` (`process-model/phase-7-vocabulary-rename`)
 **Current phase:** Phases 1–6 fully merged into the integration branch (PRs #35,
 #36, #38, #40, #41, #42). Phase 7 (checks 9–11, the Epic/Chunk → Feature/Task
 vocabulary rename) implemented on branch `process-model/phase-7-vocabulary-rename`,
-cut from the integration branch's tip (`61cb210`) — not yet opened as a PR. See
-Phase 7 below for full detail. Summary: `epic-planning`+`chunk-planning` merged
+cut from the integration branch's tip (`61cb210`) — **open as PR #44, CI green
+(8/8), mergeable, not yet merged.** See Phase 7 below for full detail. Summary:
+`epic-planning`+`chunk-planning` merged
 into `feature-planning` (per-Task detailed plans no longer produced there —
 moved to `complexity-tiers` at dispatch time); `chunk-orchestration` rewritten
 as `task-orchestration` (single pipeline, no more track branching, PR-timing
@@ -81,8 +82,11 @@ rewritten skills (matching `complexity-tiers`'s established pattern) instead of
 hardcoded agent names — the direct, concrete reason these skills went stale
 after check 6 retired three agent names — and EM's "Process (orchestration)"
 trimmed from an 8-step restatement of `task-orchestration`'s own steps down to
-a short pointer. Next: open the Phase 7 PR against the integration branch, then
-move on to Phase 8 (checks 12–14, skill retirement/re-homing).
+a short pointer — plus a follow-up dedup pass (caught after human PR review) on
+`engineering-manager.yaml`'s "Orchestration/Planning responsibilities" bullet
+lists, which had gone untouched by that same repetition pass and restated Hard
+rules almost verbatim in several places. Next: PR #44 merge, then Phase 8
+(checks 12–14, skill retirement/re-homing).
 
 ---
 
@@ -421,13 +425,29 @@ pre-review pass):
   `skill/decision-brief` still say `epic-planning`/`chunk-planning` — check 17's full
   vocabulary sweep owns those. `AGENTS.md`'s `project_shortname` field description
   still says "Epic IDs" — check 23 (top-level doc updates) owns that.
+- **Follow-up caught after PR review (human flagged "some duplication still seems to
+  be there")**: `engineering-manager.yaml`'s "Orchestration responsibilities" bullet
+  list had gone untouched by the repetition pass above and restated, almost
+  verbatim, content already fully covered by Hard rules (and sometimes Process) —
+  the single-PR-review + mark-ready-for-review mechanic was stated in full three
+  times (Responsibilities, two Hard rules, and Process), review-loop cap and
+  conflict-resolution mechanics twice each, the Architect-commit rule near-verbatim.
+  "Planning responsibilities" had two smaller duplicates of existing Hard rules
+  ("raise open questions...", "spot Tasks that hinge on a fork..."). Trimmed both
+  lists down to scope statements, removing rationale/mechanism detail that Hard
+  rules/Process/the skill already state precisely — no coverage lost, one home per
+  fact. Commit: `f7002a8`
 
 **Checkpoint 7:** `npm test` 731/731 (one fewer than before — the `agents`-field
 validation test in the DAG server's unit suite was removed along with the field
 itself), `aif validate` (schema/refs/bundles) clean, `aif index architecture|decisions
---check` both clean, `bundles/engineering` (47 sources) and `servers/dag` (4 sources)
-snapshots regenerated, `prettier --write` applied to 4 files it flagged. Commit:
-`a824a9c`. Not yet opened as a PR — see below.
+--check` both clean, `bundles/engineering` and `servers/dag` snapshots regenerated,
+`prettier --write` applied where flagged. **Open as PR #44** against the integration
+branch — CI caught two real gaps my local checks missed on first push (a
+`servers/dag/dag.yaml` version bump, and a Prettier instability in the tracker
+itself); both fixed and pushed (`c78f851`), CI now green (8/8) and mergeable. The
+Responsibilities/Hard-rules dedup follow-up above landed as `f7002a8`, also on this
+PR. Not yet merged.
 
 ---
 
