@@ -62,7 +62,7 @@
 ### Error States
 
 | Scenario              | Expected Behaviour          |
-| ---------------------- | ---------------------------- |
+| --------------------- | --------------------------- |
 | {e.g. File not found} | {Show message, log warning} |
 
 ---
@@ -72,8 +72,8 @@
 ### New Components
 
 | Component | Type                           | Responsibility |
-| --------- | ------------------------------- | --------------- |
-| {Name}    | {Model/Service/ViewModel/View} | {One sentence}  |
+| --------- | ------------------------------ | -------------- |
+| {Name}    | {Model/Service/ViewModel/View} | {One sentence} |
 
 ### Component Relationships
 
@@ -94,8 +94,8 @@
 ## 8. Risks & Open Questions
 
 | #   | Risk / Question | Type          | Impact | Source            | Raised By     | Resolved |
-| --- | ---------------- | -------------- | ------ | ------------------ | -------------- | -------- |
-| 1   | {Describe}       | Risk/Question | H/M/L  | {PRD/Design/Arch} | {Agent/Human} | No       |
+| --- | --------------- | ------------- | ------ | ----------------- | ------------- | -------- |
+| 1   | {Describe}      | Risk/Question | H/M/L  | {PRD/Design/Arch} | {Agent/Human} | No       |
 
 ---
 

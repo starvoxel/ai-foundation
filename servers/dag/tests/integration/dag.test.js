@@ -48,7 +48,10 @@ const EMPTY_TASKS = {
 
 const INVALID_SCHEMA = {
   feature_id: 'TEST-BAD',
-  tasks: [{ id: '001', depends_on: [] }, { title: 'No ID', depends_on: [] }],
+  tasks: [
+    { id: '001', depends_on: [] },
+    { title: 'No ID', depends_on: [] },
+  ],
 };
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

@@ -22,18 +22,18 @@ Resolved from `.aiconfig.json` at project root. Default: `plans/tasks/`.
 
 ### Top-level
 
-| Field        | Type   | Required | Description                         |
-| ------------ | ------ | -------- | ------------------------------------ |
-| `feature_id` | string | Yes      | Parent Feature ID for traceability  |
-| `tasks`      | array  | Yes      | Array of Task definitions           |
+| Field        | Type   | Required | Description                        |
+| ------------ | ------ | -------- | ---------------------------------- |
+| `feature_id` | string | Yes      | Parent Feature ID for traceability |
+| `tasks`      | array  | Yes      | Array of Task definitions          |
 
 ### Task object
 
-| Field        | Type     | Required | Description                                                                |
-| ------------ | -------- | -------- | --------------------------------------------------------------------------- |
-| `id`         | string   | Yes      | Unique Task identifier (e.g., "001", "002")                                |
-| `title`      | string   | Yes      | Short descriptive title                                                    |
-| `depends_on` | string[] | Yes      | Array of Task IDs this Task depends on. Empty array for no dependencies.   |
+| Field        | Type     | Required | Description                                                              |
+| ------------ | -------- | -------- | ------------------------------------------------------------------------ |
+| `id`         | string   | Yes      | Unique Task identifier (e.g., "001", "002")                              |
+| `title`      | string   | Yes      | Short descriptive title                                                  |
+| `depends_on` | string[] | Yes      | Array of Task IDs this Task depends on. Empty array for no dependencies. |
 
 There is no `agents` field — every Task is owned end-to-end by one Software-Engineer
 dispatch (see the work hierarchy in `docs/process-model.md`). Re-add a selector field
