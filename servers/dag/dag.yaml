@@ -1,5 +1,5 @@
 name: "dag"
-version: "0.2.0"
+version: "0.3.0"
 protocol: "mcp"
 transport: "stdio"
 description: "DAG operations for dependency graph validation and wave computation."

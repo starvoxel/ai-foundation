@@ -384,9 +384,9 @@ Branch: `process-model/phase-7-vocabulary-rename`
       file spelled the branch-naming convention two different ways in the same
       document (`{chunk-number}` in Inputs vs `{chunk-id}` in Step 2) — standardized on
       one form. Commit: `ecf1a87`
-- [x] **Check 11** — DAG server + `lib` renamed chunk→task: `servers/dag/{logic.js,
-      index.js,dag.yaml}` and all three `servers/dag/tests/**` files — doc comments,
-      error messages, and test fixtures, not just identifiers.
+- [x] **Check 11** — DAG server + `lib` renamed chunk→task: `logic.js`, `index.js`,
+      and `dag.yaml` under `servers/dag/`, plus all three `servers/dag/tests/**`
+      files — doc comments, error messages, and test fixtures, not just identifiers.
       `chunks_path`/`chunk_id` → `tasks_path`/`task_id`, `parseChunksFile` →
       `parseTasksFile`. Dropped the `agents` field from the schema and every fixture
       (same decision as check 9). 45/45 DAG server tests pass. Commit: `c948ebc`

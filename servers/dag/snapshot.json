@@ -1,8 +1,8 @@
 {
   "server": "dag",
-  "computed_at": "2026-09-16T15:59:22.945Z",
+  "computed_at": "2026-09-16T16:04:37.885Z",
   "sources": {
-    "servers/dag/dag.yaml": "sha256:cb950acf20c2e12f3289d05be414ce0a1af60ebdd240fd536e8926c8406c495e",
+    "servers/dag/dag.yaml": "sha256:8e3cccb2710dfcc9090dd2ef31c550f1793434178824eb99f85398060d91dbf6",
     "servers/dag/index.js": "sha256:6cebb2389dec51feeaa410c7dc04864960ca32f7f239c2909a37c7bcd9fb147d",
     "servers/dag/logic.js": "sha256:648849bcccb42d73da9d773c5bc7d993d67697ea00eb9490b1ba4cb92e4a706a",
     "servers/dag/package.json": "sha256:d69e31a9af0f5c9f26d1bd950d8f15539122d071ee827aef08dd9fb09b48f3b2"
