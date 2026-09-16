@@ -62,26 +62,27 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `61cb210` (`claude/process-model-implementation-plan-lty3ia`)
-**Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
-(check 6) plus its post-checkpoint refinements (review-skill split, old-roster
-framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
-check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup) all merged
-via PR #41. Phase 5 (check 7, draft-PR timing + PE review delivered via a
-single PR review) merged via PR #42 (merge commit `61cb210`) — tier-2
-mechanical validation done against a real throwaway draft PR (created,
-reviewed, undrafted, then closed) confirmed the design's GitHub API calls
-work, and corrected "review comments/threads" to "a single PR review" since
-per-finding inline threads aren't realistically reachable through EM's
-`shell`/`ai-git` access. PR #42 also picked up a `main` merge (new
-`steering/engineering/pr-descriptions.md` + PR template, used to rewrite
-#42's own description) and two follow-on rounds of Software-Engineer prompt
-simplification (bloat/duplication cut, no capability change; see Phase 4/5
-commits `e0ab67d`/`8937601`/`243ea3e` on the now-merged phase-5 branch) done
-opportunistically while touching that file for check 7. `main` is confirmed
-fully merged into this integration branch (`git merge-base --is-ancestor
-origin/main HEAD`) — nothing outstanding to pull, no conflicts. Phases 1–6
-are now all done and merged. Next: Phase 7 (vocabulary rename, checks 9–11).
+**Last commit at last tracker update:** `a824a9c` (`process-model/phase-7-vocabulary-rename`)
+**Current phase:** Phases 1–6 fully merged into the integration branch (PRs #35,
+#36, #38, #40, #41, #42). Phase 7 (checks 9–11, the Epic/Chunk → Feature/Task
+vocabulary rename) implemented on branch `process-model/phase-7-vocabulary-rename`,
+cut from the integration branch's tip (`61cb210`) — not yet opened as a PR. See
+Phase 7 below for full detail. Summary: `epic-planning`+`chunk-planning` merged
+into `feature-planning` (per-Task detailed plans no longer produced there —
+moved to `complexity-tiers` at dispatch time); `chunk-orchestration` rewritten
+as `task-orchestration` (single pipeline, no more track branching, PR-timing
+mechanic fixed to match check 7); DAG server renamed chunk→task; `agents` field
+dropped from the task schema entirely (explicit human decision — no second
+implementing agent planned); `engineering-manager.yaml`/`software-engineer.yaml`/
+`principal-engineer.yaml` swept for vocabulary. Also folded in, per explicit
+instruction to review for repetition/agent-specificity while implementing
+rather than as a separate pass: generic role language throughout the two
+rewritten skills (matching `complexity-tiers`'s established pattern) instead of
+hardcoded agent names — the direct, concrete reason these skills went stale
+after check 6 retired three agent names — and EM's "Process (orchestration)"
+trimmed from an 8-step restatement of `task-orchestration`'s own steps down to
+a short pointer. Next: open the Phase 7 PR against the integration branch, then
+move on to Phase 8 (checks 12–14, skill retirement/re-homing).
 
 ---
 
@@ -358,13 +359,75 @@ PR #41 (merge commit `810772a`), same PR as Phase 4/5's work above.
 
 ## Phase 7 — Vocabulary rename (checks 9–11)
 
-- [ ] **Check 9** — `epic-planning` + `chunk-planning` → `feature-planning`. Commit: `_____`
-- [ ] **Check 10** — `chunk-orchestration`: `chunks.json` → `tasks.json`, tier gate
-      replaces per-Task plan, software/AI-track branching removed. Commit: `_____`
-- [ ] **Check 11** — DAG server + `lib` renamed chunk→task, including doc comments
-      and test fixtures in all three `servers/dag/tests/**` files. Commit: `_____`
+Branch: `process-model/phase-7-vocabulary-rename`
 
-**Checkpoint 7:** _____
+- [x] **Check 9** — `epic-planning` + `chunk-planning` → `feature-planning`: renamed,
+      Task-sizing rules added. Bigger than a rename — per-Task detailed plans (the old
+      Chunk Plan template, 15 sections) are no longer produced by this skill at all;
+      that moved to `skill/complexity-tiers` at dispatch time, per
+      `docs/process-model.md`'s own resolved design question ("Does Software-Engineer
+      need a pre-approved plan per Task? No"). `chunks.json` → `tasks.json`, `agents`
+      field dropped entirely (human decision mid-implementation: no second
+      implementing agent planned, so nothing left to select between).
+      `skills/chunk-planning/reference/template.md` deleted outright — its content
+      (Security/Logging/Components sections) is now redundant with
+      Software-Engineer's own hard rules. Commit: `1733831`
+- [x] **Check 10** — `chunk-orchestration` → `task-orchestration`: full pipeline
+      rewrite, not just a rename. Software/AI-track branching removed — one pipeline
+      (`Ready → Implementing → Reviewing → Done`) for every Task, no more `Testing`
+      status (Test-Engineer retired). Per-Task plan gate replaced by
+      `skill/complexity-tiers` — orchestration no longer verifies a written Task plan
+      exists before dispatch. Fixed the stale post-check-7 mechanic
+      `docs/process-model.md`'s own check-10 note flagged: PR creation moved from
+      "after PE approval" to "the implementing agent's first pass, as a draft",
+      matching check 7. Also fixed a real inconsistency found while rewriting: the old
+      file spelled the branch-naming convention two different ways in the same
+      document (`{chunk-number}` in Inputs vs `{chunk-id}` in Step 2) — standardized on
+      one form. Commit: `ecf1a87`
+- [x] **Check 11** — DAG server + `lib` renamed chunk→task: `servers/dag/{logic.js,
+      index.js,dag.yaml}` and all three `servers/dag/tests/**` files — doc comments,
+      error messages, and test fixtures, not just identifiers.
+      `chunks_path`/`chunk_id` → `tasks_path`/`task_id`, `parseChunksFile` →
+      `parseTasksFile`. Dropped the `agents` field from the schema and every fixture
+      (same decision as check 9). 45/45 DAG server tests pass. Commit: `c948ebc`
+
+**Also done on this branch, folded into checks 9–11 rather than deferred** (per
+explicit instruction: watch for unneeded repetition and agent-specific content baked
+into what should be generic skills, while implementing rather than as a separate
+pre-review pass):
+
+- **Generic role language throughout `feature-planning` and `task-orchestration`** —
+  "the implementing agent," "the review agent," "the orchestrating agent" instead of
+  hardcoded `Software-Engineer`/`Principal-Engineer`/`Tech-Lead`/`AI-Engineer`/
+  `Test-Engineer` names repeated through every step and edge case, matching the
+  pattern `skill/complexity-tiers` already established (Per-agent specifics table,
+  current roster named once in Purpose as framing, not restated). This is the direct,
+  concrete reason these two skills were so stale in the first place — check 6 retired
+  three agent names months before checks 9–11 landed, and because those names were
+  woven into prose instead of referenced generically, this phase had to hunt down and
+  rewrite dozens of scattered mentions. Generic wording means a future roster change
+  touches the dispatching agent's own prompt, not the skill.
+- **Sweep of `engineering-manager.yaml`/`software-engineer.yaml`/`principal-engineer.yaml`**
+  for every Chunk/Epic → Task/Feature mention, skill references updated to
+  `skill/feature-planning`/`skill/task-orchestration`. `engineering-manager.yaml`'s
+  "Process (orchestration)" section — an 8-step near-verbatim restatement of
+  `skill/task-orchestration`'s own steps — trimmed to a short summary + pointer,
+  matching how "Process (planning)" already just points at its skill instead of
+  restating it. Versions bumped: `engineering-manager.yaml` 0.8.0 → 0.9.0,
+  `software-engineer.yaml` 0.6.0 → 0.7.0, `principal-engineer.yaml` 0.6.0 → 0.7.0.
+  Commit: `a506151`
+- **Deliberately left untouched, same discipline as check 6's deferrals**:
+  `skill/plan-lifecycle`, `skill/decision-triage`, `skill/decision-record`,
+  `skill/decision-brief` still say `epic-planning`/`chunk-planning` — check 17's full
+  vocabulary sweep owns those. `AGENTS.md`'s `project_shortname` field description
+  still says "Epic IDs" — check 23 (top-level doc updates) owns that.
+
+**Checkpoint 7:** `npm test` 731/731 (one fewer than before — the `agents`-field
+validation test in the DAG server's unit suite was removed along with the field
+itself), `aif validate` (schema/refs/bundles) clean, `aif index architecture|decisions
+--check` both clean, `bundles/engineering` (47 sources) and `servers/dag` (4 sources)
+snapshots regenerated, `prettier --write` applied to 4 files it flagged. Commit:
+`a824a9c`. Not yet opened as a PR — see below.
 
 ---
 
