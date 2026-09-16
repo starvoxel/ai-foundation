@@ -62,19 +62,26 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `29cf36f` (`process-model/phase-5-pr-review-flow`)
+**Last commit at last tracker update:** `61cb210` (`claude/process-model-implementation-plan-lty3ia`)
 **Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
 (check 6) plus its post-checkpoint refinements (review-skill split, old-roster
 framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
 check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup) all merged
-via PR #41. Phase 5 (check 7, draft-PR timing + PE review delivered via PR
-comments) implemented, validated, and open as PR #42 against the integration
-branch — not yet merged. Tier-2 mechanical validation done against a real
-throwaway draft PR (created, reviewed, undrafted, then closed): confirmed the
-design's GitHub API calls work, and corrected "review comments/threads" to "a
-single PR review" since per-finding inline threads aren't realistically
-reachable through EM's `shell`/`ai-git` access. Next: get PR #42 merged, then
-move on to Phase 7 (vocabulary rename, checks 9–11).
+via PR #41. Phase 5 (check 7, draft-PR timing + PE review delivered via a
+single PR review) merged via PR #42 (merge commit `61cb210`) — tier-2
+mechanical validation done against a real throwaway draft PR (created,
+reviewed, undrafted, then closed) confirmed the design's GitHub API calls
+work, and corrected "review comments/threads" to "a single PR review" since
+per-finding inline threads aren't realistically reachable through EM's
+`shell`/`ai-git` access. PR #42 also picked up a `main` merge (new
+`steering/engineering/pr-descriptions.md` + PR template, used to rewrite
+#42's own description) and two follow-on rounds of Software-Engineer prompt
+simplification (bloat/duplication cut, no capability change; see Phase 4/5
+commits `e0ab67d`/`8937601`/`243ea3e` on the now-merged phase-5 branch) done
+opportunistically while touching that file for check 7. `main` is confirmed
+fully merged into this integration branch (`git merge-base --is-ancestor
+origin/main HEAD`) — nothing outstanding to pull, no conflicts. Phases 1–6
+are now all done and merged. Next: Phase 7 (vocabulary rename, checks 9–11).
 
 ---
 
@@ -317,7 +324,10 @@ Branch: `process-model/phase-5-pr-review-flow`
 architecture|decisions --check` both clean. Tier-2 mechanical validation done
 against a real throwaway draft PR (#43, closed after validation) — draft
 creation, review posting, and the ready-for-review flip all confirmed working
-against the real GitHub API. Open as PR #42, not yet merged.
+against the real GitHub API. Merged via PR #42 (merge commit `61cb210`),
+which also carried a `main` merge (new `pr-descriptions.md` steering + PR
+template) and two rounds of Software-Engineer prompt bloat-reduction
+(duplication cut, no capability change) done while touching that file.
 
 ---
 
