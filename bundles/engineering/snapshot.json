@@ -1,10 +1,10 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-17T16:04:51.437Z",
+  "computed_at": "2026-09-17T17:22:45.861Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
-    "agents/engineering-manager.yaml": "sha256:5adbd562f8978259feed9acd330e52c9b0aadb0a89f4f3a14c6054002b3fe706",
+    "agents/engineering-manager.yaml": "sha256:5cdd0dc7be042015dabebdfbaeddef0e2c2c43fda067b0ffe23bb921bfb0f5ec",
     "agents/engineering-researcher.yaml": "sha256:5799a5d4c8a5b7bc79506458a54ba301c7637539cdd40526c81cf7d2d9f5247c",
     "agents/principal-engineer.yaml": "sha256:9ec257819538cf8ae74b40f9dcff65e7e6fe2636143e147c2a22e1efe0d3f878",
     "agents/software-engineer.yaml": "sha256:a57b3a62c1e4103f0af30587f10556514e245806bfa10779754c0fd33cfeabc4",
@@ -13,7 +13,7 @@
     "steering/global/markdown-authoring.md": "sha256:cd53d067ef6b3f606457e6796e09b364896e695cfc188dbd048bd30a24f94640",
     "steering/global/standards-loading.md": "sha256:3577b196a7dfc038340051efa372999237896053d15367f35d3c3da4e5fc2ff0",
     "steering/engineering/core.md": "sha256:424f00ed16ed524ca385b807607f0c0bdd9f5b332d2bea1e6b97607b7525facb",
-    "steering/engineering/document-types.md": "sha256:8dc774e12475c3d24bbcfa55e608d97e73821c099d13532cdf127917f7aa1f1d",
+    "steering/engineering/document-types.md": "sha256:a942ec01ebc43f7244d63dd5dc9a4a66ba197ad87adad2be1b41c80d2585e171",
     "steering/engineering/git-workflow-framework.md": "sha256:b330c43498c2e302550f30adb753900afe56f12876172c823e9d459090e22593",
     "steering/engineering/git-workflow-projects.md": "sha256:9e101675e9aff445946dbb0af93c55b88be666c6988cd2cf09faa47779bf814a",
     "steering/engineering/pr-descriptions.md": "sha256:bfc92699b06dd42feca94c62327c51721eadeed5e1ab9f737015311fdd85128c",
