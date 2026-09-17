@@ -22,13 +22,13 @@ never create a second file elsewhere that duplicates it.
 
 | Kind                                         | Answers                            | Mutability                                         | Home                                                    | Owner                                                                                                 |
 | -------------------------------------------- | ---------------------------------- | -------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| **ADR**                                      | Why this path won over another     | Immutable once accepted — superseded, never edited | `docs/decisions/`                                       | Architect                                                                                             |
-| **Architecture doc**                         | How the system currently works     | Living                                             | `docs/architecture/*`, as arc42 sections                | Architect may start a section alongside an ADR; Software-Engineer maintains it at implementation time |
-| **Product doc** _(reserved — not built yet)_ | What a product area does, for whom | Living                                             | `docs/product/*`                                        | A future product agent                                                                                |
+| **ADR**                                      | Why this path won over another     | Immutable once accepted — superseded, never edited | `{paths.decisions}/`                                    | Architect                                                                                             |
+| **Architecture doc**                         | How the system currently works     | Living                                             | `{paths.architecture}/*`, as arc42 sections             | Architect may start a section alongside an ADR; Software-Engineer maintains it at implementation time |
+| **Product doc** _(reserved — not built yet)_ | What a product area does, for whom | Living                                             | `{paths.product}/*`                                     | A future product agent                                                                                |
 | **Process & ownership**                      | How we work / who's accountable    | Living                                             | `steering/`, `standards/`, agent charters, Agent roster | Engineering Manager                                                                                   |
 
 **Product docs are a reserved slot, not current work** — nothing needs a PRD today. Do not create a
-`docs/product/` directory or file speculatively; wait until a product agent exists to own it.
+`{paths.product}` directory or file speculatively; wait until a product agent exists to own it.
 
 ### Subject matter is not a document kind
 
@@ -41,7 +41,7 @@ Their content lands wherever it actually fits, and never as a standalone knowled
 | External interfaces                                     | arc42 §3 Technical Context                          |
 | A building block's interface to its neighbours          | That block's §5 file                                |
 | Stability / versioning policy                           | `standards/`                                        |
-| Business rule — product requirement                     | Reserved `docs/product/` slot                       |
+| Business rule — product requirement                     | Reserved `{paths.product}` slot                     |
 | Business rule — how the domain is modelled              | arc42 §8 or the owning §5 block                     |
 | Business rule — externally imposed (regulatory)         | arc42 §2 Constraints                                |
 
