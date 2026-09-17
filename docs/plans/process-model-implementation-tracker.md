@@ -63,7 +63,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `87b83e5` (`claude/process-model-implementation-plan-lty3ia`, merged into this branch)
+**Last commit at last tracker update:** `b8bf18c` (`process-model/phase-8-skill-retirement`)
 **Current phase:** Phases 1–6 fully merged (PRs #35, #36, #38, #40, #41, #42).
 
 **Phase 7 (checks 9–11) implemented on this branch, open as PR #44** — CI 8/8
@@ -125,9 +125,24 @@ that is a separate CI job (`node bin/aif.js snapshot --check`). A locally-clean
 `validate` run still failed CI on #44 for a stale bundle snapshot. Run both
 before every push.
 
-`main` was confirmed fully merged into this integration branch as of the Phase 6
-checkpoint; nothing outstanding to pull. Next after #44 merges: implement the
-structural-review phase (checks 36–37), then Phase 8 (checks 12–14).
+**PR #44 merged** (Phase 7, checks 9-11, merge commit `fd077fa`). **PR #47 merged
+to `main`** (steering Rule 10 "Cite, Don't Restate" + agent-authoring/skill-authoring
+checklist bullets), pulled into this integration branch (`be51f28`) — clean merge,
+one conflict in the generated bundle snapshot, resolved by regenerating. **PR #48
+open** (`process-model/ai-component-review-rule-10`): completes Rule 10's deferred
+third piece, extending `ai-component-review` Step 4 to flag citation/restatement
+duplication — deferred by PR #47 itself since `ai-component-review` didn't exist on
+`main` yet at the time.
+
+**Phase 8 started, stopped at its own mid-phase checkpoint.** Check 12 implemented
+(new `steering/engineering/document-types.md`) — see Phase 8 below for detail.
+Per this tracker's own ground rule for Phase 8, execution stops here: checks 13-14
+do not proceed until a human signs off on check 12's routing decision.
+
+`main` was confirmed fully merged into this integration branch (via PR #47's pull)
+as of this update; nothing outstanding to pull. Next: human sign-off on check 12,
+then checks 13-14, then the structural-review phase (checks 36-37) before Phase 9
+can begin.
 
 ---
 
@@ -494,10 +509,27 @@ PR. Not yet merged.
 
 ## Phase 8 — Skill retirement & re-homing (checks 12–14)
 
-- [ ] **Check 12** — Decide re-homing for what `knowledge-authoring` carried
-      (steering rule + templates for MADR/arc42/external-reference). Commit: `_____`
+- [x] **Check 12** — Decide re-homing for what `knowledge-authoring` carried.
+      New `steering/engineering/document-types.md`: the four-kind table (ADR,
+      Architecture doc, Product doc reserved, Process & ownership) from
+      `process-model.md`'s Document types section, the subject-matter-is-not-a-kind
+      table for `api`/`business-rule` content, and external reference material (the
+      one kind still generic) with its home, frontmatter shape (no `type` field —
+      nothing left to distinguish), and scope rules. Templates: arc42's already
+      exists (`docs/architecture/_template.md`, check 4); MADR's is check 28's
+      job. External-reference's shape is embedded in the new steering file, not a
+      separate asset file — no `steering/` asset-file convention exists elsewhere
+      in this repo, and the shape is light enough (frontmatter + freeform body) to
+      not need one. **Recommendation left for check 13, not executed here:** this
+      steering rule fully supersedes `docs/knowledge-file-format.md`'s taxonomy —
+      delete rather than rewrite it. Commit: `b8bf18c`.
 
-**Mid-phase checkpoint (routing sign-off before deletions):** _____
+**Mid-phase checkpoint (routing sign-off before deletions):** Stopped here per
+this tracker's own ground rule for Phase 8. Awaiting human sign-off on the
+`document-types.md` routing decision above before check 13's deletions
+(`decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`,
+`ai-engineering-plan`, `knowledge-authoring`, plus `docs/knowledge-file-format.md`)
+proceed.
 
 - [ ] **Check 13** — Delete `decision-triage`, `decision-brief`, `decision-record`,
       `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring`; all references
