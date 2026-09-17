@@ -63,86 +63,43 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `b8bf18c` (`process-model/phase-8-skill-retirement`)
-**Current phase:** Phases 1–6 fully merged (PRs #35, #36, #38, #40, #41, #42).
+**Last commit at last tracker update:** `884f695` (`process-model/phase-8-skill-deletions`)
+**Current phase:** Phases 1–8 done. Phases 1–6 merged (PRs #35, #36, #38, #40, #41,
+#42). Phase 7 (checks 9–11, vocabulary rename) merged via PR #44
+(`fd077fa`) — see Phase 7 below for detail. **Phase 8 (checks 12–14, skill
+retirement) fully implemented, ready for PR** — see Phase 8 below; checks 13–14
+committed on `process-model/phase-8-skill-deletions`, cut from the integration
+branch after check 12/PR #49 merged.
 
-**Phase 7 (checks 9–11) implemented on this branch, open as PR #44** — CI 8/8
-green. Summary: `epic-planning`+`chunk-planning` merged into `feature-planning`
-(per-Task detailed plans no longer produced there — moved to `complexity-tiers`
-at dispatch time); `chunk-orchestration` rewritten as `task-orchestration`
-(single pipeline, no more track branching, PR-timing mechanic fixed to match
-check 7); DAG server renamed chunk→task; `agents` field dropped from the task
-schema entirely (explicit human decision — no second implementing agent
-planned); `engineering-manager.yaml`/`software-engineer.yaml`/
-`principal-engineer.yaml` swept for vocabulary. See Phase 7 below for full
-detail.
-
-Folded in, per explicit instruction to review for repetition/agent-specificity
-while implementing rather than as a separate pass: generic role language
-throughout the two rewritten skills (matching `complexity-tiers`'s established
-pattern) instead of hardcoded agent names — the direct, concrete reason these
-skills went stale after check 6 retired three agent names — and EM's "Process
-(orchestration)" trimmed from an 8-step restatement of `task-orchestration`'s
-own steps down to a short pointer. Plus a follow-up dedup pass (`f7002a8`,
-caught after human PR review) on `engineering-manager.yaml`'s
-"Orchestration/Planning responsibilities" bullet lists, which that same
-repetition pass had missed and which restated Hard rules almost verbatim in
-several places.
-
-**Structural-review phase opened.** Two checks now sit between phases 8 and 9,
-both added after implementation surfaced realizations checks 1–35 didn't
-anticipate:
-
-- **Check 36** — merged via PR #45 (merge commit `8fa9f4c`). Collapses
-  `plans/features/`, `plans/tasks/{FeatureID}/` and `plans/orchestration/{FeatureID}/`
-  into one folder per Feature.
-- **Check 37** — merged via PR #46 (merge commit `87b83e5`). Removes four
-  instances of duplicated specification across `skills/task-orchestration/` and
-  its neighbours.
-
-Both specs are now merged, but **neither check is implemented** — the spec
-landing and the check landing are different things, and only the specs have
-landed. **Phase 9 must not begin until both checks are implemented** — check 15
+**Structural-review phase opened**, between phases 8 and 9 (outside the
+original 17-phase numbering, gates phase 9 the same way check 35 doesn't gate
+anything): check 36 (folder consolidation, merged via PR #45) and check 37
+(duplication removal, merged via PR #46). **Both specs are merged; neither
+check is implemented yet.** Phase 9 must not begin until both are — check 15
 rebuilds `projects/_template/` on the layout check 36 defines.
 
-**Found while reviewing the checks 9–11 output, fixed immediately rather than
-deferred:** `skills/task-orchestration/SKILL.md` instructed raw `git worktree
-add`/`fetch`/`rebase`, but both the orchestrating and implementing agents
-declare `blocked_commands: ["git *"]`, so those steps were unexecutable by the
-only agents that run them. Now uses `ai-git`, a transparent passthrough
-(`d2c1e48`, plus `4f62ae0` regenerating the bundle snapshot it invalidated).
+**Also merged into this integration branch, outside the numbered checks:**
+the "Cite, Don't Restate" steering rule (core.md Rule 10 + agent-authoring/
+skill-authoring checklist bullets, PR #47 → `main`, pulled in as `be51f28`)
+and its deferred third piece (`ai-component-review` Step 4 extended to flag
+citation/restatement duplication, PR #48, `64f600c`) — a general
+authoring/review gap surfaced while implementing checks 9–11, deliberately
+kept out of process-model.md's own checks since it isn't vocabulary-rename
+scope.
 
-**Fixed:** this repo's own `.aiconfig.json` had no `paths.orchestration` key, so
-it silently resolved to the default `plans/orchestration` while the real files
-live at `docs/plans/orchestration/`. Added the key (one line, committed directly
-to this branch). No `lib/` code reads it — only `paths.knowledge`,
-`paths.decisions` and `paths.architecture` are read programmatically — so this was
-a documentation-correctness fix, not a behaviour change. Check 36 will collapse
-the key into `paths.features`; until then the config states the truth.
+**Fixed directly, not deferred:** `skills/task-orchestration/SKILL.md`'s raw
+`git` calls (both orchestrating/implementing agents declare
+`blocked_commands: ["git *"]`) → `ai-git` (`d2c1e48`). This repo's own
+`.aiconfig.json` missing `paths.orchestration` (silently fell back to the
+wrong default) → added (`76e2521`); check 36 will collapse it into
+`paths.features` regardless.
 
-**Process note:** `npm run validate` does **not** cover snapshot freshness —
-that is a separate CI job (`node bin/aif.js snapshot --check`). A locally-clean
-`validate` run still failed CI on #44 for a stale bundle snapshot. Run both
-before every push.
+**Process note, still true:** `npm run validate` does not cover snapshot
+freshness — run `node bin/aif.js snapshot --check` too, every push. A
+locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-**PR #44 merged** (Phase 7, checks 9-11, merge commit `fd077fa`). **PR #47 merged
-to `main`** (steering Rule 10 "Cite, Don't Restate" + agent-authoring/skill-authoring
-checklist bullets), pulled into this integration branch (`be51f28`) — clean merge,
-one conflict in the generated bundle snapshot, resolved by regenerating. **PR #48
-open** (`process-model/ai-component-review-rule-10`): completes Rule 10's deferred
-third piece, extending `ai-component-review` Step 4 to flag citation/restatement
-duplication — deferred by PR #47 itself since `ai-component-review` didn't exist on
-`main` yet at the time.
-
-**Phase 8 started, stopped at its own mid-phase checkpoint.** Check 12 implemented
-(new `steering/engineering/document-types.md`) — see Phase 8 below for detail.
-Per this tracker's own ground rule for Phase 8, execution stops here: checks 13-14
-do not proceed until a human signs off on check 12's routing decision.
-
-`main` was confirmed fully merged into this integration branch (via PR #47's pull)
-as of this update; nothing outstanding to pull. Next: human sign-off on check 12,
-then checks 13-14, then the structural-review phase (checks 36-37) before Phase 9
-can begin.
+Next: open Phase 8's PR, then implement the structural-review phase
+(checks 36–37), then Phase 9 (check 15).
 
 ---
 
@@ -524,28 +481,44 @@ PR. Not yet merged.
       steering rule fully supersedes `docs/knowledge-file-format.md`'s taxonomy —
       delete rather than rewrite it. Commit: `b8bf18c`.
 
-**Mid-phase checkpoint (routing sign-off before deletions):** Stopped here per
-this tracker's own ground rule for Phase 8. Awaiting human sign-off on the
-`document-types.md` routing decision above before check 13's deletions
-(`decision-triage`, `decision-brief`, `decision-record`, `chunk-planning`,
-`ai-engineering-plan`, `knowledge-authoring`, plus `docs/knowledge-file-format.md`)
-proceed.
+**Mid-phase checkpoint (routing sign-off before deletions):** Cleared — check 12
+merged via PR #49 (human sign-off on the `document-types.md` routing decision).
+Checks 13-14 proceeded on branch `process-model/phase-8-skill-deletions`.
 
-- [ ] **Check 13** — Delete `decision-triage`, `decision-brief`, `decision-record`,
-      `chunk-planning`, `ai-engineering-plan`, `knowledge-authoring`; all references
-      removed; `docs/knowledge-file-format.md` rewritten or deleted, plus its
-      referrers (`projects/_template/knowledge/example.md`, several `docs/plans/*.md`).
-      Commit: `_____`
-- [ ] **Check 14** — Trim `plan-lifecycle`/`complexity-tiers`; Tier 3 becomes
-      stop-and-hand-off; `plan this` documented as a Tier 2 floor. **The
-      `complexity-tiers` portion already landed early** as Phase 4 follow-on
-      work (see that phase's post-checkpoint refinements note): Tier 3 now
-      defaults to stop-and-hand-off, `plan this` is documented as a Tier 2
-      floor not a Tier 3 jump, and a new Per-agent specifics table replaces
-      per-agent prose. `plan-lifecycle`'s own trim is still outstanding — that
-      remains this check's work. Commit: `_____`
+- [x] **Check 13** — Deleted `decision-triage`, `decision-brief`, `decision-record`,
+      `ai-engineering-plan`, `knowledge-authoring` (`chunk-planning` already deleted
+      in check 9). Code deleted too: `lib/knowledge.js`, `KNOWLEDGE_TYPES`, the
+      `knowledge` CLI target in `lib/commands/index.js`; `docs/knowledge-file-format.md`
+      deleted per check 12's recommendation; `projects/_template/knowledge/example.md`
+      rewritten to point at `document-types.md`; `docs/agent-prompt-extraction-candidates.md`
+      lost only its `type` field. Live-spec fixes beyond the named files:
+      `agents/architect.yaml` (skills/preload_skills removed, "Decision Record" →
+      "ADR" throughout for internal consistency), `agents/engineering-manager.yaml`
+      (Process-domain decision-authoring bullet dropped, Decision Hand-off bullet now
+      cites rather than restates), `skills/task-orchestration/SKILL.md` +
+      `reference/state-schema.md` (Decision Hand-off Sub-Flow: dispatch Architect
+      directly, no domain/tier routing), `skills/feature-planning/reference/template.md`
+      ("Tier C decisions" → "Minor decisions made during planning", no tier ladder).
+      Deliberately left for checks 14/16/17/32 per their explicit file ownership —
+      see commit for the full list. `npm test`: 731 → 706 (25 removed with the two
+      deleted test files, verified exact match). Commit: `a08499e`.
+- [x] **Check 14** — `complexity-tiers` portion already landed early (Phase 4
+      follow-on) — verified still true. `plan-lifecycle`'s own trim: removed the
+      "Decision Record Tier Variants" section and its `skill/decision-triage`
+      citation from `SKILL.md` (no Tier field left to assign); removed the
+      corresponding Edge Case and the AIF-002-004 Tier paragraph from
+      `reference/status-vocabulary.md`; "Tier 3 `ai-engineering-plan`" generalized
+      to "Tier 3 plan" in both files (the per-agent-override concept survives in
+      `complexity-tiers`, only the skill that used to produce it is gone).
+      `reference/commit-gate-procedure.md` left untouched — explicitly check 17's
+      file, still describes Tier A/B/C, a known temporary inconsistency (same
+      pattern as check 6 leaving agent yamls epic/chunk-worded for checks 9-11).
+      Commit: `884f695`.
 
-**Checkpoint 8:** _____
+**Checkpoint 8:** `npm test` 706/706, `npm run validate`/`lint`/`typecheck` clean,
+`aif snapshot --check` 6/6 (engineering bundle unaffected by check 14 — confirmed
+`plan-lifecycle` isn't in the bundle's tracked sources at all, pre-existing, no
+agent declares it directly). Ready for PR.
 
 ---
 
