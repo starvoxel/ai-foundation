@@ -63,7 +63,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `8fa9f4c` (`claude/process-model-implementation-plan-lty3ia`)
+**Last commit at last tracker update:** `87b83e5` (`claude/process-model-implementation-plan-lty3ia`)
 **Current phase:** Phases 1–6 fully merged (PRs #35, #36, #38, #40, #41, #42).
 **Phase 7 (checks 9–11) is implemented and awaiting human merge as PR #44** — all
 three checks committed with the vocabulary rename, plus follow-on commits for a
@@ -80,12 +80,14 @@ anticipate:
 - **Check 36** — merged via PR #45 (merge commit `8fa9f4c`). Collapses
   `plans/features/`, `plans/tasks/{FeatureID}/` and `plans/orchestration/{FeatureID}/`
   into one folder per Feature.
-- **Check 37** — open as PR #46, CI 8/8 green. Removes four instances of
-  duplicated specification across `skills/task-orchestration/` and its neighbours.
+- **Check 37** — merged via PR #46 (merge commit `87b83e5`). Removes four
+  instances of duplicated specification across `skills/task-orchestration/` and
+  its neighbours.
 
-Both are spec-only additions to `docs/process-model.md`; neither is implemented
-yet. **Phase 9 must not begin until both have landed** — check 15 rebuilds
-`projects/_template/` on the layout check 36 defines.
+Both specs are now merged, but **neither check is implemented** — the spec
+landing and the check landing are different things, and only the specs have
+landed. **Phase 9 must not begin until both checks are implemented** — check 15
+rebuilds `projects/_template/` on the layout check 36 defines.
 
 **Found while reviewing the checks 9–11 output, fixed immediately rather than
 deferred:** `skills/task-orchestration/SKILL.md` instructed raw `git worktree
@@ -108,7 +110,7 @@ is a separate CI job (`node bin/aif.js snapshot --check`). A locally-clean
 every push.
 
 `main` was confirmed fully merged into this integration branch as of the Phase 6
-checkpoint; nothing outstanding to pull. Next after #44/#46 merge: implement the
+checkpoint; nothing outstanding to pull. Next after #44 merges: implement the
 structural-review phase (checks 36–37), then Phase 8 (checks 12–14).
 
 ---
@@ -443,7 +445,7 @@ Run 36 before 37: both edit Section 9 of the Feature Plan template.
       (b) the Task state machine written out in both `SKILL.md` and
       `state-schema.md`, (c) two log actions documented but never emitted
       (`escalation_resolved`, `worktree_created`), (d) the Feature Plan template
-      restating `feature-planning`'s own Step 5. **Spec open as PR #46; not
+      restating `feature-planning`'s own Step 5. **Spec merged via PR #46; not
       implemented.** Commit: `_____`
 
 **Checkpoint (structural review):** _____
