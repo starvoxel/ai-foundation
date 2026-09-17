@@ -94,11 +94,13 @@ add`/`fetch`/`rebase`, but both the orchestrating and implementing agents declar
 that run them. Now uses `ai-git` (a transparent passthrough). Fixed on #44's branch
 since that PR rewrote the same lines.
 
-**Still open, needs a human call:** this repo's own `.aiconfig.json` has no
-`paths.orchestration` key, so it silently resolves to the default
-`plans/orchestration` while the real files live at `docs/plans/orchestration/`.
-Check 36 erases this incidentally by collapsing the key; fixing it standalone is a
-one-line change. Not yet done either way.
+**Fixed:** this repo's own `.aiconfig.json` had no `paths.orchestration` key, so
+it silently resolved to the default `plans/orchestration` while the real files
+live at `docs/plans/orchestration/`. Added the key (one line, committed directly
+to this branch). No `lib/` code reads it — only `paths.knowledge`,
+`paths.decisions` and `paths.architecture` are read programmatically — so this was
+a documentation-correctness fix, not a behaviour change. Check 36 will collapse
+the key into `paths.features`; until then the config states the truth.
 
 **Process note:** `npm run validate` does **not** cover snapshot freshness — that
 is a separate CI job (`node bin/aif.js snapshot --check`). A locally-clean
