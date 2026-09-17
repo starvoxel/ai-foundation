@@ -76,7 +76,7 @@ For each Task in the current wave with status `Ready`:
    - Resolve the worktree path from `paths.worktrees` config
    - Create the worktree on a new branch from `main`:
      ```bash
-     git worktree add <worktree-path> -b <branch-name> main
+     ai-git worktree add <worktree-path> -b <branch-name> main
      ```
    - Run dependency installation in the worktree
    - Confirm the worktree exists and is on the correct branch
@@ -165,8 +165,8 @@ Triggered by: human reports conflict during PR review, OR wave-boundary rebase f
 1. Update Task status to `Conflict`
 2. Log: `conflict_detected` with branch name, conflicting files (if known), and trigger source
 3. Dispatch the implementing agent (the same one that implemented the Task in Step 2) to the Task's worktree with instructions:
-   - Fetch latest main: `git fetch origin main`
-   - Rebase onto main: `git rebase origin/main`
+   - Fetch latest main: `ai-git fetch origin main`
+   - Rebase onto main: `ai-git rebase origin/main`
    - Resolve any conflicts that arise
    - Run tests/self-validation to verify the resolution passes
    - Commit the resolution and push the branch (force-push is acceptable here — it's a feature branch with only agent commits)
@@ -185,7 +185,7 @@ Triggered by: human reports conflict during PR review, OR wave-boundary rebase f
      - The conflicting file paths
      - The branch name
      - Which Tasks contributed to the conflict (if known from overlap warnings)
-   - Present to human: state the branch, conflicting files, and suggest `git rebase origin/main` in the worktree to resolve manually
+   - Present to human: state the branch, conflicting files, and suggest `ai-git rebase origin/main` in the worktree to resolve manually
 6. **When human reports conflict resolved** (after manual intervention):
    - Update Task status to `Implementing`
    - Reset `iterations` to 0
@@ -249,9 +249,9 @@ After each Task completion, check wave status:
    - Increment `current_wave`
    - If more waves remain:
      - **Wave-Boundary Rebase** — ensure next wave's branches are up-to-date with main:
-       1. Run `git fetch origin main` in the main repository
+       1. Run `ai-git fetch origin main` in the main repository
        2. For each Task in the new wave that already has a worktree (resumed/unblocked Tasks only):
-          - In the Task's worktree, run `git rebase origin/main`
+          - In the Task's worktree, run `ai-git rebase origin/main`
           - If rebase succeeds cleanly: log `wave_rebase` with Task ID, proceed normally
           - If rebase conflicts: enter the Conflict Resolution Sub-Flow (Step 4) for that Task.
             The Task cannot be dispatched until conflict is resolved.
