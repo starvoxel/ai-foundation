@@ -126,15 +126,13 @@ file_patterns: []
 
 ---
 
-### Rule 10: Cite a Source or Restate It — Never Both
+### Rule 10: Cite, Don't Restate
 
-- When a document points at another skill, agent, or steering file by name for a definition, procedure, or table, it must not also restate that content inline
-- A citation stays correct automatically when the source changes; an inlined copy does not, and silently drifts out of sync with it
-- Pick one: cite the source and rely on it, or own the content and drop the citation
+- When a document needs a definition, procedure, or table that another skill, agent, or steering file already owns, cite that source by name — never copy its content inline
+- Citing and then also restating the same content is still a violation of this rule; the citation does not excuse the copy
+- Default to citing in every case. Restating instead of citing is not a stylistic choice and needs a concrete reason the citation genuinely cannot serve — "it reads better inline" or "it's more convenient here" are not reasons
 
-**Rationale:** This has already caused real drift in this repo: a skill restated another skill's steps two lines after citing it by name, and the restated copy had already diverged (raw `git` where the source specified `ai-git`); a planning skill enumerated another skill's full tier table despite that skill explicitly billing itself as "the one place" that definition should live, and the enumeration had already inverted a per-agent default into a universal rule; an agent definition quoted a cited skill's table content in a Hard rule one bullet after promising not to restate its mechanics. In every case the citation was still correct — only the inlined copy had gone stale.
-
-**Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself. Restating is quoting the actual definition, steps, or table rows the cited source owns.
+**Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself — quoting the actual definition, steps, or table rows the cited source owns is.
 
 ---
 
