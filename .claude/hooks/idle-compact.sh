@@ -18,12 +18,18 @@
 set -uo pipefail
 trap 'exit 0' ERR
 
-[ "${CLAUDE_IDLE_COMPACT_DISABLE:-}" = "1" ] && exit 0
-
-# Cloud-only by default; set CLAUDE_IDLE_COMPACT_FORCE=1 to test locally.
-if [ "${CLAUDE_CODE_REMOTE:-}" != "true" ] && [ "${CLAUDE_IDLE_COMPACT_FORCE:-}" != "1" ]; then
+# Disabled by default: `claude -p "/compact" --resume <session_id>` targets
+# the SAME session ID as the live interactive session. Heartbeat data from
+# this branch showed it firing on every real Stop event and racing the live
+# session's own transcript - almost certainly the cause of confusing
+# "injected" turns observed mid-session. Re-enable only after resuming a
+# genuinely separate/background session, not the live one, and set
+# CLAUDE_IDLE_COMPACT_ENABLE=1 to opt back in.
+if [ "${CLAUDE_IDLE_COMPACT_ENABLE:-}" != "1" ]; then
   exit 0
 fi
+
+[ "${CLAUDE_IDLE_COMPACT_DISABLE:-}" = "1" ] && exit 0
 
 INPUT="$(cat)"
 
