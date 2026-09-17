@@ -9,9 +9,10 @@
 ## How this works
 
 `docs/process-model.md` is the spec — this file never restates its content, only
-tracks status against it. Each row below is one of the 35 numbered checks from that
+tracks status against it. Each row below is one of the 37 numbered checks from that
 document's **Implementation checks** table, grouped into the 17 phases from its
-**Sequencing** section.
+**Sequencing** section, plus the **structural-review phase** (checks 36–37) added
+after the fact and sequenced between phases 8 and 9.
 
 **Ground rules for this implementation pass:**
 
@@ -62,31 +63,68 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `f7002a8` (`process-model/phase-7-vocabulary-rename`)
-**Current phase:** Phases 1–6 fully merged into the integration branch (PRs #35,
-#36, #38, #40, #41, #42). Phase 7 (checks 9–11, the Epic/Chunk → Feature/Task
-vocabulary rename) implemented on branch `process-model/phase-7-vocabulary-rename`,
-cut from the integration branch's tip (`61cb210`) — **open as PR #44, CI green
-(8/8), mergeable, not yet merged.** See Phase 7 below for full detail. Summary:
-`epic-planning`+`chunk-planning` merged
-into `feature-planning` (per-Task detailed plans no longer produced there —
-moved to `complexity-tiers` at dispatch time); `chunk-orchestration` rewritten
-as `task-orchestration` (single pipeline, no more track branching, PR-timing
-mechanic fixed to match check 7); DAG server renamed chunk→task; `agents` field
-dropped from the task schema entirely (explicit human decision — no second
-implementing agent planned); `engineering-manager.yaml`/`software-engineer.yaml`/
-`principal-engineer.yaml` swept for vocabulary. Also folded in, per explicit
-instruction to review for repetition/agent-specificity while implementing
-rather than as a separate pass: generic role language throughout the two
-rewritten skills (matching `complexity-tiers`'s established pattern) instead of
-hardcoded agent names — the direct, concrete reason these skills went stale
-after check 6 retired three agent names — and EM's "Process (orchestration)"
-trimmed from an 8-step restatement of `task-orchestration`'s own steps down to
-a short pointer — plus a follow-up dedup pass (caught after human PR review) on
-`engineering-manager.yaml`'s "Orchestration/Planning responsibilities" bullet
-lists, which had gone untouched by that same repetition pass and restated Hard
-rules almost verbatim in several places. Next: PR #44 merge, then Phase 8
-(checks 12–14, skill retirement/re-homing).
+**Last commit at last tracker update:** `b6908b3` (`claude/process-model-implementation-plan-lty3ia`, merged into this branch)
+**Current phase:** Phases 1–6 fully merged (PRs #35, #36, #38, #40, #41, #42).
+
+**Phase 7 (checks 9–11) implemented on this branch, open as PR #44** — CI 8/8
+green. Summary: `epic-planning`+`chunk-planning` merged into `feature-planning`
+(per-Task detailed plans no longer produced there — moved to `complexity-tiers`
+at dispatch time); `chunk-orchestration` rewritten as `task-orchestration`
+(single pipeline, no more track branching, PR-timing mechanic fixed to match
+check 7); DAG server renamed chunk→task; `agents` field dropped from the task
+schema entirely (explicit human decision — no second implementing agent
+planned); `engineering-manager.yaml`/`software-engineer.yaml`/
+`principal-engineer.yaml` swept for vocabulary. See Phase 7 below for full
+detail.
+
+Folded in, per explicit instruction to review for repetition/agent-specificity
+while implementing rather than as a separate pass: generic role language
+throughout the two rewritten skills (matching `complexity-tiers`'s established
+pattern) instead of hardcoded agent names — the direct, concrete reason these
+skills went stale after check 6 retired three agent names — and EM's "Process
+(orchestration)" trimmed from an 8-step restatement of `task-orchestration`'s
+own steps down to a short pointer. Plus a follow-up dedup pass (`f7002a8`,
+caught after human PR review) on `engineering-manager.yaml`'s
+"Orchestration/Planning responsibilities" bullet lists, which that same
+repetition pass had missed and which restated Hard rules almost verbatim in
+several places.
+
+**Structural-review phase opened.** Two checks now sit between phases 8 and 9,
+both added after implementation surfaced realizations checks 1–35 didn't
+anticipate:
+
+- **Check 36** — merged via PR #45 (merge commit `8fa9f4c`). Collapses
+  `plans/features/`, `plans/tasks/{FeatureID}/` and
+  `plans/orchestration/{FeatureID}/` into one folder per Feature.
+- **Check 37** — open as PR #46, CI 8/8 green. Removes four instances of
+  duplicated specification across `skills/task-orchestration/` and its
+  neighbours.
+
+Both are spec-only additions to `docs/process-model.md`; neither is implemented
+yet. **Phase 9 must not begin until both have landed** — check 15 rebuilds
+`projects/_template/` on the layout check 36 defines.
+
+**Found while reviewing the checks 9–11 output, fixed immediately rather than
+deferred:** `skills/task-orchestration/SKILL.md` instructed raw `git worktree
+add`/`fetch`/`rebase`, but both the orchestrating and implementing agents
+declare `blocked_commands: ["git *"]`, so those steps were unexecutable by the
+only agents that run them. Now uses `ai-git`, a transparent passthrough
+(`d2c1e48`, plus `4f62ae0` regenerating the bundle snapshot it invalidated).
+
+**Still open, needs a human call:** this repo's own `.aiconfig.json` has no
+`paths.orchestration` key, so it silently resolves to the default
+`plans/orchestration` while the real files live at `docs/plans/orchestration/`.
+Check 36 erases this incidentally by collapsing the key; fixing it standalone is
+a one-line change. Not yet done either way.
+
+**Process note:** `npm run validate` does **not** cover snapshot freshness —
+that is a separate CI job (`node bin/aif.js snapshot --check`). A locally-clean
+`validate` run still failed CI on #44 for a stale bundle snapshot. Run both
+before every push.
+
+`main` was confirmed fully merged into the integration branch as of the Phase 6
+checkpoint; nothing outstanding to pull. Next: merge #44 and #46, then implement
+the structural-review phase (checks 36–37), then Phase 8 (checks 12–14).
 
 ---
 
@@ -476,7 +514,40 @@ PR. Not yet merged.
 
 ---
 
+## Structural-review phase (checks 36–37) — between phases 8 and 9
+
+Added after the fact; outside the original 17-phase numbering but, unlike check 35,
+it **does** gate: phase 9 must not begin until both checks have landed. Further
+realizations surfacing during phase 8 land here as additional fully-specified
+checks (38, 39, ...), each a normal check — never an extension of an existing row.
+Run 36 before 37: both edit Section 9 of the Feature Plan template.
+
+- [ ] **Check 36** — Collapse the three parallel top-level directories into one
+      folder per Feature (`plans/features/{FeatureID}/{plan.md,tasks.json,orchestration-state.json}`).
+      Revises already-landed work: `.aiconfig.json` schema (check 3), the Location
+      and Outputs sections of `feature-planning`/`task-orchestration` (checks 9/10),
+      `AGENTS.md`'s field table, this repo's own `.aiconfig.json`, and
+      `docs/architecture/02_constraints.md` (a `key_files`-tracked doc — needs a
+      `last_verified` bump). Also repairs the Feature Plan template's broken
+      relative link to `./tasks.json`. **Spec merged via PR #45; not implemented.**
+      Commit: `_____`
+- [ ] **Check 37** — Remove four instances of duplicated specification:
+      (a) `task-orchestration` Step 2 restating `worktree-management` Steps 1–3,
+      (b) the Task state machine written out in both `SKILL.md` and
+      `state-schema.md`, (c) two log actions documented but never emitted
+      (`escalation_resolved`, `worktree_created`), (d) the Feature Plan template
+      restating `feature-planning`'s own Step 5. **Spec open as PR #46; not
+      implemented.** Commit: `_____`
+
+**Checkpoint (structural review):** _____
+
+---
+
 ## Phase 9 — Template alignment (check 15)
+
+> **Gated:** do not begin until the structural-review phase (checks 36–37, section
+> below) has landed. Check 15 rebuilds `projects/_template/` on the very layout
+> check 36 redefines; building it twice is the failure this gate exists to prevent.
 
 - [ ] **Check 15** — `projects/_template/` rebuilt on the full new layout (paths,
       `plans/{features,tasks,orchestration}/`, `knowledge/decisions/`,
