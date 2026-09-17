@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-17T10:12:54.541Z",
+  "computed_at": "2026-09-17T10:15:27.399Z",
   "sources": {
     "agents/architect.yaml": "sha256:6ecca58db3e07cd2965abf6c5618c9465bbf5708147223d604f0699263b760a8",
     "agents/engineering-manager.yaml": "sha256:eef22eeecfea9f1f0aa985fafa379535c5b65f29d7feec0507b586afe4d944e4",
@@ -33,7 +33,7 @@
     "skills/decision-brief/SKILL.md": "sha256:429d1aba015fbbc95139478e542821ca81bb47eb1228ffae181d307af24e36d6",
     "skills/decision-brief/reference/template.md": "sha256:2a09e4c47c8e9159523c0222ba06e338d28bb5d52a4e6cc9098573567f129f68",
     "skills/code-review/SKILL.md": "sha256:05852841b2484a1a625bd7cee112c3a9601ebf91b6a3dde4dda90a415886ad3a",
-    "skills/ai-component-review/SKILL.md": "sha256:717eaa841967775c4a7739afaf6a8a856ab9b760c9c1b8cb5d1a0ecc1c1ddeff",
+    "skills/ai-component-review/SKILL.md": "sha256:1e36396820267bf055ac7331658fb333c0aeb97304e10e67e6163ce9adfc1c18",
     "skills/review-severity/SKILL.md": "sha256:a04761d0e69d16e861438ee8dc17208be14fd6a5cd1cb391ec0585c0d2edd1f1",
     "skills/review-severity/reference/template.md": "sha256:e5bfe4e9428381f4859ad09eb46869d878b102be69827eceb058f3e0d99b1853",
     "skills/complexity-tiers/SKILL.md": "sha256:fa9a35a66593ee8aca8ef66c21e1749c1aa6514e0363a07a5d7d52075cbac84b",
