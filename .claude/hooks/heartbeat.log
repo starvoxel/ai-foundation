@@ -16,3 +16,4 @@
 2026-09-17T14:57:38.123Z event=SessionEnd session=9ec9b1a8-fafa-50cd-b15b-3d95297e270a reason=other
 2026-09-17T16:55:48.081Z event=SessionEnd session=9ec9b1a8-fafa-50cd-b15b-3d95297e270a reason=other
 2026-09-17T17:12:54.625Z event=manual-end session=session_0168CyHk2sXtotxpRUJANhhn reason=going-silent-attempt-3-20min-confirm
+2026-09-17T17:16:48.303Z event=SessionEnd session=9ec9b1a8-fafa-50cd-b15b-3d95297e270a reason=other
