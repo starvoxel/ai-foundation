@@ -9,9 +9,10 @@
 ## How this works
 
 `docs/process-model.md` is the spec — this file never restates its content, only
-tracks status against it. Each row below is one of the 35 numbered checks from that
+tracks status against it. Each row below is one of the 37 numbered checks from that
 document's **Implementation checks** table, grouped into the 17 phases from its
-**Sequencing** section.
+**Sequencing** section, plus the **structural-review phase** (checks 36–37) added
+after the fact and sequenced between phases 8 and 9.
 
 **Ground rules for this implementation pass:**
 
@@ -62,26 +63,51 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `61cb210` (`claude/process-model-implementation-plan-lty3ia`)
-**Current phase:** Phases 1–3 fully merged (PRs #35, #36, #38, #40). Phase 4
-(check 6) plus its post-checkpoint refinements (review-skill split, old-roster
-framing cleanup, the `skill/complexity-tiers` rewrite that delivers most of
-check 14 early) and Phase 6 (check 8, CHANGELOG mechanism cleanup) all merged
-via PR #41. Phase 5 (check 7, draft-PR timing + PE review delivered via a
-single PR review) merged via PR #42 (merge commit `61cb210`) — tier-2
-mechanical validation done against a real throwaway draft PR (created,
-reviewed, undrafted, then closed) confirmed the design's GitHub API calls
-work, and corrected "review comments/threads" to "a single PR review" since
-per-finding inline threads aren't realistically reachable through EM's
-`shell`/`ai-git` access. PR #42 also picked up a `main` merge (new
-`steering/engineering/pr-descriptions.md` + PR template, used to rewrite
-#42's own description) and two follow-on rounds of Software-Engineer prompt
-simplification (bloat/duplication cut, no capability change; see Phase 4/5
-commits `e0ab67d`/`8937601`/`243ea3e` on the now-merged phase-5 branch) done
-opportunistically while touching that file for check 7. `main` is confirmed
-fully merged into this integration branch (`git merge-base --is-ancestor
-origin/main HEAD`) — nothing outstanding to pull, no conflicts. Phases 1–6
-are now all done and merged. Next: Phase 7 (vocabulary rename, checks 9–11).
+**Last commit at last tracker update:** `8fa9f4c` (`claude/process-model-implementation-plan-lty3ia`)
+**Current phase:** Phases 1–6 fully merged (PRs #35, #36, #38, #40, #41, #42).
+**Phase 7 (checks 9–11) is implemented and awaiting human merge as PR #44** — all
+three checks committed with the vocabulary rename, plus follow-on commits for a
+dedup pass on `engineering-manager.yaml` (`f7002a8`), the `ai-git` fix below
+(`d2c1e48`), and a bundle-snapshot regeneration (`4f62ae0`). CI 8/8 green,
+`mergeable_state: clean`. That PR carries its own tracker update filling in the
+Phase 7 section and its SHAs, so the Phase 7 section below is deliberately left
+as a stub here — it is filled in by #44's merge, not by this update.
+
+**Structural-review phase opened.** Two checks now sit between phases 8 and 9,
+both added after implementation surfaced realizations checks 1–35 didn't
+anticipate:
+
+- **Check 36** — merged via PR #45 (merge commit `8fa9f4c`). Collapses
+  `plans/features/`, `plans/tasks/{FeatureID}/` and `plans/orchestration/{FeatureID}/`
+  into one folder per Feature.
+- **Check 37** — open as PR #46, CI 8/8 green. Removes four instances of
+  duplicated specification across `skills/task-orchestration/` and its neighbours.
+
+Both are spec-only additions to `docs/process-model.md`; neither is implemented
+yet. **Phase 9 must not begin until both have landed** — check 15 rebuilds
+`projects/_template/` on the layout check 36 defines.
+
+**Found while reviewing the checks 9–11 output, fixed immediately rather than
+deferred:** `skills/task-orchestration/SKILL.md` instructed raw `git worktree
+add`/`fetch`/`rebase`, but both the orchestrating and implementing agents declare
+`blocked_commands: ["git *"]`, so those steps were unexecutable by the only agents
+that run them. Now uses `ai-git` (a transparent passthrough). Fixed on #44's branch
+since that PR rewrote the same lines.
+
+**Still open, needs a human call:** this repo's own `.aiconfig.json` has no
+`paths.orchestration` key, so it silently resolves to the default
+`plans/orchestration` while the real files live at `docs/plans/orchestration/`.
+Check 36 erases this incidentally by collapsing the key; fixing it standalone is a
+one-line change. Not yet done either way.
+
+**Process note:** `npm run validate` does **not** cover snapshot freshness — that
+is a separate CI job (`node bin/aif.js snapshot --check`). A locally-clean
+`validate` run still failed CI on #44 for a stale bundle snapshot. Run both before
+every push.
+
+`main` was confirmed fully merged into this integration branch as of the Phase 6
+checkpoint; nothing outstanding to pull. Next after #44/#46 merge: implement the
+structural-review phase (checks 36–37), then Phase 8 (checks 12–14).
 
 ---
 
@@ -393,7 +419,40 @@ PR #41 (merge commit `810772a`), same PR as Phase 4/5's work above.
 
 ---
 
+## Structural-review phase (checks 36–37) — between phases 8 and 9
+
+Added after the fact; outside the original 17-phase numbering but, unlike check 35,
+it **does** gate: phase 9 must not begin until both checks have landed. Further
+realizations surfacing during phase 8 land here as additional fully-specified
+checks (38, 39, ...), each a normal check — never an extension of an existing row.
+Run 36 before 37: both edit Section 9 of the Feature Plan template.
+
+- [ ] **Check 36** — Collapse the three parallel top-level directories into one
+      folder per Feature (`plans/features/{FeatureID}/{plan.md,tasks.json,orchestration-state.json}`).
+      Revises already-landed work: `.aiconfig.json` schema (check 3), the Location
+      and Outputs sections of `feature-planning`/`task-orchestration` (checks 9/10),
+      `AGENTS.md`'s field table, this repo's own `.aiconfig.json`, and
+      `docs/architecture/02_constraints.md` (a `key_files`-tracked doc — needs a
+      `last_verified` bump). Also repairs the Feature Plan template's broken
+      relative link to `./tasks.json`. **Spec merged via PR #45; not implemented.**
+      Commit: `_____`
+- [ ] **Check 37** — Remove four instances of duplicated specification:
+      (a) `task-orchestration` Step 2 restating `worktree-management` Steps 1–3,
+      (b) the Task state machine written out in both `SKILL.md` and
+      `state-schema.md`, (c) two log actions documented but never emitted
+      (`escalation_resolved`, `worktree_created`), (d) the Feature Plan template
+      restating `feature-planning`'s own Step 5. **Spec open as PR #46; not
+      implemented.** Commit: `_____`
+
+**Checkpoint (structural review):** _____
+
+---
+
 ## Phase 9 — Template alignment (check 15)
+
+> **Gated:** do not begin until the structural-review phase (checks 36–37, section
+> below) has landed. Check 15 rebuilds `projects/_template/` on the very layout
+> check 36 redefines; building it twice is the failure this gate exists to prevent.
 
 - [ ] **Check 15** — `projects/_template/` rebuilt on the full new layout (paths,
       `plans/{features,tasks,orchestration}/`, `knowledge/decisions/`,
