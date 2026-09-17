@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.3.1'
+version: '0.4.0'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
@@ -126,6 +126,18 @@ file_patterns: []
 
 ---
 
+### Rule 10: Cite a Source or Restate It — Never Both
+
+- When a document points at another skill, agent, or steering file by name for a definition, procedure, or table, it must not also restate that content inline
+- A citation stays correct automatically when the source changes; an inlined copy does not, and silently drifts out of sync with it
+- Pick one: cite the source and rely on it, or own the content and drop the citation
+
+**Rationale:** This has already caused real drift in this repo: a skill restated another skill's steps two lines after citing it by name, and the restated copy had already diverged (raw `git` where the source specified `ai-git`); a planning skill enumerated another skill's full tier table despite that skill explicitly billing itself as "the one place" that definition should live, and the enumeration had already inverted a per-agent default into a universal rule; an agent definition quoted a cited skill's table content in a Hard rule one bullet after promising not to restate its mechanics. In every case the citation was still correct — only the inlined copy had gone stale.
+
+**Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself. Restating is quoting the actual definition, steps, or table rows the cited source owns.
+
+---
+
 ## Enforcement
 
 - **No-plan violations:** The agent stops work and routes to Tech-Lead. No exceptions.
@@ -137,6 +149,7 @@ file_patterns: []
 - **Security violations:** Always block approval. See Principal-Engineer review process.
 - **Uncommitted-approval violations:** If an agent begins implementation without a committed `Approved` status on the governing plan, work stops immediately and the approval commit is created before continuing.
 - **Batched-commit violations:** Caught during review. A single large commit covering multiple plan steps is a LOW finding; the agent should have split it.
+- **Cite-or-state violations:** Caught during Principal-Engineer review. A document that both cites and restates the same content is a MEDIUM finding; the restatement is removed in favor of the citation.
 
 ---
 

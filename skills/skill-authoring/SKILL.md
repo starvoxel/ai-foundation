@@ -1,6 +1,6 @@
 ---
 name: 'skill-authoring'
-version: '0.1.1'
+version: '0.2.0'
 description: 'Creates a well-formed, self-contained skill with proper folder structure and documentation.'
 ---
 
@@ -113,6 +113,7 @@ Verify against the checklist:
 - [ ] Any deterministic logic is in `scripts/`, not prose
 - [ ] Reference files are in `reference/`
 - [ ] Assets (output templates, boilerplate) are in `assets/`
+- [ ] Every citation of another skill/agent/doc is checked against `steering/engineering/core.md` Rule 10 — cited, not also restated
 
 ---
 
