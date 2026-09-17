@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-16T16:32:32.762Z",
+  "computed_at": "2026-09-17T09:10:03.798Z",
   "sources": {
     "agents/architect.yaml": "sha256:6ecca58db3e07cd2965abf6c5618c9465bbf5708147223d604f0699263b760a8",
     "agents/engineering-manager.yaml": "sha256:eef22eeecfea9f1f0aa985fafa379535c5b65f29d7feec0507b586afe4d944e4",
@@ -23,7 +23,7 @@
     "skills/feature-planning/assets/tasks.json": "sha256:e5bef427cd69f12fdc099c0fa0db79767063698e3c7cd0cba3ef3da94f5fd560",
     "skills/feature-planning/reference/tasks-schema.md": "sha256:818e1bd4895e46c02be83d9cb1786b5f0b7ee285c7c77a8e28a027ab460c0cfa",
     "skills/feature-planning/reference/template.md": "sha256:940acdca736d75c1b915c54c4f678072d754ebe64b4c959ce16ed6c6ffbd5594",
-    "skills/task-orchestration/SKILL.md": "sha256:6abee3ec0ed8e5195a082f8bf49505008810c07c9040a9d32ae5b2e6ad62414f",
+    "skills/task-orchestration/SKILL.md": "sha256:6afdbef3e2035d653c4c9aaca8da12ea0c430087954869ba3737b10d53b1e03e",
     "skills/task-orchestration/assets/orchestration-state.json": "sha256:ae7a87752064f014212d06da50aad3c28c2902f2e30ec93198c25d606322e09e",
     "skills/task-orchestration/reference/state-schema.md": "sha256:9665839a11b935260820426c10ed74a533b88dc21e0c45a6cd949bc898621406",
     "skills/worktree-management/SKILL.md": "sha256:98aece82e1c2235036f9aa209a6fd4b7fcf110aec2a9c5f40856fff1235a7814",
