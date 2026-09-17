@@ -81,6 +81,4 @@ between a generic knowledge file and the arc42/MADR home that already exists for
 
 ## Exceptions
 
-- If none of the four kinds fit and it isn't external reference material either, stop and raise it as an
-  open question rather than inventing a new home — this table is meant to be exhaustive for non-code
-  documents in this repo.
+- If you truly cannot find a home, ask instead of guessing.
