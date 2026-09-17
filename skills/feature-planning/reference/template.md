@@ -135,12 +135,12 @@ Parallelization notes:
 
 {Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]
 
-> **Tier C decisions.** Decisions made during Feature planning or revision that
-> don't rise to Tier A/B per `skill/decision-triage`'s promotion threshold are
-> recorded inline in a Work Log entry, not as a standalone Decision Record — no
-> separate file, no `{paths.decisions}/index.json` update, no separate approval
-> gate. Fold the convention into the entry's `[Details]`:
-> `Decision: {what was decided}. **Why:** {rationale}.` This rides the Feature
-> Plan's own `skill/plan-lifecycle` cycle. Promote to Tier B/A later (via
-> `skill/decision-triage`) only if a second, unrelated plan needs to cite the
-> decision independently.
+> **Minor decisions made during planning.** A decision made during Feature planning
+> or revision that isn't a genuine architectural/product fork
+> (`docs/process-model.md`'s Decisions section) is not an ADR at all — record it
+> inline in a Work Log entry, not as a standalone file: no `{paths.decisions}/`
+> entry, no separate approval gate. Fold the convention into the entry's
+> `[Details]`: `Decision: {what was decided}. **Why:** {rationale}.` This rides
+> the Feature Plan's own `skill/plan-lifecycle` cycle. If it later turns out to
+> be a genuine fork — contested, costly to reverse — escalate to Architect for
+> an ADR instead of continuing to treat it as inline.

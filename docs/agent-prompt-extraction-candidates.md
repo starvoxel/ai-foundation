@@ -1,6 +1,5 @@
 ---
 name: 'agent-prompt-extraction-candidates'
-type: 'reference'
 tags: ['agent-authoring', 'prompt-design', 'skills']
 scope: 'ai-engineer'
 description: "Prompt content that reads like a reusable rule/procedure but currently lives in only one agent's prompt — tracked so it can be promoted to a skill or steering rule if a second agent needs the same behavior."
