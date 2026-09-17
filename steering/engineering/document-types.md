@@ -32,21 +32,12 @@ never create a second file elsewhere that duplicates it.
 
 ### Subject matter is not a document kind
 
-`api` and `business-rule` describe subject matter, not a document kind — they are never a `type` to pick.
-Their content lands wherever it actually fits, and never as a standalone knowledge file:
-
-| The thing                                               | Home                                                |
-| ------------------------------------------------------- | --------------------------------------------------- |
-| Authoritative spec (OpenAPI, JSON Schema, zod, `.d.ts`) | Code — a `key_files` entry, never restated in prose |
-| External interfaces                                     | arc42 §3 Technical Context                          |
-| A building block's interface to its neighbours          | That block's §5 file                                |
-| Stability / versioning policy                           | `standards/`                                        |
-| Business rule — product requirement                     | Reserved `{paths.product}` slot                     |
-| Business rule — how the domain is modelled              | arc42 §8 or the owning §5 block                     |
-| Business rule — externally imposed (regulatory)         | arc42 §2 Constraints                                |
-
-If you're tempted to tag something `api` or `business-rule`, that tag is telling you which row above the
-content actually belongs in — use that row's home, not a generic knowledge file.
+`api` and `business-rule` are not document kinds — never assign either as a `type`. Both describe what a file
+is about, not why it exists or whether it changes, and content described that way already has a real home:
+code (a `key_files` entry — never restated in prose), the arc42 section that already covers that system or
+component, `standards/`, or the reserved `{paths.product}` slot. If you're tempted to create a knowledge file
+because the content "is an API" or "is a business rule," that impulse is wrong — find the home that already
+owns it. Never create a standalone file for either.
 
 ### External reference material — the one kind still generic
 
