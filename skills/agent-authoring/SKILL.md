@@ -1,6 +1,6 @@
 ---
 name: 'agent-authoring'
-version: '0.2.1'
+version: '0.3.0'
 description: 'Creates a well-formed agent definition with proper tool selection and prompt design.'
 ---
 
@@ -120,6 +120,7 @@ Verify against the checklist:
 - [ ] `approved_tools` is a subset of `tools`
 - [ ] All entries in `skills` reference existing folders in `skills/`
 - [ ] `preload_skills`, if present, is either `["*"]` or a subset of `skills`
+- [ ] Every citation of another skill/agent/doc is checked against `steering/engineering/core.md` Rule 10 — cited, not also restated
 
 ---
 
