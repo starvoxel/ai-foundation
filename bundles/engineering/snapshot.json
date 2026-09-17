@@ -1,11 +1,11 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-17T17:22:45.861Z",
+  "computed_at": "2026-09-17T18:08:22.827Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
-    "agents/engineering-manager.yaml": "sha256:5cdd0dc7be042015dabebdfbaeddef0e2c2c43fda067b0ffe23bb921bfb0f5ec",
-    "agents/engineering-researcher.yaml": "sha256:5799a5d4c8a5b7bc79506458a54ba301c7637539cdd40526c81cf7d2d9f5247c",
+    "agents/engineering-manager.yaml": "sha256:6b0420c8b177b533dc725ff332abdd272ccd04f9258d22e726179e84855a801a",
+    "agents/engineering-researcher.yaml": "sha256:4d8caf7b3f2dd42c6e8c2d10e20e7295cf76103743d764336c714f38dea1490b",
     "agents/principal-engineer.yaml": "sha256:9ec257819538cf8ae74b40f9dcff65e7e6fe2636143e147c2a22e1efe0d3f878",
     "agents/software-engineer.yaml": "sha256:a57b3a62c1e4103f0af30587f10556514e245806bfa10779754c0fd33cfeabc4",
     "steering/global/core.md": "sha256:50278efc0a70cd5e960776b895dd9b15c6b835e2149a68382bbe89568720232b",
