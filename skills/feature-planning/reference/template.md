@@ -1,18 +1,18 @@
-# Epic Plan: {Short Title}
+# Feature Plan: {Short Title}
 
 ## 1. Metadata
 
 | Field               | Value                                          |
 | ------------------- | ---------------------------------------------- |
-| Epic ID             | {ProjectShortName}-{###}                       |
+| Feature ID          | {ProjectShortName}-{###}                       |
 | Project             | {Project name}                                 |
 | Status              | Draft / Approved / Done / Deferred             |
-| Author (Agent)      | Tech-Lead                                      |
+| Author (Agent)      | Engineering Manager                            |
 | Reviewed By         | {human name or "Pending"}                      |
 | Created             | {YYYY-MM-DD HH:mm}                             |
 | Last Updated        | {YYYY-MM-DD HH:mm}                             |
 | Standards           | {e.g. csharp-avalonia, project-standards link} |
-| Total Chunks        | {n — filled after decomposition}               |
+| Total Tasks         | {n — filled after decomposition}               |
 | Product Requirement | {PRD ID or "None"}                             |
 | Decision Records    | {Decision Record ID(s) or "None"}              |
 
@@ -87,7 +87,7 @@
 
 ## 7. Security Considerations
 
-- {Concern and which chunks will address it}
+- {Concern and which Tasks will address it}
 
 ---
 
@@ -99,16 +99,22 @@
 
 ---
 
-## 9. Chunk Decomposition
+## 9. Task Decomposition
 
-Dependency graph: [`chunks.json`](./chunks.json)
+Dependency graph: [`tasks.json`](./tasks.json)
 
-Summary: {N} chunks across {M} waves. {Brief description of parallelization.}
+Summary: {N} Tasks across {M} waves. {Brief description of parallelization.}
 
-The `chunks.json` file is the machine-parseable source of truth for the dependency graph. It must pass `dag-validate` before the epic is considered decomposed.
+> **Single-Task or no-decomposition Features:** if this Feature is a single Task, or
+> small enough to skip `tasks.json` entirely (see Task-sizing rules in
+> `skill/feature-planning`), state that here instead of a dependency graph — e.g.
+> "Single Task, no decomposition needed."
 
-Start from the template at `skills/epic-planning/assets/chunks.json`.
-See `skills/epic-planning/reference/chunks-schema.md` for the file format.
+The `tasks.json` file is the machine-parseable source of truth for the dependency
+graph. It must pass `dag-validate` before the Feature is considered decomposed.
+
+Start from the template at `skills/feature-planning/assets/tasks.json`.
+See `skills/feature-planning/reference/tasks-schema.md` for the file format.
 
 Parallelization notes:
 
@@ -118,11 +124,10 @@ Parallelization notes:
 
 ## 10. Acceptance Criteria
 
-- [ ] All chunks complete and signed off
+- [ ] All Tasks complete and signed off
 - [ ] Feature works end-to-end as described in Section 5
-- [ ] No HIGH or CRITICAL findings open in any chunk review
-- [ ] Epic-level CHANGELOG entry written
-- [ ] {Epic-specific criteria}
+- [ ] No HIGH or CRITICAL findings open in any Task review
+- [ ] {Feature-specific criteria}
 
 ---
 
@@ -130,12 +135,12 @@ Parallelization notes:
 
 {Auto-populated by agents. Format:} [{YYYY-MM-DD HH:mm}] [{Agent}] [{Action}] [{ID}] [{Details}]
 
-> **Tier C decisions.** Decisions made during epic planning or revision that
+> **Tier C decisions.** Decisions made during Feature planning or revision that
 > don't rise to Tier A/B per `skill/decision-triage`'s promotion threshold are
 > recorded inline in a Work Log entry, not as a standalone Decision Record — no
 > separate file, no `{paths.decisions}/index.json` update, no separate approval
 > gate. Fold the convention into the entry's `[Details]`:
-> `Decision: {what was decided}. **Why:** {rationale}.` This rides the Epic
+> `Decision: {what was decided}. **Why:** {rationale}.` This rides the Feature
 > Plan's own `skill/plan-lifecycle` cycle. Promote to Tier B/A later (via
 > `skill/decision-triage`) only if a second, unrelated plan needs to cite the
 > decision independently.

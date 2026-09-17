@@ -1,9 +1,9 @@
 {
-  "epic_id": "",
+  "feature_id": "",
   "status": "In Progress",
   "current_wave": 0,
   "total_waves": 0,
-  "chunks": [
+  "tasks": [
     {
       "id": "001",
       "wave": 0,
@@ -13,8 +13,7 @@
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
-      "blocked_reason": null,
-      "agents": ["Software-Engineer"]
+      "blocked_reason": null
     }
   ],
   "escalations": [],
