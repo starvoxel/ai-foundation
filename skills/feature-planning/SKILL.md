@@ -81,9 +81,9 @@ count, parallelization notes) and a reference to the `tasks.json` file.
 
 **Task-level plans are not produced here.** A Task's own plan — if its complexity
 warrants one at all — is written by the agent that implements it, via
-`skill/complexity-tiers` at dispatch time (Tier 1: none; Tier 2: a brief outline,
-stopped for human approval; Tier 3: hand off, not implemented from this decomposition
-alone). This skill's job ends at the dependency graph and each Task's scope summary.
+`skill/complexity-tiers` at dispatch time. What each tier means, and what it
+means for that particular agent, is that skill's to state and not restated here.
+This skill's job ends at the dependency graph and each Task's scope summary.
 
 #### Task-sizing rules
 

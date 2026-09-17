@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-17T09:10:03.798Z",
+  "computed_at": "2026-09-17T09:30:36.140Z",
   "sources": {
     "agents/architect.yaml": "sha256:6ecca58db3e07cd2965abf6c5618c9465bbf5708147223d604f0699263b760a8",
     "agents/engineering-manager.yaml": "sha256:eef22eeecfea9f1f0aa985fafa379535c5b65f29d7feec0507b586afe4d944e4",
@@ -19,7 +19,7 @@
     "skills/decision-record/SKILL.md": "sha256:c1baffc8b6758f0d778a4f7dfddff36c4c6900298c47a3276bca9ecb8634d7f7",
     "skills/decision-record/reference/domain-guidance.md": "sha256:1bcc9c2f540361206bd527adc5f88c272fa0f0a853db057dd69e07df0d7e5782",
     "skills/decision-record/reference/template.md": "sha256:787e918a75a6e99ef1ca6150da93300122e2819823691b6f8fe90ae666b03396",
-    "skills/feature-planning/SKILL.md": "sha256:9c2ace041e7fa2712fd6fb209c6fa3139061a172b77079477d0af0c5c57e6e22",
+    "skills/feature-planning/SKILL.md": "sha256:196493ecbc8a5b679defea49f8271b15b82f30845d9784f5d237932cf3b967ad",
     "skills/feature-planning/assets/tasks.json": "sha256:e5bef427cd69f12fdc099c0fa0db79767063698e3c7cd0cba3ef3da94f5fd560",
     "skills/feature-planning/reference/tasks-schema.md": "sha256:818e1bd4895e46c02be83d9cb1786b5f0b7ee285c7c77a8e28a027ab460c0cfa",
     "skills/feature-planning/reference/template.md": "sha256:940acdca736d75c1b915c54c4f678072d754ebe64b4c959ce16ed6c6ffbd5594",
