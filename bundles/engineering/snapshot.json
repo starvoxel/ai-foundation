@@ -1,13 +1,13 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-17T09:30:36.140Z",
+  "computed_at": "2026-09-17T09:36:21.151Z",
   "sources": {
     "agents/architect.yaml": "sha256:6ecca58db3e07cd2965abf6c5618c9465bbf5708147223d604f0699263b760a8",
     "agents/engineering-manager.yaml": "sha256:eef22eeecfea9f1f0aa985fafa379535c5b65f29d7feec0507b586afe4d944e4",
     "agents/engineering-researcher.yaml": "sha256:5799a5d4c8a5b7bc79506458a54ba301c7637539cdd40526c81cf7d2d9f5247c",
     "agents/principal-engineer.yaml": "sha256:9ec257819538cf8ae74b40f9dcff65e7e6fe2636143e147c2a22e1efe0d3f878",
-    "agents/software-engineer.yaml": "sha256:97eb8c43e812f37eb0720edcffe569324077faa0a0508f050a0ff3da838f3605",
+    "agents/software-engineer.yaml": "sha256:a57b3a62c1e4103f0af30587f10556514e245806bfa10779754c0fd33cfeabc4",
     "steering/global/core.md": "sha256:50278efc0a70cd5e960776b895dd9b15c6b835e2149a68382bbe89568720232b",
     "steering/global/knowledge-consumption.md": "sha256:2fee6af121e9f4f229042f1af5a3b7f1fe9b01a512f6552e97cba034d964bd1c",
     "steering/global/markdown-authoring.md": "sha256:cd53d067ef6b3f606457e6796e09b364896e695cfc188dbd048bd30a24f94640",
