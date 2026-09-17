@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.3.1'
+version: '0.4.0'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
@@ -126,6 +126,16 @@ file_patterns: []
 
 ---
 
+### Rule 10: Cite, Don't Restate
+
+- When a document needs a definition, procedure, or table that another skill, agent, or steering file already owns, cite that source by name — never copy its content inline
+- Citing and then also restating the same content is still a violation of this rule; the citation does not excuse the copy
+- Default to citing in every case. Restating instead of citing is not a stylistic choice and needs a concrete reason the citation genuinely cannot serve — "it reads better inline" or "it's more convenient here" are not reasons
+
+**Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself — quoting the actual definition, steps, or table rows the cited source owns is.
+
+---
+
 ## Enforcement
 
 - **No-plan violations:** The agent stops work and routes to Tech-Lead. No exceptions.
@@ -137,6 +147,7 @@ file_patterns: []
 - **Security violations:** Always block approval. See Principal-Engineer review process.
 - **Uncommitted-approval violations:** If an agent begins implementation without a committed `Approved` status on the governing plan, work stops immediately and the approval commit is created before continuing.
 - **Batched-commit violations:** Caught during review. A single large commit covering multiple plan steps is a LOW finding; the agent should have split it.
+- **Cite-or-state violations:** Caught during Principal-Engineer review. A document that both cites and restates the same content is a MEDIUM finding; the restatement is removed in favor of the citation.
 
 ---
 
