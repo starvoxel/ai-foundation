@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-18T16:17:21.309Z",
+  "generated_at": "2026-09-18T17:51:01.437Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -31,7 +31,7 @@
         "lib/harnesses/base.js",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "0abda56",
+      "last_verified": "1908630",
       "stale": false
     },
     {
