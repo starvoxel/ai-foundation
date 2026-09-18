@@ -1,6 +1,6 @@
 ---
 name: 'task-orchestration'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Orchestrates parallel Task execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
@@ -35,7 +35,7 @@ the last time the roster changed.
 
 1. Read `.aiconfig.json` from the project root to resolve artifact paths
 2. Read the Feature Plan and confirm `Status: Approved` before proceeding. If the Feature is not `Approved` (e.g. still `Draft` or `Deferred`), stop and report to the human — do not read `tasks.json`. See `skill/plan-lifecycle` — only `Approved` satisfies this gate.
-3. Read `tasks.json` for the Feature (at `{paths.tasks}/{FeatureID}/tasks.json`)
+3. Read `tasks.json` for the Feature (at `{paths.features}/{FeatureID}/tasks.json`)
 4. Call `dag-compute-waves` to get the ordered wave structure
 5. Copy the template from `skills/task-orchestration/assets/orchestration-state.json`
 6. Populate the state file:
@@ -43,7 +43,7 @@ the last time the roster changed.
    - Set `total_waves` from the wave computation result
    - Set `current_wave` to 0
    - Create a Task state entry for each Task (status: `Ready`, wave assignment from computation)
-7. Write the state file to `{paths.orchestration}/{FeatureID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/orchestration/`)
+7. Write the state file to `{paths.features}/{FeatureID}/orchestration-state.json` (from `.aiconfig.json`, default: `plans/features/`) — sibling to the Feature Plan and `tasks.json`
 8. **Commit the Feature Plan and orchestration state to main before proceeding:**
    - Verify the Feature Plan is committed and pushed to main. If not, commit and push it now (directly to main — plans do not use branches).
    - Commit and push the orchestration state file to main.
@@ -278,7 +278,7 @@ After each Task completion, check wave status:
 
 ## Outputs
 
-- **Orchestration state file** — continuously updated at `{paths.orchestration}/{FeatureID}/orchestration-state.json`
+- **Orchestration state file** — continuously updated at `{paths.features}/{FeatureID}/orchestration-state.json`
 - **Completion summary** — presented to human when all waves are done or fully blocked
 
 ---

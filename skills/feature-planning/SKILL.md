@@ -1,6 +1,6 @@
 ---
 name: 'feature-planning'
-version: '0.1.0'
+version: '0.2.0'
 description: 'Produces a Feature Plan describing a complete feature at a human-reviewable level, decomposed into Tasks when more than one is needed.'
 ---
 
@@ -39,7 +39,7 @@ Identify ambiguities or conflicts to raise as open questions.
 Feature IDs follow the format `{ProjectShortName}-{###}` (e.g. `MYAPP-001`), an ever-incrementing, zero-padded 3-digit number — no date segment.
 
 1. Read `project_shortname` from `.aiconfig.json` (falls back to `project_name` if unset)
-2. Scan `{paths.features}/` for existing feature files matching `{ProjectShortName}-*.feature.md`
+2. Scan `{paths.features}/` for existing `{ProjectShortName}-*` Feature folders
 3. Take the highest existing `###` and increment by 1 (zero-padded to 3 digits)
 4. If no existing features are found, start at `001`
 
@@ -100,9 +100,9 @@ This skill's job ends at the dependency graph and each Task's scope summary.
 ## Outputs
 
 - **Feature Plan** — markdown file following the template
-- **Location:** `{paths.features}/{FeatureID}.feature.md` (from `.aiconfig.json`, default: `plans/features/`)
+- **Location:** `{paths.features}/{FeatureID}/plan.md` (from `.aiconfig.json`, default: `plans/features/`)
 - **Task Decomposition** — `tasks.json` file (produced after approval, when the Feature has more than one Task; validated by `dag-validate`)
-- **Location:** `{paths.tasks}/{FeatureID}/tasks.json` (from `.aiconfig.json`, default: `plans/tasks/`)
+- **Location:** `{paths.features}/{FeatureID}/tasks.json` — sibling to the Feature Plan itself
 
 ---
 

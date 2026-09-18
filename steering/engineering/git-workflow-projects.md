@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-projects'
-version: '0.3.2'
+version: '0.4.0'
 description: 'Git workflow for project repositories where agents produce code.'
 file_patterns: []
 ---
@@ -15,7 +15,7 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 
 ### Plans
 
-1. **Plans, orchestration state, and knowledge are committed directly to main, before implementation begins.** Files under `paths.plans`, `paths.orchestration`, and `paths.knowledge` are planning and reference artifacts, not deployable code — they do NOT require a branch or PR. Follow `skill/plan-lifecycle` for the full procedure:
+1. **Plans, orchestration state, and knowledge are committed directly to main, before implementation begins.** Files under `paths.plans` (which the orchestration state file lives under, via `paths.features`) and `paths.knowledge` are planning and reference artifacts, not deployable code — they do NOT require a branch or PR. Follow `skill/plan-lifecycle` for the full procedure:
    - Commit and push each version to main BEFORE presenting it to the human for review (Draft, each revision, and the final Approved/Deferred decision are all separate commits).
    - Atomic commits: one plan or one logical change per commit.
    - Include the Plan ID or document name in the commit message.
@@ -24,7 +24,7 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 
 ### Branching
 
-3. **All work happens on a branch.** Never commit directly to `main` (except plans/orchestration/knowledge per Rule 1 above).
+3. **All work happens on a branch.** Never commit directly to `main` (except plans/knowledge per Rule 1 above).
 4. **Branch naming:** `{plan-id}/{short-description}` (e.g. `PROJ-001/add-user-service`).
 5. **One chunk plan per branch.** Do not mix unrelated work.
 

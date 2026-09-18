@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T16:59:54.101Z",
+  "generated_at": "2026-09-18T16:10:49.755Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -50,7 +50,7 @@
         "servers/youtrack/youtrack.yaml"
       ],
       "last_verified": "e066376",
-      "stale": false
+      "stale": true
     },
     {
       "path": "05_01_bundle_resolution.md",
@@ -106,7 +106,7 @@
         "lib/index-diff.js"
       ],
       "last_verified": "9776f12",
-      "stale": false
+      "stale": true
     }
   ],
   "reverse_index": {

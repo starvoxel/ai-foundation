@@ -11,10 +11,11 @@ Start from the template at `skills/task-orchestration/assets/orchestration-state
 ## Location
 
 ```
-{paths.orchestration}/{FeatureID}/orchestration-state.json
+{paths.features}/{FeatureID}/orchestration-state.json
 ```
 
-Resolved from `.aiconfig.json` at project root. Default: `plans/orchestration/`.
+Resolved from `.aiconfig.json` at project root. Default: `plans/features/` — sibling to
+the Feature Plan (`plan.md`) and `tasks.json`.
 
 ---
 
