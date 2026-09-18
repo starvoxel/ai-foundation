@@ -89,12 +89,14 @@ review, not pre-planned checks):
   (agent-authoring/reference/schema.md, project-standards.md, javascript_node.md,
   lib/resolver.js's JSDoc, test fixtures) is untouched.
 
-**Structural-review phase opened**, between phases 8 and 9 (outside the
-original 17-phase numbering, gates phase 9 the same way check 35 doesn't gate
-anything): check 36 (folder consolidation, merged via PR #45) and check 37
-(duplication removal, merged via PR #46). **Both specs are merged; neither
-check is implemented yet.** Phase 9 must not begin until both are — check 15
-rebuilds `projects/_template/` on the layout check 36 defines.
+**Structural-review phase — both checks now implemented**, on
+`process-model/structural-review-36-37`, cut from the integration branch after
+Phase 8/PR #50 merged: check 36 (folder consolidation) and check 37
+(duplication removal) — see the section below for full detail. Also on this
+same branch, per direct instruction after a full-corpus AI-component
+duplication audit: a new shared `git-workflow-core.md` plus three more Rule-10
+fixes (`principal-engineer.yaml`, `engineering-manager.yaml`,
+`bundle-authoring/SKILL.md`) — see the section below. **Ready for PR.**
 
 **Also merged into this integration branch, outside the numbered checks:**
 the "Cite, Don't Restate" steering rule (core.md Rule 10 + agent-authoring/
@@ -116,8 +118,7 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: implement the structural-review phase
-(checks 36–37), then Phase 9 (check 15).
+Next: open the structural-review PR, then Phase 9 (check 15).
 
 ---
 
@@ -548,24 +549,73 @@ realizations surfacing during phase 8 land here as additional fully-specified
 checks (38, 39, ...), each a normal check — never an extension of an existing row.
 Run 36 before 37: both edit Section 9 of the Feature Plan template.
 
-- [ ] **Check 36** — Collapse the three parallel top-level directories into one
+- [x] **Check 36** — Collapse the three parallel top-level directories into one
       folder per Feature (`plans/features/{FeatureID}/{plan.md,tasks.json,orchestration-state.json}`).
-      Revises already-landed work: `.aiconfig.json` schema (check 3), the Location
-      and Outputs sections of `feature-planning`/`task-orchestration` (checks 9/10),
-      `AGENTS.md`'s field table, this repo's own `.aiconfig.json`, and
-      `docs/architecture/02_constraints.md` (a `key_files`-tracked doc — needs a
-      `last_verified` bump). Also repairs the Feature Plan template's broken
-      relative link to `./tasks.json`. **Spec merged via PR #45; not implemented.**
-      Commit: `_____`
-- [ ] **Check 37** — Remove four instances of duplicated specification:
-      (a) `task-orchestration` Step 2 restating `worktree-management` Steps 1–3,
-      (b) the Task state machine written out in both `SKILL.md` and
-      `state-schema.md`, (c) two log actions documented but never emitted
-      (`escalation_resolved`, `worktree_created`), (d) the Feature Plan template
-      restating `feature-planning`'s own Step 5. **Spec merged via PR #46; not
-      implemented.** Commit: `_____`
+      `.aiconfig.json` dropped `paths.tasks`/`paths.orchestration` outright (no
+      deprecated aliases — nothing in `lib/` reads either key, and this pass
+      consistently favors clean breaks). `feature-planning`/`task-orchestration`
+      Location/Outputs sections, `AGENTS.md`'s field table, and
+      `tasks-schema.md`/`state-schema.md`'s own Location blocks all retargeted.
+      Feature Plan renamed from `{FeatureID}.feature.md` to a bare `plan.md`;
+      identity moves to the parent `{FeatureID}/` directory —
+      `docs/architecture/02_constraints.md`'s "Artifact file naming" row reworded
+      to say so explicitly, plus a `last_verified` bump (and a second one for
+      `01_introduction_and_goals.md`, both caught by `aif index architecture
+--check` after this AGENTS.md/git-workflow-projects.md-touching work).
+      Also fixed as a direct structural consequence of dropping
+      `paths.orchestration` (not vocabulary sweep — broken references to a
+      deleted key): `plan-lifecycle/reference/status-vocabulary.md`'s
+      parenthetical, and `git-workflow-projects.md` Rules 1/3's exemption list.
+      Commit: `0abda56`.
+- [x] **Check 37** — Removed four instances of duplicated specification:
+      (a) `task-orchestration` Step 2 restating `worktree-management` Steps 1–3 —
+      replaced with a citation, kept only what's actually task-orchestration's own
+      (branch-naming convention, Task-state recording). (b) The Task state
+      machine's four summary bullets in `state-schema.md` restated what
+      `SKILL.md`'s Steps 3–4 already state operationally — removed, kept the
+      diagram (states + legal transitions) as the one schema-owned piece.
+      (c) `escalation_resolved`/`worktree_created` log actions dropped — never
+      emitted anywhere (worktree creation surfaces via `task_dispatched`'s
+      details, escalation resolution via `task_unblocked`'s existing write).
+      (d) Feature Plan template Section 9 trimmed to just its fill-in-the-blanks
+      content; the orphaned `tasks-schema.md` pointer it dropped relocated into
+      `feature-planning/SKILL.md` Step 5 (its owning location) rather than lost.
+      Commit: `54e8a42`.
 
-**Checkpoint (structural review):** _____
+**Checkpoint (structural review):** `npm test` 706/706, `npm run validate`/`lint`
+clean, `aif snapshot --check` 6/6 (engineering bundle 40 → 41 sources — see
+below), version-bump check clean (8 versioned files across this whole branch).
+`aif index architecture --check` clean except the pre-existing, unrelated
+`03_context.md`/`05_building_blocks.md` staleness found while validating check
+36 (byproduct of Phase 7/8's agent/skill changes, flagged not fixed — check
+33/17 territory).
+
+**Also done on this branch, outside checks 36–37, per direct instruction after a
+full-corpus AI-component duplication audit** (installed the engineering bundle
+via `aif install`, dispatched a Principal-Engineer-persona subagent to read
+every `agents/*.yaml`, `skills/**`, `steering/**`, and `standards/**` file
+against `steering/engineering/core.md` Rule 10 — 4 verified findings, all
+fixed):
+
+- `steering/engineering/git-workflow-core.md` created — the atomic/incremental
+  commit rules, `ai-git` usage, and token handling `git-workflow-framework.md`
+  and `git-workflow-projects.md` had independently restated (and already
+  drifted on — "authenticates push operations" vs "push/PR operations", same
+  tool described two ways). Both files now hold only their own repo-type rules
+  and overrides. Renumbering broke 3 live numbered citations (`02_constraints.md`
+  ×2, this tracker's own ground rules), all updated; `git-workflow-projects.md`
+  being a check-17-named file, this is a Rule-10 fix not a vocabulary sweep — no
+  "chunk plan" wording touched. Commits: `1908630`, `09ea82b` (`last_verified`
+  follow-up).
+- `agents/principal-engineer.yaml`'s Hard rules were self-contradicting —
+  delegating severity-rule-defining to `skill/review-severity` in Purpose, then
+  defining one anyway verbatim in Hard rules. Now cites instead. Commit: `0539c67`.
+- `agents/engineering-manager.yaml`'s PR-posting/ready-for-review rule was
+  stated in full three times (Responsibilities, an unstructured "Process
+  (orchestration)" paragraph, Hard rules). Kept once in Hard rules, the other
+  two now point to it. Commit: `83d8b88`.
+- `skills/bundle-authoring/SKILL.md` Step 3 restated `reference/schema.yaml`'s
+  domain-discovery algorithm — now cites it. Commit: `b6e18ef`.
 
 ---
 
