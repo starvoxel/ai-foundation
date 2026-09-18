@@ -1,6 +1,6 @@
 ---
 name: 'task-orchestration'
-version: '0.1.0'
+version: '0.2.0'
 description: 'Orchestrates parallel Task execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
@@ -195,19 +195,20 @@ Triggered by: human reports conflict during PR review, OR wave-boundary rebase f
 
 **Decision hand-off — Decision Hand-off Sub-Flow:** (Authored under AIF-002-006)
 
-Triggered by: a dispatched subagent reports, via `skill/decision-triage`, that
-continuing requires a Tier A/B decision outside its own domain, or requires
-human approval before it can proceed.
+Triggered by: a dispatched subagent reports that continuing requires an
+Architect-owned decision (a genuine architectural/product fork) before it can
+proceed.
 
 1. Update Task status to `Blocked` with a structured `blocked_reason`
-   (domain, tier, owning agent — from the `decision-triage` hand-off signal).
-   Log: `decision_handoff_detected` with the domain, tier, and owning agent.
-2. If the orchestrating agent itself owns the domain (Process — see
-   `decision-triage`'s domain table), author the decision directly via
-   `decision-triage` -> `decision-record`/`decision-brief`. Otherwise, dispatch
-   the owning agent as a subagent to author it the same way. Log:
-   `decision_authored` once the Draft decision is committed.
-3. Present the Draft decision to the human alongside the existing
+   describing what decision is needed. Log: `decision_handoff_detected`.
+2. Dispatch Architect as a subagent to author the ADR (MADR format,
+   `{paths.decisions}/`). No domain/tier routing — every hand-off reaching
+   this sub-flow is, by definition, an Architect-owned fork; a Process/
+   tooling/convention question isn't a decision record at all
+   (`docs/process-model.md`'s Decisions section — edit the skill/steering/
+   agent file directly, the commit is the record) and never reaches this
+   sub-flow. Log: `decision_authored` once the Draft ADR is committed.
+3. Present the Draft ADR to the human alongside the existing
    blocked-Task escalation. The decision's own `skill/plan-lifecycle` gate —
    not orchestration state — governs whether it becomes `Approved` or
    `Deferred`. Do not track a parallel approval state in the orchestration

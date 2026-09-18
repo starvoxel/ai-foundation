@@ -105,29 +105,29 @@ Blocked → Ready (when human unblocks)
 
 <!-- decision_handoff_detected, decision_authored, decision_handoff_resolved rows below: Authored under AIF-002-006 -->
 
-| Action                      | Description                                                                                                                                                                                                      |
-| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wave_started`              | A new wave began dispatching                                                                                                                                                                                     |
-| `wave_completed`            | All Tasks in a wave are Done                                                                                                                                                                                     |
-| `task_dispatched`           | Task assigned to an agent                                                                                                                                                                                        |
-| `task_status_changed`       | Task transitioned to a new status                                                                                                                                                                                |
-| `pr_created`                | Draft PR opened for a Task; `pr_number`/`pr_url` recorded in Task state                                                                                                                                          |
-| `review_loop`               | Task returned from review for correction                                                                                                                                                                         |
-| `escalation_raised`         | Issue escalated to human                                                                                                                                                                                         |
-| `escalation_resolved`       | Human resolved a prior escalation                                                                                                                                                                                |
-| `task_blocked`              | Task marked as blocked                                                                                                                                                                                           |
-| `task_unblocked`            | Task unblocked and returned to Ready                                                                                                                                                                             |
-| `decision_handoff_detected` | A dispatched subagent's `decision-triage` hand-off (cross-domain or approval-gated Tier A/B decision) was detected and the Task was marked `Blocked`                                                             |
-| `decision_authored`         | A Draft decision record (Tier A) or brief (Tier B) was authored and committed in response to a decision hand-off — either directly by the orchestrating agent (Process domain) or by the dispatched owning agent |
-| `decision_handoff_resolved` | The hand-off decision reached `Approved` and the Task was unblocked via the existing generic unblock mechanic                                                                                                    |
-| `conflict_detected`         | Merge conflict detected on a Task branch                                                                                                                                                                         |
-| `conflict_resolved`         | The implementing agent successfully resolved the merge conflict                                                                                                                                                  |
-| `conflict_escalated`        | Conflict could not be auto-resolved, escalated to human                                                                                                                                                          |
-| `overlap_warning`           | File overlap detected between Tasks in the same wave                                                                                                                                                             |
-| `wave_rebase`               | Wave boundary rebase performed on existing branches                                                                                                                                                              |
-| `worktree_created`          | Worktree created for a Task                                                                                                                                                                                      |
-| `worktree_removed`          | Worktree torn down after PR merge confirmed                                                                                                                                                                      |
-| `orchestration_complete`    | All waves done, Feature fully implemented                                                                                                                                                                        |
+| Action                      | Description                                                                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `wave_started`              | A new wave began dispatching                                                                                                            |
+| `wave_completed`            | All Tasks in a wave are Done                                                                                                            |
+| `task_dispatched`           | Task assigned to an agent                                                                                                               |
+| `task_status_changed`       | Task transitioned to a new status                                                                                                       |
+| `pr_created`                | Draft PR opened for a Task; `pr_number`/`pr_url` recorded in Task state                                                                 |
+| `review_loop`               | Task returned from review for correction                                                                                                |
+| `escalation_raised`         | Issue escalated to human                                                                                                                |
+| `escalation_resolved`       | Human resolved a prior escalation                                                                                                       |
+| `task_blocked`              | Task marked as blocked                                                                                                                  |
+| `task_unblocked`            | Task unblocked and returned to Ready                                                                                                    |
+| `decision_handoff_detected` | A dispatched subagent reported a genuine architectural/product fork requiring an Architect-owned ADR, and the Task was marked `Blocked` |
+| `decision_authored`         | A Draft ADR was authored and committed by Architect in response to a decision hand-off                                                  |
+| `decision_handoff_resolved` | The hand-off decision reached `Approved` and the Task was unblocked via the existing generic unblock mechanic                           |
+| `conflict_detected`         | Merge conflict detected on a Task branch                                                                                                |
+| `conflict_resolved`         | The implementing agent successfully resolved the merge conflict                                                                         |
+| `conflict_escalated`        | Conflict could not be auto-resolved, escalated to human                                                                                 |
+| `overlap_warning`           | File overlap detected between Tasks in the same wave                                                                                    |
+| `wave_rebase`               | Wave boundary rebase performed on existing branches                                                                                     |
+| `worktree_created`          | Worktree created for a Task                                                                                                             |
+| `worktree_removed`          | Worktree torn down after PR merge confirmed                                                                                             |
+| `orchestration_complete`    | All waves done, Feature fully implemented                                                                                               |
 
 ---
 

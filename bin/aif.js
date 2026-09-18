@@ -92,7 +92,7 @@ Commands:
   validate    Check repo health (schema, refs, bundles)
   test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles, servers, and hook resources
-  index       Generate a knowledge or decision index for a project
+  index       Generate a decision or architecture index for a project
   init        Scaffold a new project directory
 
 Options:
@@ -126,7 +126,6 @@ Examples:
   aif snapshot --server git
   aif snapshot --bundle
   aif snapshot --bundle --check
-  aif index knowledge
   aif index decisions
   aif index decisions --check
   aif init --name my-app --language typescript --org acme
