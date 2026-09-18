@@ -1,6 +1,6 @@
 ---
 name: 'task-orchestration'
-version: '0.3.0'
+version: '0.4.0'
 description: 'Orchestrates parallel Task execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
@@ -71,16 +71,11 @@ silently for those; nothing to compare pre-dispatch):
 
 For each Task in the current wave with status `Ready`:
 
-1. **Create branch and worktree** (skill/worktree-management Steps 1–3):
-   - Determine the branch name: `{feature-id}/{task-id}-{short-description}`
-   - Resolve the worktree path from `paths.worktrees` config
-   - Create the worktree on a new branch from `main`:
-     ```bash
-     ai-git worktree add <worktree-path> -b <branch-name> main
-     ```
-   - Run dependency installation in the worktree
-   - Confirm the worktree exists and is on the correct branch
-   - Record `worktree_path` and `branch` in the Task state
+1. **Create branch and worktree** — determine the branch name
+   (`{feature-id}/{task-id}-{short-description}`), then follow
+   `skill/worktree-management` Steps 1–3 to resolve the path, create the
+   worktree, and install dependencies. Once confirmed, record `worktree_path`
+   and `branch` in the Task state.
    - **If worktree creation fails → mark Task as `Blocked`, do NOT dispatch**
 2. **Only after the worktree is confirmed**, dispatch the implementing agent with:
    - The Task's entry from `tasks.json` (id, title, `depends_on`) and a pointer to the Feature Plan for context

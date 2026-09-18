@@ -1,6 +1,6 @@
 ---
 name: 'feature-planning'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Produces a Feature Plan describing a complete feature at a human-reviewable level, decomposed into Tasks when more than one is needed.'
 ---
 
@@ -62,7 +62,8 @@ Follow `skill/plan-lifecycle` to save the plan with `Status: Draft`, commit it, 
 Apply the Task-sizing rules below first — a small Feature may be a single Task, or
 skip `tasks.json` entirely. When decomposition earns its keep, after approval:
 
-1. Copy the template from `skills/feature-planning/assets/tasks.json`
+1. Copy the template from `skills/feature-planning/assets/tasks.json` (see
+   `reference/tasks-schema.md` for the field shapes)
 2. Set `feature_id` to this Feature's ID
 3. Identify natural boundaries (data layer, service layer, UI, tests, docs) per the
    Task-sizing rules
