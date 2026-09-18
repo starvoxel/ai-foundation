@@ -28,7 +28,7 @@ after the fact and sequenced between phases 8 and 9.
   commit updates this tracker (check off boxes, fill in the commit SHAs and the
   Checkpoint note) so the PR's diff tells the whole story. **Claude opens the PR and
   stops — the human reviews and merges it**, same as any other PR in this repo
-  (`steering/engineering/git-workflow-projects.md` Rule 13: no agent merges). Claude's
+  (`steering/engineering/git-workflow-projects.md` Rule 11: no agent merges). Claude's
   own `npm test`/`npm run validate` pass is what makes a PR ready to hand off, not a
   license to merge it. This integration branch itself will PR into `main` once all 17
   phases are done (Phase 17 / check 34) — same rule applies there.

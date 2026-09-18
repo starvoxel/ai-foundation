@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-18T16:16:35.219Z",
+  "computed_at": "2026-09-18T17:50:19.032Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
     "agents/engineering-manager.yaml": "sha256:6b0420c8b177b533dc725ff332abdd272ccd04f9258d22e726179e84855a801a",
@@ -12,10 +12,11 @@
     "steering/global/knowledge-consumption.md": "sha256:2fee6af121e9f4f229042f1af5a3b7f1fe9b01a512f6552e97cba034d964bd1c",
     "steering/global/markdown-authoring.md": "sha256:cd53d067ef6b3f606457e6796e09b364896e695cfc188dbd048bd30a24f94640",
     "steering/global/standards-loading.md": "sha256:3577b196a7dfc038340051efa372999237896053d15367f35d3c3da4e5fc2ff0",
-    "steering/engineering/core.md": "sha256:4683b09949fd4adae88e6a83403abb933e4c8ae8ec76b78d619c6aa79302fee5",
+    "steering/engineering/core.md": "sha256:3ff25a76e4dcc32a6ff8158f323db5d7cf13c25f4704401c3907558cd6b2a592",
     "steering/engineering/document-types.md": "sha256:a942ec01ebc43f7244d63dd5dc9a4a66ba197ad87adad2be1b41c80d2585e171",
-    "steering/engineering/git-workflow-framework.md": "sha256:b330c43498c2e302550f30adb753900afe56f12876172c823e9d459090e22593",
-    "steering/engineering/git-workflow-projects.md": "sha256:e1c16439bd18e46d31a612211153a7693b4b83834f8bf0b4bae89e1fcae364e5",
+    "steering/engineering/git-workflow-core.md": "sha256:6d83df2cacc35298ea75e99c5920d9329c7e217c5a618ca6da6d67af35245db0",
+    "steering/engineering/git-workflow-framework.md": "sha256:ae0600aa6c869d7f67e94e20d86bf3d90fd0de8850efdd3d62f9a022c1581f0b",
+    "steering/engineering/git-workflow-projects.md": "sha256:d8b6074788d725e26d2f479200620e277c8e1f50e654acb19e2a155ef9d3c721",
     "steering/engineering/pr-descriptions.md": "sha256:bfc92699b06dd42feca94c62327c51721eadeed5e1ab9f737015311fdd85128c",
     "skills/feature-planning/SKILL.md": "sha256:e07001ba09ab4996a5ee4b305fc62d33f81487f68f33388ceacc6ee879c9ffb9",
     "skills/feature-planning/assets/tasks.json": "sha256:e5bef427cd69f12fdc099c0fa0db79767063698e3c7cd0cba3ef3da94f5fd560",

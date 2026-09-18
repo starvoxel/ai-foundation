@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.5.0'
+version: '0.6.0'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
@@ -164,6 +164,6 @@ These rules exist because the most common and expensive engineering failures are
 
 When a rule feels like it is slowing things down, that is usually a sign that planning was skipped, not that the rule is wrong.
 
-**Git Workflow Standards:** See `steering/engineering/git-workflow-framework.md` (this repo) and `steering/engineering/git-workflow-projects.md` (project repos).
+**Git Workflow Standards:** See `steering/engineering/git-workflow-core.md` (rules shared by every repo type), plus `steering/engineering/git-workflow-framework.md` (this repo) or `steering/engineering/git-workflow-projects.md` (project repos) for repo-type-specific rules and overrides.
 
 **Plan Lifecycle:** See `skill/plan-lifecycle` for the commit-gate procedure and status vocabulary referenced in Rules 1, 8, and 9.
