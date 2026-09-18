@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.1.1'
+version: '0.2.0'
 description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
@@ -39,6 +39,14 @@ If no `knowledge/index.json` exists, scan `knowledge/` directory listings to dis
 
 Standards are prescriptive rules. Knowledge is descriptive reference.
 If knowledge describes a pattern that conflicts with the active standards file, follow the standards. Raise the conflict as a finding — do not silently ignore either source.
+
+---
+
+## Enforcement
+
+- **Skipped-knowledge violations:** Caught during review. Work that contradicts an available, relevant knowledge entry — especially a confirmed Decision Record — that should have been loaded is a MEDIUM finding.
+- **Stale-reference violations:** Caught during review. Citing a Decision Record not in `Approved` status as authoritative is a HIGH finding, the same severity class as citing an unapproved plan.
+- **Silent-conflict violations:** Caught during review. Following knowledge over an active standard without raising the conflict as a finding is a MEDIUM finding — the standard should have won, and the conflict should have been surfaced either way.
 
 ---
 

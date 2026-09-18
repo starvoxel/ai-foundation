@@ -1,6 +1,6 @@
 ---
 name: 'steering-authoring'
-version: '0.1.1'
+version: '0.2.0'
 description: 'Creates a well-formed steering file with enforced rules, rationale, and exceptions.'
 ---
 
@@ -24,10 +24,11 @@ Use this skill when adding new behavioural rules for agents in a global or domai
 
 ### Step 1 — Determine scope and location
 
-| Scope         | Directory            | When loaded                 |
-| ------------- | -------------------- | --------------------------- |
-| All agents    | `steering/global/`   | Every session               |
-| Domain agents | `steering/{domain}/` | When agent's domain matches |
+| Scope                  | Directory                | When loaded                                                                                                                           |
+| ---------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
+| All agents             | `steering/global/`       | Every session                                                                                                                         |
+| Domain agents          | `steering/{domain}/`     | When agent's domain matches                                                                                                           |
+| Capability/tool-scoped | `steering/{capability}/` | Whenever a bundle explicitly lists it in its `steering:` field — not domain-matched (e.g. `steering/generic/` for the `gmail` server) |
 
 Agent-specific rules do NOT go in steering — they go in the agent's `prompt` field.
 

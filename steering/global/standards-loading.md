@@ -1,6 +1,6 @@
 ---
 name: 'standards-loading'
-version: '0.3.1'
+version: '0.4.0'
 description: 'Instructs agents how to resolve and load standards files for a project using tag-based matching.'
 file_patterns: []
 ---
@@ -79,6 +79,14 @@ The first match wins. Project-local standards override global ones.
 Individual agents may reference additional standards by name in their prompts.
 These follow the same file location resolution (project-local first, then global)
 and their `depends_on` chains are also resolved.
+
+---
+
+## Enforcement
+
+- **Skipped-standards violations:** Caught during review. Code that doesn't follow the active standards file(s) does not pass regardless of other quality — this is the "Standards are acceptance criteria" rule above, made checkable.
+- **Unapproved-deviation violations:** Caught during review. A deviation from a loaded standard without documented human approval is a MEDIUM finding.
+- **Resolution violations:** Caught during review. A standard loaded out of `depends_on` order, or a project-local override missed in favor of the global copy, is a LOW finding — the resolution procedure above is deterministic and checkable.
 
 ---
 
