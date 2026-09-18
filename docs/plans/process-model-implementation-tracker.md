@@ -662,7 +662,15 @@ Run 36 before 37: both edit Section 9 of the Feature Plan template.
 - [ ] **Check 27** — Existing decision records dispositioned per the table; archive
       location created. Commit: `_____`
 - [ ] **Check 28** — `docs/decisions/` flattened to bare-number MADR counter; every
-      surviving record rewritten into MADR within budget. Commit: `_____`
+      surviving record rewritten into MADR within budget. Also add `docs/decisions/_template.md`
+      (mirrors `docs/architecture/_template.md`) and a new `skill/adr-authoring` for
+      Architect — frontmatter shape, section order, the per-section word-budget table, the
+      litmus test, and `links.supersedes`/`Superseded` mechanics, all currently living only
+      in this doc's "ADR format — MADR" prose. A skill isn't the CLI/MCP/binary tooling
+      "ADR tooling — not needed for the proof of concept" declines to build — it's
+      guidance an agent loads, same category as the template it already names as the
+      enforcement mechanism (human decision during this session, 2026-09-18: distinguishing
+      a format-guidance skill from tooling). Commit: `_____`
 - [ ] **Check 29** — `Design` sections split into arc42 homes for
       `ARCH-001/002/003/007` (+`004` if approved); `005/006` converted whole. Commit: `_____`
 
