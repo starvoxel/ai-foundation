@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-18T01:07:59.065Z",
+  "computed_at": "2026-09-18T09:48:08.955Z",
   "sources": {
     "agents/architect.yaml": "sha256:6ecca58db3e07cd2965abf6c5618c9465bbf5708147223d604f0699263b760a8",
     "agents/engineering-manager.yaml": "sha256:eef22eeecfea9f1f0aa985fafa379535c5b65f29d7feec0507b586afe4d944e4",
@@ -40,7 +40,7 @@
     "skills/complexity-tiers/SKILL.md": "sha256:fa9a35a66593ee8aca8ef66c21e1749c1aa6514e0363a07a5d7d52075cbac84b",
     "skills/test-execution/SKILL.md": "sha256:1c75d36f5cadbbf665fe6f4bc44cfc8db7fa1b5316012e7cc6836a52cd73b4e2",
     "skills/test-execution/reference/template.md": "sha256:1d3eb6dc590aef15e4eb1546d3393492729a517240efbfaa21a248fd252ee84e",
-    "skills/agent-authoring/SKILL.md": "sha256:68c1e49e142f1301dd85f7da1b8d702ee6e25f1560f560a75cb3e1064ac198cb",
+    "skills/agent-authoring/SKILL.md": "sha256:34778a30ec0fa598684d075fe3641e2e264e06a0aa6b266311b2e019d33e464e",
     "skills/agent-authoring/reference/schema.md": "sha256:7bac6e7971f6edf28faf473ed91079db114593cc752e7c0a55b725ee3b4bb977",
     "skills/agent-authoring/reference/tools.yaml": "sha256:391dae9c3a8cdd5482493c6d2470275d697093442f67da85898fc1bb8fb817fb",
     "skills/skill-authoring/SKILL.md": "sha256:d458fc4002bcde727aea681ea22602afd87edcb1bf2532d7f79b798f6868ebaa",

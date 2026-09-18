@@ -74,10 +74,7 @@ The prompt is a direct instruction to the agent. It must include:
 
 Write it as if speaking to the agent. Use imperative mood.
 
-Hard rules is the single authoritative section for enumerated "never"/"always"
-constraints (`steering/engineering/core.md` Rule 10). Role/scope-boundary prose
-elsewhere in the prompt may describe the same boundary narratively, but must not
-restate the same itemized list — point to Hard rules instead of repeating it.
+Applies within the prompt itself, not just across documents: `steering/engineering/core.md` Rule 10.
 
 If the prompt contains a self-contained procedure or rule that is not specific to this agent's identity, check `docs/agent-prompt-extraction-candidates.md` (location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either it already covers this case, or add an entry recording why it wasn't extracted into a skill/steering rule now.
 
