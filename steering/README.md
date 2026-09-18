@@ -10,7 +10,8 @@ They are not procedures — they define constraints, not steps.
 ```
 steering/
 ├── global/               ← Applies to all agents, every session
-└── engineering/          ← Applies to all engineering-domain agents
+├── engineering/          ← Applies to all engineering-domain agents
+└── generic/              ← Tied to a specific tool/server, not a domain — loaded via a bundle's explicit `steering:` list (e.g. gmail-irreversible-action-approval.md)
 ```
 
 ## Adding a new steering file
@@ -21,12 +22,14 @@ steering/
 
 ## How steering is loaded
 
-Agents load steering based on their `domain` field:
+Most steering loads by domain-matching on an agent's `domain` field:
 
 1. `steering/global/**/*.md` — always loaded first
 2. `steering/{domain}/**/*.md` — loaded based on agent's domain
 
-New files added to these directories are picked up automatically.
+New files added to these two kinds of directories are picked up automatically.
+
+A third kind, capability/tool-scoped steering (`steering/{capability}/`, e.g. `generic/`), is **not** domain-matched — no agent has a matching `domain` field. It loads only when a bundle's own `bundle.yaml` explicitly lists the file in its `steering:` array, tying the rule to installing that bundle's tool/server rather than to any agent's domain. A new file here needs that explicit bundle entry — it is not picked up automatically.
 
 ## What belongs here
 

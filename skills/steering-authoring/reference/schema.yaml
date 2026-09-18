@@ -18,6 +18,7 @@ body_sections:
 scopes:
   global: "steering/global/ — all agents, every session"
   domain: "steering/{domain}/ — agents with matching domain field"
+  capability: "steering/{capability}/ — loaded via a bundle's explicit steering: list, not domain-matched; for a rule tied to a specific tool/server rather than any agent's domain (e.g. steering/generic/ for the gmail server)"
   agent: "NOT steering — goes in agent's prompt field"
 
 file_patterns_mapping:
