@@ -182,7 +182,9 @@ This retires the `Amending` status and the Errata/Amendments ladder wholesale.
 
 Architect writes MADR files by hand with plain `write`. No CLI, no MCP server, no
 binary — conventions enforced by the template and Principal-Engineer review, not a
-linter.
+linter. A `skill/adr-authoring` holding that template/format guidance (check 28) is not
+this tooling — it's guidance an agent loads, the same category as the template itself,
+not automated enforcement.
 
 This manual-authoring phase **is** Phase 0.5 of `docs/plans/adr-kit-plan.md`'s phased
 build-out, and is itself the proof of concept: it validates the format by using it,
