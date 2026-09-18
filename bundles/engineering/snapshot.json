@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-18T17:52:17.892Z",
+  "computed_at": "2026-09-18T17:52:45.990Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
     "agents/engineering-manager.yaml": "sha256:641b5ef4482d9d3191a0f2b70420218fd4b3c7ef0037b5b1dc6307a26ce4292f",
@@ -42,7 +42,7 @@
     "skills/steering-authoring/reference/schema.yaml": "sha256:8c2ac6fe9124dd243f768ef79bc0a64e3e7acb267b2ef38083398719d8f5a448",
     "skills/server-authoring/SKILL.md": "sha256:83a73f313c94b5b351530809e8b355691371bf0a6c1be22a5c9c958750dcb82e",
     "skills/server-authoring/reference/schema.yaml": "sha256:83610d091674a34c8766857e7fa93568ab3e46e722c631ab57b51827554fa4ff",
-    "skills/bundle-authoring/SKILL.md": "sha256:926ddba83c20a6a23393f76c27c1b2a33c21e302b2fde28f78a974c87d3b7f4a",
+    "skills/bundle-authoring/SKILL.md": "sha256:0765bafe26f7342a0beabf6a5c901bd468e2b1b7be5bfe23e4f8da7d05077902",
     "skills/bundle-authoring/reference/schema.yaml": "sha256:36d4cd145f5f2846e51bfbc26e30f2daca6f88ae451e0d5f19f40d01b6250810"
   }
 }
