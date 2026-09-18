@@ -1,0 +1,19 @@
+# Tracks whether the UI "Allocating sandbox" message appears after long idle
+# windows on this session (session_0168CyHk2sXtotxpRUJANhhn), compared against
+# connection_status readings from the sibling observer and this session's own
+# heartbeat.log. Observation: connection_status flips to "disconnected" within
+# ~3-8 minutes of last activity (see heartbeat.log manual-end markers + sibling
+# external-poll.log runs 1-2), but a ~5h idle window produced NO "Allocating
+# sandbox" message on return - suggesting the underlying container/sandbox may
+# stay warm well past the point connection_status looks "disconnected", or that
+# message only fires under different conditions than plain idle.
+
+## Run A (5h) - user-observed, no dedicated marker set
+- Result: user did NOT see "Allocating sandbox" on return after ~5h idle.
+
+## Run B (12h) - in progress
+- Silent-start (UTC): 2026-09-18T23:36:05.044Z
+- Silent-start (ET):  2026-09-18 19:36:05 EDT
+- Expected check-in: ~2026-09-19T11:36Z / ~2026-09-19 07:36 EDT (user will check tomorrow)
+- Watching for: "Allocating sandbox" (or equivalent loading indicator) in the UI on return.
+- Result: TBD
