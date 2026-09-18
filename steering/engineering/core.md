@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.4.0'
+version: '0.5.0'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
@@ -129,8 +129,10 @@ file_patterns: []
 ### Rule 10: Cite, Don't Restate
 
 - When a document needs a definition, procedure, or table that another skill, agent, or steering file already owns, cite that source by name — never copy its content inline
+- The same applies within a single document: when one section already owns a definition, procedure, or enumerated list, another section of that same document must not restate it — point to the owning section instead
 - Citing and then also restating the same content is still a violation of this rule; the citation does not excuse the copy
 - Default to citing in every case. Restating instead of citing is not a stylistic choice and needs a concrete reason the citation genuinely cannot serve — "it reads better inline" or "it's more convenient here" are not reasons
+- In an agent's own prompt, Hard rules is the authoritative section for enumerated "never"/"always" constraints. Purpose, Responsibilities, and other narrative sections may describe the same boundary in prose, but must not restate the same itemized list — point to Hard rules ("see Hard rules for...") instead
 
 **Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself — quoting the actual definition, steps, or table rows the cited source owns is.
 

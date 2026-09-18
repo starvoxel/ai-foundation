@@ -1,6 +1,6 @@
 ---
 name: 'agent-authoring'
-version: '0.3.0'
+version: '0.4.0'
 description: 'Creates a well-formed agent definition with proper tool selection and prompt design.'
 ---
 
@@ -74,6 +74,11 @@ The prompt is a direct instruction to the agent. It must include:
 
 Write it as if speaking to the agent. Use imperative mood.
 
+Hard rules is the single authoritative section for enumerated "never"/"always"
+constraints (`steering/engineering/core.md` Rule 10). Role/scope-boundary prose
+elsewhere in the prompt may describe the same boundary narratively, but must not
+restate the same itemized list — point to Hard rules instead of repeating it.
+
 If the prompt contains a self-contained procedure or rule that is not specific to this agent's identity, check `docs/agent-prompt-extraction-candidates.md` (location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either it already covers this case, or add an entry recording why it wasn't extracted into a skill/steering rule now.
 
 ### Step 6 — Declare skills
@@ -121,6 +126,7 @@ Verify against the checklist:
 - [ ] All entries in `skills` reference existing folders in `skills/`
 - [ ] `preload_skills`, if present, is either `["*"]` or a subset of `skills`
 - [ ] Every citation of another skill/agent/doc is checked against `steering/engineering/core.md` Rule 10 — cited, not also restated
+- [ ] Purpose/Responsibilities/other narrative sections don't restate an enumerated constraint that Hard rules already states (`steering/engineering/core.md` Rule 10) — point to Hard rules instead
 
 ---
 
