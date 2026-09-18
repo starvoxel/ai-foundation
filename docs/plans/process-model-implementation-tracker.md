@@ -63,13 +63,31 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `884f695` (`process-model/phase-8-skill-deletions`)
-**Current phase:** Phases 1–8 done. Phases 1–6 merged (PRs #35, #36, #38, #40, #41,
-#42). Phase 7 (checks 9–11, vocabulary rename) merged via PR #44
+**Last commit at last tracker update:** `61e584b` (`process-model/phase-8-skill-deletions`)
+**Current phase:** Phases 1–8 done and merged. Phases 1–6 merged (PRs #35, #36, #38,
+#40, #41, #42). Phase 7 (checks 9–11, vocabulary rename) merged via PR #44
 (`fd077fa`) — see Phase 7 below for detail. **Phase 8 (checks 12–14, skill
-retirement) fully implemented, ready for PR** — see Phase 8 below; checks 13–14
-committed on `process-model/phase-8-skill-deletions`, cut from the integration
-branch after check 12/PR #49 merged.
+retirement) merged via PR #50** (merge commit `08c9cab`) — see Phase 8 below.
+
+**Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
+integration branch before/with #50** (all from live human feedback during Phase 8
+review, not pre-planned checks):
+
+- PR #51 (`03f431c`) — `steering/engineering/core.md` Rule 10 broadened to cover
+  duplication within a single document/prompt (not just across files), wired into
+  `skill/agent-authoring` Step 5 + Step 8 checklist. Fixed a self-inflicted Rule 10
+  violation in its own first draft before merging.
+- PR #52 (`b676db5`) — check 28's tracker line (below) scoped to also cover a new
+  `skill/adr-authoring` + `docs/decisions/_template.md`, distinguishing "a skill
+  holding MADR format guidance" from the CLI/MCP/binary tooling
+  `process-model.md`'s "ADR tooling" section declines to build.
+- Folded directly into PR #50 (`61e584b`) — `skill/plan-lifecycle` swept for stale
+  Chunk Plan/Epic Plan/Decision Record language and the two now-deleted
+  `skill/decision-record`/`skill/decision-brief` citations, including removing an
+  orphaned Tier A/B/C section from `reference/commit-gate-procedure.md`. Preempts
+  part of check 17's scope for this one skill specifically — the rest of check 17
+  (agent-authoring/reference/schema.md, project-standards.md, javascript_node.md,
+  lib/resolver.js's JSDoc, test fixtures) is untouched.
 
 **Structural-review phase opened**, between phases 8 and 9 (outside the
 original 17-phase numbering, gates phase 9 the same way check 35 doesn't gate
@@ -98,7 +116,7 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: open Phase 8's PR, then implement the structural-review phase
+Next: implement the structural-review phase
 (checks 36–37), then Phase 9 (check 15).
 
 ---
