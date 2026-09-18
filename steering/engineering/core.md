@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.6.0'
+version: '0.7.0'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
@@ -116,9 +116,8 @@ file_patterns: []
 
 ### Rule 9: Commit Incrementally During Implementation
 
-- Implementation of an approved plan must be committed in small, logically atomic increments as work progresses — not accumulated into a single commit at the end
-- The recommended checkpoint is one commit per completed plan step (or per completed task in a Chunk Plan's task list), once that step's work is verified
-- Exact mechanics and alternative checkpoint options are defined in the repo-type-specific git-workflow steering (`steering/engineering/git-workflow-framework.md` or `steering/engineering/git-workflow-projects.md`)
+- Follow `steering/engineering/git-workflow-core.md` Rule 2's incremental-commit discipline for every implementation of an approved plan
+- Which checkpoint counts as "a completed increment" is repo-type-specific — see `git-workflow-framework.md` or `git-workflow-projects.md`'s own Commit Granularity section for the active default
 
 **Rationale:** Small commits make review, bisection, and recovery from a bad step far cheaper than a single large commit at the end. Batching everything into one commit defeats the purpose of the atomic-commit rules already required by the git-workflow steering.
 
@@ -148,7 +147,7 @@ file_patterns: []
 - **Testability violations:** Caught during review. Pure logic buried in I/O code without separation is a LOW finding. Refactoring recommended but not blocking.
 - **Security violations:** Always block approval. See Principal-Engineer review process.
 - **Uncommitted-approval violations:** If an agent begins implementation without a committed `Approved` status on the governing plan, work stops immediately and the approval commit is created before continuing.
-- **Batched-commit violations:** Caught during review. A single large commit covering multiple plan steps is a LOW finding; the agent should have split it.
+- **Batched-commit violations:** See `steering/engineering/git-workflow-core.md`'s own Enforcement section for Rule 2 — this repo's home for the incremental-commit rule and its consequence.
 - **Cite-or-state violations:** Caught during Principal-Engineer review. A document that both cites and restates the same content is a MEDIUM finding; the restatement is removed in favor of the citation.
 
 ---

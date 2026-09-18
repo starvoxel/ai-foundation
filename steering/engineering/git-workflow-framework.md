@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-framework'
-version: '0.5.0'
+version: '0.6.0'
 description: 'Git workflow for framework-style repositories (direct commits to main).'
 file_patterns: []
 ---
@@ -23,6 +23,14 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 ### Commit Granularity — Option A (this repo type's default)
 
 **Option A (recommended): Commit per completed plan step.** Each numbered step in the plan's Approach section is its own commit once verified. Directly traceable to the plan; commits naturally carry the Plan ID (`steering/engineering/core.md` Rule 2). See `git-workflow-core.md` Rule 2 for Options B and C.
+
+---
+
+## Enforcement
+
+- **Plan-approval violations:** Same mechanism as `steering/engineering/core.md`'s Uncommitted-approval entry — implementation without a committed `Approved` status stops immediately; the approval commit is created before continuing.
+- **Force-push violations:** Caught at review or by direct observation of `main`'s history. A force-pushed `main` is a HIGH finding regardless of intent.
+- **Untested-push violations:** Caught during review or CI. A push with failing tests, when the push itself doesn't fix the breakage (per Exceptions), is a HIGH finding.
 
 ---
 

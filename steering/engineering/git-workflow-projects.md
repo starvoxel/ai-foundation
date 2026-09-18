@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-projects'
-version: '0.5.0'
+version: '0.6.0'
 description: 'Git workflow for project repositories where agents produce code.'
 file_patterns: []
 ---
@@ -44,6 +44,16 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 9. **Squash merge preferred.** Keeps main history clean.
 10. **Delete branch after merge.**
 11. **Human reviews and merges every PR.** No agent may merge to main.
+
+---
+
+## Enforcement
+
+- **Plan-approval violations:** Same as `steering/engineering/core.md`'s Uncommitted-approval entry.
+- **Direct-to-main violations:** Caught at review or by direct observation of `main`'s history. Any non-plan/non-knowledge commit landing on `main` outside a PR is a HIGH finding.
+- **Force-push violations:** A HIGH finding, same as `git-workflow-framework.md`'s own entry.
+- **Missing Plan ID:** Caught during Principal-Engineer review — same MEDIUM severity as `steering/engineering/core.md` Rule 2's own enforcement entry.
+- **Broken-main or agent-merge violations:** Caught immediately. A human reverts or fixes forward; a commit merged by an agent rather than a human is treated as a process failure requiring retroactive human review.
 
 ---
 

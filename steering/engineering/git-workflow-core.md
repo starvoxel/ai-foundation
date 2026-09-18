@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-core'
-version: '0.1.0'
+version: '0.2.0'
 description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, and token handling.'
 file_patterns: []
 ---
@@ -47,6 +47,15 @@ file_patterns: []
 ### Rule 4: Never Log or Echo the Token Value
 
 - Reference it by env var name only
+
+---
+
+## Enforcement
+
+- **Non-atomic or oversized commits:** Caught during review. A commit covering multiple logical changes, or exceeding the message-length limit without being a merge commit, is a LOW finding — the agent should have split it.
+- **Batched (non-incremental) implementation:** Caught during review. A single commit covering an entire plan/Task's implementation is a LOW finding — this is the entry `steering/engineering/core.md` Rule 9 points to.
+- **Raw `git`/`gh` usage instead of `ai-git`:** Mechanically blocked via `blocked_commands` on any agent holding write/shell access — see that agent's own definition. Any usage that bypasses this is a HIGH finding at review.
+- **Logging or echoing the token value:** A CRITICAL finding, not a style issue — this is credential exposure. See `steering/global/core.md` Rule 3.
 
 ---
 
