@@ -11,9 +11,24 @@
 ## Run A (5h) - user-observed, no dedicated marker set
 - Result: user did NOT see "Allocating sandbox" on return after ~5h idle.
 
-## Run B (12h) - in progress
+## Run B (12h) - complete
 - Silent-start (UTC): 2026-09-18T23:36:05.044Z
 - Silent-start (ET):  2026-09-18 19:36:05 EDT
-- Expected check-in: ~2026-09-19T11:36Z / ~2026-09-19 07:36 EDT (user will check tomorrow)
-- Watching for: "Allocating sandbox" (or equivalent loading indicator) in the UI on return.
-- Result: TBD
+- Check-in (UTC): 2026-09-19T11:56:00.660Z
+- Check-in (ET):  2026-09-19 07:56:00 EDT
+- Elapsed: ~12h20m
+- Result: user did NOT see "Allocating sandbox"/"Allocating cloud session" on return, same as Run A.
+- Own heartbeat.log corroborates a real dormant gap (00:29:23Z -> 11:56Z, ~11.5h with zero ticks)
+  during this window, so the container/session genuinely sat idle throughout - the absence of the
+  UI message isn't because activity kept sneaking in.
+
+## Conclusion
+Two independent long-idle windows (5h, ~12h20m) both produced no "Allocating sandbox" message on
+return. That message does not appear to be a reliable observable for "was this reclaimed" at these
+timescales, at least not for this session/origin - either the underlying compute genuinely stays
+warm far longer than connection_status suggests, or the message only fires under different
+conditions than plain idle (e.g. a truly fresh session, not a resume). Decided not worth pursuing
+further as a cross-check against the connection_status-based reclamation timing (see heartbeat.log
+manual-end markers + external-poll.log runs 1-2, which found connection_status flips to
+"disconnected" within ~3-8 minutes of last activity). That earlier finding stands on its own but is
+no longer independently corroborated by this UI signal.
