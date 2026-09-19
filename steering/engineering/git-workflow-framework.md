@@ -43,4 +43,4 @@ Framework repos are docs and plain text — low risk, easy to revert. Branching 
 
 - When a code review bot or CI is added, this file will be replaced with a PR-based workflow.
 - Pushing with broken tests is only acceptable if the commit itself fixes the breakage.
-- Trivial fixes (typos, comment corrections) with zero architectural impact do not require a governing plan — see `steering/engineering/core.md` Rule 4's exception for the same threshold.
+- Trivial fixes (typos, comment corrections) with zero architectural impact do not require a governing plan — see `steering/engineering/core.md`: "Raise Discoveries Rather Than Silently Expanding Scope"'s exception for the same threshold.

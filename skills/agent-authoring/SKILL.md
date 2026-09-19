@@ -74,7 +74,7 @@ The prompt is a direct instruction to the agent. It must include:
 
 Write it as if speaking to the agent. Use imperative mood.
 
-If the prompt contains a self-contained procedure or rule that is not specific to this agent's identity, check `docs/agent-prompt-extraction-candidates.md` (location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either it already covers this case, or add an entry recording why it wasn't extracted into a skill/steering rule now.
+If the prompt contains a self-contained procedure or rule that is not specific to this agent's identity, check `docs/agent-prompt-extraction-candidates.md` (location per `.aiconfig.json` `paths.knowledge`, default `knowledge/`) — either it already covers this case, or add an entry recording why it wasn't extracted into a skill or steering rule now.
 
 ### Step 6 — Declare skills
 
@@ -96,7 +96,7 @@ on demand.
   every skill in `skills` — this is the right choice for an agent whose
   skill list is small and used on effectively every dispatch (e.g. one
   skill it always follows for its core deliverable).
-- Use a named subset (e.g. `preload_skills: ["skill/foo"]`) when the
+- Use a named subset (e.g. `preload_skills: ["skill/plan-lifecycle"]`) when the
   agent's `skills` list mixes something used on every dispatch with others
   that are conditional or subsystem-specific — preload only the universal
   one(s), leave the rest for on-demand discovery.
@@ -120,7 +120,7 @@ Verify against the checklist:
 - [ ] `approved_tools` is a subset of `tools`
 - [ ] All entries in `skills` reference existing folders in `skills/`
 - [ ] `preload_skills`, if present, is either `["*"]` or a subset of `skills`
-- [ ] Every citation of another skill/agent/doc is checked against `steering/engineering/core.md` Rule 10 — cited, not also restated
+- [ ] Every citation of another skill, agent, or doc is checked against `steering/engineering/core.md`: "Cite, Don't Restate"
 
 ---
 

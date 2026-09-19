@@ -32,7 +32,7 @@ Write the record using the template at `skills/decision-brief/reference/template
 
 ### Step 3 — Follow the Abbreviated Commit-Gate Procedure
 
-Commit the Brief with `Status: Draft` via `ai-git`, present it to the human for confirmation. On confirmation, update `Status: Approved` and the approver field, and commit that as its own commit — a lighter, expected one-shot cycle (Draft → confirm → Approved) rather than `decision-record`'s full multi-round options-exploration review, though a revision round remains available and should be followed exactly like `skill/plan-lifecycle`'s standard Step 3 if the human requests changes instead of confirming outright.
+Commit the Brief with `Status: Draft` via `ai-git`, present it to the human for confirmation. On confirmation, update `Status: Approved` and the approver field, and commit that as its own commit — a lighter, expected one-shot cycle (Draft → confirm → Approved) rather than `decision-record`'s full multi-round options-exploration review, though a revision round remains available and should be followed exactly like `skill/plan-lifecycle`: "Commit each revision" if the human requests changes instead of confirming outright.
 
 ---
 
@@ -56,4 +56,4 @@ Commit the Brief with `Status: Draft` via `ai-git`, present it to the human for 
 - **Invoked directly, without going through `skill/decision-triage` first** — the invoking agent must still determine Domain per AIF-META-001's ownership table before writing; do not default to a Domain arbitrarily.
 - **Domain is genuinely ambiguous** — select the closest matching domain, note the ambiguity in the Impact section rather than blocking; if it materially affects who should author the record, raise it to the human (global Rule 2).
 - **Human disagrees with the drafted content during confirmation** — update the Brief with their input and continue the (unexpected but not prohibited)
-  revision round per `skill/plan-lifecycle` Step 3, same as Tier A.
+  revision round per `skill/plan-lifecycle`: "Commit each revision", same as Tier A.

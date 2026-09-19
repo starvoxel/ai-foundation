@@ -97,7 +97,7 @@ file_patterns: []
 
 **Rationale:** Security requirements exist because the cost of a violation is disproportionately high. Treating them as polish leads to deferred vulnerabilities.
 
-**Exceptions:** None. See `steering/global/core.md` Rule 3 for the global security escalation process.
+**Exceptions:** None. See `steering/global/core.md`: "Security Requirements Are Never Optional" for the global security escalation process.
 
 ---
 
@@ -131,8 +131,9 @@ file_patterns: []
 - When a document needs a definition, procedure, or table that another skill, agent, or steering file already owns, cite that source by name — never copy its content inline
 - Citing and then also restating the same content is still a violation of this rule; the citation does not excuse the copy
 - Default to citing in every case. Restating instead of citing is not a stylistic choice and needs a concrete reason the citation genuinely cannot serve — "it reads better inline" or "it's more convenient here" are not reasons
+- When the citation points at one specific numbered locator inside the source — a skill's `### Step N — Name` or a steering file's `### Rule N: Name` — rather than the whole document, name that locator instead of citing it by number alone: `` `skill/{name}`: "Step Heading Text" `` or `` `steering/{path}.md`: "Rule Heading Text" ``, chaining more than one with `→` (e.g. `"Step A" → "Step B"`). A bare ordinal (`Step 3`, `Rule 10`) silently drifts to point at the wrong locator — or none — the moment the source is reordered, split, or has a step inserted, and nothing catches it until someone follows the citation to the wrong place. A plain reference to the whole component (`skill/{name}`, `steering/{path}.md`) needs no quoted name.
 
-**Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself — quoting the actual definition, steps, or table rows the cited source owns is.
+**Exceptions:** A short illustrative example is not a restatement of the definition/procedure/table itself — quoting the actual definition, steps, or table rows the cited source owns is. Same-document back-references (a rule citing another rule in the same file) are not covered by the named-locator requirement — both sides change together by construction.
 
 ---
 
@@ -148,6 +149,7 @@ file_patterns: []
 - **Uncommitted-approval violations:** If an agent begins implementation without a committed `Approved` status on the governing plan, work stops immediately and the approval commit is created before continuing.
 - **Batched-commit violations:** Caught during review. A single large commit covering multiple plan steps is a LOW finding; the agent should have split it.
 - **Cite-or-state violations:** Caught during Principal-Engineer review. A document that both cites and restates the same content is a MEDIUM finding; the restatement is removed in favor of the citation.
+- **Ordinal-citation violations:** Caught automatically — `aif validate refs` fails the build on a bare-component reference paired with a raw `Step N`/`Rule N` mention, and on a quoted locator name that no longer matches a heading in the cited component. Fix by naming the locator (or updating the citation to the locator's current name) before merging.
 
 ---
 

@@ -20,7 +20,7 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
    - Atomic commits: one plan or one logical change per commit.
    - Include the Plan ID or document name in the commit message.
    - The human approval step is the review conversation; the `Approved` status commit is what actually satisfies the gate — the conversation alone does not.
-2. **Implementation must not begin until the governing plan's `Approved` commit exists on main.** A `Draft` or `Deferred` plan does not satisfy this — see `steering/engineering/core.md` Rule 1 and Rule 8.
+2. **Implementation must not begin until the governing plan's `Approved` commit exists on main.** A `Draft` or `Deferred` plan does not satisfy this — see `steering/engineering/core.md`: "Never Implement Without an Approved Plan" → "Plans Are Committed Artifacts, Not Chat Output".
 
 ### Branching
 
@@ -39,7 +39,7 @@ All agents working in repositories where `.aiconfig.json` specifies `"repo_type"
 
 Pick one checkpoint and apply it consistently within a single chunk's implementation:
 
-- **Option A (recommended): Commit per completed plan step/task.** Each task in the Chunk Plan's task list is its own commit once verified. Directly traceable to the plan; commits naturally carry the Plan ID (Rule 6/Rule 2 of `core.md`).
+- **Option A (recommended): Commit per completed plan step/task.** Each task in the Chunk Plan's task list is its own commit once verified. Directly traceable to the plan; commits naturally carry the Plan ID (`steering/engineering/core.md`: "Commit Incrementally During Implementation" → "Every Artifact Must Reference Its Plan ID").
 - **Option B: Commit per file created/modified.** Maximal granularity, but risks splitting a file and its test into separate commits when they belong together.
 - **Option C: Commit per passing validation checkpoint.** Commit whenever tests are run and pass. Guarantees every commit is in a working state, but granularity may not align with plan steps.
 
