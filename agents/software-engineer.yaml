@@ -1,6 +1,6 @@
 ---
 name: "software-engineer"
-version: "0.3.0"
+version: "0.3.1"
 domain: "engineering"
 description: "Implementation agent that writes code from approved Chunk Plans and resolves review findings."
 
@@ -59,7 +59,8 @@ approved_tools:
   - "glob"
   - "code"
 
-skills: []
+skills:
+  - "skill/pr-stewardship"
 
 blocked_commands:
   - "git *"

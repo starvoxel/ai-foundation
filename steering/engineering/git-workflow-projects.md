@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-projects'
-version: '0.4.0'
+version: '0.4.1'
 description: 'Git workflow for project repositories where agents produce code.'
 file_patterns: []
 ---
@@ -83,6 +83,10 @@ Keeps main history clean.
 ### Rule: Human Reviews and Merges Every PR
 
 No agent may merge to main.
+
+### Rule: An Agent That Opens a PR Drives It to Green
+
+Opening the PR is not the end of the task. The agent that opened it (or was asked to drive it) follows `skill/pr-stewardship` until the PR is green and mergeable, or a specific blocker has been reported once — never leaves a red or conflicted PR unattended.
 
 ### AI Identity
 
