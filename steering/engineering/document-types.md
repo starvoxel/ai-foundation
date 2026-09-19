@@ -1,6 +1,6 @@
 ---
 name: 'document-types'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Routes any new non-code document to the one home its kind owns — supersedes skill/knowledge-authoring.'
 file_patterns: []
 ---
@@ -73,6 +73,14 @@ decision.
   in doubt, start with `all` and narrow later if it's consuming context unnecessarily.
 - **Consumption:** `steering/global/knowledge-consumption.md` governs how agents discover and load these
   files — this rule only governs where a new one is created and what shape it takes.
+
+---
+
+## Enforcement
+
+- **Wrong-home violations:** Caught during review. A new non-code document that lands outside its kind's one home (see "The four kinds") is a MEDIUM finding; consolidate into the existing home instead.
+- **Subject-matter-as-kind violations:** Caught during review. A file assigned an `api`/`business-rule` "kind" (see "Subject matter is not a document kind") is a MEDIUM finding.
+- **Malformed external-reference files:** Caught during review. A `{paths.knowledge}/{name}.md` file that doesn't match the required shape (see "External reference material") is a LOW finding.
 
 ---
 
