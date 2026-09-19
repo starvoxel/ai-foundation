@@ -1,6 +1,6 @@
 ---
 name: 'steering-authoring'
-version: '0.1.1'
+version: '0.1.2'
 description: 'Creates a well-formed steering file with enforced rules, rationale, and exceptions.'
 ---
 
@@ -65,11 +65,13 @@ Define what happens when a rule is violated:
 - [ ] File is in the correct scope directory
 - [ ] Frontmatter has `name`, `version`, `description`
 - [ ] `name` is kebab-case
+- [ ] Every rule is headed `### Rule: Name` — no number
 - [ ] Every rule has a rationale
 - [ ] Every rule has an exceptions process
 - [ ] Enforcement section exists
 - [ ] No procedural steps (that's a skill, not steering)
 - [ ] No agent-specific rules (those go in the agent's prompt)
+- [ ] Every citation of another skill, agent, or doc is checked against `steering/engineering/core.md`: "Cite, Don't Restate"
 
 ---
 
