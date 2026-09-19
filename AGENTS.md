@@ -41,18 +41,19 @@ ai-foundation/
 
 ## File Loading Rules
 
-| File type                    | When to load                           |
-| ---------------------------- | -------------------------------------- |
-| `steering/global/**/*.md`    | Every session, always                  |
-| `steering/{domain}/**/*.md`  | Based on agent's `domain` field        |
-| `agents/{name}.yaml`         | To execute an agent role               |
-| `skills/{name}/SKILL.md`     | When the task requires that procedure  |
-| `standards/{name}.md`        | When working in that language/stack    |
-| `servers/{name}/{name}.yaml` | To understand an available tool server |
+| File type                    | When to load                                         |
+| ---------------------------- | ---------------------------------------------------- |
+| `steering/global/**/*.md`    | Every session, always                                |
+| `steering/{domain}/**/*.md`  | Based on agent's `domain` field                      |
+| `steering/generic/**/*.md`   | Based on installed tool/server, regardless of domain |
+| `agents/{name}.yaml`         | To execute an agent role                             |
+| `skills/{name}/SKILL.md`     | When the task requires that procedure                |
+| `standards/{name}.md`        | When working in that language/stack                  |
+| `servers/{name}/{name}.yaml` | To understand an available tool server               |
 
 **Do not load:** `README.md` files, files starting with `_`.
 
-**Loading order:** This file → global steering → domain steering → agent yaml → skills/standards as needed.
+**Loading order:** This file → global steering → domain steering → generic (tool-gated) steering → agent yaml → skills/standards as needed.
 
 ---
 
@@ -84,7 +85,7 @@ Always-on rules. Unconditional within scope.
 
 **Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
 
-Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents) or `{domain}/` (domain agents). Agent-specific rules go in the agent's `prompt`.
+Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents), `{domain}/` (domain agents), or `generic/` (tool/server-gated, any domain). Agent-specific rules go in the agent's `prompt`.
 
 Rules are headed `### Rule: Name` — unnumbered, since rules are independent and unordered and a number would only be a drift risk. Same citation requirement as Skill steps: name it, never a number.
 

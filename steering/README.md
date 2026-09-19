@@ -10,7 +10,8 @@ They are not procedures — they define constraints, not steps.
 ```
 steering/
 ├── global/               ← Applies to all agents, every session
-└── engineering/          ← Applies to all engineering-domain agents
+├── engineering/          ← Applies to all engineering-domain agents
+└── generic/              ← Applies whenever a specific tool/server is installed, regardless of domain
 ```
 
 ## Adding a new steering file
@@ -21,10 +22,9 @@ steering/
 
 ## How steering is loaded
 
-Agents load steering based on their `domain` field:
-
 1. `steering/global/**/*.md` — always loaded first
-2. `steering/{domain}/**/*.md` — loaded based on agent's domain
+2. `steering/{domain}/**/*.md` — loaded based on the agent's `domain` field
+3. `steering/generic/**/*.md` — loaded when the session has the tool/server the file targets installed, regardless of domain
 
 New files added to these directories are picked up automatically.
 
