@@ -131,10 +131,8 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `ai_identity.git_token_env`    | string | No       | Name of env var holding the PAT for push/PR ops                                                                                                                              |
 | `paths`                        | object | No       | Artifact output directories (relative to repo root)                                                                                                                          |
 | `paths.plans`                  | string | No       | Root for all plan artifacts. Default: `plans`                                                                                                                                |
-| `paths.features`               | string | No       | Feature plan location. Default: `plans/features`                                                                                                                             |
-| `paths.tasks`                  | string | No       | Task list (`tasks.json`) and any per-Task plans. Default: `plans/tasks`                                                                                                      |
+| `paths.features`               | string | No       | Root for a Feature's folder — `{paths.features}/{FeatureID}/plan.md`, `tasks.json`, and `orchestration-state.json` all live together as siblings. Default: `plans/features`  |
 | `paths.decisions`              | string | No       | Decision Records (MADR), flat directory, no domain subfolders. Default: `knowledge/decisions`                                                                                |
-| `paths.orchestration`          | string | No       | Orchestration state files. Default: `plans/orchestration`                                                                                                                    |
 | `paths.knowledge`              | string | No       | Knowledge directory. Default: `knowledge`                                                                                                                                    |
 | `paths.architecture`           | string | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                                               |
 | `paths.research`               | string | No       | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research`                                                                                            |
@@ -172,9 +170,7 @@ If no config file exists, agents fall back to:
 - `standards`: none (agent must ask or search `standards/`)
 - `paths.plans`: `plans`
 - `paths.features`: `plans/features`
-- `paths.tasks`: `plans/tasks`
 - `paths.decisions`: `knowledge/decisions`
-- `paths.orchestration`: `plans/orchestration`
 - `paths.knowledge`: `knowledge`
 - `paths.architecture`: `knowledge/architecture`
 - `paths.research`: `knowledge/research`

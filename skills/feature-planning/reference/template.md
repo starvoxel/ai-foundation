@@ -110,12 +110,6 @@ Summary: {N} Tasks across {M} waves. {Brief description of parallelization.}
 > `skill/feature-planning`), state that here instead of a dependency graph — e.g.
 > "Single Task, no decomposition needed."
 
-The `tasks.json` file is the machine-parseable source of truth for the dependency
-graph. It must pass `dag-validate` before the Feature is considered decomposed.
-
-Start from the template at `skills/feature-planning/assets/tasks.json`.
-See `skills/feature-planning/reference/tasks-schema.md` for the file format.
-
 Parallelization notes:
 
 - {Constraints on parallel execution}

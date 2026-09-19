@@ -11,7 +11,7 @@ Single source of truth for the `Status` field values used by every human-approva
 | `Done`     | The work the artifact describes has been completed.                                               | N/A — informational only                                      |
 | `Deferred` | Human explicitly chose to postpone a decision on this artifact, rather than approve or reject it. | No                                                            |
 
-`In Progress` is deliberately not a status value. Whether an artifact's work is actively underway is answered by the orchestration state file (`paths.orchestration`), not by the plan's own status field — keeping "is this being worked on right now" in exactly one place avoids two sources of truth drifting out of sync.
+`In Progress` is deliberately not a status value. Whether an artifact's work is actively underway is answered by the orchestration state file (`{paths.features}/{FeatureID}/orchestration-state.json`), not by the plan's own status field — keeping "is this being worked on right now" in exactly one place avoids two sources of truth drifting out of sync.
 
 ## Per-artifact-type extensions
 
