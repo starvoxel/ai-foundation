@@ -617,6 +617,50 @@ fixed):
 - `skills/bundle-authoring/SKILL.md` Step 3 restated `reference/schema.yaml`'s
   domain-discovery algorithm — now cites it. Commit: `b6e18ef`.
 
+**Also done on this branch, per a second, broader Principal-Engineer pass over
+the full `skill/ai-component-review` checklist** (schema conformance, tool/
+permission surface, cross-reference validity) — 4 process-model-scoped
+findings fixed here, a 5th (general-framework, pre-existing) documented and
+routed to separate branches per direct instruction:
+
+- All three `git-workflow-*.md` files and `document-types.md` were missing
+  the `Enforcement` section `skills/steering-authoring/reference/schema.yaml`
+  requires. Added. `steering/engineering/core.md`'s Rule 9 Enforcement bullet
+  trimmed to cite `git-workflow-core.md`'s own new Enforcement entry instead
+  of restating it a second time. Commit: `9014a9a`.
+- Findings 2 (`document-types.md` Enforcement — landed on
+  `process-model/document-types-enforcement-section`, PR #55) and 5
+  (general-framework schema-conformance issues, unrelated to process-model —
+  landed on `framework/schema-conformance-audit-fixes` off `main`, PR #56)
+  tracked on their own branches; not restated here since they're outside this
+  branch's diff.
+
+**Also done on this branch, human-directed spot-check** (not from either
+subagent pass): `02_constraints.md`'s "Artifact file naming" row described
+`.decision.md` as a plain current fact with no note that check 28 retires the
+suffix and the domain-coded prefix scheme entirely — inconsistent with the
+neighboring "Frontmatter-first docs" row's existing "once conversion lands"
+phrasing for the same MADR transition. Fixed to match. Commit: `ab57d7d`.
+
+Followed by a full sweep of the other five arc42 sections for the same class
+of gap (prose describing today's state silently, where a specific numbered
+check will change it), per direct instruction. `01_introduction_and_goals.md`,
+`03_context.md`, `05_01_bundle_resolution.md`, and `05_02_harness_adapters.md`
+had none — no Epic/Chunk, decision-record, or domain-coded-prefix mentions in
+any of them. `05_building_blocks.md` had two, both distinct from the
+already-flagged key_files-drift staleness above (§ "03_context.md/
+05_building_blocks.md staleness"): its `dag` row still said `chunks.json`
+even though check 11 already renamed the real files to `tasks.json` (not a
+pending gap — already-completed work the doc fell behind, since
+`servers/dag/*` was never in this doc's `key_files`, so the automated
+staleness check never caught it), and its `decisions.js` row claimed the
+parser reads MADR frontmatter when it actually still reads the `.decision.md`
+`## Metadata` table (check 30 is what retargets it) — described as
+already-true rather than flagged as pending. Fixed both; added
+`lib/decisions.js` and `servers/dag/dag.yaml` to `key_files` so equivalent
+drift is caught automatically going forward. Commits: `ec5bf70`, `d0b0c27`
+(`last_verified` follow-up).
+
 ---
 
 ## Phase 9 — Template alignment (check 15)
