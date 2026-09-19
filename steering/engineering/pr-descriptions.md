@@ -1,6 +1,6 @@
 ---
 name: 'pr-descriptions'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Requires PR descriptions to follow the repo PR template exactly — sections, order, and every comment instruction inside it.'
 file_patterns: []
 ---
@@ -13,7 +13,7 @@ All agents that open or update a pull request description, in any repository.
 
 ## Rules
 
-### Rule 1: The Template Is Binding, Not Decorative
+### Rule: The Template Is Binding, Not Decorative
 
 - If the repo has a PR template (`.github/PULL_REQUEST_TEMPLATE.md` or `.github/PULL_REQUEST_TEMPLATE/`), the PR description must include every section the template defines, in the same order, with no sections added or removed.
 - Every instructional HTML comment inside the template — on length, content, or format — must be followed to the letter for that section, not treated as an optional hint. If a comment says a section should be brief, it is brief. If a comment says a section should be as detailed as the work warrants, it is detailed.
