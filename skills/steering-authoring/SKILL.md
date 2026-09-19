@@ -43,7 +43,7 @@ Each rule must have:
 - **Rationale** — why it exists (helps agents apply it in edge cases)
 - **Exceptions** — how to deviate, or explicit "No exceptions"
 
-Head each rule `### Rule N: Name`. A citation from another document to one of these rules must name it (`` `steering/{path}.md`: "Name" ``), never cite the ordinal alone — see `steering/engineering/core.md`: "Cite, Don't Restate".
+Head each rule `### Rule: Name` — no number. Rules are independent and unordered, so a number would only be a drift risk, not useful information; a citation from another document to one of these rules must name it (`` `steering/{path}.md`: "Name" ``), never by number — see `steering/engineering/core.md`: "Cite, Don't Restate".
 
 Rules without rationale are unenforceable. Rules without exceptions are absolute.
 

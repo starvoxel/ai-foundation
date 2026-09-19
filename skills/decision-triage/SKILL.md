@@ -38,7 +38,7 @@ Using the promotion threshold in `reference/tier-and-domain.md` (sourced from AI
 
 Using the Domain ownership table in `reference/tier-and-domain.md`, select the Domain that best matches the subject matter of the decision (Architecture, Process, Planning, AI-component, Quality, Testing, Meta-process). Domain determines both the ID/folder prefix and the owning agent.
 
-If the decision doesn't clearly belong to exactly one Domain, select the closest match and flag the ambiguity — pass the flag through to the target skill so it can be noted in the eventual record's `Design`/`Impact on Planning` section. Only escalate to the human first if the ambiguity is severe enough to genuinely affect who should author the decision (global Rule 2 — ambiguity that matters gets asked, not assumed).
+If the decision doesn't clearly belong to exactly one Domain, select the closest match and flag the ambiguity — pass the flag through to the target skill so it can be noted in the eventual record's `Design`/`Impact on Planning` section. Only escalate to the human first if the ambiguity is severe enough to genuinely affect who should author the decision (`steering/global/core.md`: "Handle Ambiguity by Asking, Not Assuming" — ambiguity that matters gets asked, not assumed).
 
 Tier C decisions skip this step entirely — no Domain determination applies.
 

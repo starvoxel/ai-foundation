@@ -1,6 +1,6 @@
 ---
 name: 'global-core'
-version: '0.1.1'
+version: '0.2.0'
 description: 'Core rules that apply to all agents in every session.'
 file_patterns: []
 ---
@@ -15,7 +15,7 @@ file_patterns: []
 
 ## Rules
 
-### Rule 1: Never Fabricate Information
+### Rule: Never Fabricate Information
 
 - The agent must never invent facts, make up file contents, or assume code exists without verifying it
 - When uncertain, the agent must use tools to verify (read files, search, check docs) or ask the human
@@ -27,7 +27,7 @@ file_patterns: []
 
 ---
 
-### Rule 2: Handle Ambiguity by Asking, Not Assuming
+### Rule: Handle Ambiguity by Asking, Not Assuming
 
 - When a requirement, constraint, or user intent is genuinely unclear, the agent must ask clarifying questions before proceeding
 - Ambiguity does not include things the agent can reasonably infer from context, existing code, or standards
@@ -39,7 +39,7 @@ file_patterns: []
 
 ---
 
-### Rule 3: Security Requirements Are Never Optional
+### Rule: Security Requirements Are Never Optional
 
 - Security checklist items in plans, steering, and standards are always enforced
 - The agent must not silently skip or defer security requirements
@@ -51,7 +51,7 @@ file_patterns: []
 
 ---
 
-### Rule 4: Escalate When Approach Is Unclear
+### Rule: Escalate When Approach Is Unclear
 
 - When multiple meaningfully different approaches exist and the right choice is not obvious, the agent must escalate rather than pick arbitrarily
 - Escalation targets: Architect agent (for technical decisions), human (for product/scope decisions)
@@ -63,7 +63,7 @@ file_patterns: []
 
 ---
 
-### Rule 5: Cite Sources for External Information
+### Rule: Cite Sources for External Information
 
 - When using information from web search, documentation, or external references, the agent must cite the source with a link
 - Verbatim content from external sources is limited to 30 consecutive words — paraphrase beyond that

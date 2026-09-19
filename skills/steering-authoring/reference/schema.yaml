@@ -11,7 +11,7 @@ body_sections:
   - section: "Scope"
     content: "Who this applies to and when it loads"
   - section: "Rules"
-    content: "Numbered rules, each with Rationale and Exceptions"
+    content: "Named rules (### Rule: Name — no number), each with Rationale and Exceptions"
   - section: "Enforcement"
     content: "What happens on violation, who catches it"
 

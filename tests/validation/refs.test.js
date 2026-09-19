@@ -163,7 +163,7 @@ describe('validate refs — named-locator citations', () => {
   });
 
   it('validates named Rule citations against a steering file the same way', () => {
-    writeSteering('engineering/sample.md', '### Rule 1: Do The Thing\n');
+    writeSteering('engineering/sample.md', '### Rule: Do The Thing\n');
     writeSkill(
       'orchestrator',
       [

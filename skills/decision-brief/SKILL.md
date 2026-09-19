@@ -54,6 +54,6 @@ Commit the Brief with `Status: Draft` via `ai-git`, present it to the human for 
   instead.
 - **Decision turns out not to need independent discoverability at all** — stop, do not create a standalone file; point back to the Tier C inline-recording convention instead.
 - **Invoked directly, without going through `skill/decision-triage` first** — the invoking agent must still determine Domain per AIF-META-001's ownership table before writing; do not default to a Domain arbitrarily.
-- **Domain is genuinely ambiguous** — select the closest matching domain, note the ambiguity in the Impact section rather than blocking; if it materially affects who should author the record, raise it to the human (global Rule 2).
+- **Domain is genuinely ambiguous** — select the closest matching domain, note the ambiguity in the Impact section rather than blocking; if it materially affects who should author the record, raise it to the human (`steering/global/core.md`: "Handle Ambiguity by Asking, Not Assuming").
 - **Human disagrees with the drafted content during confirmation** — update the Brief with their input and continue the (unexpected but not prohibited)
   revision round per `skill/plan-lifecycle`: "Commit each revision", same as Tier A.
