@@ -11,10 +11,10 @@ Start from the template at `skills/feature-planning/assets/tasks.json`.
 ## Location
 
 ```
-{paths.tasks}/{FeatureID}/tasks.json
+{paths.features}/{FeatureID}/tasks.json
 ```
 
-Resolved from `.aiconfig.json` at project root. Default: `plans/tasks/`.
+Resolved from `.aiconfig.json` at project root. Default: `plans/features/` — sibling to the Feature Plan (`plan.md`) itself.
 
 ---
 

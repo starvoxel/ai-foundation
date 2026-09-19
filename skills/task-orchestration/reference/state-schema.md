@@ -11,10 +11,11 @@ Start from the template at `skills/task-orchestration/assets/orchestration-state
 ## Location
 
 ```
-{paths.orchestration}/{FeatureID}/orchestration-state.json
+{paths.features}/{FeatureID}/orchestration-state.json
 ```
 
-Resolved from `.aiconfig.json` at project root. Default: `plans/orchestration/`.
+Resolved from `.aiconfig.json` at project root. Default: `plans/features/` — sibling to
+the Feature Plan (`plan.md`) and `tasks.json`.
 
 ---
 
@@ -77,10 +78,10 @@ Any status → Blocked (with reason)
 Blocked → Ready (when human unblocks)
 ```
 
-- Maximum 5 iterations through the review loop before escalation.
-- A Task may be blocked at any point (e.g., requires out-of-domain work, merge conflict, human input needed).
-- When a conflict is resolved, the pipeline restarts from Implementing with iterations reset. This ensures tests and review validate the post-resolution code.
-- A Task's PR is opened once, as a draft, when it first reaches `Implementing` and the implementing agent completes its first pass — not after `Reviewing` approves. `Reviewing` → `Done` marks that same PR ready-for-review; it never opens a second one.
+This diagram is the single source of truth for which transitions are legal. What
+triggers each one, and what else happens alongside it (iteration caps, PR
+draft/ready-for-review timing, conflict-resolution restart behavior), is `SKILL.md`'s
+Steps 3–4 — not restated here.
 
 ### Escalation object
 
@@ -114,7 +115,6 @@ Blocked → Ready (when human unblocks)
 | `pr_created`                | Draft PR opened for a Task; `pr_number`/`pr_url` recorded in Task state                                                                 |
 | `review_loop`               | Task returned from review for correction                                                                                                |
 | `escalation_raised`         | Issue escalated to human                                                                                                                |
-| `escalation_resolved`       | Human resolved a prior escalation                                                                                                       |
 | `task_blocked`              | Task marked as blocked                                                                                                                  |
 | `task_unblocked`            | Task unblocked and returned to Ready                                                                                                    |
 | `decision_handoff_detected` | A dispatched subagent reported a genuine architectural/product fork requiring an Architect-owned ADR, and the Task was marked `Blocked` |
@@ -125,7 +125,6 @@ Blocked → Ready (when human unblocks)
 | `conflict_escalated`        | Conflict could not be auto-resolved, escalated to human                                                                                 |
 | `overlap_warning`           | File overlap detected between Tasks in the same wave                                                                                    |
 | `wave_rebase`               | Wave boundary rebase performed on existing branches                                                                                     |
-| `worktree_created`          | Worktree created for a Task                                                                                                             |
 | `worktree_removed`          | Worktree torn down after PR merge confirmed                                                                                             |
 | `orchestration_complete`    | All waves done, Feature fully implemented                                                                                               |
 

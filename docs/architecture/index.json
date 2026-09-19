@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-15T16:59:54.101Z",
+  "generated_at": "2026-09-18T17:51:01.437Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -14,7 +14,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "last_verified": "8708a79",
+      "last_verified": "0abda56",
       "stale": false
     },
     {
@@ -31,7 +31,7 @@
         "lib/harnesses/base.js",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "f8f4062",
+      "last_verified": "1908630",
       "stale": false
     },
     {
@@ -50,7 +50,7 @@
         "servers/youtrack/youtrack.yaml"
       ],
       "last_verified": "e066376",
-      "stale": false
+      "stale": true
     },
     {
       "path": "05_01_bundle_resolution.md",
@@ -106,7 +106,7 @@
         "lib/index-diff.js"
       ],
       "last_verified": "9776f12",
-      "stale": false
+      "stale": true
     }
   ],
   "reverse_index": {
