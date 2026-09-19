@@ -162,6 +162,34 @@ describe('validate refs — named-locator citations', () => {
     assert.match(errors[0], /cites non-existent skill\/does-not-exist/);
   });
 
+  it('scans README.md files too, including at the repo root', () => {
+    writeSkill(
+      'widget-maker',
+      [
+        '---',
+        "name: 'widget-maker'",
+        "version: '0.1.0'",
+        "description: 'x'",
+        '---',
+        '',
+        '### Step 1 — Do The Thing',
+        '',
+      ].join('\n'),
+    );
+    mkdirSync(join(repo, 'agents'), { recursive: true });
+    writeFileSync(
+      join(repo, 'agents', 'README.md'),
+      'Run this (skill/widget-maker Step 1) before continuing.\n',
+      'utf8',
+    );
+    writeFileSync(join(repo, 'AGENTS.md'), 'See `skill/does-not-exist` for details.\n', 'utf8');
+
+    const errors = validateCitations(repo);
+    assert.equal(errors.length, 2);
+    assert.ok(errors.some((e) => e.startsWith('agents/README.md') && /raw step-ordinal/.test(e)));
+    assert.ok(errors.some((e) => e.startsWith('AGENTS.md') && /cites non-existent/.test(e)));
+  });
+
   it('validates named Rule citations against a steering file the same way', () => {
     writeSteering('engineering/sample.md', '### Rule: Do The Thing\n');
     writeSkill(

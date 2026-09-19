@@ -76,6 +76,8 @@ A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
 Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
+Steps are headed `### Step N — Name` — numbered, since order is meaningful. A citation to one specific step, from any document, must name it, never cite the number alone — see `steering/engineering/core.md`: "Cite, Don't Restate".
+
 ### Steering
 
 Always-on rules. Unconditional within scope.
@@ -83,6 +85,8 @@ Always-on rules. Unconditional within scope.
 **Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
 
 Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents) or `{domain}/` (domain agents). Agent-specific rules go in the agent's `prompt`.
+
+Rules are headed `### Rule: Name` — unnumbered, since rules are independent and unordered and a number would only be a drift risk. Same citation requirement as Skill steps: name it, never a number.
 
 ### Standards / Knowledge
 
