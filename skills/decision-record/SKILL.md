@@ -1,6 +1,6 @@
 ---
 name: 'decision-record'
-version: '0.3.1'
+version: '0.3.2'
 description: "Produces a structured Tier A ('Researched') Decision Record capturing options explored and the chosen approach. Invoked by skill/decision-triage, or directly by an agent that already knows it needs Tier A."
 ---
 

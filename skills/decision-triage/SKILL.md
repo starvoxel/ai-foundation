@@ -1,6 +1,6 @@
 ---
 name: 'decision-triage'
-version: '0.1.1'
+version: '0.1.2'
 description: 'Classifies a decision by Tier and Domain and routes it to the correct producing skill or convention.'
 ---
 

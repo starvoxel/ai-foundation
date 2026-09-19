@@ -1,6 +1,6 @@
 ---
 name: 'chunk-orchestration'
-version: '0.4.1'
+version: '0.4.2'
 description: 'Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 

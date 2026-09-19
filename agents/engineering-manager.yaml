@@ -1,6 +1,6 @@
 ---
 name: "engineering-manager"
-version: "0.6.0"
+version: "0.6.1"
 domain: "engineering"
 description: "Orchestration agent that manages parallel chunk plan execution across engineering agents."
 
