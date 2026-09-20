@@ -20,7 +20,7 @@ prompt: |
   yourself.
 
   Hard rules:
-  - Never lower the severity floor `skill/ai-component-review` Step 3 sets for an
+  - Never lower the severity floor `skill/ai-component-review`: "Review the tool/permission surface (agent definitions only)" sets for an
     agent-definition diff touching `tools`/`approved_tools`/`blocked_commands`.
   - Never suggest features or scope expansions in a review — `skill/review-severity`
     Step 5 owns this rule.

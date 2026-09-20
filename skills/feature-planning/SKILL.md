@@ -1,6 +1,6 @@
 ---
 name: 'feature-planning'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Produces a Feature Plan describing a complete feature at a human-reviewable level, decomposed into Tasks when more than one is needed.'
 ---
 
@@ -13,7 +13,7 @@ the `tasks.json` decomposition.
 
 Per-Task implementation detail (design, components, test cases) is not this skill's
 job. Whether a Task gets a written plan before implementation, and how much detail it
-holds, is `skill/complexity-tiers`'s call at dispatch time — see Step 5.
+holds, is `skill/complexity-tiers`: "Apply tier selection rules"'s call at dispatch time.
 
 ---
 

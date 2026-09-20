@@ -1,7 +1,7 @@
 ---
 name: 'git-workflow-core'
-version: '0.2.0'
-description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, and token handling.'
+version: '0.4.0'
+description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, and PR stewardship.'
 file_patterns: []
 ---
 
@@ -15,7 +15,7 @@ file_patterns: []
 
 ## Rules
 
-### Rule 1: Commits Must Be Atomic
+### Rule: Commits Must Be Atomic
 
 - One logical change per commit
 - Imperative mood, under 70 characters
@@ -23,7 +23,7 @@ file_patterns: []
 
 ---
 
-### Rule 2: Commit Implementation Incrementally
+### Rule: Commit Implementation Incrementally
 
 - Do not batch an entire plan's (or Task's) implementation into a single commit
 - Commit in small, logically atomic increments as work progresses, once each increment is verified (tests pass / self-validation done)
@@ -36,7 +36,7 @@ file_patterns: []
 
 ---
 
-### Rule 3: Use `ai-git` for All Git and GitHub Operations
+### Rule: Use `ai-git` for All Git and GitHub Operations
 
 - Never use `git` or `gh` directly
 - `ai-git` reads `.aiconfig.json`, injects identity env vars, and authenticates push/PR operations automatically
@@ -44,24 +44,31 @@ file_patterns: []
 
 ---
 
-### Rule 4: Never Log or Echo the Token Value
+### Rule: Never Log or Echo the Token Value
 
 - Reference it by env var name only
+
+---
+
+### Rule: An Agent That Opens a PR Drives It to Green
+
+- Opening the PR is not the end of the task. The agent that opened it (or was asked to drive it) follows `skill/pr-stewardship` until the PR is green and mergeable, or a specific blocker has been reported once — never leaves a red or conflicted PR unattended.
 
 ---
 
 ## Enforcement
 
 - **Non-atomic or oversized commits:** Caught during review. A commit covering multiple logical changes, or exceeding the message-length limit without being a merge commit, is a LOW finding — the agent should have split it.
-- **Batched (non-incremental) implementation:** Caught during review. A single commit covering an entire plan/Task's implementation is a LOW finding — this is the entry `steering/engineering/core.md` Rule 9 points to.
+- **Batched (non-incremental) implementation:** Caught during review. A single commit covering an entire plan/Task's implementation is a LOW finding — this is the entry `steering/engineering/core.md`: "Commit Incrementally During Implementation" points to.
 - **Raw `git`/`gh` usage instead of `ai-git`:** Mechanically blocked via `blocked_commands` on any agent holding write/shell access — see that agent's own definition. Any usage that bypasses this is a HIGH finding at review.
-- **Logging or echoing the token value:** A CRITICAL finding, not a style issue — this is credential exposure. See `steering/global/core.md` Rule 3.
+- **Logging or echoing the token value:** A CRITICAL finding, not a style issue — this is credential exposure. See `steering/global/core.md`: "Security Requirements Are Never Optional".
+- **Abandoned-PR violations:** A red or conflicted PR sitting unattended with no blocker reported is a HIGH finding — the opening agent should have followed `skill/pr-stewardship`.
 
 ---
 
 ## Rationale
 
-These four rules hold regardless of branching model — a framework repo committing straight to `main` and a project repo working through branches and PRs both need atomic, incremental commits and the same `ai-git` identity/credential discipline, for the same reasons in both cases: `ai-git` keeps agent commits clearly attributable under a separate AI identity and prevents agents from acting under the human's credentials, and small, verified commits make review, bisection, and recovery from a bad step cheaper than one large commit at the end.
+These rules hold regardless of branching model — a framework repo committing straight to `main` and a project repo working through branches and PRs both need atomic, incremental commits and the same `ai-git` identity/credential discipline, for the same reasons in both cases: `ai-git` keeps agent commits clearly attributable under a separate AI identity and prevents agents from acting under the human's credentials, and small, verified commits make review, bisection, and recovery from a bad step cheaper than one large commit at the end. PR stewardship holds the same way: any repo type can end up with an open PR (a framework repo doing branch-per-phase work at scale, same as a project repo's default), and a PR that sits red or conflicted is a stalled task regardless of which repo type opened it.
 
 Splitting these out here, instead of stating them independently in both `git-workflow-framework.md` and `git-workflow-projects.md`, is what let those two files drift on this exact content: `git-workflow-framework.md` said `ai-git` "authenticates push operations," `git-workflow-projects.md` said "push/PR operations" — the same tool, described two different ways, caught by an AI-component duplication audit. One definition here removes the chance of that recurring.
 

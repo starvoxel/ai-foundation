@@ -1,6 +1,6 @@
 ---
 name: 'ai-component-review'
-version: '0.2.0'
+version: '0.2.1'
 description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via skill/review-severity.'
 ---
 
@@ -52,7 +52,7 @@ Record ID cited resolves. Treat a broken cross-reference the same as a schema vi
 not a note.
 
 Where the diff cites another skill, agent, or steering file by name, also check it isn't restating that
-source's content alongside the citation — `steering/engineering/core.md` Rule 10 ("Cite, Don't Restate").
+source's content alongside the citation — `steering/engineering/core.md`: "Cite, Don't Restate".
 A citation next to a paraphrase is a finding even though the reference itself resolves cleanly.
 
 ### Step 5 — Produce Review Report

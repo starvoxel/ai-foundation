@@ -1,7 +1,7 @@
 ---
 name: 'document-types'
-version: '0.3.0'
-description: 'Routes any new non-code document to the one home its kind owns — supersedes skill/knowledge-authoring.'
+version: '0.4.0'
+description: 'Routes any new non-code document to the one home its kind owns — supersedes the retired knowledge-authoring skill.'
 file_patterns: []
 ---
 
@@ -33,7 +33,7 @@ never create a second file elsewhere that duplicates it.
 **"Owner" is who directs and is accountable for the content, not who holds the pen.** Engineering
 Manager owning Process & ownership changes means EM decides what changes and dispatches it as a Task —
 editing a skill/steering/agent file is AI-component authoring, in-domain for the implementing agent like
-any other Task (`skill/task-orchestration` Step 4), never something EM does itself. Same pattern as
+any other Task (`skill/task-orchestration`: "Handle Blocks"), never something EM does itself. Same pattern as
 Architect owning ADRs: the agent that dispatched Architect commits the resulting file, not Architect.
 
 ### Subject matter is not a document kind

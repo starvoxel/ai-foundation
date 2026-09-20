@@ -1,6 +1,6 @@
 ---
 name: 'task-orchestration'
-version: '0.4.0'
+version: '0.4.1'
 description: 'Orchestrates parallel Task execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
@@ -49,7 +49,7 @@ the last time the roster changed.
    - Commit and push the orchestration state file to main.
    - This ensures all worktrees (branched from main) will have access to the plan.
 9. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
-10. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
+10. Run worktree startup validation (`skill/worktree-management`: "Validate Existing Worktrees (Startup Check)") to detect stale worktrees
 11. Log: `wave_started` for wave 0
 
 ### Step 2 — Dispatch Wave
@@ -73,7 +73,7 @@ For each Task in the current wave with status `Ready`:
 
 1. **Create branch and worktree** — determine the branch name
    (`{feature-id}/{task-id}-{short-description}`), then follow
-   `skill/worktree-management` Steps 1–3 to resolve the path, create the
+   `skill/worktree-management`: "Resolve Worktree Path" → "Create Worktree" → "Setup Worktree" to resolve the path, create the
    worktree, and install dependencies. Once confirmed, record `worktree_path`
    and `branch` in the Task state.
    - **If worktree creation fails → mark Task as `Blocked`, do NOT dispatch**
@@ -119,7 +119,7 @@ every Task, no track branching.
 6. Check if the wave is complete (Step 5)
 
 Note: The worktree remains active until the human confirms the PR is merged.
-When the human confirms merge, run worktree teardown (skill/worktree-management Step 4):
+When the human confirms merge, run worktree teardown (`skill/worktree-management`: "Teardown Worktree"):
 
 - Remove the worktree directory
 - Delete the merged branch
@@ -240,7 +240,7 @@ After each Task completion, check wave status:
 2. If yes:
    - Present all open PRs for the wave to the human
    - Wait for human to confirm all PRs in the wave are merged
-   - Once confirmed, tear down worktrees for all merged Tasks (skill/worktree-management Step 4)
+   - Once confirmed, tear down worktrees for all merged Tasks (`skill/worktree-management`: "Teardown Worktree")
    - Log: `wave_completed`
    - Increment `current_wave`
    - If more waves remain:

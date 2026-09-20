@@ -1,6 +1,6 @@
 ---
 name: "software-engineer"
-version: "0.7.0"
+version: "0.8.0"
 domain: "engineering"
 description: "Owns a Task end-to-end — design, implement, test, and document product code and AI-component work alike, in one continuous session."
 
@@ -129,6 +129,7 @@ skills:
   - "skill/steering-authoring"
   - "skill/server-authoring"
   - "skill/bundle-authoring"
+  - "skill/pr-stewardship"
 
 preload_skills:
   - "skill/complexity-tiers"

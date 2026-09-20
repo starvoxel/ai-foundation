@@ -1,6 +1,6 @@
 # Commit-Gate Procedure
 
-The mechanical sequence behind `skill/plan-lifecycle` Steps 1-4, for quick reference.
+The mechanical sequence behind `skill/plan-lifecycle`: "Save as Draft and commit" → "Present for review" → "Commit each revision" → "Commit the human's decision", for quick reference.
 
 ```
 1. Write artifact, Status: Draft            → commit ("Add draft plan: ...")
