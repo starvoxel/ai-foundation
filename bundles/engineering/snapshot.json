@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-18T19:30:08.564Z",
+  "computed_at": "2026-09-19T17:06:19.451Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
     "agents/engineering-manager.yaml": "sha256:641b5ef4482d9d3191a0f2b70420218fd4b3c7ef0037b5b1dc6307a26ce4292f",
@@ -13,7 +13,7 @@
     "steering/global/markdown-authoring.md": "sha256:cd53d067ef6b3f606457e6796e09b364896e695cfc188dbd048bd30a24f94640",
     "steering/global/standards-loading.md": "sha256:3577b196a7dfc038340051efa372999237896053d15367f35d3c3da4e5fc2ff0",
     "steering/engineering/core.md": "sha256:91852ed338f5446fefc016e0a5331abddb1cbafe5d2ba29269aff55a0a1ba806",
-    "steering/engineering/document-types.md": "sha256:a942ec01ebc43f7244d63dd5dc9a4a66ba197ad87adad2be1b41c80d2585e171",
+    "steering/engineering/document-types.md": "sha256:2f635a28563e7a283fb43665570c48c18a243a813ef04b2c23c3158435218ce9",
     "steering/engineering/git-workflow-core.md": "sha256:b0a6064e0d204798442269e7955d225d81a813aa31f9fa248ef15ff05627cd01",
     "steering/engineering/git-workflow-framework.md": "sha256:822b70e76376beec82df2e3434bb4635d3c73a9cc90d6f59a27d1b7ba55282de",
     "steering/engineering/git-workflow-projects.md": "sha256:921c72c9d1ae3d685ab79d4bc7ae6ac70b2fb707d6a4a1a5b48288de312200ba",
