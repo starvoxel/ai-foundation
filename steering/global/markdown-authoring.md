@@ -1,6 +1,6 @@
 ---
 name: 'global-markdown-authoring'
-version: '0.1.1'
+version: '0.2.0'
 description: 'Prohibits manual hard-wrapping of prose in markdown files; paragraphs must be written as continuous logical lines.'
 file_patterns: ['**/*.md']
 ---
@@ -15,7 +15,7 @@ file_patterns: ['**/*.md']
 
 ## Rules
 
-### Rule 1: Do Not Manually Hard-Wrap Prose
+### Rule: Do Not Manually Hard-Wrap Prose
 
 - When writing a paragraph or bullet item, write it as one continuous logical line in the source (or let the editor soft-wrap it) — do not insert a line break every ~80 characters mid-sentence
 - A paragraph or list item is one logical unit of text; only actual paragraph, list-item, or section boundaries get a line break in the rendered output

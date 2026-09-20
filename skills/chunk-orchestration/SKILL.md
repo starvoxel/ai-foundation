@@ -1,6 +1,6 @@
 ---
 name: 'chunk-orchestration'
-version: '0.4.1'
+version: '0.4.2'
 description: 'Orchestrates parallel chunk plan execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
@@ -40,7 +40,7 @@ Manages the end-to-end execution of an epic's chunk plans. Computes execution wa
    - Commit and push the orchestration state file to main.
    - This ensures all worktrees (branched from main) will have access to the plans.
 9. Read `orchestration.max_concurrent` from `.aiconfig.json` (default: `4`) — use this as the concurrency limit for all dispatch decisions
-10. Run worktree startup validation (skill/worktree-management Step 5) to detect stale worktrees
+10. Run worktree startup validation (`skill/worktree-management`: "Validate Existing Worktrees (Startup Check)") to detect stale worktrees
 11. Log: `wave_started` for wave 0
 
 ### Step 2 — Dispatch Wave
@@ -68,7 +68,7 @@ For each chunk in the current wave with status `Ready`:
 2. Verify the chunk's plan is gated appropriately for its track (see `skill/plan-lifecycle` — no status other than `Approved`, including `Deferred`, satisfies this check):
    - Software track: the Chunk Plan (per `skill/chunk-planning`) exists and its `Status` is `Approved`.
    - AI track: AI-Engineer's own plan artifact is gated — either a Tier-1/2 "no written plan required" determination (per `skill/complexity-tiers`) or, for Tier 3, a written plan (per `skill/ai-engineering-plan`) with `Status: Approved`. This gate is never weakened relative to the software track — do not dispatch an AI-track chunk without it.
-3. **Create branch and worktree** (skill/worktree-management Steps 1–3):
+3. **Create branch and worktree** (`skill/worktree-management`: "Resolve Worktree Path" → "Create Worktree" → "Setup Worktree"):
    - Determine the branch name: `{epic-id}/{chunk-id}-{short-title}`
    - Resolve the worktree path from `paths.worktrees` config
    - Create the worktree on a new branch from `main`:
@@ -142,7 +142,7 @@ As each subagent completes, advance the chunk through its pipeline. The pipeline
 7. Check if the wave is complete (Step 5)
 
 Note: The worktree remains active until the human confirms the PR is merged.
-When the human confirms merge, run worktree teardown (skill/worktree-management Step 4):
+When the human confirms merge, run worktree teardown (`skill/worktree-management`: "Teardown Worktree"):
 
 - Remove the worktree directory
 - Delete the merged branch
@@ -260,7 +260,7 @@ After each chunk completion, check wave status:
 2. If yes:
    - Present all open PRs for the wave to the human
    - Wait for human to confirm all PRs in the wave are merged
-   - Once confirmed, tear down worktrees for all merged chunks (skill/worktree-management Step 4)
+   - Once confirmed, tear down worktrees for all merged chunks (`skill/worktree-management`: "Teardown Worktree")
    - Log: `wave_completed`
    - Increment `current_wave`
    - If more waves remain:
@@ -309,7 +309,7 @@ After each chunk completion, check wave status:
 - **Chunk depends on a blocked chunk** — remains in `Ready` but cannot be dispatched. Will dispatch once the dependency is unblocked and completed.
 - **Human requests early termination** — set overall status to `Blocked`, log the reason, stop dispatching. State file preserves progress for later resumption.
 - **Worktree creation fails** — mark chunk as `Blocked` with reason from worktree-management. Do not dispatch. Common causes: path conflict, disk space, branch already checked out in another worktree.
-- **Agent needs to resume in existing worktree** — when a blocked chunk is unblocked and re-dispatched, the worktree may already exist. Worktree-management Step 2 handles this (detects existing valid worktree and reuses it).
+- **Agent needs to resume in existing worktree** — when a blocked chunk is unblocked and re-dispatched, the worktree may already exist. `skill/worktree-management`: "Create Worktree" handles this (detects existing valid worktree and reuses it).
 - **Merge conflict during PR review** — human reports the conflict. EM enters the Conflict Resolution Sub-Flow (Step 4). The chunk goes from `Done` → `Conflict` → `Implementing` (pipeline restarts). The existing PR should be updated by the force-push after resolution.
 - **Wave-boundary rebase conflicts on multiple chunks** — each conflicting chunk enters the sub-flow independently. Non-conflicting chunks in the wave proceed normally with dispatch.
 - **Conflict resolution introduces test failures** — handled naturally because the pipeline restarts from the chunk's implementing agent. For software-track chunks, TE will catch the failures in the Testing phase; for AI-track chunks, AI-Engineer's own self-validation will catch them before PE review.

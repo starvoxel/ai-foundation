@@ -1,8 +1,8 @@
 # Decision Hand-off Signal
 
-The structured payload `decision-triage` produces when Step 4 (Check invoking agent against the domain owner) detects a mismatch — the invoking agent is not the domain owner for the Tier A/B decision it is trying to record. This is a documented signal shape for other skills/prose to follow, not a JSON Schema enforced by any script (this skill has no `scripts/` — Tier/Domain selection requires judgment, not a deterministic check).
+The structured payload `decision-triage` produces when `skill/decision-triage`: "Check invoking agent against the domain owner" detects a mismatch — the invoking agent is not the domain owner for the Tier A/B decision it is trying to record. This is a documented signal shape for other skills/prose to follow, not a JSON Schema enforced by any script (this skill has no `scripts/` — Tier/Domain selection requires judgment, not a deterministic check).
 
-Tier C never reaches this signal — Step 4 (and the domain-owner check) only applies to Tier A/B decisions.
+Tier C never reaches this signal — `skill/decision-triage`: "Check invoking agent against the domain owner" (and the domain-owner check) only applies to Tier A/B decisions.
 
 ---
 
@@ -22,7 +22,7 @@ Tier C never reaches this signal — Step 4 (and the domain-owner check) only ap
 
 ### Orchestrated context
 
-When `decision-triage` runs as part of a chunk dispatched by `skill/chunk-orchestration`, this signal is exactly what that skill's Decision Hand-off Sub-Flow (Step 4, "Handle Blocks") reads to populate a chunk's structured `blocked_reason` (domain, tier, owning agent) per Epic AIF-002's Decision Hand-off Sub-Flow description. The chunk is marked `Blocked`, and the owning agent is dispatched (or Engineering-Manager authors directly, if it is the owner) to drive the decision to `Approved` before the chunk resumes.
+When `decision-triage` runs as part of a chunk dispatched by `skill/chunk-orchestration`, this signal is exactly what that skill's Decision Hand-off Sub-Flow (`skill/chunk-orchestration`: "Handle Blocks") reads to populate a chunk's structured `blocked_reason` (domain, tier, owning agent) per Epic AIF-002's Decision Hand-off Sub-Flow description. The chunk is marked `Blocked`, and the owning agent is dispatched (or Engineering-Manager authors directly, if it is the owner) to drive the decision to `Approved` before the chunk resumes.
 
 This file documents the signal shape as a contract other chunks/skills build against — implementing the Decision Hand-off Sub-Flow itself (including the `decision_handoff_detected`/`decision_authored`/`decision_handoff_resolved` log actions that consume these field names) is out of this skill's scope; see `skill/chunk-orchestration`.
 

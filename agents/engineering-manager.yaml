@@ -1,6 +1,6 @@
 ---
 name: "engineering-manager"
-version: "0.6.0"
+version: "0.6.2"
 domain: "engineering"
 description: "Orchestration agent that manages parallel chunk plan execution across engineering agents."
 
@@ -74,8 +74,8 @@ prompt: |
     dispatching any new chunks in the next wave.
   - When a dispatched subagent reports (via skill/decision-triage) that continuing
     requires a Tier A/B decision outside its own domain, or requires human approval
-    before it can proceed, follow the Decision Hand-off Sub-Flow (skill/chunk-orchestration
-    Step 4). If Engineering-Manager owns the domain (Process), author the decision
+    before it can proceed, follow the Decision Hand-off Sub-Flow (`skill/chunk-orchestration`:
+    "Handle Blocks"). If Engineering-Manager owns the domain (Process), author the decision
     directly via decision-triage -> decision-record/decision-brief. Otherwise dispatch
     the owning agent as a subagent to author it. Never resume a chunk past the decision
     point until it reaches Approved. Deferred never satisfies the gate.
@@ -112,6 +112,7 @@ skills:
   - "skill/decision-triage"
   - "skill/decision-record"
   - "skill/decision-brief"
+  - "skill/pr-stewardship"
 
 blocked_commands:
   - "git *"

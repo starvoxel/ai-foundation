@@ -1,7 +1,7 @@
 # Decision Record — Per-Domain Guidance
 
 Guidance for the `Design` and `Impact on Planning` sections of a Tier A
-Decision Record, by Domain. Loaded in `skill/decision-record` Step 1 once the
+Decision Record, by Domain. Loaded in `skill/decision-record`: "Confirm Tier A and Determine Domain" once the
 Domain has been determined. Derived from AIF-META-001's Domain ownership table
 — see that record for the authoritative source if this stub and AIF-META-001
 ever appear to disagree.
@@ -42,7 +42,7 @@ are not rewritten, per Epic-level precedent, but the gap should be named).
 
 ## AI-component (`AIC`)
 
-**Design**: Agent/skill/steering/schema impact — which declarative components
+**Design**: Agent, skill, steering, or schema impact — which declarative components
 change shape, new fields, new cross-reference requirements.
 **Impact on Planning**: What AI-Engineer (or Tech-Lead decomposing an Epic that
 touches AI components) must know about new/changed schemas before authoring or
