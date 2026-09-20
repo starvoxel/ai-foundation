@@ -1,6 +1,6 @@
 ---
 name: 'steering-authoring'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Creates a well-formed steering file with enforced rules, rationale, and exceptions.'
 ---
 
@@ -24,11 +24,11 @@ Use this skill when adding new behavioural rules for agents in a global or domai
 
 ### Step 1 — Determine scope and location
 
-| Scope                 | Directory            | When loaded                                                                                                                           |
-| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| All agents            | `steering/global/`   | Every session                                                                                                                         |
-| Domain agents         | `steering/{domain}/` | When agent's domain matches                                                                                                           |
-| Generic (tool-scoped) | `steering/generic/`  | Whenever a bundle explicitly lists it in its `steering:` field — not domain-matched (e.g. `steering/generic/` for the `gmail` server) |
+| Scope               | Directory            | When loaded                                                                                                                                                                        |
+| ------------------- | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All agents          | `steering/global/`   | Every session                                                                                                                                                                      |
+| Domain agents       | `steering/{domain}/` | When agent's domain matches                                                                                                                                                        |
+| Generic (catch-all) | `steering/generic/`  | Non-global, non-domain-specific rules. Whenever a bundle explicitly lists the file in its `steering:` field — not domain-matched (e.g. `steering/generic/` for the `gmail` server) |
 
 Agent-specific rules do NOT go in steering — they go in the agent's `prompt` field.
 

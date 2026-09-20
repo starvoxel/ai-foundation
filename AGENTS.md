@@ -53,7 +53,7 @@ ai-foundation/
 
 **Do not load:** `README.md` files, files starting with `_`.
 
-**Loading order:** This file → global steering → domain steering → generic (tool-gated) steering → agent yaml → skills/standards as needed.
+**Loading order:** This file → global steering → domain steering → generic (catch-all) steering → agent yaml → skills/standards as needed.
 
 ---
 
@@ -85,7 +85,7 @@ Always-on rules. Unconditional within scope.
 
 **Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
 
-Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), or `generic/` (loaded via a bundle's explicit `steering:` list, not domain-matched — for a rule tied to a specific tool/server rather than any agent's domain, e.g. `steering/generic/` for the `gmail` server). Agent-specific rules go in the agent's `prompt`.
+Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), or `generic/` (catch-all for non-global, non-domain-specific content — loaded via a bundle's explicit `steering:` list, not domain-matched, e.g. `steering/generic/` for the `gmail` server). Agent-specific rules go in the agent's `prompt`.
 
 Rules are headed `### Rule: Name` — unnumbered, since rules are independent and unordered and a number would only be a drift risk. Same citation requirement as Skill steps: name it, never a number.
 
