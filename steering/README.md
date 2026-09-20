@@ -25,11 +25,11 @@ steering/
 Most steering loads by domain-matching on an agent's `domain` field:
 
 1. `steering/global/**/*.md` — always loaded first
-2. `steering/{domain}/**/*.md` — loaded based on agent's domain
+2. `steering/{domain}/**/*.md` — loaded based on the agent's `domain` field
 
-New files added to these two kinds of directories are picked up automatically.
+New files added to these two directories are picked up automatically.
 
-A third kind, capability/tool-scoped steering (`steering/{capability}/`, e.g. `generic/`), is **not** domain-matched — no agent has a matching `domain` field. It loads only when a bundle's own `bundle.yaml` explicitly lists the file in its `steering:` array, tying the rule to installing that bundle's tool/server rather than to any agent's domain. A new file here needs that explicit bundle entry — it is not picked up automatically.
+A third kind, `steering/generic/`, is **not** domain-matched — no agent has a matching `domain` field. It loads only when a bundle's own `bundle.yaml` explicitly lists the file in its `steering:` array, tying the rule to installing that bundle's tool/server rather than to any agent's domain. A new file here needs that explicit bundle entry — it is not picked up automatically.
 
 ## What belongs here
 

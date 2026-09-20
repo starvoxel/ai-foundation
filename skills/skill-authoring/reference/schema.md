@@ -16,7 +16,7 @@ Five sections, in this order:
 
 1. **Purpose** — what it does, when to use it, what problem it solves
 2. **Inputs** — what information is needed (`- **Name** — description and source`)
-3. **Steps** — ordered procedure (`### Step N — Name`). Deterministic work → scripts, not prose.
+3. **Steps** — ordered procedure (`### Step N — Name`). Deterministic work → scripts, not prose. A citation from another document to one of these steps must name it (`` `skill/{name}`: "Name" ``), never cite the ordinal alone — see `steering/engineering/core.md`: "Cite, Don't Restate".
 4. **Outputs** — what is produced (`- **Name** — description and destination`)
 5. **Edge Cases** — how to handle failures (`- **Situation** — what to do`)
 

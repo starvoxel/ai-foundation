@@ -1,6 +1,6 @@
 ---
 name: 'steering-authoring'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Creates a well-formed steering file with enforced rules, rationale, and exceptions.'
 ---
 
@@ -24,11 +24,11 @@ Use this skill when adding new behavioural rules for agents in a global or domai
 
 ### Step 1 — Determine scope and location
 
-| Scope                  | Directory                | When loaded                                                                                                                           |
-| ---------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
-| All agents             | `steering/global/`       | Every session                                                                                                                         |
-| Domain agents          | `steering/{domain}/`     | When agent's domain matches                                                                                                           |
-| Capability/tool-scoped | `steering/{capability}/` | Whenever a bundle explicitly lists it in its `steering:` field — not domain-matched (e.g. `steering/generic/` for the `gmail` server) |
+| Scope                 | Directory            | When loaded                                                                                                                           |
+| --------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| All agents            | `steering/global/`   | Every session                                                                                                                         |
+| Domain agents         | `steering/{domain}/` | When agent's domain matches                                                                                                           |
+| Generic (tool-scoped) | `steering/generic/`  | Whenever a bundle explicitly lists it in its `steering:` field — not domain-matched (e.g. `steering/generic/` for the `gmail` server) |
 
 Agent-specific rules do NOT go in steering — they go in the agent's `prompt` field.
 
@@ -43,6 +43,8 @@ Each rule must have:
 - **Clear imperative** — unambiguous statement of what must or must not happen
 - **Rationale** — why it exists (helps agents apply it in edge cases)
 - **Exceptions** — how to deviate, or explicit "No exceptions"
+
+Head each rule `### Rule: Name` — no number. Rules are independent and unordered, so a number would only be a drift risk, not useful information; a citation from another document to one of these rules must name it (`` `steering/{path}.md`: "Name" ``), never by number — see `steering/engineering/core.md`: "Cite, Don't Restate".
 
 Rules without rationale are unenforceable. Rules without exceptions are absolute.
 
@@ -64,11 +66,13 @@ Define what happens when a rule is violated:
 - [ ] File is in the correct scope directory
 - [ ] Frontmatter has `name`, `version`, `description`
 - [ ] `name` is kebab-case
+- [ ] Every rule is headed `### Rule: Name` — no number
 - [ ] Every rule has a rationale
 - [ ] Every rule has an exceptions process
 - [ ] Enforcement section exists
 - [ ] No procedural steps (that's a skill, not steering)
 - [ ] No agent-specific rules (those go in the agent's prompt)
+- [ ] Every citation of another skill, agent, or doc is checked against `steering/engineering/core.md`: "Cite, Don't Restate"
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: 'decision-record'
-version: '0.3.1'
+version: '0.3.2'
 description: "Produces a structured Tier A ('Researched') Decision Record capturing options explored and the chosen approach. Invoked by skill/decision-triage, or directly by an agent that already knows it needs Tier A."
 ---
 
@@ -88,4 +88,4 @@ Follow `skill/plan-lifecycle` to save the record with `Status: Draft`, commit it
 - **Decision doesn't clearly belong to exactly one domain** — select the
   closest matching domain per Step 1 and note the ambiguity in `Impact on
 Planning`/`Design`. If genuinely unclear and materially affects who should
-  author the record, raise to the human rather than guessing (global Rule 2).
+  author the record, raise to the human rather than guessing (`steering/global/core.md`: "Handle Ambiguity by Asking, Not Assuming").
