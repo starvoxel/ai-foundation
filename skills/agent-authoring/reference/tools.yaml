@@ -10,9 +10,23 @@ builtin:
   grep: "Regex pattern search in files"
   glob: "Find files by glob pattern"
   code: "Code intelligence (symbols, references, AST)"
+  subagent: "Spawn, enumerate, and follow up with dispatched subagents"
+  plan: "Human-in-the-loop proposal gate (e.g. Plan Mode)"
+  ask_user: "Blocking question to a human, live in-session"
+  task: "Agent's own session-scoped progress checklist"
+  skill: "Invoke an installed skill by name"
 
 # Risk tiers for approved_tools selection:
 approval_guidance:
-  safe: [read, grep, glob, code]
+  safe: [read, grep, glob, code, task, skill, plan, ask_user]
   moderate: [web_search, web_fetch]
-  privileged: [write, shell]
+  privileged: [write, shell, subagent]
+
+# `subagent` needs a closer note than a tier alone captures: gating it isn't
+# one uniform mechanism across the roster — check the specific agent's own
+# Hard rules, don't infer from tier or approved_tools membership alone. Some
+# agents omit it from `approved_tools` entirely, forcing confirmation for
+# every dispatch they make. Others hold it in both `tools` and
+# `approved_tools` (routine dispatch they're authorized to make unsupervised)
+# but gate specific dispatch targets via an explicit Hard Rule requiring human
+# confirmation for that dispatch regardless of `approved_tools` membership.
