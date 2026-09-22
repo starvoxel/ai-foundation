@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-22T19:17:24.809Z",
+  "generated_at": "2026-09-22T19:19:23.296Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -14,7 +14,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "last_verified": "c3493c9",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -31,7 +31,7 @@
         "lib/harnesses/base.js",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "c3493c9",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -49,7 +49,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "c3493c9",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -65,7 +65,7 @@
       "key_files": [
         "lib/resolver.js"
       ],
-      "last_verified": "c3493c9",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -107,7 +107,7 @@
         "lib/decisions.js",
         "servers/dag/dag.yaml"
       ],
-      "last_verified": "c3493c9",
+      "last_verified": "faffb74",
       "stale": false
     }
   ],
