@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-22T20:00:26.423Z",
+  "computed_at": "2026-09-22T20:08:03.253Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
     "agents/engineering-manager.yaml": "sha256:acaa966cfe4a447146fe2c164e4486f9191800d7f8e4840578d9187771ca1d53",
@@ -10,7 +10,7 @@
     "agents/software-engineer.yaml": "sha256:1b764e64ecb1c5cae052fc01bacf287289d6441d657632fd5edd0d5f26250513",
     "steering/global/concision.md": "sha256:b0d635b5e5b4541e3df19bdde178578129fe9fe2fa6b989ae6d9af72a614ee55",
     "steering/global/core.md": "sha256:d20f0f4df546cdd22d0526cf203ac4c041dfc8fa8c2c19f4429b8c2c5637da31",
-    "steering/global/knowledge-consumption.md": "sha256:76a163bc746a0033559c5e7001e1a0bd444cb30b912185380399a2271b8e7a69",
+    "steering/global/knowledge-consumption.md": "sha256:f272279117a7813f14679eb66e07de67459fced082de5985643de4bae75ca4b6",
     "steering/global/markdown-authoring.md": "sha256:e5c0f9f6e8a664dfbbc71d54717dbcf20a82f8484d59a5da696ffada2d7b4419",
     "steering/global/standards-loading.md": "sha256:3b4b2fb97be219a0238bbe12e5badd8d3cd65b574d693b945a659a67209b474f",
     "steering/engineering/core.md": "sha256:f7c84910449402a9962c57b0002b9cd6937de33c477aa501a37f101e05d421d5",

@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.3.2'
+version: '0.3.3'
 description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
@@ -48,8 +48,6 @@ When a task extends or removes a building block an arc42 architecture doc alread
 - A new file introducing a genuinely new building block not yet described anywhere needs a new arc42 entry (or subsection), not just a `key_files` addition to an unrelated section
 - A file being deleted that an arc42 doc describes or lists in `key_files` must have that description and `key_files` entry removed in the same task — never left to describe something that no longer exists
 - Check this before presenting a result, alongside self-validation
-
-This closes a gap the staleness mechanism can't catch on its own: `aif index architecture --check` only watches files already present in a section's `key_files`, so it has no way to flag a new file that should have been added but wasn't. A deleted `key_files` entry left in place is a different case — `isStaleAgainstGit` (`lib/architecture.js`) flags a `key_files` entry missing from disk unconditionally, independent of `last_verified`, so that half is mechanically enforced; this rule is what keeps the doc's own prose in sync once that flag fires.
 
 ---
 
