@@ -1,6 +1,6 @@
 ---
 name: 'review-severity'
-version: '0.1.0'
+version: '0.1.1'
 description: 'Shared severity taxonomy, blocking rule, and report template used by any domain-specific review skill.'
 ---
 
@@ -19,7 +19,7 @@ never redefine the severity table or blocking rule locally.
 ## Inputs
 
 - **Findings** — issues gathered by the invoking skill's own domain-specific steps
-- **Subject reference** — the Plan ID, Decision Record, or diff being reviewed
+- **Subject reference** — the Plan ID, ADR, or diff being reviewed
 - **Reviewer** — the agent performing the review
 
 ---

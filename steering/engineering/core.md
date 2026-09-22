@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.9.0'
+version: '0.10.0'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 file_patterns: []
 ---
@@ -66,7 +66,7 @@ file_patterns: []
 
 ### Rule: Escalate Technical Approach Uncertainty to Architect
 
-- When a task requires a technical decision that is not covered by existing standards, project standards, or a Decision Record, the agent must route to Architect before proceeding
+- When a task requires a technical decision that is not covered by existing standards, project standards, or an ADR, the agent must route to Architect before proceeding
 - This includes: new libraries or technologies, significant architectural trade-offs, cases where two or more meaningfully different approaches exist
 - The agent must not make architectural decisions unilaterally, even when confident
 
@@ -103,7 +103,7 @@ file_patterns: []
 
 ### Rule: Plans Are Committed Artifacts, Not Chat Output
 
-- Every plan or record requiring human approval (Feature Plan, Decision Record, or a Tier 3 plan) must be saved to the repository and committed with `Status: Draft` before being presented for review
+- Every plan or record requiring human approval (Feature Plan, ADR, or a Tier 3 plan) must be saved to the repository and committed with `Status: Draft` before being presented for review
 - Each round of human-requested revision is committed as a new commit (never amended or squashed) before re-presenting, preserving the full Draft → feedback → Draft → ... history
 - Once the human gives an explicit decision, the agent updates the status field (`Approved` or `Deferred`) and commits that change as its own commit, separate from the revision history and from any implementation commit
 - This applies uniformly in framework and project repos — see `skill/plan-lifecycle` for the full procedure, and the repo-type-specific git-workflow steering for branch/direct-commit mechanics
@@ -116,7 +116,7 @@ file_patterns: []
 
 ### Rule: Commit Incrementally During Implementation
 
-- Follow `steering/engineering/git-workflow-core.md`: "Commit Implementation Incrementally"'s discipline for every implementation gated per "Implementation Follows the Complexity-Tiers Gate" — a written Feature Plan or Tier 3 plan to commit against, or Tier 1/2 work with no formal plan artifact at all
+- Follow `steering/engineering/git-workflow-core.md`: "Commit Implementation Incrementally"'s discipline for every implementation, whichever gate in "Implementation Follows the Complexity-Tiers Gate" it went through
 - Which checkpoint counts as "a completed increment" is repo-type-specific — see `git-workflow-framework.md` or `git-workflow-projects.md`'s own Commit Granularity section for the active default. For ungoverned Tier 1/2 work, the increment is the smallest verified unit of the task itself, not a plan step
 
 **Rationale:** Small commits make review, bisection, and recovery from a bad step far cheaper than a single large commit at the end. Batching everything into one commit defeats the purpose of the atomic-commit rules already required by the git-workflow steering.

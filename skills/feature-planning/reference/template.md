@@ -14,7 +14,7 @@
 | Standards           | {e.g. csharp-avalonia, project-standards link} |
 | Total Tasks         | {n — filled after decomposition}               |
 | Product Requirement | {PRD ID or "None"}                             |
-| Decision Records    | {Decision Record ID(s) or "None"}              |
+| ADRs                | {ADR ID(s) or "None"}                          |
 
 ---
 

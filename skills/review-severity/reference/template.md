@@ -2,13 +2,13 @@
 
 ## Metadata
 
-| Field       | Value                                        |
-| ----------- | -------------------------------------------- |
-| Reviewed By | {Reviewer Agent}                             |
-| Date        | {YYYY-MM-DD HH:mm}                           |
-| Subject     | {Plan ID / Decision Record / diff reference} |
-| Outcome     | Approved / Returned                          |
-| Findings    | {n} CRITICAL, {n} HIGH, {n} MEDIUM, {n} LOW  |
+| Field       | Value                                       |
+| ----------- | ------------------------------------------- |
+| Reviewed By | {Reviewer Agent}                            |
+| Date        | {YYYY-MM-DD HH:mm}                          |
+| Subject     | {Plan ID / ADR / diff reference}            |
+| Outcome     | Approved / Returned                         |
+| Findings    | {n} CRITICAL, {n} HIGH, {n} MEDIUM, {n} LOW |
 
 ---
 

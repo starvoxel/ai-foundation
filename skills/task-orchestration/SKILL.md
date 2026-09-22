@@ -1,6 +1,6 @@
 ---
 name: 'task-orchestration'
-version: '0.4.1'
+version: '0.4.2'
 description: 'Orchestrates parallel Task execution across engineering agents with wave-based dispatch and quality gates.'
 ---
 
@@ -199,7 +199,7 @@ proceed.
 2. Dispatch Architect as a subagent to author the ADR (MADR format,
    `{paths.decisions}/`). No domain/tier routing — every hand-off reaching
    this sub-flow is, by definition, an Architect-owned fork; a Process/
-   tooling/convention question isn't a decision record at all
+   tooling/convention question isn't an ADR at all
    (`docs/process-model.md`'s Decisions section — edit the skill/steering/
    agent file directly, the commit is the record) and never reaches this
    sub-flow. Log: `decision_authored` once the Draft ADR is committed.
