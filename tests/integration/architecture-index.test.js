@@ -121,6 +121,31 @@ describe('architecture index — real git integration', () => {
     assert.equal(isStaleAgainstGit(record, repoRoot), true);
   });
 
+  it('is stale when a key_files entry does not exist on disk, even at current HEAD', () => {
+    mkdirSync(join(repoRoot, 'src'), { recursive: true });
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'x');
+    const commitA = commitAll(repoRoot, 'add thing.js');
+
+    // last_verified is HEAD itself -- no git-log range would ever flag this,
+    // but the file this record claims to track was never actually created.
+    const record = { key_files: ['src/missing.js'], last_verified: commitA };
+    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+  });
+
+  it('is stale when last_verified is bumped past a deletion, hiding it from git-log', () => {
+    mkdirSync(join(repoRoot, 'src'), { recursive: true });
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'x');
+    commitAll(repoRoot, 'add thing.js');
+
+    git(repoRoot, 'rm', '-q', 'src/thing.js');
+    const commitAfterDelete = commitAll(repoRoot, 'delete thing.js');
+
+    // last_verified points at the deletion commit itself -- git log in
+    // (commitAfterDelete..HEAD) is empty, so only the existence check catches this.
+    const record = { key_files: ['src/thing.js'], last_verified: commitAfterDelete };
+    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+  });
+
   it('buildArchitectureIndexForDir wires real parsing + git staleness end to end', () => {
     mkdirSync(join(repoRoot, 'src'), { recursive: true });
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');

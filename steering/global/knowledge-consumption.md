@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
@@ -42,13 +42,14 @@ If knowledge describes a pattern that conflicts with the active standards file, 
 
 ### Doc-Update Acceptance Gate
 
-When a task extends a building block an arc42 architecture doc already describes, updating that doc is part of the task's completion, not an afterthought. This explicitly includes _adding_ a new `key_files` entry for a newly created file that extends the described block — not only editing prose for files already listed.
+When a task extends or removes a building block an arc42 architecture doc already describes, updating that doc is part of the task's completion, not an afterthought. This explicitly includes _adding_ a new `key_files` entry for a newly created file that extends the described block, and symmetrically _removing_ a doc's description (row, mermaid node/edge, `key_files` entry) of a file the same task deletes — not only editing prose for files that stay listed.
 
 - A new file that implements or extends a building block already described in an arc42 section must be added to that section's `key_files` list as part of the same task, not deferred
 - A new file introducing a genuinely new building block not yet described anywhere needs a new arc42 entry (or subsection), not just a `key_files` addition to an unrelated section
+- A file being deleted that an arc42 doc describes or lists in `key_files` must have that description and `key_files` entry removed in the same task — never left to describe something that no longer exists
 - Check this before presenting a result, alongside self-validation
 
-This closes a gap the staleness mechanism can't catch on its own: `aif index architecture --check` only watches files already present in a section's `key_files`, so it has no way to flag a new file that should have been added but wasn't.
+This closes a gap the staleness mechanism can't catch on its own: `aif index architecture --check` only watches files already present in a section's `key_files`, so it has no way to flag a new file that should have been added but wasn't. A deleted `key_files` entry left in place is a different case — `isStaleAgainstGit` (`lib/architecture.js`) flags a `key_files` entry missing from disk unconditionally, independent of `last_verified`, so that half is mechanically enforced; this rule is what keeps the doc's own prose in sync once that flag fires.
 
 ---
 
