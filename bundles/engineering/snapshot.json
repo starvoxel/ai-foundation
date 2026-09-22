@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-22T19:34:24.917Z",
+  "computed_at": "2026-09-22T19:45:38.547Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
     "agents/engineering-manager.yaml": "sha256:acaa966cfe4a447146fe2c164e4486f9191800d7f8e4840578d9187771ca1d53",
@@ -28,8 +28,8 @@
     "skills/task-orchestration/reference/state-schema.md": "sha256:67a404887459226ac5582a0cf6e9f9be16020b7e1bd5b526ad1522c3109f795d",
     "skills/worktree-management/SKILL.md": "sha256:4b8d779059294b3e8c87acf6f782cb2eb6614482ad305e425b11578053a82f64",
     "skills/pr-stewardship/SKILL.md": "sha256:5a989918a842efb700dee43407356f047d31393e174caa7f18f28571bb0020fd",
-    "skills/code-review/SKILL.md": "sha256:f21b2ccf5c709acd14e545f6d7ff3be2e3e023c2d8fd9819fd032354dba5ca03",
-    "skills/ai-component-review/SKILL.md": "sha256:1cd17b8ec5fb70b4647e9de8461c1ade565ea92408756d52220d9fcd5fe8e080",
+    "skills/code-review/SKILL.md": "sha256:89b85e4f4dfcb29a9c250b5d86a55006578acf9368984b29ac64d04725db611b",
+    "skills/ai-component-review/SKILL.md": "sha256:e8df782b00b0496b87ac68e0ec545af29add73579a1e9a4bedc26482d89cb156",
     "skills/review-severity/SKILL.md": "sha256:a04761d0e69d16e861438ee8dc17208be14fd6a5cd1cb391ec0585c0d2edd1f1",
     "skills/review-severity/reference/template.md": "sha256:e5bfe4e9428381f4859ad09eb46869d878b102be69827eceb058f3e0d99b1853",
     "skills/complexity-tiers/SKILL.md": "sha256:a3f7fe9669b840f8dcb2009439891e23177adbe9561e65a3a5f130c001a2bb5a",

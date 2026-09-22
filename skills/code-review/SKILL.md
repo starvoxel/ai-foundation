@@ -1,6 +1,6 @@
 ---
 name: 'code-review'
-version: '0.3.1'
+version: '0.3.2'
 description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via skill/review-severity.'
 ---
 
@@ -14,7 +14,7 @@ Produces a structured report that either approves the code or returns it with ac
 ## Inputs
 
 - **Source code** — files to review
-- **Governing plan** — what was supposed to be built (acceptance criteria, security, logging) — a Feature Plan, a Task-level plan, or a Tier 3 plan, whichever governs the change
+- **Governing plan** — what was supposed to be built (acceptance criteria, security, logging): the Feature Plan for Task work decomposed from one, a Tier 3 plan for standalone work that rose to Tier 3, or — for standalone Tier 1/2 work, which has no separate plan artifact by default — the task description and any outline produced per `skill/complexity-tiers`, if one exists
 - **Language standards** — from `standards/{stack}.md`
 - **Project standards** — from `projects/{name}/project-standards.md`
 
