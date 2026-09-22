@@ -19,7 +19,7 @@ tools: # Required. From tools.yaml canonical list.
 approved_tools: # Required. Subset of tools, runs without confirmation.
   - 'read'
 skills: # Optional. References to skills/{name}/ folders.
-  - 'skill/decision-record'
+  - 'skill/plan-lifecycle'
 ```
 
 ## Prompt guidelines

@@ -63,17 +63,20 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `05ab92c` (`process-model/arc42-no-plan-references`)
+**Last commit at last tracker update:** `5c7297a` (`process-model/phase-10-steering-reference-sweep`)
 **Current phase:** Phases 1–9 done and merged, plus the structural-review phase
-(checks 36–37). Phases 1–6 merged (PRs #35, #36, #38, #40, #41, #42). Phase 7 (checks
-9–11, vocabulary rename) merged via PR #44 (`fd077fa`) — see Phase 7 below for detail.
-Phase 8 (checks 12–14, skill retirement) merged via PR #50 (merge commit `08c9cab`) —
-see Phase 8 below. Structural-review phase (checks 36–37) merged via PRs #54/#55
-(merge commits `de53c26`/`83f6752`) — see that section below. **Phase 9 (check 15,
-template alignment) merged via PR #59** — see Phase 9 below. **In flight, outside the
-numbered checks: `process-model/arc42-no-plan-references` (PR #60, commit `05ab92c`)
-— see "Also merged into this integration branch, outside the numbered checks" below;
-not yet merged.**
+(checks 36–37) and `process-model/arc42-no-plan-references`. Phases 1–6 merged (PRs
+#35, #36, #38, #40, #41, #42). Phase 7 (checks 9–11, vocabulary rename) merged via PR
+#44 (`fd077fa`) — see Phase 7 below for detail. Phase 8 (checks 12–14, skill
+retirement) merged via PR #50 (merge commit `08c9cab`) — see Phase 8 below.
+Structural-review phase (checks 36–37) merged via PRs #54/#55 (merge commits
+`de53c26`/`83f6752`) — see that section below. Phase 9 (check 15, template alignment)
+merged via PR #59 (`02c4a75`) — see Phase 9 below. `process-model/arc42-no-plan-references`
+merged via PR #60 (`7a01580`) — see that section below. `docs/process-model.md` itself
+approved on `main` (`910b90f`, human: Jeremy Smellie) and merged into this branch
+(`5e83332`). **Phase 10 (checks 16–18, steering & reference sweep) implemented on
+`process-model/phase-10-steering-reference-sweep`** — see Phase 10 above. **Ready for
+PR.**
 
 **Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
 integration branch before/with #50** (all from live human feedback during Phase 8
@@ -90,10 +93,9 @@ review, not pre-planned checks):
 - Folded directly into PR #50 (`61e584b`) — `skill/plan-lifecycle` swept for stale
   Chunk Plan/Epic Plan/Decision Record language and the two now-deleted
   `skill/decision-record`/`skill/decision-brief` citations, including removing an
-  orphaned Tier A/B/C section from `reference/commit-gate-procedure.md`. Preempts
-  part of check 17's scope for this one skill specifically — the rest of check 17
-  (agent-authoring/reference/schema.md, project-standards.md, javascript_node.md,
-  lib/resolver.js's JSDoc, test fixtures) is untouched.
+  orphaned Tier A/B/C section from `reference/commit-gate-procedure.md`. Preempted
+  part of check 17's scope for this one skill specifically — the rest landed in
+  Phase 10 (checks 16–18 above).
 
 **Structural-review phase — both checks now implemented**, on
 `process-model/structural-review-36-37`, cut from the integration branch after
@@ -113,14 +115,14 @@ authoring/review gap surfaced while implementing checks 9–11, deliberately
 kept out of process-model.md's own checks since it isn't vocabulary-rename
 scope.
 
-**`process-model/arc42-no-plan-references` (`05ab92c`), per direct human
-instruction:** arc42 docs (`02_constraints.md`, `05_building_blocks.md`,
+**`process-model/arc42-no-plan-references` (merged via PR #60, `7a01580`), per
+direct human instruction:** arc42 docs (`02_constraints.md`, `05_building_blocks.md`,
 `_template.md`) had five citations into `docs/process-model.md` itself — a
 `Status: Draft` plan that gets triaged/archived once Phase 17 lands, so a
 living architecture doc depending on its path/check-numbering was a forward
 reference to a temporary artifact. All five removed or reworded to describe
 the pending change itself rather than naming which plan/check drives it. See
-that commit's message for the full per-row breakdown.
+commit `05ab92c`'s message for the full per-row breakdown.
 
 **Fixed directly, not deferred:** `skills/task-orchestration/SKILL.md`'s raw
 `git` calls (both orchestrating/implementing agents declare
@@ -133,7 +135,8 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: merge PR #60 (arc42-no-plan-references), then Phase 10 (checks 16–18).
+Next: open PR for `process-model/phase-10-steering-reference-sweep`, merge it, then
+Phase 11 (checks 19–21, cross-cutting process/security rules).
 
 ---
 
@@ -712,15 +715,32 @@ fix, still check 33/17 territory per the structural-review checkpoint's note abo
 
 ## Phase 10 — Steering & reference sweep (checks 16–18)
 
-- [ ] **Check 16** — `steering/engineering/core.md` Rules 1/2/8/9 reworded;
+- [x] **Check 16** — `steering/engineering/core.md` Rules 1/2/8/9 reworded;
       `knowledge-consumption.md` moves decisions to index-only by default; doc-update
-      acceptance gate added. Commit: `_____`
-- [ ] **Check 17** — Full vocabulary/reference sweep across the listed skills,
-      standards, and steering files. Commit: `_____`
-- [ ] **Check 18** — `agent-authoring` and `docs/agent-prompt-extraction-candidates.md`
-      swept; product-doc ownership left unassigned. Commit: `_____`
+      acceptance gate added. Commit: `8a01af0`
+- [x] **Check 17** — Full vocabulary/reference sweep across the listed skills,
+      standards, and steering files. Commits: `faffb74` (sweep), `cf22bd8` (arc42
+      `last_verified` bump, separate commit per the `d0b0c27` precedent)
+- [x] **Check 18** — `agent-authoring` and `docs/agent-prompt-extraction-candidates.md`
+      swept; product-doc ownership left unassigned. Also fixed a live example in
+      `standards/javascript_node.md` (`skill/decision-record` → `skill/plan-lifecycle`,
+      same category check 17 already claims for `lib/resolver.js`'s JSDoc, missed by an
+      earlier narrower grep pass). Commit: `5c7297a`
 
-**Checkpoint 10:** _____
+**Checkpoint 10:** `npm test` 713/713, `aif validate` (schema/refs/bundles) clean, `aif
+snapshot --check` clean (engineering bundle regenerated), `aif index architecture
+--check` clean, `prettier --write` applied where flagged. Check 17 also closed real
+architecture-doc debt beyond its own named scope: 01/02/03/05_01/05_building_blocks.md
+re-verified against current `key_files` (only 05_01's `parseSkillRef` example needed a
+matching update), two broken bare-numeric citations in 02_constraints.md fixed to named
+locators, a checked-in `docs/architecture/index.json` that had silently drifted from
+05_building_blocks.md's own already-current frontmatter regenerated, and real content
+drift in 05_building_blocks.md (a Core Libraries row, an Interface mention, and a
+mermaid node/edges all still describing the deleted `lib/knowledge.js`/`aif index
+knowledge`, invisible to the staleness detector since a deleted file can't be a
+`key_files` entry) removed. `last_verified` bumps landed as a separate follow-up commit
+(`cf22bd8`) rather than the same commit that creates the SHA being cited, per the
+existing `d0b0c27` precedent.
 
 ---
 
