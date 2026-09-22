@@ -29,3 +29,4 @@
 2026-09-22T15:31:24.982Z event=SessionEnd session=9ec9b1a8-fafa-50cd-b15b-3d95297e270a reason=other
 2026-09-22T15:59:25.122Z event=SessionEnd session=9ec9b1a8-fafa-50cd-b15b-3d95297e270a reason=other
 2026-09-22T18:06:47.507Z event=manual-end session=session_0168CyHk2sXtotxpRUJANhhn reason=45min-self-send-later-compact-test
+2026-09-22T18:10:46.359Z event=SessionEnd session=9ec9b1a8-fafa-50cd-b15b-3d95297e270a reason=other
