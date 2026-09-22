@@ -1,6 +1,6 @@
 ---
 name: 'complexity-tiers'
-version: '0.2.0'
+version: '0.2.1'
 description: "Assesses task complexity and scales process rigor accordingly, from a quick fix to a stop-and-hand-off floor. Software-Engineer's primary gate; generic enough for other agents to adopt."
 ---
 
@@ -8,7 +8,7 @@ description: "Assesses task complexity and scales process rigor accordingly, fro
 
 Provides a shared framework for scaling process to the size of the work: small, clear changes move fast with minimal ceremony, while cross-cutting or ambiguous work stops for human sign-off, or hands off entirely rather than being planned and implemented solo. This avoids two failure modes — over-processing trivial changes, and under-processing changes that quietly reshape how other components work.
 
-Use this skill whenever an agent needs to decide how much process a task warrants before starting work. Software-Engineer is this skill's primary user today — its universal front door for every Chunk/Task — so the tier definitions below default to Software-Engineer's shape. Where a tier's mechanics genuinely vary by agent (how a Tier 2 stop works, where Tier 3 hands off to), that agent states its own specifics in the Per-agent specifics table below rather than in its own prompt — this skill stays the one place that answers "what does tier N mean for agent X," so no agent has to restate it.
+Use this skill whenever an agent needs to decide how much process a task warrants before starting work. Software-Engineer is this skill's primary user today — its universal front door for every Task — so the tier definitions below default to Software-Engineer's shape. Where a tier's mechanics genuinely vary by agent (how a Tier 2 stop works, where Tier 3 hands off to), that agent states its own specifics in the Per-agent specifics table below rather than in its own prompt — this skill stays the one place that answers "what does tier N mean for agent X," so no agent has to restate it.
 
 ---
 

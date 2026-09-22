@@ -1,19 +1,19 @@
 ---
 name: 'test-execution'
-version: '0.4.0'
+version: '0.4.1'
 description: 'Writes and executes automated tests, producing a Test Results Report with pass/fail/blocked status.'
 ---
 
 ## Purpose
 
-Writes and executes automated tests from the Chunk Plan's Testing Plan section.
+Writes and executes automated tests validating a Task's implementation against its governing plan.
 Produces a structured report showing pass/fail/blocked status per test case with failure analysis. Applies the testable-by-design principle from `steering/engineering/core.md`.
 
 ---
 
 ## Inputs
 
-- **Chunk Plan** — specifically the Testing Plan section with defined test cases
+- **Governing plan** — the Feature Plan's Acceptance Criteria and Error States sections (`skills/feature-planning/reference/template.md`), plus a Task-level plan's own test-case detail when the Task's complexity tier produced one
 - **Source code** — approved implementation to test
 - **Language standards** — testing conventions from `standards/{stack}.md`
 - **Project standards** — test project structure from `projects/{name}/project-standards.md`
@@ -22,7 +22,7 @@ Produces a structured report showing pass/fail/blocked status per test case with
 
 ## Steps
 
-### Step 1 — Read Testing Plan
+### Step 1 — Read the Governing Plan
 
 Understand every test case before writing any tests. Identify:
 

@@ -1,12 +1,12 @@
 ---
 name: 'code-review'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via skill/review-severity.'
 ---
 
 ## Purpose
 
-Reviews source code against its Chunk Plan, language standards, and project standards.
+Reviews source code against its governing plan, language standards, and project standards.
 Produces a structured report that either approves the code or returns it with actionable findings for correction.
 
 ---
@@ -14,7 +14,7 @@ Produces a structured report that either approves the code or returns it with ac
 ## Inputs
 
 - **Source code** — files to review
-- **Chunk Plan** — what was supposed to be built (acceptance criteria, security, logging)
+- **Governing plan** — what was supposed to be built (acceptance criteria, security, logging) — a Feature Plan, a Task-level plan, or a Tier 3 plan, whichever governs the change
 - **Language standards** — from `standards/{stack}.md`
 - **Project standards** — from `projects/{name}/project-standards.md`
 
