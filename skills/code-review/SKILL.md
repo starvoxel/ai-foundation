@@ -1,6 +1,6 @@
 ---
 name: 'code-review'
-version: '0.3.2'
+version: '0.4.0'
 description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via skill/review-severity.'
 ---
 
@@ -26,22 +26,27 @@ Produces a structured report that either approves the code or returns it with ac
 
 Verify every component in the plan's component list exists. Missing components are CRITICAL findings before any code quality review begins.
 
-### Step 2 — Review Security and Logging
+### Step 2 — Review Change Scope
+
+- If the diff's author is Architect or Engineering Researcher, confirm every touched path stays within that agent's own documented write scope — `agents/architect.yaml`: Hard rules (`docs/decisions/**` and `docs/architecture/**` only), `agents/engineering-researcher.yaml`: Hard rules (`{paths.research}` only, `.md` files only). A path outside that scope is a HIGH finding, the same severity class as `skill/ai-component-review`'s `tools`/`approved_tools`/`blocked_commands` rule.
+- If the diff adds a file under a directory an arc42 section already describes, confirm that section's building-block table and `key_files` were updated to include it, per `steering/global/knowledge-consumption.md`'s Doc-Update Acceptance Gate. A missing update is a MEDIUM finding.
+
+### Step 3 — Review Security and Logging
 
 Go through security and logging requirements line by line. Each unmet requirement is a finding classified HIGH or CRITICAL.
 
-### Step 3 — Review Standards Compliance
+### Step 4 — Review Standards Compliance
 
 Check naming conventions, file headers, doc comments, async patterns, error handling, and any other rules in the active standards files.
 
-### Step 4 — Review Logic and Correctness
+### Step 5 — Review Logic and Correctness
 
 Does the implementation match the plan's described behaviour? Are edge cases handled?
 Are interfaces implemented as specified?
 
-### Step 5 — Produce Review Report
+### Step 6 — Produce Review Report
 
-Hand the findings gathered in Steps 1-4 to `skill/review-severity` for severity classification, ordering, and
+Hand the findings gathered in Steps 1-5 to `skill/review-severity` for severity classification, ordering, and
 the report itself — this skill defines what to check, not how findings are ranked or rendered.
 
 ---
