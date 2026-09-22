@@ -30,13 +30,19 @@ path, by contrast, injects text directly as a synthetic user turn via Claude Cod
 Remote's own message-delivery system, which never passes through that client-side
 command-interception layer at all — hence it just arrives as literal text.
 
+## Safety against a busy/live session — confirmed safe
+
+User deliberately sent `claude -p "/compact" --cloud <id>` while the target session
+was mid-turn (actively "thinking") rather than idle — **no corruption, worked fine**.
+So `--cloud` does not appear to share the race-condition failure mode that
+`-p --resume` had (that corruption came from two processes writing the same local
+transcript file concurrently). `--cloud` presumably queues/serializes the message
+properly server-side through the same channel a live interactive turn would use,
+rather than racing raw file writes. This removes the need to gate firing it on
+confirmed idle state.
+
 ## Open items / not yet tested
 
-- Does this require the target session to be idle first, or does it work against a
-  live/busy session safely? (The original `idle-compact.sh` corruption we hit was
-  from a *different* mechanism — `-p --resume` racing a live local transcript — not
-  necessarily proof `--cloud` has the same race risk. Worth testing deliberately
-  against a genuinely busy target to see if it queues safely or corrupts anything.)
 - Confirming this from a machine/environment with real account-level auth is a
   prerequisite — it won't work from any sandbox running on API-key/OAuth-token-only
   credentials without a full `claude auth login`.
