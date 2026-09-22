@@ -63,11 +63,15 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `61e584b` (`process-model/phase-8-skill-deletions`)
-**Current phase:** Phases 1–8 done and merged. Phases 1–6 merged (PRs #35, #36, #38,
-#40, #41, #42). Phase 7 (checks 9–11, vocabulary rename) merged via PR #44
-(`fd077fa`) — see Phase 7 below for detail. **Phase 8 (checks 12–14, skill
-retirement) merged via PR #50** (merge commit `08c9cab`) — see Phase 8 below.
+**Last commit at last tracker update:** `eb39f8e` (`process-model/phase-9-template-alignment`)
+**Current phase:** Phases 1–8 done and merged, plus the structural-review phase
+(checks 36–37). Phases 1–6 merged (PRs #35, #36, #38, #40, #41, #42). Phase 7 (checks
+9–11, vocabulary rename) merged via PR #44 (`fd077fa`) — see Phase 7 below for detail.
+Phase 8 (checks 12–14, skill retirement) merged via PR #50 (merge commit `08c9cab`) —
+see Phase 8 below. Structural-review phase (checks 36–37) merged via PRs #54/#55
+(merge commits `de53c26`/`83f6752`) — see that section below. **Phase 9 (check 15,
+template alignment) implemented on this branch, commit `eb39f8e` — see Phase 9 below;
+not yet merged (PR to be opened).**
 
 **Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
 integration branch before/with #50** (all from live human feedback during Phase 8
@@ -669,12 +673,29 @@ drift is caught automatically going forward. Commits: `ec5bf70`, `d0b0c27`
 > below) has landed. Check 15 rebuilds `projects/_template/` on the very layout
 > check 36 redefines; building it twice is the failure this gate exists to prevent.
 
-- [ ] **Check 15** — `projects/_template/` rebuilt on the full new layout (paths,
-      `plans/{features,tasks,orchestration}/`, `knowledge/decisions/`,
-      `knowledge/architecture/`, `knowledge/research/`, no `knowledge/product/`);
-      `project-standards.md` references updated. Commit: `_____`
+- [x] **Check 15** — `projects/_template/` rebuilt on the full new layout: paths
+      (`.aiconfig.json`'s `paths.epics`/`paths.chunks`/`paths.orchestration` replaced
+      with `paths.features`, per check 36's per-Feature folder collapse rather than the
+      three-separate-dirs shape the check's original process-model.md wording predates;
+      `paths.architecture` and `paths.research` added; no `paths.product`),
+      `plans/features/` (replacing `plans/{epics,chunks,orchestration}/`),
+      `knowledge/decisions/`, `knowledge/architecture/`, `knowledge/research/` (all
+      three empty — created lazily, never pre-scaffolded), no `knowledge/product/`;
+      `project-standards.md`'s stale `decision-record` skill reference updated to
+      point at `document-types.md` + `plan-lifecycle`. `lib/project-init.js`'s
+      `buildAiConfig()` (what `aif init` actually generates `.aiconfig.json` from, not
+      a copy of the template's own file) updated to the same paths shape, plus its
+      `tests/integration/init.test.js` coverage. Commit: `eb39f8e`.
 
-**Checkpoint 9:** _____
+**Checkpoint 9:** `npm test` 713/713, `npm run validate`/`lint` clean, `aif snapshot
+--check` clean (bundle sources untouched by this check). Also fixed, trivial and
+incidental to touching this exact area (Rule 4 exception):
+`docs/architecture/05_building_blocks.md`'s `projects/_template` row cited "check 13"
+for the `.aiconfig.json` schema — that's check 3's territory, check 13 is the
+skill-deletion check. Pre-existing, unrelated `aif index architecture --check`
+staleness on `01_introduction_and_goals.md`/`02_constraints.md`/`05_building_blocks.md`
+confirmed still present before and after this check's own edits — not this check's to
+fix, still check 33/17 territory per the structural-review checkpoint's note above.
 
 ---
 

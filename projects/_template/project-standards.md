@@ -99,8 +99,7 @@ follows this section as part of the active standards file; no separate opt-in me
 
 ## Known Constraints & Decisions
 
-Technical decisions and constraints are stored in `knowledge/decisions/`.
-Use the decision-record skill to create them.
+Technical decisions and constraints are stored as MADR-format ADRs in `knowledge/decisions/` — see `steering/engineering/document-types.md` for what belongs there and `skill/plan-lifecycle` for the draft-to-approved procedure.
 
 ---
 
