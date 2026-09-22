@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-projects'
-version: '0.7.0'
+version: '0.7.1'
 description: 'Git workflow for project repositories where agents produce code.'
 file_patterns: []
 ---
@@ -27,7 +27,7 @@ Files under `paths.plans` (which the orchestration state file lives under, via `
 
 ### Rule: Implementation Must Not Begin Until the Governing Plan Is Approved
 
-A `Draft` or `Deferred` plan does not satisfy this — see `steering/engineering/core.md`: "Never Implement Without an Approved Plan" → "Plans Are Committed Artifacts, Not Chat Output".
+A `Draft` or `Deferred` plan does not satisfy this — see `steering/engineering/core.md`: "Implementation Follows the Complexity-Tiers Gate" → "Plans Are Committed Artifacts, Not Chat Output".
 
 ### Branching
 

@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
@@ -30,7 +30,7 @@ If no `knowledge/index.json` exists, scan `knowledge/` directory listings to dis
 ### What to Load
 
 - **Never skip:** entries with `scope: "all"` and tags matching your current task
-- **Never ignore:** confirmed Decision Records that relate to your work area
+- **Decision Records are index-only by default:** an Approved Decision Record relevant to your work area must be identified from the index (title, status, tags, one-line description) before proceeding — never ignored — but its full body is loaded only once you determine it is actually relevant to what you're doing, not automatically for every relevant-looking entry
 - **Load if relevant:** entries scoped to your domain or agent name
 - **May skip:** entries scoped to other domains/agents with no tag overlap to your task
 - **Never reference:** a Decision Record that is not in the `Approved` status — these are not authoritative
@@ -40,6 +40,16 @@ If no `knowledge/index.json` exists, scan `knowledge/` directory listings to dis
 Standards are prescriptive rules. Knowledge is descriptive reference.
 If knowledge describes a pattern that conflicts with the active standards file, follow the standards. Raise the conflict as a finding — do not silently ignore either source.
 
+### Doc-Update Acceptance Gate
+
+When a task extends a building block an arc42 architecture doc already describes, updating that doc is part of the task's completion, not an afterthought. This explicitly includes _adding_ a new `key_files` entry for a newly created file that extends the described block — not only editing prose for files already listed.
+
+- A new file that implements or extends a building block already described in an arc42 section must be added to that section's `key_files` list as part of the same task, not deferred
+- A new file introducing a genuinely new building block not yet described anywhere needs a new arc42 entry (or subsection), not just a `key_files` addition to an unrelated section
+- Check this before presenting a result, alongside self-validation
+
+This closes a gap the staleness mechanism can't catch on its own: `aif index architecture --check` only watches files already present in a section's `key_files`, so it has no way to flag a new file that should have been added but wasn't.
+
 ---
 
 ## Enforcement
@@ -47,6 +57,7 @@ If knowledge describes a pattern that conflicts with the active standards file, 
 - **Skipped-knowledge violations:** Caught during review. Work that contradicts an available, relevant knowledge entry — especially a confirmed Decision Record — that should have been loaded is a MEDIUM finding.
 - **Stale-reference violations:** Caught during review. Citing a Decision Record not in `Approved` status as authoritative is a HIGH finding, the same severity class as citing an unapproved plan.
 - **Silent-conflict violations:** Caught during review. Following knowledge over an active standard without raising the conflict as a finding is a MEDIUM finding — the standard should have won, and the conflict should have been surfaced either way.
+- **Doc-update gate violations:** Caught during Principal-Engineer review. A new file extending a described building block with no corresponding `key_files` update is a MEDIUM finding.
 
 ---
 
