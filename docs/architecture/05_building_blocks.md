@@ -173,14 +173,14 @@ cut across that boundary and hide it.
 
 ### Component sources (declarative — resolved by `resolver.js`, transformed by a harness adapter)
 
-| Block                 | Responsibility                                                                                  | Interface                                                                                 |
-| --------------------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `agents/`             | Agent definitions: role, prompt, tool grants, skill list.                                       | One `{name}.yaml` per agent — see `AGENTS.md` for the schema                              |
-| `skills/`             | Reusable procedures agents invoke by name.                                                      | `SKILL.md` + optional `reference/` per skill folder                                       |
-| `steering/`           | Always-on rules, global plus per-domain.                                                        | `.md` files under `global/` and `{domain}/`                                               |
-| `standards/`          | Tag-matched coding/stack rules.                                                                 | `.md` files, tag-matched per `standards` in `.aiconfig.json`                              |
-| `bundles/`            | Per-harness install bundle definitions (domain auto-discovery and/or explicit component lists). | `{name}/bundle.yaml`                                                                      |
-| `projects/_template/` | Skeleton a new project is scaffolded from by `aif init`.                                        | Directory tree + a placeholder `.aiconfig.json` (see check 13 in `docs/process-model.md`) |
+| Block                 | Responsibility                                                                                  | Interface                                                                                |
+| --------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `agents/`             | Agent definitions: role, prompt, tool grants, skill list.                                       | One `{name}.yaml` per agent — see `AGENTS.md` for the schema                             |
+| `skills/`             | Reusable procedures agents invoke by name.                                                      | `SKILL.md` + optional `reference/` per skill folder                                      |
+| `steering/`           | Always-on rules, global plus per-domain.                                                        | `.md` files under `global/` and `{domain}/`                                              |
+| `standards/`          | Tag-matched coding/stack rules.                                                                 | `.md` files, tag-matched per `standards` in `.aiconfig.json`                             |
+| `bundles/`            | Per-harness install bundle definitions (domain auto-discovery and/or explicit component lists). | `{name}/bundle.yaml`                                                                     |
+| `projects/_template/` | Skeleton a new project is scaffolded from by `aif init`.                                        | Directory tree + a placeholder `.aiconfig.json` (see check 3 in `docs/process-model.md`) |
 
 ## White-box expansions
 
