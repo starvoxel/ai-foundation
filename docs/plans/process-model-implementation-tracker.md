@@ -107,6 +107,15 @@ authoring/review gap surfaced while implementing checks 9–11, deliberately
 kept out of process-model.md's own checks since it isn't vocabulary-rename
 scope.
 
+**`process-model/arc42-no-plan-references` (`05ab92c`), per direct human
+instruction:** arc42 docs (`02_constraints.md`, `05_building_blocks.md`,
+`_template.md`) had five citations into `docs/process-model.md` itself — a
+`Status: Draft` plan that gets triaged/archived once Phase 17 lands, so a
+living architecture doc depending on its path/check-numbering was a forward
+reference to a temporary artifact. All five removed or reworded to describe
+the pending change itself rather than naming which plan/check drives it. See
+that commit's message for the full per-row breakdown.
+
 **Fixed directly, not deferred:** `skills/task-orchestration/SKILL.md`'s raw
 `git` calls (both orchestrating/implementing agents declare
 `blocked_commands: ["git *"]`) → `ai-git` (`d2c1e48`). This repo's own
