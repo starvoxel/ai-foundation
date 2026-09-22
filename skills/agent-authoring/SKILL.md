@@ -136,7 +136,7 @@ Verify against the checklist:
 
 ## Edge Cases
 
-- **Agent needs a tool not in the canonical list** — if it's an MCP server tool, use `@server/tool_name` format. If it's a genuinely new built-in tool, add it to the tool list in `skills/agent-authoring/reference/tools.md`.
+- **Agent needs a tool not in the canonical list** — if it's an MCP server tool, use `@server/tool_name` format. If it's a genuinely new built-in tool, add it to the tool list in `skills/agent-authoring/reference/tools.yaml`.
 - **Skill doesn't exist yet** — create the skill first using `skill/skill-authoring`, then reference it.
 - **Unsure about domain** — check what steering directories exist in `steering/`. If none fit, the agent may need a new domain (which means creating corresponding steering files).
 - **Two agents overlap in responsibility** — clarify scope boundaries in both prompts. Each agent should have a distinct, non-overlapping job.
