@@ -63,15 +63,17 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `eb39f8e` (`process-model/phase-9-template-alignment`)
-**Current phase:** Phases 1–8 done and merged, plus the structural-review phase
+**Last commit at last tracker update:** `05ab92c` (`process-model/arc42-no-plan-references`)
+**Current phase:** Phases 1–9 done and merged, plus the structural-review phase
 (checks 36–37). Phases 1–6 merged (PRs #35, #36, #38, #40, #41, #42). Phase 7 (checks
 9–11, vocabulary rename) merged via PR #44 (`fd077fa`) — see Phase 7 below for detail.
 Phase 8 (checks 12–14, skill retirement) merged via PR #50 (merge commit `08c9cab`) —
 see Phase 8 below. Structural-review phase (checks 36–37) merged via PRs #54/#55
 (merge commits `de53c26`/`83f6752`) — see that section below. **Phase 9 (check 15,
-template alignment) implemented on this branch, commit `eb39f8e` — see Phase 9 below;
-not yet merged (PR to be opened).**
+template alignment) merged via PR #59** — see Phase 9 below. **In flight, outside the
+numbered checks: `process-model/arc42-no-plan-references` (PR #60, commit `05ab92c`)
+— see "Also merged into this integration branch, outside the numbered checks" below;
+not yet merged.**
 
 **Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
 integration branch before/with #50** (all from live human feedback during Phase 8
@@ -111,6 +113,15 @@ authoring/review gap surfaced while implementing checks 9–11, deliberately
 kept out of process-model.md's own checks since it isn't vocabulary-rename
 scope.
 
+**`process-model/arc42-no-plan-references` (`05ab92c`), per direct human
+instruction:** arc42 docs (`02_constraints.md`, `05_building_blocks.md`,
+`_template.md`) had five citations into `docs/process-model.md` itself — a
+`Status: Draft` plan that gets triaged/archived once Phase 17 lands, so a
+living architecture doc depending on its path/check-numbering was a forward
+reference to a temporary artifact. All five removed or reworded to describe
+the pending change itself rather than naming which plan/check drives it. See
+that commit's message for the full per-row breakdown.
+
 **Fixed directly, not deferred:** `skills/task-orchestration/SKILL.md`'s raw
 `git` calls (both orchestrating/implementing agents declare
 `blocked_commands: ["git *"]`) → `ai-git` (`d2c1e48`). This repo's own
@@ -122,7 +133,7 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: open the structural-review PR, then Phase 9 (check 15).
+Next: merge PR #60 (arc42-no-plan-references), then Phase 10 (checks 16–18).
 
 ---
 
