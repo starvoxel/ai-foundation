@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-22T19:19:23.296Z",
+  "generated_at": "2026-09-22T20:01:18.609Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -107,7 +107,7 @@
         "lib/decisions.js",
         "servers/dag/dag.yaml"
       ],
-      "last_verified": "faffb74",
+      "last_verified": "5a18a06",
       "stale": false
     }
   ],
