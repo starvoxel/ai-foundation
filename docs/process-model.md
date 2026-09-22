@@ -1,8 +1,8 @@
 # Process Model — Efficiency Rework
 
-> Status: Draft
+> Status: Approved
 > Created: 2026-09-03
-> Approved by: Pending
+> Approved by: Jeremy Smellie
 
 Target-state description of a lighter process, plus the transition plan to reach it.
 Replaces the Epic→Chunk model, the 8-agent role-pipeline (architect / tech-lead /
