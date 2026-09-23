@@ -175,8 +175,7 @@ cut across that boundary and hide it.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
 - **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining
-  harness-agnostic support libraries `resolver.js` isn't part of, split out
-  once this doc's own `key_files` list grew past the template's guidance.
+  harness-agnostic support libraries `resolver.js` isn't part of.
 
 Other blocks above stay at this level — each is a single, thin, single-purpose
 module; a further whitebox wouldn't add information a reader doesn't already have
