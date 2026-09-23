@@ -123,7 +123,7 @@ Standard layout for a Node package or CLI project:
 ```
 
 - **Tests are colocated** with the code they test, named `{module}.test.js` (matches this repo's existing pattern), unless a project standard specifies a separate `test/` tree.
-- **Pure logic separate from I/O.** Functions that parse, validate, or transform data should not perform file/network I/O directly — pass data in, return data out, and let a thin wrapper function handle I/O. This enables fast unit tests without mocking the filesystem (see engineering steering Rule 6).
+- **Pure logic separate from I/O.** Functions that parse, validate, or transform data should not perform file/network I/O directly — pass data in, return data out, and let a thin wrapper function handle I/O. This enables fast unit tests without mocking the filesystem (see `steering/engineering/core.md`: "Design for Testability").
 
 ---
 
