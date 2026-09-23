@@ -74,9 +74,10 @@ Structural-review phase (checks 36–37) merged via PRs #54/#55 (merge commits
 merged via PR #59 (`02c4a75`) — see Phase 9 below. `process-model/arc42-no-plan-references`
 merged via PR #60 (`7a01580`) — see that section below. `docs/process-model.md` itself
 approved on `main` (`910b90f`, human: Jeremy Smellie) and merged into this branch
-(`5e83332`). **Phase 10 (checks 16–18, steering & reference sweep) implemented on
-`process-model/phase-10-steering-reference-sweep`** — see Phase 10 above. **Ready for
-PR.**
+(`5e83332`). Phase 10 (checks 16–18, steering & reference sweep) merged via PR #61 (merge commit
+`75bf2f7`). Phase 11 (checks 19–21, cross-cutting process/security rules) merged via PR
+#62 (merge commit `cc87c77`) — see Phase 11 above. **Phase 12 (checks 22–23, regeneration
+& top-level docs) in progress on `process-model/phase-12-regeneration-top-level-docs`.**
 
 **Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
 integration branch before/with #50** (all from live human feedback during Phase 8
@@ -135,8 +136,8 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: open PR for `process-model/phase-10-steering-reference-sweep`, merge it, then
-Phase 11 (checks 19–21, cross-cutting process/security rules).
+Next: finish Phase 12 (checks 22–23) on `process-model/phase-12-regeneration-top-level-docs`,
+open its PR, merge it, then Phase 13 (checks 24–25, verification).
 
 ---
 
@@ -779,7 +780,13 @@ integration branch automatically once PR #61 merges and that branch is deleted.*
       Software-Engineer's and Architect's Hard rules — verified, no edit needed. Commit:
       `8bb5e09`
 
-**Checkpoint 11:** _____
+**Checkpoint 11:** `npm test` 715/715, `npm run validate` (schema/refs/bundles) clean,
+`aif index architecture|decisions --check` both clean. Checks 19–21 were all
+steering/prompt-text edits (trifecta-avoidance rule, code-review Step 2, Software-Engineer
+Hard rules) — no code or schema surface changed, so no new tests were needed. Merged via
+PR #62 into this integration branch (merge commit `cc87c77`), after fixing a human
+reviewer's "Cite, Don't Restate" finding on the code-review Step 2 addition (folded into
+commit `8bb5e09` before merge, not a separate commit).
 
 ---
 
