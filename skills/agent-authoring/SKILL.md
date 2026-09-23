@@ -1,6 +1,6 @@
 ---
 name: 'agent-authoring'
-version: '0.5.1'
+version: '0.6.0'
 description: 'Creates a well-formed agent definition with proper tool selection and prompt design.'
 ---
 
@@ -124,6 +124,7 @@ Verify against the checklist:
 - [ ] `preload_skills`, if present, is either `["*"]` or a subset of `skills`
 - [ ] Every citation of another skill, agent, or doc is checked against `steering/engineering/core.md`: "Cite, Don't Restate" — cited, not also restated
 - [ ] Purpose/Responsibilities/other narrative sections don't restate an enumerated constraint that Hard rules already states (`steering/engineering/core.md`: "Cite, Don't Restate") — point to Hard rules instead
+- [ ] `tools` combining a `moderate` and a `privileged` entry has the isolation documented in Hard rules (`skills/agent-authoring/reference/tools.yaml`'s trifecta-avoidance rule) — otherwise drop one side or add the documentation
 
 ---
 
