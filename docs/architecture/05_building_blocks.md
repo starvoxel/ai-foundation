@@ -136,10 +136,10 @@ cut across that boundary and hide it.
 
 ### Core libraries (`lib/*.js`) — see §5.03
 
-| Block          | Responsibility                                                                                                        | Interface                                                                              |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `resolver.js`  | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                     | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()`  |
-| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js` — see §5.03. | See §5.03. |
+| Block           | Responsibility                                                                                                                                                                 | Interface                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `resolver.js`   | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                            | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
+| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
