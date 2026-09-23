@@ -1,12 +1,12 @@
 ---
 name: 'feature-planning'
-version: '0.3.1'
+version: '0.3.2'
 description: 'Produces a Feature Plan describing a complete feature at a human-reviewable level, decomposed into Tasks when more than one is needed.'
 ---
 
 ## Purpose
 
-Translates a goal (human request, PRD, or Decision Record) into a structured Feature
+Translates a goal (human request, PRD, or ADR) into a structured Feature
 Plan that describes the feature at a level a human can review and give feedback on —
 coarse: _what_, not _how_. When the Feature needs more than one Task, also produces
 the `tasks.json` decomposition.
@@ -19,11 +19,11 @@ holds, is `skill/complexity-tiers`: "Apply tier selection rules"'s call at dispa
 
 ## Inputs
 
-- **Goal** — human request, PRD, or Decision Record describing what to build
+- **Goal** — human request, PRD, or ADR describing what to build
 - **Project config** — `.aiconfig.json` at project root (for paths, project name/shortname, standards reference)
 - **Project standards** — from `projects/{name}/project-standards.md` or path in `.aiconfig.json`
 - **Language standards** — from `standards/{stack}.md` (stack identified by `.aiconfig.json` or ask)
-- **Decision Records** — any relevant prior decisions (check before writing)
+- **ADRs** — any relevant prior decisions (check before writing)
 
 ---
 
@@ -31,7 +31,7 @@ holds, is `skill/complexity-tiers`: "Apply tier selection rules"'s call at dispa
 
 ### Step 1 — Read Inputs
 
-Read all available context. If a Decision Record exists, the Feature must not contradict it.
+Read all available context. If an ADR exists, the Feature must not contradict it.
 Identify ambiguities or conflicts to raise as open questions.
 
 ### Step 2 — Determine Feature ID
@@ -109,7 +109,7 @@ This skill's job ends at the dependency graph and each Task's scope summary.
 
 ## Edge Cases
 
-- **PRD conflicts with Decision Record** — raise as a HIGH priority open question. Do not silently resolve.
+- **PRD conflicts with ADR** — raise as a HIGH priority open question. Do not silently resolve.
 - **Scope too large to decompose cleanly** — suggest splitting into multiple Features.
 - **No Out of Scope items** — the iteration is too large. Find something to defer.
 - **DAG validation fails after 3 retries** — stop and escalate to the human. Present the validation errors and the current `tasks.json` state. Do not proceed with an invalid dependency graph.

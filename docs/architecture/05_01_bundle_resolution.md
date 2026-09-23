@@ -2,7 +2,7 @@
 section: '05.01'
 title: 'Bundle resolution'
 lifecycle: published
-last_verified: e066376
+last_verified: faffb74
 tags: [building-blocks, resolver]
 key_files:
   - lib/resolver.js
@@ -75,13 +75,13 @@ what actually crosses the file's boundary).
 
 ## Interface
 
-| Export                                                  | Purpose                                                                                          |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `resolveBundle(bundleName, repoRoot)`                   | The entry point above — returns a `ResolvedBundle`.                                              |
-| `parseSkillRef(ref)`                                    | `"skill/decision-record"` → `"decision-record"`; bare names pass through; empty string → `null`. |
-| `parseServerToolRef(tool)`                              | Parses an agent's `@server/tool`-format tool entry into its server name.                         |
-| `listStandards/Bundles/Servers/HookResources(repoRoot)` | Directory listings used by `aif list` — independent of bundle resolution itself.                 |
-| `dedupe(arr)`                                           | Order-preserving de-duplication, shared by all four resolved lists.                              |
+| Export                                                  | Purpose                                                                                        |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `resolveBundle(bundleName, repoRoot)`                   | The entry point above — returns a `ResolvedBundle`.                                            |
+| `parseSkillRef(ref)`                                    | `"skill/plan-lifecycle"` → `"plan-lifecycle"`; bare names pass through; empty string → `null`. |
+| `parseServerToolRef(tool)`                              | Parses an agent's `@server/tool`-format tool entry into its server name.                       |
+| `listStandards/Bundles/Servers/HookResources(repoRoot)` | Directory listings used by `aif list` — independent of bundle resolution itself.               |
+| `dedupe(arr)`                                           | Order-preserving de-duplication, shared by all four resolved lists.                            |
 
 ## Consumers
 

@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-projects'
-version: '0.7.0'
+version: '0.7.2'
 description: 'Git workflow for project repositories where agents produce code.'
 file_patterns: []
 ---
@@ -27,7 +27,7 @@ Files under `paths.plans` (which the orchestration state file lives under, via `
 
 ### Rule: Implementation Must Not Begin Until the Governing Plan Is Approved
 
-A `Draft` or `Deferred` plan does not satisfy this — see `steering/engineering/core.md`: "Never Implement Without an Approved Plan" → "Plans Are Committed Artifacts, Not Chat Output".
+A `Draft` or `Deferred` plan does not satisfy this — see `steering/engineering/core.md`: "Implementation Follows the Complexity-Tiers Gate" → "Plans Are Committed Artifacts, Not Chat Output".
 
 ### Branching
 
@@ -39,7 +39,7 @@ Never commit directly to `main` (except plans/knowledge per "Plans, Orchestratio
 
 `{plan-id}/{short-description}` (e.g. `PROJ-001/add-user-service`).
 
-### Rule: One Chunk Plan Per Branch
+### Rule: One Task Per Branch
 
 Do not mix unrelated work.
 
@@ -55,7 +55,7 @@ Include the Plan ID in the first commit message on a branch.
 
 ### Commit Granularity — Option A (this repo type's default)
 
-**Option A (recommended): Commit per completed plan step/task.** Each task in the Chunk Plan's task list is its own commit once verified. Directly traceable to the plan; commits naturally carry the Plan ID (`steering/engineering/core.md`: "Every Artifact Must Reference Its Plan ID"). See `git-workflow-core.md`: "Commit Implementation Incrementally" for Options B and C.
+**Option A (recommended): Commit per completed plan step/task.** Each task in the Feature Plan's `tasks.json` is its own commit once verified. Directly traceable to the plan; commits naturally carry the Plan ID (`steering/engineering/core.md`: "Every Artifact Must Reference Its Plan ID"). See `git-workflow-core.md`: "Commit Implementation Incrementally" for Options B and C.
 
 ### Merging
 

@@ -1,6 +1,6 @@
 ---
 name: 'ai-component-review'
-version: '0.2.1'
+version: '0.2.4'
 description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via skill/review-severity.'
 ---
 
@@ -8,7 +8,7 @@ description: 'Reviews an agent, skill, steering, server, or bundle definition ag
 
 Reviews a completed AI-component diff — an agent definition, skill, steering file, server definition, or
 bundle definition — against the schema AGENTS.md defines for that component type, this repo's own
-conventions, and (when the change implements one) its Chunk Plan or Decision Record. Gets the same review as
+conventions, and (when the change implements one) its governing plan or ADR. Gets the same review as
 product code, just a different checklist: branch by artifact type the same way `skill/code-review` branches
 by language standard.
 
@@ -18,7 +18,7 @@ by language standard.
 
 - **Component diff** — the changed file(s) under `agents/`, `skills/`, `steering/`, `servers/`, or `bundles/`
 - **Governing schema** — AGENTS.md's entry for that component type
-- **Related plan, if any** — the Chunk Plan or Decision Record the change implements
+- **Related plan, if any** — the Feature Plan (Task work decomposed from one), a Tier 3 plan (standalone work that rose to Tier 3), or an ADR the change implements — standalone Tier 1/2 work has no separate plan artifact by default
 
 ---
 

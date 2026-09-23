@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-18T17:51:01.437Z",
+  "generated_at": "2026-09-22T20:01:18.609Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -14,7 +14,7 @@
         "README.md",
         "AGENTS.md"
       ],
-      "last_verified": "0abda56",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -31,7 +31,7 @@
         "lib/harnesses/base.js",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "1908630",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -49,8 +49,8 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "e066376",
-      "stale": true
+      "last_verified": "faffb74",
+      "stale": false
     },
     {
       "path": "05_01_bundle_resolution.md",
@@ -65,7 +65,7 @@
       "key_files": [
         "lib/resolver.js"
       ],
-      "last_verified": "e066376",
+      "last_verified": "faffb74",
       "stale": false
     },
     {
@@ -103,10 +103,12 @@
         "lib/harnesses/base.js",
         "lib/manifest.js",
         "lib/architecture.js",
-        "lib/index-diff.js"
+        "lib/index-diff.js",
+        "lib/decisions.js",
+        "servers/dag/dag.yaml"
       ],
-      "last_verified": "9776f12",
-      "stale": true
+      "last_verified": "5a18a06",
+      "stale": false
     }
   ],
   "reverse_index": {
@@ -157,6 +159,12 @@
       "05_building_blocks.md"
     ],
     "lib/index-diff.js": [
+      "05_building_blocks.md"
+    ],
+    "lib/decisions.js": [
+      "05_building_blocks.md"
+    ],
+    "servers/dag/dag.yaml": [
       "05_building_blocks.md"
     ]
   }
