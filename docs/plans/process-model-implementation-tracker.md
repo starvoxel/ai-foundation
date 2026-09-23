@@ -63,7 +63,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `5c7297a` (`process-model/phase-10-steering-reference-sweep`)
+**Last commit at last tracker update:** `8524364` (`process-model/phase-12-regeneration-top-level-docs`)
 **Current phase:** Phases 1–9 done and merged, plus the structural-review phase
 (checks 36–37) and `process-model/arc42-no-plan-references`. Phases 1–6 merged (PRs
 #35, #36, #38, #40, #41, #42). Phase 7 (checks 9–11, vocabulary rename) merged via PR
@@ -76,8 +76,10 @@ merged via PR #60 (`7a01580`) — see that section below. `docs/process-model.md
 approved on `main` (`910b90f`, human: Jeremy Smellie) and merged into this branch
 (`5e83332`). Phase 10 (checks 16–18, steering & reference sweep) merged via PR #61 (merge commit
 `75bf2f7`). Phase 11 (checks 19–21, cross-cutting process/security rules) merged via PR
-#62 (merge commit `cc87c77`) — see Phase 11 above. **Phase 12 (checks 22–23, regeneration
-& top-level docs) in progress on `process-model/phase-12-regeneration-top-level-docs`.**
+#62 (merge commit `cc87c77`) — see Phase 11 above. **Phase 12 (checks 22–23,
+regeneration & top-level docs) implemented on
+`process-model/phase-12-regeneration-top-level-docs`** — see Phase 12 above. **Ready
+for PR.**
 
 **Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
 integration branch before/with #50** (all from live human feedback during Phase 8
@@ -136,8 +138,8 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: finish Phase 12 (checks 22–23) on `process-model/phase-12-regeneration-top-level-docs`,
-open its PR, merge it, then Phase 13 (checks 24–25, verification).
+Next: open PR for `process-model/phase-12-regeneration-top-level-docs`, merge it, then
+Phase 13 (checks 24–25, verification).
 
 ---
 
@@ -792,12 +794,29 @@ commit `8bb5e09` before merge, not a separate commit).
 
 ## Phase 12 — Regeneration & top-level docs (checks 22–23)
 
-- [ ] **Check 22** — `bundles/engineering/snapshot.json` regenerated (only after
-      checks 6 and 13 have actually landed). Commit: `_____`
-- [ ] **Check 23** — `README.md`, `PLAN.md`, `AGENTS.md`, `agents/README.md`,
-      `skills/README.md` updated. Commit: `_____`
+Branch: `process-model/phase-12-regeneration-top-level-docs`
 
-**Checkpoint 12:** _____
+- [x] **Check 22** — `bundles/engineering/snapshot.json` regenerated (only after
+      checks 6 and 13 have actually landed — both did, long before this phase, and
+      every intervening checkpoint's `aif snapshot --check` already kept it current).
+      Verified current, no diff produced by `aif snapshot --bundle engineering` — no
+      commit, nothing to change.
+- [x] **Check 23** — `README.md`, `AGENTS.md`, `PLAN.md` swept: Epic/Chunk → Feature/Task,
+      "Decision Records" → "ADRs", "Epic IDs" → "Feature IDs", the deleted
+      `aif index knowledge` command replaced with `aif index architecture`/`--check`,
+      `docs/` directory descriptions broadened to mention ADRs and arc42 docs.
+      `agents/README.md`/`skills/README.md` checked — both generic, no chunk/epic/
+      decision-record wording, no edit needed. `install.ps1` confirmed out of scope per
+      the check's own note (already deleted, dead per `ARCH-001`). Commit: `8524364`
+
+**Checkpoint 12:** `npm test` 715/715, `npm run validate`/`lint`/`typecheck`/
+`format:check` clean, `aif snapshot --check` and `aif index architecture|decisions
+--check` all clean. Also fixed, incidental to this phase's own housekeeping: the
+tracker's Phase 11 Checkpoint note had been left blank (`_____`) when PR #62 merged —
+backfilled per the ground rules' "last commit updates the tracker" requirement, since
+an unfilled checkpoint note is itself a tracker-resuming hazard (Rule from "Resuming
+after a break" above: a blank checkpoint means the prior state can't be trusted without
+re-verification). Commit: `272fdb6`.
 
 ---
 
