@@ -286,10 +286,12 @@ graph is deliberately not adopted; too early, and it gives structure without int
 claims wrong — the actual thing the staleness check tests. Excludes callers/consumers
 of the described behavior, test files (they validate behavior, not define it —
 including them false-positives on every refactor), and incidentally-touched
-config/types. Past roughly 5–8 entries, that's a signal to split into a finer
+config/types. There's no hard cap on the list's length. Past 5 entries, each new
+addition is a prompt to re-evaluate whether the section should split into a finer
 subsection (`05.01`, `05.02`, …) rather than let the list keep growing — a short,
 tight list is what keeps a rename or deletion a meaningful CI failure, not routine
-noise.
+noise, but that's a judgment call made fresh at every addition, not a fixed ceiling
+that forces a split at a specific count.
 
 The one-line summary stays a body convention (a blockquote after the H1), so it
 doesn't drift from frontmatter.

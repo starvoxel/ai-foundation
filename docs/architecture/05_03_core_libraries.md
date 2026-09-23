@@ -27,9 +27,9 @@ key_files:
 This is the largest single group in §5's "Core libraries" row — 10 files
 across 6 responsibilities — and the one most likely to gain a new file as the
 CLI grows. Giving it its own `key_files` list keeps the top-level §5 doc's own
-list at a size that still fits the template's 5-8-entry guidance, while these
-files' individual freshness stays tracked here instead of silently dropping
-out of `aif index architecture --check` coverage.
+list short enough that a rename or deletion there stays a meaningful signal,
+while these files' individual freshness stays tracked here instead of silently
+dropping out of `aif index architecture --check` coverage.
 
 ## Building blocks
 
