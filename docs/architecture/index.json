@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T20:20:07.918Z",
+  "generated_at": "2026-09-23T20:22:04.678Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -12,7 +12,8 @@
       ],
       "key_files": [
         "README.md",
-        "AGENTS.md"
+        "AGENTS.md",
+        "package.json"
       ],
       "last_verified": "faffb74",
       "stale": true
@@ -28,7 +29,11 @@
       ],
       "key_files": [
         "package.json",
+        "package-lock.json",
+        "tsconfig.json",
         "lib/harnesses/base.js",
+        "lib/resolver.js",
+        "steering/engineering/git-workflow-core.md",
         "steering/engineering/git-workflow-projects.md"
       ],
       "last_verified": "faffb74",
@@ -46,6 +51,7 @@
       ],
       "key_files": [
         "bin/aif.js",
+        "servers/dag/dag.yaml",
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
@@ -140,12 +146,27 @@
       "01_introduction_and_goals.md"
     ],
     "package.json": [
+      "01_introduction_and_goals.md",
+      "02_constraints.md"
+    ],
+    "package-lock.json": [
+      "02_constraints.md"
+    ],
+    "tsconfig.json": [
       "02_constraints.md"
     ],
     "lib/harnesses/base.js": [
       "02_constraints.md",
       "05_02_harness_adapters.md",
       "05_building_blocks.md"
+    ],
+    "lib/resolver.js": [
+      "02_constraints.md",
+      "05_01_bundle_resolution.md",
+      "05_building_blocks.md"
+    ],
+    "steering/engineering/git-workflow-core.md": [
+      "02_constraints.md"
     ],
     "steering/engineering/git-workflow-projects.md": [
       "02_constraints.md"
@@ -154,15 +175,15 @@
       "03_context.md",
       "05_building_blocks.md"
     ],
+    "servers/dag/dag.yaml": [
+      "03_context.md",
+      "05_building_blocks.md"
+    ],
     "servers/gmail/auth.js": [
       "03_context.md"
     ],
     "servers/youtrack/youtrack.yaml": [
       "03_context.md"
-    ],
-    "lib/resolver.js": [
-      "05_01_bundle_resolution.md",
-      "05_building_blocks.md"
     ],
     "lib/harnesses/claude.js": [
       "05_02_harness_adapters.md"
@@ -201,9 +222,6 @@
       "05_03_core_libraries.md"
     ],
     "lib/commands/index.js": [
-      "05_building_blocks.md"
-    ],
-    "servers/dag/dag.yaml": [
       "05_building_blocks.md"
     ]
   }

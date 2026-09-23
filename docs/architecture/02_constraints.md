@@ -6,7 +6,11 @@ last_verified: faffb74
 tags: [constraints]
 key_files:
   - package.json
+  - package-lock.json
+  - tsconfig.json
   - lib/harnesses/base.js
+  - lib/resolver.js
+  - steering/engineering/git-workflow-core.md
   - steering/engineering/git-workflow-projects.md
 ---
 
