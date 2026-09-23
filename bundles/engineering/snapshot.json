@@ -1,10 +1,10 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-09-23T20:10:03.402Z",
+  "computed_at": "2026-09-23T20:11:03.805Z",
   "sources": {
     "agents/architect.yaml": "sha256:33a2a992f1e77d3fe4d08f21fb908039a08978eb6244f1343923c42eab99e667",
-    "agents/engineering-manager.yaml": "sha256:acaa966cfe4a447146fe2c164e4486f9191800d7f8e4840578d9187771ca1d53",
+    "agents/engineering-manager.yaml": "sha256:582b64d776834ca1f9cb0f2b6a767045a9cc853140bc4b7c7b6d34f728330604",
     "agents/engineering-researcher.yaml": "sha256:0df9e858873fcdc54ca48d17dba38d8d1dd8d899791466764e6462b4723cbf64",
     "agents/principal-engineer.yaml": "sha256:d52e91d2d7ef26dc13b1fb485eb9a149cb930e4be9f5c77ae7bcd7a289c1edc9",
     "agents/software-engineer.yaml": "sha256:1d591c8ba1630be16b942d07394f2f213186467a2589b6613f33833f953fdd59",
