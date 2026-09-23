@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-22T20:01:18.609Z",
+  "generated_at": "2026-09-23T20:09:18.486Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -15,7 +15,7 @@
         "AGENTS.md"
       ],
       "last_verified": "faffb74",
-      "stale": false
+      "stale": true
     },
     {
       "path": "02_constraints.md",
@@ -87,6 +87,31 @@
       "stale": false
     },
     {
+      "path": "05_03_core_libraries.md",
+      "section": "05.03",
+      "title": "Core libraries",
+      "summary": "The harness-agnostic support libraries (`lib/*.js`, excluding `resolver.js` and `lib/harnesses/*`, each covered by their own §5.01/§5.02 expansion) that every command reuses — manifest tracking, snapshot diffing, decisions/ architecture indexing, project scaffolding, and shared constants.",
+      "lifecycle": "published",
+      "tags": [
+        "building-blocks",
+        "core-libraries"
+      ],
+      "key_files": [
+        "lib/manifest.js",
+        "lib/snapshot/io.js",
+        "lib/snapshot/pure.js",
+        "lib/decisions.js",
+        "lib/architecture.js",
+        "lib/index-diff.js",
+        "lib/project-init.js",
+        "lib/ai-git.js",
+        "lib/constants.js",
+        "lib/component-defs.js"
+      ],
+      "last_verified": "3129874",
+      "stale": false
+    },
+    {
       "path": "05_building_blocks.md",
       "section": "05",
       "title": "Building Block View",
@@ -101,13 +126,9 @@
         "lib/commands/index.js",
         "lib/resolver.js",
         "lib/harnesses/base.js",
-        "lib/manifest.js",
-        "lib/architecture.js",
-        "lib/index-diff.js",
-        "lib/decisions.js",
         "servers/dag/dag.yaml"
       ],
-      "last_verified": "5a18a06",
+      "last_verified": "3129874",
       "stale": false
     }
   ],
@@ -149,19 +170,37 @@
     "lib/harnesses/kiro.js": [
       "05_02_harness_adapters.md"
     ],
-    "lib/commands/index.js": [
-      "05_building_blocks.md"
-    ],
     "lib/manifest.js": [
-      "05_building_blocks.md"
+      "05_03_core_libraries.md"
     ],
-    "lib/architecture.js": [
-      "05_building_blocks.md"
+    "lib/snapshot/io.js": [
+      "05_03_core_libraries.md"
     ],
-    "lib/index-diff.js": [
-      "05_building_blocks.md"
+    "lib/snapshot/pure.js": [
+      "05_03_core_libraries.md"
     ],
     "lib/decisions.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/architecture.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/index-diff.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/project-init.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/ai-git.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/constants.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/component-defs.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/commands/index.js": [
       "05_building_blocks.md"
     ],
     "servers/dag/dag.yaml": [

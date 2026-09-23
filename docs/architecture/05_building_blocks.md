@@ -2,17 +2,13 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: 5a18a06
+last_verified: 3129874
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
   - lib/commands/index.js
   - lib/resolver.js
   - lib/harnesses/base.js
-  - lib/manifest.js
-  - lib/architecture.js
-  - lib/index-diff.js
-  - lib/decisions.js
   - servers/dag/dag.yaml
 ---
 
@@ -138,19 +134,12 @@ cut across that boundary and hide it.
 | `index.js`     | Generates the decisions and architecture indexes (`aif index decisions\|architecture`).                                            | `runIndex(parsed, repoRoot)`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
 | `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
 
-### Core libraries (`lib/*.js`)
+### Core libraries (`lib/*.js`) — see §5.03
 
-| Block                                 | Responsibility                                                                                                                                                                                                                                                      | Interface                                                                                                  |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `resolver.js`                         | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                                                                                                                 | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()`                      |
-| `manifest.js`                         | Tracks every file `aif install` writes, per bundle/server/hook, in `.installs.yaml` — what `uninstall` reads to know what to remove.                                                                                                                                | `readManifest()`/`writeManifest()`, `get/set/removeEntry()`                                                |
-| `snapshot/io.js` + `snapshot/pure.js` | Builds and diffs source-file-hash snapshots per bundle/server/hook to detect drift between installed output and current source.                                                                                                                                     | `buildSnapshot()`, `diffSnapshot()`, `isFreshnessCurrent()`                                                |
-| `decisions.js`                        | Parses a `.decision.md` file's `## Metadata` table, builds/diffs the decisions index, inverts `Supersedes` into `superseded_by`. The parser reads that Markdown table, not YAML frontmatter — retargeting to MADR frontmatter is a pending, not yet landed, change. | `parseDecisionRecord()`, `buildDecisionIndex()`, `diffDecisionIndex()`                                     |
-| `architecture.js`                     | Parses arc42 section frontmatter, builds/diffs the architecture index, computes each doc's `stale` flag from `last_verified` vs. real git history of its `key_files`, and inverts `key_files` into a `source path → [docs]` reverse index.                          | `parseArchitectureSection()`, `buildArchitectureIndex()`, `diffArchitectureIndex()`, `isStaleAgainstGit()` |
-| `index-diff.js`                       | Generic index-entry structural comparison (sorts any array-valued field before comparing) — no decision or architecture domain knowledge, just the diffing primitive both `decisions.js` and `architecture.js` diff against.                                        | `entriesEqual()`                                                                                           |
-| `project-init.js`                     | Validates project name/shortname, generates `.aiconfig.json` content, applies template placeholder substitution.                                                                                                                                                    | `buildAiConfig()`, `applyProjectConfig()`                                                                  |
-| `ai-git.js`                           | Pure logic behind the `ai-git` CLI: identity resolution, env injection, gh-command detection and auth-arg construction.                                                                                                                                             | `getIdentity()`, `buildGitEnv()`, `buildGhEnv()`                                                           |
-| `constants.js` / `component-defs.js`  | Shared constants (canonical tool names, source directories, CLI command list) and JSDoc-only `AgentDef`/`ServerDef` type shapes — no runtime behavior, just a single owner for both.                                                                                | `TOOLS`, `SOURCE_DIRS`, `COMMANDS`                                                                         |
+| Block          | Responsibility                                                                                                        | Interface                                                                              |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `resolver.js`  | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                     | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()`  |
+| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js` — see §5.03. | See §5.03. |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
@@ -185,6 +174,9 @@ cut across that boundary and hide it.
   domain-auto-discovery algorithm in full.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
+- **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining
+  harness-agnostic support libraries `resolver.js` isn't part of, split out
+  once this doc's own `key_files` list grew past the template's guidance.
 
 Other blocks above stay at this level — each is a single, thin, single-purpose
 module; a further whitebox wouldn't add information a reader doesn't already have
