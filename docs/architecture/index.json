@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-23T20:09:18.486Z",
+  "generated_at": "2026-09-23T20:13:01.187Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -108,7 +108,7 @@
         "lib/constants.js",
         "lib/component-defs.js"
       ],
-      "last_verified": "3129874",
+      "last_verified": "3004d07",
       "stale": false
     },
     {
