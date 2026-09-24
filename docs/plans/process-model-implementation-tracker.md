@@ -63,7 +63,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `8524364` (`process-model/phase-12-regeneration-top-level-docs`)
+**Last commit at last tracker update:** `d852773` (`process-model/phase-13-verification`)
 **Current phase:** Phases 1–9 done and merged, plus the structural-review phase
 (checks 36–37) and `process-model/arc42-no-plan-references`. Phases 1–6 merged (PRs
 #35, #36, #38, #40, #41, #42). Phase 7 (checks 9–11, vocabulary rename) merged via PR
@@ -76,10 +76,11 @@ merged via PR #60 (`7a01580`) — see that section below. `docs/process-model.md
 approved on `main` (`910b90f`, human: Jeremy Smellie) and merged into this branch
 (`5e83332`). Phase 10 (checks 16–18, steering & reference sweep) merged via PR #61 (merge commit
 `75bf2f7`). Phase 11 (checks 19–21, cross-cutting process/security rules) merged via PR
-#62 (merge commit `cc87c77`) — see Phase 11 above. **Phase 12 (checks 22–23,
-regeneration & top-level docs) implemented on
-`process-model/phase-12-regeneration-top-level-docs`** — see Phase 12 above. **Ready
-for PR.**
+#62 (merge commit `cc87c77`) — see Phase 11 above. Phase 12 (checks 22–23, regeneration
+& top-level docs) implemented on `process-model/phase-12-regeneration-top-level-docs`,
+open as PR #64 — see Phase 12 above. **Phase 13 (checks 24–25, verification)
+implemented on `process-model/phase-13-verification`, stacked on PR #64's tip** — see
+Phase 13 above. **Both ready for PR/merge, PR #64 first.**
 
 **Follow-up fixes landed alongside Phase 8, each its own small PR merged into this
 integration branch before/with #50** (all from live human feedback during Phase 8
@@ -138,8 +139,11 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: open PR for `process-model/phase-12-regeneration-top-level-docs`, merge it, then
-Phase 13 (checks 24–25, verification).
+Next: merge PR #64 (Phase 12) and PR for `process-model/phase-13-verification`
+(stacked on it — see Phase 13 above for why), in that order once #64 lands, then Phase
+14 (checks 26–31, decisions conversion) — starting with check 26's human decision gate
+on `ARCH-004`/`ARCH-007`/`PROC-003`, which can be decided any time regardless of merge
+order since it's a pure human call with no code dependency.
 
 ---
 
@@ -822,12 +826,63 @@ re-verification). Commit: `272fdb6`.
 
 ## Phase 13 — Verification (checks 24–25)
 
-- [ ] **Check 24** — `tests/validation/` cross-reference check passes; `npm test`
-      green; fixtures cleaned up per the listed files. Commit: `_____`
-- [ ] **Check 25** — Terminology-sweep automated validation check (zero stray
-      `chunk`/`epic` outside the named exceptions). Commit: `_____`
+**Branched from `process-model/phase-12-regeneration-top-level-docs` (PR #64's tip), not
+the integration branch — check 25's automated sweep needs check 23's terminology fixes
+in its own history to pass. PR opened with base = `process-model/phase-12-regeneration-top-level-docs`;
+GitHub retargets it to the integration branch automatically once PR #64 merges and that
+branch is deleted (same pattern Phase 11 used against Phase 10/PR #61). **Restacked once
+via `git rebase` after PR #64's branch was itself rebased onto the integration branch's
+later tip** (PR #63 + the structural-review phase landed in between) — kept as a clean
+linear stack rather than a merge commit, per the PR-stack convention this pair is meant
+to follow; original commit SHAs below were superseded by the rebase and are recorded as
+their final, post-rebase values.**
 
-**Checkpoint 13:** _____
+- [x] **Check 24** — `tests/validation/` (91/91) and `npm test` (716/716) were already
+      green against the current corpus, so this check's scope reduced to the fixture
+      cleanup it names: `tests/unit/decisions.test.js` and
+      `tests/integration/decisions-index.test.js` each had one incidental "chunk"
+      comment left (a testability-requirement reference and a citation to the
+      historical AIF-002-009 fix) — reworded to drop the word without losing the
+      AIF-002-009 traceability. The other fixture files check 24 names were already
+      clean. Commits: `5a9e615`, `97a6f80` (the same pattern found in `lib/decisions.js`,
+      outside check 24's own named list but same root cause).
+- [x] **Check 25** — New `tests/validation/terminology-sweep.test.js`: whole-word
+      (`\bchunk\b`/`\bepic\b`, case-insensitive), repo-wide guard over every git-tracked
+      file. Scoping it against the real repo surfaced check 25's exception list was
+      incomplete as originally written — fixed in `docs/process-model.md` itself
+      alongside the test (human-approved: amend directly rather than narrow-fix or
+      pause for a full spec review). A bare substring search false-positives on
+      ordinary words ("chunking", "epic" inside "FilePicker"); `servers/gmail/**` and
+      `lib/harnesses/assets/block-command/**` use "chunk" as unrelated batching/
+      streaming vocabulary that whole-word matching alone doesn't clear; and the two
+      YouTrack notes files, three `Status: Done` untriaged plans, and
+      `docs/process-model.md`/this tracker itself were real un-exempted matches with
+      no covering exception. Commit: `ba49b9d`. CI caught a self-referential gap the
+      day this landed: the test's own `git ls-files` scan matched its own source once
+      committed (it necessarily names "chunk"/"epic" in its comments, regex literal, and
+      test descriptions) — fixed with a `SELF_PATH` self-exemption, documented in
+      `docs/process-model.md`'s check-25 row too. Commit: `d852773`.
+
+**Also fixed on this branch, found while scoping check 25 (Rule 4 exception —
+trivially small, zero architectural impact, directly adjacent to the check being
+implemented):** Phase 12's own `aif index architecture --check` had been run against
+the working tree before its check-23 commit existed, so it reported clean at the time
+but the commit itself left `01_introduction_and_goals.md`'s `last_verified` genuinely
+stale; this phase's own `lib/decisions.js` fix did the same to what was then
+`05_building_blocks.md`'s `key_files`. Neither doc's prose references the changed
+content (verified), so both got a pure `last_verified` bump, no content edit, per the
+existing `d0b0c27`/`cf22bd8`/`ec5bf70` precedent. Re-resolved again during the rebase
+above, once PR #64's own rebase had split `05_building_blocks.md`'s `lib/*` rows into a
+new `05_03_core_libraries.md`: `01_introduction_and_goals.md` → `ffbc8a7` (check 23's
+rebased commit, the real latest touch on its key_files), `05_03_core_libraries.md` →
+`97a6f80` (this branch's own rebased `lib/decisions.js` fix, now the doc that owns that
+file), `05_building_blocks.md` left untouched (`3129874`, already correct — none of its
+remaining key_files changed). `docs/architecture/index.json` regenerated to match.
+Commit: `786c4a2`.
+
+**Checkpoint 13:** `npm test` 716/716, `npm run validate`/`lint`/`typecheck`/
+`format:check` clean, `aif snapshot --check` clean, `aif index architecture|decisions
+--check` both clean. Ready for PR.
 
 ---
 

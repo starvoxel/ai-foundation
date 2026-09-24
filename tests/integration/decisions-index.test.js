@@ -57,7 +57,7 @@ Test fixture.
 }
 
 // Legacy pre-Tier×Domain fixture (mirrors AIF-ARCH-001/002/003, migrated
-// without Tier/Domain fields — chunk AIF-002-009, "light-touch"). Human-
+// without Tier/Domain fields — see AIF-002-009's "light-touch" fix). Human-
 // approved fix, no formal Plan ID, per chat approval 2026-08-24.
 function legacyDecisionFixture({ id, status = 'Approved', references = '—', title }) {
   return `# Decision Record: ${title}

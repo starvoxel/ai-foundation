@@ -10,7 +10,7 @@
 /**
  * Unit tests for decision-record metadata parsing, index building, and
  * diffing (lib/decisions.js). All fixtures are synthetic in-memory strings —
- * no real disk I/O, per this chunk's testability requirement.
+ * no real disk I/O, keeping the parsing logic testable without disk fixtures.
  */
 
 import { describe, it } from 'node:test';
@@ -56,8 +56,8 @@ Test fixture.
 }
 
 // Legacy pre-Tier×Domain record (mirrors AIF-ARCH-001/002/003, which were
-// deliberately migrated without Tier/Domain fields — chunk AIF-002-009,
-// "light-touch"). Human-approved fix, no formal Plan ID, per chat approval
+// deliberately migrated without Tier/Domain fields — see AIF-002-009's
+// "light-touch" fix). Human-approved fix, no formal Plan ID, per chat approval
 // 2026-08-24.
 function legacyRecordMissingTierAndDomain({
   id = 'AIF-ARCH-001',
