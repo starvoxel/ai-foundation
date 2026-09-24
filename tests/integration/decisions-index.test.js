@@ -341,4 +341,16 @@ describe('integration: decision index', () => {
       assert.equal(resolved, join(projectRoot, 'knowledge', 'decisions'));
     });
   });
+
+  describe('DEC-IT08: malformed .aiconfig.json', () => {
+    it('`aif index decisions` exits non-zero with a clean message instead of throwing', async () => {
+      writeFileSync(join(projectRoot, '.aiconfig.json'), '{ not json', 'utf8');
+
+      const { code, output } = await quiet(() =>
+        runIndex({ args: {}, positional: ['decisions'] }, projectRoot),
+      );
+      assert.equal(code, 1);
+      assert.ok(output.some((line) => /not valid JSON/.test(line)));
+    });
+  });
 });
