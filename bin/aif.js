@@ -12,6 +12,18 @@ import { COMMANDS, HARNESSES } from '../lib/constants.js';
 // --- Argument parsing ---
 
 /**
+ * Short flag → canonical long flag, for the options typed often enough to
+ * be worth a one-letter alias. Deliberately not exhaustive — commands
+ * themselves are not short-aliased (install/init/index would collide on
+ * "i"), only flags.
+ */
+const SHORT_FLAG_ALIASES = {
+  h: 'help',
+  b: 'bundle',
+  H: 'harness',
+};
+
+/**
  * Parses raw argv into a structured command object.
  * @param {string[]} argv - process.argv.slice(2)
  * @returns {{ command: string|null, args: Record<string, string|boolean>, positional: string[] }}
@@ -73,6 +85,15 @@ export function parseArgs(argv) {
     }
   }
 
+  // Normalize short flags onto their canonical long form so every command
+  // handler only ever has to read the long key. Long form wins if both
+  // are somehow given.
+  for (const [short, long] of Object.entries(SHORT_FLAG_ALIASES)) {
+    if (short in result.args && !(long in result.args)) {
+      result.args[long] = result.args[short];
+    }
+  }
+
   return result;
 }
 
@@ -96,13 +117,13 @@ Commands:
   init        Scaffold a new project directory
 
 Options:
-  --bundle <name>    Bundle to install/uninstall; bundle to snapshot (snapshot: name optional, omit for all bundles)
-  --server [name]    Server to snapshot (snapshot command; omit name for all servers)
-  --hook [name]      Hook resource to snapshot (snapshot command; omit name for all hooks)
-  --harness <name>   Target harness (${HARNESSES.join(', ')})
-  --update           Update all installed bundles that are stale
-  --check            Verify snapshots without writing (snapshot command)
-  --help             Show this help message
+  -b, --bundle <name>   Bundle to install/uninstall; bundle to snapshot (snapshot: name optional, omit for all bundles)
+  --server [name]       Server to snapshot (snapshot command; omit name for all servers)
+  --hook [name]         Hook resource to snapshot (snapshot command; omit name for all hooks)
+  -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
+  --update              Update all installed bundles that are stale
+  --check               Verify snapshots without writing (snapshot command)
+  -h, --help            Show this help message
 
 Init Options:
   --name <name>         Project directory name
@@ -115,6 +136,7 @@ Init Options:
 
 Examples:
   aif install --bundle engineering --harness kiro
+  aif install -b engineering -H kiro
   aif install --update
   aif uninstall --bundle engineering --harness kiro
   aif status
