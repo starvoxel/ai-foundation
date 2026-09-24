@@ -1,6 +1,6 @@
 ---
 name: 'bundle-authoring'
-version: '0.2.0'
+version: '0.2.1'
 description: 'Creates a bundle definition that specifies what components to install for a harness.'
 ---
 
@@ -60,6 +60,7 @@ Explicit lists are appended after discovery. Duplicates are removed automaticall
 - [ ] Has either `domain` or at least one non-empty list (or both)
 - [ ] `name` is kebab-case, matches directory name
 - [ ] Referenced agents/skills/servers actually exist in the repo
+- [ ] Every citation of another skill, agent, or doc is checked against `steering/engineering/core.md`: "Cite, Don't Restate"
 
 ---
 

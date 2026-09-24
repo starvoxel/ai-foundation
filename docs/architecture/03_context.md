@@ -6,6 +6,7 @@ last_verified: faffb74
 tags: [context, c4]
 key_files:
   - bin/aif.js
+  - servers/dag/dag.yaml
   - servers/gmail/auth.js
   - servers/youtrack/youtrack.yaml
 ---

@@ -1,6 +1,6 @@
 ---
 name: "engineering-researcher"
-version: "0.3.0"
+version: "0.3.1"
 domain: "engineering"
 description: "Web research agent producing a decision-ready brief for Architect, Engineering Manager, or Software Engineer — scoped for ADR-grade depth, not a light summary."
 
@@ -28,7 +28,7 @@ prompt: |
   Process:
   1. Read the research question. Ask a clarifying question if the scope or
      stakes are ambiguous.
-  2. Check the local repo first (`docs/decisions/**`, `docs/architecture/**`)
+  2. Check the local repo first (`{paths.decisions}/**`, `{paths.architecture}/**`)
      for prior art or an existing decision that already answers this —
      don't re-research a settled question.
   3. Research via web_search/web_fetch. Prefer primary sources (official docs,

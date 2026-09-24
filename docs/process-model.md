@@ -282,14 +282,9 @@ currency, because that claim goes stale the moment it's written.
 
 `key_files` is structured data in frontmatter, not prose — file-level binding (a code
 graph is deliberately not adopted; too early, and it gives structure without intent).
-**Scope:** list a file only if a change to _that file's logic_ would make this doc's
-claims wrong — the actual thing the staleness check tests. Excludes callers/consumers
-of the described behavior, test files (they validate behavior, not define it —
-including them false-positives on every refactor), and incidentally-touched
-config/types. Past roughly 5–8 entries, that's a signal to split into a finer
-subsection (`05.01`, `05.02`, …) rather than let the list keep growing — a short,
-tight list is what keeps a rename or deletion a meaningful CI failure, not routine
-noise.
+Scope and the split-vs-grow trade-off are `steering/engineering/architecture-authoring.md`'s
+rules, not restated here — that file is the portable one agents in any project actually
+carry; this section is this repo's own record of why the mechanism exists.
 
 The one-line summary stays a body convention (a blockquote after the H1), so it
 doesn't drift from frontmatter.
