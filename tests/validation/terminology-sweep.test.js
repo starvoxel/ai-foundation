@@ -16,11 +16,19 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
+
+// This file's own path, relative to ROOT, in the same slash-separated form
+// git ls-files produces — it necessarily names the words it's checking for
+// (comments, the regex literal, describe/it strings), so it must exempt
+// itself rather than be caught by its own sweep once committed.
+const SELF_PATH = relative(ROOT, fileURLToPath(import.meta.url))
+  .split(/[\\/]/)
+  .join('/');
 
 // Whole-word, case-insensitive — a bare substring match false-positives on
 // things like "chunking" or "FilePicker".
@@ -64,6 +72,7 @@ function listTrackedFiles() {
 }
 
 function isExcluded(relPath) {
+  if (relPath === SELF_PATH) return true;
   if (EXCLUDED_FILES.has(relPath)) return true;
   return EXCLUDED_PREFIXES.some((prefix) => relPath.startsWith(prefix));
 }
