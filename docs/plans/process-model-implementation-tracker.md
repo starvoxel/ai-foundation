@@ -897,7 +897,7 @@ Branch: `process-model/phase-14-decisions-conversion`
 
 - [x] **Check 26** — Human decision gate: explicit `Approved`/`Deferred` call for
       `ARCH-004`, `ARCH-007`, `PROC-003` (all still `Draft`). Human call (chat, this
-      session): **all three `Deferred`**. Commit: `_____`
+      session): **all three `Deferred`**. Commit: `cee8e5c`
 
 **Mid-phase checkpoint (blocking — needs your call on the three Draft records):**
 Resolved — human deferred all three. Per `process-model.md`'s dispositioning table
