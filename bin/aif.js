@@ -117,7 +117,7 @@ Commands:
   init        Scaffold a new project directory
 
 Options:
-  -b, --bundle <name>   Bundle to install/uninstall; bundle to snapshot (snapshot: name optional, omit for all bundles)
+  -b, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only); bundle to snapshot (snapshot: name optional, omit for all bundles)
   --server [name]       Server to snapshot (snapshot command; omit name for all servers)
   --hook [name]         Hook resource to snapshot (snapshot command; omit name for all hooks)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
@@ -137,6 +137,7 @@ Init Options:
 Examples:
   aif install --bundle engineering --harness kiro
   aif install -b engineering -H kiro
+  aif install --bundle engineering,product --harness kiro
   aif install --update
   aif uninstall --bundle engineering --harness kiro
   aif status
