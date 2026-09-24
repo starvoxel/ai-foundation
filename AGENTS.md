@@ -31,7 +31,7 @@ ai-foundation/
 ├── servers/                         ← MCP tool server definitions
 ├── bundles/                         ← Install bundles (per-harness deployment)
 ├── projects/                        ← Per-project overrides
-├── docs/                            ← Decision records
+├── docs/                            ← Plans, ADRs, and arc42 architecture docs
 ├── bin/                             ← CLI entry point (aif)
 ├── lib/                             ← CLI modules
 └── tests/                           ← unit/, integration/, validation/
@@ -126,7 +126,7 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | Field                          | Type   | Required | Description                                                                                                                                                                  |
 | ------------------------------ | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `project_name`                 | string | Yes      | Project identifier used in file naming and human-readable metadata                                                                                                           |
-| `project_shortname`            | string | No       | Short project identifier (max 5 characters) used in Epic IDs and worktree paths. Falls back to `project_name` if unset.                                                      |
+| `project_shortname`            | string | No       | Short project identifier (max 5 characters) used in Feature IDs and worktree paths. Falls back to `project_name` if unset.                                                   |
 | `repo_type`                    | string | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                                                    |
 | `standards`                    | object | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                                             |
 | `project_standards`            | string | No       | Path to project-specific standards override                                                                                                                                  |
@@ -137,7 +137,7 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `paths`                        | object | No       | Artifact output directories (relative to repo root)                                                                                                                          |
 | `paths.plans`                  | string | No       | Root for all plan artifacts. Default: `plans`                                                                                                                                |
 | `paths.features`               | string | No       | Root for a Feature's folder — `{paths.features}/{FeatureID}/plan.md`, `tasks.json`, and `orchestration-state.json` all live together as siblings. Default: `plans/features`  |
-| `paths.decisions`              | string | No       | Decision Records (MADR), flat directory, no domain subfolders. Default: `knowledge/decisions`                                                                                |
+| `paths.decisions`              | string | No       | ADRs (MADR format), flat directory, no domain subfolders. Default: `knowledge/decisions`                                                                                     |
 | `paths.knowledge`              | string | No       | Knowledge directory. Default: `knowledge`                                                                                                                                    |
 | `paths.architecture`           | string | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                                               |
 | `paths.research`               | string | No       | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research`                                                                                            |
