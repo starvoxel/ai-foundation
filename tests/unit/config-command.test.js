@@ -1,5 +1,5 @@
 /**
- * Unit tests for the `aif get-config` command (lib/commands/get-config.js).
+ * Unit tests for the `aif config` command (lib/commands/config.js).
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -8,7 +8,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { runGetConfig } from '../../lib/commands/get-config.js';
+import { runConfig } from '../../lib/commands/config.js';
 
 function quiet(fn) {
   const origLog = console.log;
@@ -26,11 +26,11 @@ function quiet(fn) {
   }
 }
 
-describe('unit: get-config command', () => {
+describe('unit: config command', () => {
   let projectRoot;
 
   beforeEach(() => {
-    projectRoot = mkdtempSync(join(tmpdir(), 'get-config-test-'));
+    projectRoot = mkdtempSync(join(tmpdir(), 'config-test-'));
   });
 
   afterEach(() => {
@@ -38,13 +38,13 @@ describe('unit: get-config command', () => {
   });
 
   it('returns 1 with no key given', () => {
-    const { code } = quiet(() => runGetConfig({ args: {}, positional: [] }, projectRoot));
+    const { code } = quiet(() => runConfig({ args: {}, positional: [] }, projectRoot));
     assert.equal(code, 1);
   });
 
   it('prints the resolved default value for an unset key', () => {
     const { code, out } = quiet(() =>
-      runGetConfig({ args: {}, positional: ['paths.decisions'] }, projectRoot),
+      runConfig({ args: {}, positional: ['paths.decisions'] }, projectRoot),
     );
     assert.equal(code, 0);
     assert.equal(out[0], 'knowledge/decisions');
@@ -56,21 +56,21 @@ describe('unit: get-config command', () => {
       JSON.stringify({ paths: { decisions: 'archive/decisions' } }),
     );
     const { out } = quiet(() =>
-      runGetConfig({ args: {}, positional: ['paths.decisions'] }, projectRoot),
+      runConfig({ args: {}, positional: ['paths.decisions'] }, projectRoot),
     );
     assert.equal(out[0], 'archive/decisions');
   });
 
   it('prints an absolute path with --abs', () => {
     const { out } = quiet(() =>
-      runGetConfig({ args: { abs: true }, positional: ['paths.decisions'] }, projectRoot),
+      runConfig({ args: { abs: true }, positional: ['paths.decisions'] }, projectRoot),
     );
     assert.equal(out[0], join(projectRoot, 'knowledge/decisions'));
   });
 
   it('returns 1 with a descriptive error for an unknown field', () => {
     const { code, err } = quiet(() =>
-      runGetConfig({ args: {}, positional: ['not_a_real_field'] }, projectRoot),
+      runConfig({ args: {}, positional: ['not_a_real_field'] }, projectRoot),
     );
     assert.equal(code, 1);
     assert.ok(err.join('').includes('Unknown'));

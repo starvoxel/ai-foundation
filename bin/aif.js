@@ -94,7 +94,7 @@ Commands:
   snapshot    Compute source hashes for bundles, servers, and hook resources
   index       Generate a knowledge or decision index for a project
   init        Scaffold a new project directory
-  get-config  Resolve a .aiconfig.json field, falling back to its default
+  config      Resolve a .aiconfig.json field, falling back to its default
 
 Options:
   --bundle <name>    Bundle to install/uninstall; bundle to snapshot (snapshot: name optional, omit for all bundles)
@@ -132,8 +132,8 @@ Examples:
   aif index decisions --check
   aif init --name my-app --language typescript --org acme
   aif init --interactive
-  aif get-config paths.decisions
-  aif get-config paths.decisions --abs
+  aif config paths.decisions
+  aif config paths.decisions --abs
 `.trim();
 
 function printHelp() {
@@ -155,7 +155,7 @@ import { runTest } from '../lib/commands/test.js';
 import { runSnapshot } from '../lib/commands/snapshot.js';
 import { runIndex } from '../lib/commands/index.js';
 import { runInit } from '../lib/commands/init.js';
-import { runGetConfig } from '../lib/commands/get-config.js';
+import { runConfig } from '../lib/commands/config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -197,8 +197,8 @@ export async function run(parsed) {
       return runIndex(parsed, process.cwd());
     case 'init':
       return runInit(parsed, process.cwd());
-    case 'get-config':
-      return runGetConfig(parsed, process.cwd());
+    case 'config':
+      return runConfig(parsed, process.cwd());
     default:
       return 1;
   }
