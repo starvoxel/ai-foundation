@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-14T11:30:41.600Z",
+  "generated_at": "2026-09-24T20:15:06.396Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -45,7 +45,7 @@
       "tier": "A",
       "domain": "architecture",
       "title": "Standards Push/Pull/Sync Mechanism",
-      "status": "Draft",
+      "status": "Deferred",
       "path": "architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md",
       "supersedes": [],
       "superseded_by": [],
@@ -109,7 +109,7 @@
       "tier": "A",
       "domain": "architecture",
       "title": "Epic/Chunk Tracking Migration to YouTrack",
-      "status": "Draft",
+      "status": "Deferred",
       "path": "architecture/AIF-ARCH-007_epic-chunk-youtrack-migration.decision.md",
       "supersedes": [],
       "superseded_by": [],
@@ -215,7 +215,7 @@
       "tier": "A",
       "domain": "process",
       "title": "Parallel Chunk Isolation Mechanism (Git Worktrees)",
-      "status": "Draft",
+      "status": "Deferred",
       "path": "process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md",
       "supersedes": [],
       "superseded_by": [],

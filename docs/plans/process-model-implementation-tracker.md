@@ -139,10 +139,12 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: Phase 14 (checks 26–31, decisions conversion) — starting with check 26's human
-decision gate on `ARCH-004`/`ARCH-007`/`PROC-003` (all still `Draft`); no phase branch
-should be cut for checks 27+ until that gate is resolved (tracker ground rules above,
-"Phase 14" pause note).
+Next: Phase 14 (checks 26–31, decisions conversion). Check 26's human decision gate is
+resolved — `ARCH-004`, `ARCH-007`, `PROC-003` all `Deferred` (human call, chat, this
+session) — on branch `process-model/phase-14-decisions-conversion`. Check 27 (existing
+decision records dispositioned per the table) is next; the phase's second pause point
+(after checks 28–29's bulk MADR rewrite, before check 30's indexer retarget) still
+applies (tracker ground rules above, "Phase 14" pause note).
 
 ---
 
@@ -891,10 +893,20 @@ regenerated to match each time. Final commit: `50a29bc`.
 
 ## Phase 14 — Decisions conversion (checks 26–31)
 
-- [ ] **Check 26** — Human decision gate: explicit `Approved`/`Deferred` call for
-      `ARCH-004`, `ARCH-007`, `PROC-003` (all still `Draft`). Commit: `_____`
+Branch: `process-model/phase-14-decisions-conversion`
 
-**Mid-phase checkpoint (blocking — needs your call on the three Draft records):** _____
+- [x] **Check 26** — Human decision gate: explicit `Approved`/`Deferred` call for
+      `ARCH-004`, `ARCH-007`, `PROC-003` (all still `Draft`). Human call (chat, this
+      session): **all three `Deferred`**. Commit: `_____`
+
+**Mid-phase checkpoint (blocking — needs your call on the three Draft records):**
+Resolved — human deferred all three. Per `process-model.md`'s dispositioning table
+(lines ~544–550), none of the "once approved" conversion paths for `ARCH-004`/
+`ARCH-007`/`PROC-003` apply now — check 27 dispositions them alongside the other
+non-`Approved` records rather than converting their `Design` sections into arc42/MADR.
+`ARCH-004`'s standards-sync schema, `ARCH-007`'s YouTrack-migration design, and
+`PROC-003`'s worktrees ratification stay exactly as authored, just now `Deferred`
+instead of `Draft` — nothing about their content changed.
 
 - [ ] **Check 27** — Existing decision records dispositioned per the table; archive
       location created. Commit: `_____`
