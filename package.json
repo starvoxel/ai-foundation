@@ -9,8 +9,7 @@
   },
   "bin": {
     "aif": "./bin/aif.js",
-    "ai-git": "./bin/ai-git.js",
-    "aiconfig": "./bin/aiconfig.js"
+    "ai-git": "./bin/ai-git.js"
   },
   "scripts": {
     "test": "node --test \"**/*.test.js\" --test-reporter spec",

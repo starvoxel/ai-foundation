@@ -90,6 +90,21 @@ describe('unit: aiconfig', () => {
         );
       });
 
+      it('paths.epics/chunks/orchestration all nest under the resolved paths.plans', () => {
+        const config = { paths: { plans: 'docs/plans' } };
+        assert.equal(resolveConfigValue(config, 'paths.epics', projectRoot), 'docs/plans/epics');
+        assert.equal(resolveConfigValue(config, 'paths.chunks', projectRoot), 'docs/plans/chunks');
+        assert.equal(
+          resolveConfigValue(config, 'paths.orchestration', projectRoot),
+          'docs/plans/orchestration',
+        );
+      });
+
+      it('an explicit paths.epics overrides its nested default entirely', () => {
+        const config = { paths: { plans: 'docs/plans', epics: 'roadmap/epics' } };
+        assert.equal(resolveConfigValue(config, 'paths.epics', projectRoot), 'roadmap/epics');
+      });
+
       it('project_shortname defaults to the resolved project_name', () => {
         const config = { project_name: 'Widget' };
         assert.equal(resolveConfigValue(config, 'project_shortname', projectRoot), 'Widget');
