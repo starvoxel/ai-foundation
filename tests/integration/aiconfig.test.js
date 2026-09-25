@@ -5,7 +5,7 @@
  * tests/unit/ per AGENTS.md's Testing section ("tests/unit -- Fast, no
  * I/O" vs "tests/integration -- Filesystem tests"). The pure "config
  * value, else default" merge logic these build on is tested separately,
- * without any filesystem access, in tests/unit/aiconfig-resolve.test.js.
+ * without any filesystem access, in tests/unit/aiconfig.test.js.
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';

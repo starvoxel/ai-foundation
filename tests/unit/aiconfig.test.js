@@ -15,7 +15,7 @@ import { resolveConfigValue } from '../../lib/aiconfig-resolve.js';
 // project_name test below cares about its actual basename.
 const FAKE_ROOT = '/fake/project/root';
 
-describe('unit: aiconfig-resolve', () => {
+describe('unit: aiconfig', () => {
   describe('resolveConfigValue()', () => {
     it('returns the configured value when set', () => {
       const config = { paths: { plans: 'docs/plans' } };
