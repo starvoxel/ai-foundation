@@ -2,7 +2,7 @@
 section: '05.04'
 title: 'Decisions and architecture indexing'
 lifecycle: published
-last_verified: 9b2a27c
+last_verified: a82eb75
 tags: [building-blocks, indexing, decisions, architecture]
 key_files:
   - lib/decisions.js

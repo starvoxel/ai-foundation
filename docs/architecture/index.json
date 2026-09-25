@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T18:03:05.861Z",
+  "generated_at": "2026-09-25T18:04:04.357Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -131,7 +131,7 @@
         "lib/architecture.js",
         "lib/index-diff.js"
       ],
-      "last_verified": "9b2a27c",
+      "last_verified": "a82eb75",
       "stale": false
     },
     {
