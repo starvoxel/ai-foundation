@@ -8,7 +8,7 @@
 | Project        | ai-foundation                                                           |
 | Tier           | A                                                                       |
 | Domain         | architecture                                                            |
-| Status         | Draft                                                                   |
+| Status         | Deferred                                                                |
 | Author (Agent) | Architect                                                               |
 | Approved By    | Pending                                                                 |
 | Created        | 2026-08-13                                                              |
