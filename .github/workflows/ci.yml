@@ -25,12 +25,12 @@ jobs:
   # minimum — as separate jobs they cost ~6x more than the work they do.
   # One job, one checkout, one npm ci; steps are prefixed "Check:" to keep
   # them distinct from the shared setup steps above them in the log.
-  # Named for the category (non-test, static checks on the repo) rather
-  # than enumerating the steps, so adding/removing a check here doesn't
-  # also mean updating this job's name — and any required-status-check
-  # config pinned to it — every time.
-  static-checks:
-    name: Static checks
+  # Named for the category (validating the repo meets its various
+  # specifications) rather than enumerating the steps, so adding/removing
+  # a check here doesn't also mean updating this job's name — and any
+  # required-status-check config pinned to it — every time.
+  validate:
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
       - name: "Check: format"
         run: npm run format:check
 
-      - name: "Check: validate (schema, refs, bundles)"
+      - name: "Check: schema, refs, bundles"
         run: npm run validate
 
       - name: "Check: snapshot freshness (bundles, servers, hooks)"
