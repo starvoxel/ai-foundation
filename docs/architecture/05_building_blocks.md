@@ -141,12 +141,13 @@ cut across that boundary and hide it.
 | `index.js`     | Generates the decisions and architecture indexes (`aif index decisions\|architecture`).                                            | `runIndex(parsed, repoRoot)`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
 | `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
 
-### Core libraries (`lib/*.js`) — see §5.03
+### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
-| Block           | Responsibility                                                                                                                                                                 | Interface                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| `resolver.js`   | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                            | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
-| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js` — see §5.03. | See §5.03.                                                                            |
+| Block                                                | Responsibility                                                                                                             | Interface                                                                             |
+| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `resolver.js`                                        | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                        | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
+| `decisions.js` / `architecture.js` / `index-diff.js` | Parse, index, and diff ADRs and arc42 sections respectively, sharing one generic diffing primitive. See §5.04.             | See §5.04.                                                                            |
+| Everything else                                      | `manifest.js`, `snapshot/io.js`+`pure.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
@@ -182,7 +183,11 @@ cut across that boundary and hide it.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
 - **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining
-  harness-agnostic support libraries `resolver.js` isn't part of.
+  harness-agnostic support libraries `resolver.js` and the decisions/architecture
+  indexing pair aren't part of.
+- **§5.04 Decisions and architecture indexing** (`05_04_decisions_and_architecture_indexing.md`) —
+  the shared parse/build/diff pipeline behind `aif index decisions|architecture`,
+  and exactly where the two formats diverge.
 
 Other blocks above stay at this level — each is a single, thin, single-purpose
 module; a further whitebox wouldn't add information a reader doesn't already have
