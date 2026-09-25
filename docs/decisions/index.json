@@ -1,216 +1,120 @@
 {
-  "generated_at": "2026-09-25T17:14:50.206Z",
+  "generated_at": "2026-09-25T17:19:28.908Z",
   "entries": [
     {
-      "id": "AIF-ARCH-004",
-      "tier": "A",
-      "domain": "architecture",
-      "title": "Standards Push/Pull/Sync Mechanism",
-      "status": "Deferred",
-      "path": "archive/architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-004"
+      "id": "0001",
+      "title": "Install CLI Redesign",
+      "status": "accepted",
+      "date": "2026-07-31",
+      "path": "0001-install-cli-redesign.md",
+      "decision_makers": [
+        "Jeremy"
       ],
-      "referenced_by": [],
       "tags": [
-        "standards-sync",
+        "install",
         "cli",
-        "filesystem-sync",
-        "config-schema",
-        "conflict-detection"
+        "harness-adapters"
+      ],
+      "supersedes": [],
+      "superseded_by": [],
+      "affects": [
+        "bin/aif.js",
+        "lib/commands/install.js",
+        "lib/resolver.js",
+        "lib/harnesses/**",
+        "bundles/**"
       ]
     },
     {
-      "id": "AIF-ARCH-007",
-      "tier": "A",
-      "domain": "architecture",
-      "title": "Epic/Chunk Tracking Migration to YouTrack",
-      "status": "Deferred",
-      "path": "archive/architecture/AIF-ARCH-007_epic-chunk-youtrack-migration.decision.md",
+      "id": "0002",
+      "title": "Steering Schema & Harness Adapter Scoping",
+      "status": "accepted",
+      "date": "2026-08-01",
+      "path": "0002-steering-schema-harness-scoping.md",
+      "decision_makers": [
+        "Jeremy"
+      ],
+      "tags": [
+        "steering",
+        "harness-adapters",
+        "schema"
+      ],
       "supersedes": [],
       "superseded_by": [],
-      "references": [],
-      "referenced_by": [],
-      "tags": [
-        "youtrack",
-        "epic-planning",
-        "chunk-orchestration",
-        "tracking",
-        "audit-trail"
+      "affects": [
+        "lib/harnesses/base.js",
+        "lib/harnesses/claude.js",
+        "lib/harnesses/kiro.js",
+        "steering/**"
       ]
     },
     {
-      "id": "AIF-META-001",
-      "tier": "A",
-      "domain": "meta-process",
-      "title": "Decision-Record Tiering, Domain Ownership, and Interconnectivity",
-      "status": "Superseded",
-      "path": "archive/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-004",
-        "AIF-005",
-        "AIF-011 (current numbering; see migration table)"
+      "id": "0003",
+      "title": "Shared Resource Lifecycle Management (Servers & Hooks)",
+      "status": "accepted",
+      "date": "2026-08-13",
+      "path": "0003-shared-resource-lifecycle-management.md",
+      "decision_makers": [
+        "Jeremy"
       ],
-      "referenced_by": [
-        "AIF-META-002"
-      ],
-      "tags": []
-    },
-    {
-      "id": "AIF-META-002",
-      "tier": "A",
-      "domain": "meta-process",
-      "title": "Partial Amendment of Approved Decision Records",
-      "status": "Superseded",
-      "path": "archive/meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-META-001"
-      ],
-      "referenced_by": [],
       "tags": [
-        "decision-record",
-        "amendment",
-        "errata",
-        "plan-lifecycle",
-        "status-vocabulary"
+        "manifest",
+        "servers",
+        "hooks",
+        "lifecycle"
+      ],
+      "supersedes": [],
+      "superseded_by": [],
+      "affects": [
+        "lib/manifest.js",
+        "lib/commands/install.js",
+        "lib/commands/uninstall.js",
+        "lib/commands/snapshot.js",
+        "lib/harnesses/base.js"
       ]
     },
     {
-      "id": "AIF-PROC-001",
-      "tier": "A",
-      "domain": "process",
-      "title": "AI-Engineer / Software-Engineer Boundary for ai-foundation Repo Code",
-      "status": "Superseded",
-      "path": "archive/process/AIF-PROC-001_ai-engineer-framework-code-boundary.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [],
-      "referenced_by": [
-        "AIF-PROC-002",
-        "AIF-PROC-004",
-        "AIF-PROC-005",
-        "AIF-PROC-006"
+      "id": "0004",
+      "title": "DAG Validation/Wave-Computation as an MCP Server",
+      "status": "accepted",
+      "date": "2026-08-23",
+      "path": "0004-dag-tool-as-mcp-server.md",
+      "decision_makers": [
+        "Jeremy"
       ],
       "tags": [
-        "boundary",
-        "ownership",
-        "application-code"
+        "mcp",
+        "dag",
+        "tooling",
+        "cross-harness"
+      ],
+      "supersedes": [],
+      "superseded_by": [],
+      "affects": [
+        "servers/dag/**"
       ]
     },
     {
-      "id": "AIF-PROC-002",
-      "tier": "A",
-      "domain": "process",
-      "title": "AI-Track Chunk Orchestration Dispatch",
-      "status": "Superseded",
-      "path": "archive/process/AIF-PROC-002_ai-track-orchestration-dispatch.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-001"
-      ],
-      "referenced_by": [
-        "AIF-PROC-003",
-        "AIF-PROC-004",
-        "AIF-PROC-005",
-        "AIF-PROC-006"
+      "id": "0005",
+      "title": "`ai-git` Tool Boundary — CLI Script vs. MCP Server",
+      "status": "accepted",
+      "date": "2026-08-23",
+      "path": "0005-ai-git-tool-boundary.md",
+      "decision_makers": [
+        "Jeremy"
       ],
       "tags": [
-        "orchestration",
-        "dual-track",
-        "dispatch"
-      ]
-    },
-    {
-      "id": "AIF-PROC-003",
-      "tier": "A",
-      "domain": "process",
-      "title": "Parallel Chunk Isolation Mechanism (Git Worktrees)",
-      "status": "Deferred",
-      "path": "archive/process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md",
+        "mcp",
+        "ai-git",
+        "tooling",
+        "cross-harness",
+        "credentials"
+      ],
       "supersedes": [],
       "superseded_by": [],
-      "references": [
-        "AIF-PROC-002",
-        "AIF-PROC-005"
-      ],
-      "referenced_by": [],
-      "tags": [
-        "worktrees",
-        "orchestration",
-        "parallel-dispatch",
-        "chunk-isolation",
-        "git"
-      ]
-    },
-    {
-      "id": "AIF-PROC-004",
-      "tier": "B",
-      "domain": "process",
-      "title": "Ownership of Standards Push/Pull/Sync (PLAN.md v1.3)",
-      "status": "Deferred",
-      "path": "archive/process/AIF-PROC-004_standards-sync-ownership.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-001",
-        "AIF-PROC-002",
-        "AIF-PROC-005"
-      ],
-      "referenced_by": [
-        "AIF-ARCH-004"
-      ],
-      "tags": [
-        "standards-sync",
-        "ownership"
-      ]
-    },
-    {
-      "id": "AIF-PROC-005",
-      "tier": "A",
-      "domain": "process",
-      "title": "Git Workflow Mode for `ai-foundation`",
-      "status": "Deferred",
-      "path": "archive/process/AIF-PROC-005_git-workflow-mode.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-001",
-        "AIF-PROC-002"
-      ],
-      "referenced_by": [
-        "AIF-PROC-003",
-        "AIF-PROC-004"
-      ],
-      "tags": [
-        "git-workflow",
-        "orchestration",
-        "worktrees"
-      ]
-    },
-    {
-      "id": "AIF-PROC-006",
-      "tier": "A",
-      "domain": "process",
-      "title": "Who Sets AI-Track Chunk Boundaries",
-      "status": "Superseded",
-      "path": "archive/process/AIF-PROC-006_ai-track-chunk-decomposition-ownership.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-001",
-        "AIF-PROC-002"
-      ],
-      "referenced_by": [],
-      "tags": [
-        "chunk-boundaries",
-        "decomposition"
+      "affects": [
+        "bin/ai-git.js",
+        "lib/ai-git.js"
       ]
     }
   ]
