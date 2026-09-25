@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-24T20:15:06.396Z",
+  "generated_at": "2026-09-25T01:42:08.804Z",
   "entries": [
     {
       "id": "AIF-ARCH-001",
@@ -39,27 +39,6 @@
       "references": [],
       "referenced_by": [],
       "tags": []
-    },
-    {
-      "id": "AIF-ARCH-004",
-      "tier": "A",
-      "domain": "architecture",
-      "title": "Standards Push/Pull/Sync Mechanism",
-      "status": "Deferred",
-      "path": "architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-004"
-      ],
-      "referenced_by": [],
-      "tags": [
-        "standards-sync",
-        "cli",
-        "filesystem-sync",
-        "config-schema",
-        "conflict-detection"
-      ]
     },
     {
       "id": "AIF-ARCH-005",
@@ -105,12 +84,33 @@
       ]
     },
     {
+      "id": "AIF-ARCH-004",
+      "tier": "A",
+      "domain": "architecture",
+      "title": "Standards Push/Pull/Sync Mechanism",
+      "status": "Deferred",
+      "path": "archive/architecture/AIF-ARCH-004_standards-sync-mechanism.decision.md",
+      "supersedes": [],
+      "superseded_by": [],
+      "references": [
+        "AIF-PROC-004"
+      ],
+      "referenced_by": [],
+      "tags": [
+        "standards-sync",
+        "cli",
+        "filesystem-sync",
+        "config-schema",
+        "conflict-detection"
+      ]
+    },
+    {
       "id": "AIF-ARCH-007",
       "tier": "A",
       "domain": "architecture",
       "title": "Epic/Chunk Tracking Migration to YouTrack",
       "status": "Deferred",
-      "path": "architecture/AIF-ARCH-007_epic-chunk-youtrack-migration.decision.md",
+      "path": "archive/architecture/AIF-ARCH-007_epic-chunk-youtrack-migration.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [],
@@ -128,8 +128,8 @@
       "tier": "A",
       "domain": "meta-process",
       "title": "Decision-Record Tiering, Domain Ownership, and Interconnectivity",
-      "status": "Approved",
-      "path": "meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md",
+      "status": "Superseded",
+      "path": "archive/meta-process/AIF-META-001_decision-record-tiering-and-domain-ownership.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [
@@ -147,8 +147,8 @@
       "tier": "A",
       "domain": "meta-process",
       "title": "Partial Amendment of Approved Decision Records",
-      "status": "Approved",
-      "path": "meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md",
+      "status": "Superseded",
+      "path": "archive/meta-process/AIF-META-002_partial-amendment-of-approved-decisions.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [
@@ -168,8 +168,8 @@
       "tier": "A",
       "domain": "process",
       "title": "AI-Engineer / Software-Engineer Boundary for ai-foundation Repo Code",
-      "status": "Approved",
-      "path": "process/AIF-PROC-001_ai-engineer-framework-code-boundary.decision.md",
+      "status": "Superseded",
+      "path": "archive/process/AIF-PROC-001_ai-engineer-framework-code-boundary.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [],
@@ -190,8 +190,8 @@
       "tier": "A",
       "domain": "process",
       "title": "AI-Track Chunk Orchestration Dispatch",
-      "status": "Approved",
-      "path": "process/AIF-PROC-002_ai-track-orchestration-dispatch.decision.md",
+      "status": "Superseded",
+      "path": "archive/process/AIF-PROC-002_ai-track-orchestration-dispatch.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [
@@ -216,7 +216,7 @@
       "domain": "process",
       "title": "Parallel Chunk Isolation Mechanism (Git Worktrees)",
       "status": "Deferred",
-      "path": "process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md",
+      "path": "archive/process/AIF-PROC-003_parallel-chunk-isolation-worktrees.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [
@@ -237,8 +237,8 @@
       "tier": "B",
       "domain": "process",
       "title": "Ownership of Standards Push/Pull/Sync (PLAN.md v1.3)",
-      "status": "Draft",
-      "path": "process/AIF-PROC-004_standards-sync-ownership.decision.md",
+      "status": "Deferred",
+      "path": "archive/process/AIF-PROC-004_standards-sync-ownership.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [
@@ -259,8 +259,8 @@
       "tier": "A",
       "domain": "process",
       "title": "Git Workflow Mode for `ai-foundation`",
-      "status": "Draft",
-      "path": "process/AIF-PROC-005_git-workflow-mode.decision.md",
+      "status": "Deferred",
+      "path": "archive/process/AIF-PROC-005_git-workflow-mode.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [
@@ -282,8 +282,8 @@
       "tier": "A",
       "domain": "process",
       "title": "Who Sets AI-Track Chunk Boundaries",
-      "status": "Approved",
-      "path": "process/AIF-PROC-006_ai-track-chunk-decomposition-ownership.decision.md",
+      "status": "Superseded",
+      "path": "archive/process/AIF-PROC-006_ai-track-chunk-decomposition-ownership.decision.md",
       "supersedes": [],
       "superseded_by": [],
       "references": [

@@ -18,6 +18,11 @@
 
 ---
 
+> **Archived** (process-model check 27, 2026-09-25): `Deferred` at check 26 (human call,
+> this migration); dropped from MADR conversion per its row in `docs/process-model.md`'s
+> Decision-record disposition table. Kept here as historical record — not converted to
+> MADR.
+
 ## Problem Statement
 
 AIF-PROC-004 settled _who_ implements the standards push/pull/sync feature from `PLAN.md` (v1.3) — split between Software-Engineer (CLI mechanism) and AI-Engineer (schema/docs) — but explicitly deferred _how the mechanism works_, flagging it as a required follow-up given the risk of a tool that can write into a repo other than the one it's currently running in. This record resolves that design.

@@ -18,6 +18,11 @@
 
 ---
 
+> **Archived** (process-model check 27, 2026-09-25): `Deferred` at check 26 (human call,
+> this migration); dropped from MADR conversion per its row in `docs/process-model.md`'s
+> Decision-record disposition table. Kept here as historical record — not converted to
+> MADR.
+
 ## Problem Statement
 
 AIF-PROC-002 confirmed that AI-track and software-track chunks both dispatch through Engineering-Manager, and AIF-PROC-005 confirmed that any Engineering-Manager-orchestrated chunk (either track) branches, regardless of `repo_type`. For wave-based parallel dispatch (`orchestration.max_concurrent`) to actually work, multiple agents must be able to implement, test, and review different chunks of the same Epic at the same time without stepping on each other's working directory or branch state.

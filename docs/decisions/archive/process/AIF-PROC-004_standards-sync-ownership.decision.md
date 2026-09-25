@@ -8,7 +8,7 @@
 | Project        | ai-foundation                            |
 | Tier           | B                                        |
 | Domain         | process                                  |
-| Status         | Draft                                    |
+| Status         | Deferred                                 |
 | Author (Agent) | Architect                                |
 | Approved By    | Pending                                  |
 | Created        | 2026-08-13                               |
@@ -17,6 +17,12 @@
 | Tags           | standards-sync, ownership                |
 
 ---
+
+> **Archived** (process-model check 27, 2026-09-25): `Draft` → `Deferred` — never reached
+> `Approved`, so `Superseded` doesn't apply (`status-vocabulary.md`'s transition table).
+> Its ownership question moves to `steering/` rather than remaining a standing decision
+> record, per its row in `docs/process-model.md`'s Decision-record disposition table.
+> Kept here as historical record — not converted to MADR.
 
 ## Problem
 

@@ -8,7 +8,7 @@
 | Project        | ai-foundation                   |
 | Tier           | A                               |
 | Domain         | process                         |
-| Status         | Approved                        |
+| Status         | Superseded                      |
 | Author (Agent) | Architect                       |
 | Approved By    | Jeremy                          |
 | Created        | 2026-08-13                      |
@@ -17,6 +17,11 @@
 | Tags           | chunk-boundaries, decomposition |
 
 ---
+
+> **Archived, `Superseded`** (process-model check 27, 2026-09-25): moot for the same
+> reason as `AIF-PROC-002` — chunk/task decomposition ownership no longer distinguishes
+> an AI-track, per `docs/process-model.md`'s Agent roster and `skill/feature-planning`.
+> Kept here as historical record — not converted to MADR.
 
 ## Problem Statement
 

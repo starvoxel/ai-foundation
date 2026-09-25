@@ -8,7 +8,7 @@
 | Project        | ai-foundation                                                      |
 | Tier           | A                                                                  |
 | Domain         | meta-process                                                       |
-| Status         | Approved                                                           |
+| Status         | Superseded                                                         |
 | Author (Agent) | Generic Agent                                                      |
 | Approved By    | Jeremy Smellie                                                     |
 | Created        | 2026-08-14                                                         |
@@ -16,6 +16,12 @@
 | References     | AIF-004, AIF-005, AIF-011 (current numbering; see migration table) |
 
 ---
+
+> **Archived, `Superseded`** (process-model check 27, 2026-09-25): decision-record
+> tiering and domain ownership retires wholesale under MADR — no `Tier` field, no
+> domain-coded ID scheme, per `docs/process-model.md`'s ADR format section and
+> Decision-record disposition table. Kept here as historical record — not converted to
+> MADR.
 
 ## Problem Statement
 
