@@ -2,7 +2,7 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: 3129874
+last_verified: bfba104
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
@@ -143,9 +143,9 @@ cut across that boundary and hide it.
 
 ### Core libraries (`lib/*.js`) — see §5.03
 
-| Block           | Responsibility                                                                                                                                                                 | Interface                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| `resolver.js`   | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                            | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
+| Block           | Responsibility                                                                                                                                                                                                                             | Interface                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| `resolver.js`   | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                                                                                        | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
 | Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
