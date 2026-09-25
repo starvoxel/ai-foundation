@@ -987,6 +987,19 @@ review. Still on `process-model/phase-14-check-27-disposition-records` (PR #69, 
 open from check 27) — per human direction this session, the whole phase lands there before
 the PR is presented as ready, rather than one PR per check.
 
+Two follow-ups landed on the same branch/PR after the phase itself was done, both
+human-requested this session: a full accuracy audit of arc42 §5 against the real source
+(fixed several pre-existing inaccuracies — see the PR description), then splitting
+`decisions.js`/`architecture.js`/`index-diff.js` out of `05_03_core_libraries.md` into a
+new `05_04_decisions_and_architecture_indexing.md` (583 combined lines, bigger than
+`resolver.js`'s own §5.01). PR #69's base (the integration branch) then advanced out from
+under it — PR #67 (check 26) merged, on top of the earlier direct `main`-merge — producing
+a real merge conflict in `05_03_core_libraries.md`/`05_building_blocks.md`/
+`docs/architecture/index.json` (the integration branch's independent `aiconfig.js` cluster
+addition vs. this branch's §5.04 extraction of the same table). Resolved by merging the
+integration branch in and reconciling both sides' content rather than picking one; full
+validation gate re-run and green after. PR #69 is pushed and should now show mergeable.
+
 ---
 
 ## Phase 15 — Unwind merged half of AIF-003 (check 32)
