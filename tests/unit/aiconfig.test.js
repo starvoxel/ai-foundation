@@ -1,5 +1,9 @@
 /**
- * Unit tests for lib/aiconfig.js — deterministic .aiconfig.json resolution.
+ * Unit tests for lib/aiconfig.js — the I/O layer around .aiconfig.json
+ * (reading the file off disk, resolving a project root by walking up the
+ * directory tree). The pure "config value, else default" merge logic these
+ * build on is tested separately, without any filesystem access, in
+ * tests/unit/aiconfig-resolve.test.js.
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -10,7 +14,6 @@ import { tmpdir } from 'node:os';
 
 import {
   loadAiConfig,
-  resolveConfigValue,
   getConfigValue,
   getConfigPath,
   findProjectRoot,
@@ -43,87 +46,17 @@ describe('unit: aiconfig', () => {
     });
   });
 
-  describe('resolveConfigValue() / getConfigValue()', () => {
-    it('returns the configured value when set', () => {
-      const config = { paths: { plans: 'docs/plans' } };
-      assert.equal(resolveConfigValue(config, 'paths.plans', projectRoot), 'docs/plans');
-    });
-
-    it('falls back to a literal default when unset', () => {
-      assert.equal(resolveConfigValue({}, 'paths.plans', projectRoot), 'plans');
-    });
-
-    it('never mutates or writes back to the config object', () => {
-      const config = {};
-      resolveConfigValue(config, 'paths.plans', projectRoot);
-      assert.deepEqual(config, {});
-    });
-
-    it('throws for an unknown field with no default', () => {
-      assert.throws(() => resolveConfigValue({}, 'not_a_real_field', projectRoot), /Unknown/);
-    });
-
-    it('getConfigValue loads .aiconfig.json and resolves a field', () => {
+  describe('getConfigValue()', () => {
+    it('loads .aiconfig.json and resolves a configured field', () => {
       writeFileSync(
         join(projectRoot, '.aiconfig.json'),
         JSON.stringify({ paths: { chunks: 'custom/chunks' } }),
       );
       assert.equal(getConfigValue(projectRoot, 'paths.chunks'), 'custom/chunks');
-      assert.equal(getConfigValue(projectRoot, 'paths.epics'), 'plans/epics');
     });
 
-    describe('derived defaults', () => {
-      it('paths.decisions defaults to "{resolved paths.knowledge}/decisions"', () => {
-        assert.equal(resolveConfigValue({}, 'paths.decisions', projectRoot), 'knowledge/decisions');
-      });
-
-      it('a configured paths.knowledge shifts the paths.decisions default with it', () => {
-        const config = { paths: { knowledge: 'notes' } };
-        assert.equal(resolveConfigValue(config, 'paths.decisions', projectRoot), 'notes/decisions');
-      });
-
-      it('an explicit paths.decisions overrides the derived default entirely', () => {
-        const config = { paths: { knowledge: 'notes', decisions: 'archive/decisions' } };
-        assert.equal(
-          resolveConfigValue(config, 'paths.decisions', projectRoot),
-          'archive/decisions',
-        );
-      });
-
-      it('paths.epics/chunks/orchestration all nest under the resolved paths.plans', () => {
-        const config = { paths: { plans: 'docs/plans' } };
-        assert.equal(resolveConfigValue(config, 'paths.epics', projectRoot), 'docs/plans/epics');
-        assert.equal(resolveConfigValue(config, 'paths.chunks', projectRoot), 'docs/plans/chunks');
-        assert.equal(
-          resolveConfigValue(config, 'paths.orchestration', projectRoot),
-          'docs/plans/orchestration',
-        );
-      });
-
-      it('an explicit paths.epics overrides its nested default entirely', () => {
-        const config = { paths: { plans: 'docs/plans', epics: 'roadmap/epics' } };
-        assert.equal(resolveConfigValue(config, 'paths.epics', projectRoot), 'roadmap/epics');
-      });
-
-      it('project_shortname defaults to the resolved project_name', () => {
-        const config = { project_name: 'Widget' };
-        assert.equal(resolveConfigValue(config, 'project_shortname', projectRoot), 'Widget');
-      });
-
-      it('project_name defaults to the project root directory name', () => {
-        assert.equal(
-          resolveConfigValue({}, 'project_name', projectRoot),
-          projectRoot.split('/').pop(),
-        );
-      });
-
-      it('paths.worktrees defaults using the resolved project_shortname', () => {
-        const config = { project_shortname: 'wid' };
-        assert.equal(
-          resolveConfigValue(config, 'paths.worktrees', projectRoot),
-          '../worktrees/wid',
-        );
-      });
+    it('falls back to the default when .aiconfig.json is absent', () => {
+      assert.equal(getConfigValue(projectRoot, 'paths.epics'), 'plans/epics');
     });
   });
 
