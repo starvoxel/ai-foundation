@@ -8,11 +8,7 @@
   },
   "paths": {
     "plans": "docs/plans",
-    "knowledge": "docs",
-    "epics": "docs/plans/epics",
-    "chunks": "docs/plans/chunks",
-    "decisions": "docs/decisions",
-    "worktrees": "../worktrees/ai-foundation"
+    "knowledge": "docs"
   },
   "orchestration": {
     "max_concurrent": 10
