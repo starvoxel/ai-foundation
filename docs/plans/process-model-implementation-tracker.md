@@ -139,12 +139,20 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: Phase 14 (checks 26–31, decisions conversion). Check 26's human decision gate is
-resolved — `ARCH-004`, `ARCH-007`, `PROC-003` all `Deferred` (human call, chat, this
-session) — on branch `process-model/phase-14-decisions-conversion`. Check 27 (existing
-decision records dispositioned per the table) is next; the phase's second pause point
-(after checks 28–29's bulk MADR rewrite, before check 30's indexer retarget) still
-applies (tracker ground rules above, "Phase 14" pause note).
+Next: Phase 14 (checks 26–31, decisions conversion). Check 26 (human decision gate:
+`ARCH-004`/`ARCH-007`/`PROC-003` all `Deferred`) landed on
+`process-model/phase-14-decisions-conversion` and is out for review as PR #67. Check 27
+(existing decision records dispositioned; `docs/decisions/archive/` created) landed on a
+new branch cut from that PR's tip, `process-model/phase-14-check-27-disposition-records`
+(human direction: split each check across its own branch/PR within this phase, same
+pattern Phase 8 used). Also merged `main` into the integration branch directly
+(bringing in PR #68's new `.aiconfig.json` resolver / `aif config` command; reconciled
+`lib/commands/index.js` and `lib/aiconfig-defaults.js` against process-model's
+already-landed path vocabulary, updated the affected arc42 docs) — that merge and check
+27 aren't yet on the same branch; check 27's eventual PR will pick up the integration
+branch's current tip as its base once opened. The phase's second pause point (after
+checks 28–29's bulk MADR rewrite, before check 30's indexer retarget) still applies
+(tracker ground rules above, "Phase 14" pause note).
 
 ---
 
@@ -908,8 +916,18 @@ non-`Approved` records rather than converting their `Design` sections into arc42
 `PROC-003`'s worktrees ratification stay exactly as authored, just now `Deferred`
 instead of `Draft` — nothing about their content changed.
 
-- [ ] **Check 27** — Existing decision records dispositioned per the table; archive
-      location created. Commit: `_____`
+- [x] **Check 27** — Existing decision records dispositioned per the table; archive
+      location created. 10 of 15 on-disk records moved into new `docs/decisions/archive/`
+      (mirroring `docs/plans/archive/`'s convention, domain subfolders kept):
+      `ARCH-004`/`ARCH-007`/`PROC-003` (already `Deferred` at check 26) archived as-is;
+      `PROC-001`/`PROC-002`/`PROC-006`/`META-001`/`META-002` `Approved` → `Superseded`;
+      `PROC-004`/`PROC-005` `Draft` → `Deferred` (never reached `Approved`, so
+      `Superseded` doesn't apply). The 5 surviving records
+      (`ARCH-001`/`002`/`003`/`005`/`006`) are untouched, staying in place for check 28's
+      MADR rewrite. `docs/decisions/index.json` regenerated (still 15 entries — the
+      collector isn't archive-aware yet; whether archived records should drop out of the
+      generated index is left for check 30's `lib/decisions.js` retarget to decide, not
+      pre-empted here). Commit: `f7bce7c`
 - [ ] **Check 28** — `docs/decisions/` flattened to bare-number MADR counter; every
       surviving record rewritten into MADR within budget. Also add `docs/decisions/_template.md`
       (mirrors `docs/architecture/_template.md`) and a new `skill/adr-authoring` for
