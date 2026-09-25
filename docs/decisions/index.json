@@ -1,88 +1,6 @@
 {
-  "generated_at": "2026-09-25T01:42:08.804Z",
+  "generated_at": "2026-09-25T17:14:50.206Z",
   "entries": [
-    {
-      "id": "AIF-ARCH-001",
-      "tier": null,
-      "domain": null,
-      "title": "Install CLI Redesign",
-      "status": "Approved",
-      "path": "architecture/AIF-ARCH-001_install-cli-redesign.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [],
-      "referenced_by": [],
-      "tags": []
-    },
-    {
-      "id": "AIF-ARCH-002",
-      "tier": null,
-      "domain": null,
-      "title": "Steering Schema & Harness Adapter Scoping",
-      "status": "Approved",
-      "path": "architecture/AIF-ARCH-002_steering-schema-harness-scoping.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [],
-      "referenced_by": [],
-      "tags": []
-    },
-    {
-      "id": "AIF-ARCH-003",
-      "tier": null,
-      "domain": null,
-      "title": "Shared Resource Lifecycle Management (Servers & Hooks)",
-      "status": "Approved",
-      "path": "architecture/AIF-ARCH-003_shared-resource-lifecycle-management.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [],
-      "referenced_by": [],
-      "tags": []
-    },
-    {
-      "id": "AIF-ARCH-005",
-      "tier": "A",
-      "domain": "architecture",
-      "title": "DAG Validation/Wave-Computation as an MCP Server",
-      "status": "Approved",
-      "path": "architecture/AIF-ARCH-005_dag-tool-as-mcp-server.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-PROC-002"
-      ],
-      "referenced_by": [
-        "AIF-ARCH-006"
-      ],
-      "tags": [
-        "mcp",
-        "dag",
-        "tooling",
-        "cross-harness"
-      ]
-    },
-    {
-      "id": "AIF-ARCH-006",
-      "tier": "A",
-      "domain": "architecture",
-      "title": "`ai-git` Tool Boundary — CLI Script vs. MCP Server",
-      "status": "Approved",
-      "path": "architecture/AIF-ARCH-006_ai-git-tool-boundary.decision.md",
-      "supersedes": [],
-      "superseded_by": [],
-      "references": [
-        "AIF-ARCH-005"
-      ],
-      "referenced_by": [],
-      "tags": [
-        "mcp",
-        "ai-git",
-        "tooling",
-        "cross-harness",
-        "credentials"
-      ]
-    },
     {
       "id": "AIF-ARCH-004",
       "tier": "A",
@@ -198,7 +116,6 @@
         "AIF-PROC-001"
       ],
       "referenced_by": [
-        "AIF-ARCH-005",
         "AIF-PROC-003",
         "AIF-PROC-004",
         "AIF-PROC-005",
