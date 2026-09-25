@@ -1,9 +1,11 @@
 /**
- * Unit tests for lib/aiconfig.js — the I/O layer around .aiconfig.json
- * (reading the file off disk, resolving a project root by walking up the
- * directory tree). The pure "config value, else default" merge logic these
- * build on is tested separately, without any filesystem access, in
- * tests/unit/aiconfig-resolve.test.js.
+ * Integration tests for lib/aiconfig.js — the I/O layer around
+ * .aiconfig.json (reading the file off disk, resolving a project root by
+ * walking up the directory tree). Filesystem tests belong here rather than
+ * tests/unit/ per AGENTS.md's Testing section ("tests/unit -- Fast, no
+ * I/O" vs "tests/integration -- Filesystem tests"). The pure "config
+ * value, else default" merge logic these build on is tested separately,
+ * without any filesystem access, in tests/unit/aiconfig-resolve.test.js.
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -19,7 +21,7 @@ import {
   findProjectRoot,
 } from '../../lib/aiconfig.js';
 
-describe('unit: aiconfig', () => {
+describe('integration: aiconfig', () => {
   let projectRoot;
 
   beforeEach(() => {
