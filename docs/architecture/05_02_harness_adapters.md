@@ -101,7 +101,15 @@ TypeScript interface, since this codebase has none — §2 Constraints):
 
 ## Consumers
 
-`lib/commands/install.js` and `uninstall.js` are the only callers — they pick the
-adapter by the `--harness` flag (or a project's own harness detection) and call its
-`install*`/`removeMcpSetting` functions. No other module imports `lib/harnesses/*`
-directly.
+For the adapter contract itself (picking an adapter by the `--harness` flag and
+calling its `install*`/`removeMcpSetting` functions): `lib/commands/install.js` and
+`uninstall.js` are the only callers.
+
+Three other modules import individual utility functions straight out of `base.js`,
+bypassing the adapter contract entirely — `base.js` doubles as a home for a few
+generic helpers with no harness-specific behavior, not only the adapter loop:
+`lib/decisions.js` and `lib/architecture.js` both use `parseFrontmatter()` to parse
+MADR/arc42 YAML frontmatter, and `lib/snapshot/io.js` uses `collectFiles()`/
+`hashContent()` to build source-hash snapshots. None of the three touch
+`TARGETS`/`TOOL_MAP`/`transformAgent`/`transformSteering` or anything else
+harness-specific.

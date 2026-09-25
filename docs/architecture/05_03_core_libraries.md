@@ -50,5 +50,8 @@ dropping out of `aif index architecture --check` coverage.
 `uninstall.js` use `manifest.js`; `snapshot.js` uses `snapshot/io.js`;
 `index.js` uses `decisions.js`/`architecture.js` (both built on
 `index-diff.js`); `init.js` uses `project-init.js`. `bin/ai-git.js` is the
-sole caller of `ai-git.js`. `constants.js`/`component-defs.js` are imported
-across nearly every module in `lib/` and `lib/commands/`.
+sole caller of `ai-git.js`. `constants.js` is imported across nearly every
+module in `lib/` and `lib/commands/` (10 of 11 files); `component-defs.js`
+is much narrower — its JSDoc-only types are referenced (via
+`@param {import('./component-defs.js').X}` comments, never a runtime
+`import`) only by the three `lib/harnesses/*` files, not repo-wide.

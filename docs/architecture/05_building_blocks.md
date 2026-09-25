@@ -71,12 +71,14 @@ graph TD
   Install --> Claude
   Install --> Kiro
   Install --> Manifest
+  Install --> SnapLib
   Uninstall --> Manifest
   Uninstall --> Claude
   Uninstall --> Kiro
   Status --> Manifest
   Status --> SnapLib
   Snapshot --> SnapLib
+  Validate --> Resolver
   Index --> Decisions
   Index --> Architecture
   Decisions --> IndexDiff
@@ -86,11 +88,16 @@ graph TD
 
   Claude --> Base
   Kiro --> Base
+  SnapLib --> Base
+  Decisions --> Base
+  Architecture --> Base
+  SnapLib --> Resolver
 
   Resolver --> Agents
   Resolver --> Skills
   Resolver --> Steering
   Resolver --> Bundles
+  Resolver --> Standards
 ```
 
 MCP servers (`servers/dag`, `servers/gmail`, `servers/youtrack`) aren't shown as
@@ -127,7 +134,7 @@ cut across that boundary and hide it.
 | `install.js`   | Resolves a bundle via `resolver.js`, writes its components through the target harness adapter, records the result in the manifest. | `runInstall(parsed, repoRoot)`                                                      |
 | `uninstall.js` | Removes previously-installed files using the manifest's recorded file list; per-harness settings cleanup (e.g. MCP entries).       | `runUninstall(parsed, repoRoot)`                                                    |
 | `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                       | `runStatus(parsed, repoRoot)`                                                       |
-| `list.js`      | Lists available bundles/agents/skills/standards/servers in this repo.                                                              | `runList(parsed, repoRoot)`                                                         |
+| `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                 | `runList(parsed, repoRoot)`                                                         |
 | `validate.js`  | Schema, cross-reference, and bundle-resolution integrity checks (`aif validate`).                                                  | `runValidate(parsed, repoRoot)`                                                     |
 | `test.js`      | Thin wrapper invoking this repo's own `node:test` suite.                                                                           | `runTest(parsed, repoRoot)`                                                         |
 | `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                           | `runSnapshot(parsed, repoRoot)`                                                     |

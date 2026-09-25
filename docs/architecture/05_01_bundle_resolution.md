@@ -85,7 +85,14 @@ what actually crosses the file's boundary).
 
 ## Consumers
 
-`lib/commands/install.js` is the only caller of `resolveBundle()` itself; `list.js`
-uses the standalone `list*` helpers. Neither harness adapter (`claude.js`/`kiro.js`)
-calls into `resolver.js` directly — they receive an already-resolved component list
-from `install.js` and only handle the transform/write step (§5.02).
+`resolveBundle()` has three callers, not one: `install.js` (the actual install),
+`validate.js` (resolves every bundle to catch broken references — its
+"bundle-resolution integrity checks"), and `lib/snapshot/io.js` (resolves a bundle to
+know what its own snapshot should cover). `listBundles()` is shared by those same
+three plus `list.js`. `listStandards()` has exactly one caller, `install.js`;
+`listServers()`/`listHookResources()` have exactly one caller each too, both in
+`snapshot/io.js` — `list.js`'s own `servers` listing is a separate, local
+implementation with the same name, not this module's `listServers()`. Neither harness
+adapter (`claude.js`/`kiro.js`) calls into `resolver.js` directly — they receive an
+already-resolved component list from `install.js` and only handle the transform/write
+step (§5.02).
