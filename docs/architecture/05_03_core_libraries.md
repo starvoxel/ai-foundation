@@ -15,6 +15,9 @@ key_files:
   - lib/ai-git.js
   - lib/constants.js
   - lib/component-defs.js
+  - lib/aiconfig.js
+  - lib/aiconfig-resolve.js
+  - lib/aiconfig-defaults.js
 ---
 
 > The harness-agnostic support libraries (`lib/*.js`, excluding `resolver.js`
@@ -24,8 +27,8 @@ key_files:
 
 ## Why this needs its own section
 
-This is the largest single group in §5's "Core libraries" row — 10 files
-across 6 responsibilities — and the one most likely to gain a new file as the
+This is the largest single group in §5's "Core libraries" row — 13 files
+across 7 responsibilities — and the one most likely to gain a new file as the
 CLI grows. Giving it its own `key_files` list keeps the top-level §5 doc's own
 list short enough that a rename or deletion there stays a meaningful signal,
 while these files' individual freshness stays tracked here instead of silently
@@ -43,12 +46,14 @@ dropping out of `aif index architecture --check` coverage.
 | `project-init.js`                     | Validates project name/shortname, generates `.aiconfig.json` content, applies template placeholder substitution.                                                                                                                                                    | `buildAiConfig()`, `applyProjectConfig()`                                                                  |
 | `ai-git.js`                           | Pure logic behind the `ai-git` CLI: identity resolution, env injection, gh-command detection and auth-arg construction.                                                                                                                                             | `getIdentity()`, `buildGitEnv()`, `buildGhEnv()`                                                           |
 | `constants.js` / `component-defs.js`  | Shared constants (canonical tool names, source directories, CLI command list) and JSDoc-only `AgentDef`/`ServerDef` type shapes — no runtime behavior, just a single owner for both.                                                                                | `TOOLS`, `SOURCE_DIRS`, `COMMANDS`                                                                         |
+| `aiconfig.js` / `aiconfig-resolve.js` / `aiconfig-defaults.js` | Resolves a `.aiconfig.json` field to its configured value or documented default, without ever writing a default back to disk. `aiconfig-defaults.js` owns the default table (some entries derive from another field's resolved value, e.g. `paths.decisions` nesting under `paths.knowledge`); `aiconfig-resolve.js` is the pure merge logic against a plain object; `aiconfig.js` is the I/O layer that reads `.aiconfig.json` off disk and also finds a project root by walking up for the file. | `getConfigValue()`, `getConfigPath()`, `findProjectRoot()`, `resolveConfigValue()`                         |
 
 ## Consumers
 
 `lib/commands/*` is the primary caller of each library above — `install.js`/
 `uninstall.js` use `manifest.js`; `snapshot.js` uses `snapshot/io.js`;
 `index.js` uses `decisions.js`/`architecture.js` (both built on
-`index-diff.js`); `init.js` uses `project-init.js`. `bin/ai-git.js` is the
-sole caller of `ai-git.js`. `constants.js`/`component-defs.js` are imported
-across nearly every module in `lib/` and `lib/commands/`.
+`index-diff.js`) and `aiconfig.js` for path resolution; `init.js` uses
+`project-init.js`; `config.js` uses `aiconfig.js` directly. `bin/ai-git.js` is
+the sole caller of `ai-git.js`. `constants.js`/`component-defs.js` are
+imported across nearly every module in `lib/` and `lib/commands/`.

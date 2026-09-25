@@ -7,7 +7,9 @@ tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
   - lib/commands/index.js
+  - lib/commands/config.js
   - lib/resolver.js
+  - lib/aiconfig.js
   - lib/harnesses/base.js
   - servers/dag/dag.yaml
 ---
@@ -35,6 +37,7 @@ graph TD
     Snapshot["snapshot.js"]
     Index["index.js"]
     Init["init.js"]
+    Config["config.js"]
   end
 
   subgraph Core["Core libraries — lib/*.js"]
@@ -47,6 +50,7 @@ graph TD
     ProjInit["project-init.js"]
     AiGitLib["ai-git.js"]
     Const["constants.js / component-defs.js"]
+    AiConfig["aiconfig.js + aiconfig-resolve.js + aiconfig-defaults.js"]
   end
 
   subgraph Harnesses["Harness adapters — lib/harnesses/*"]
@@ -64,7 +68,7 @@ graph TD
     Template["projects/_template/"]
   end
 
-  CLI --> Install & Uninstall & Status & List & Validate & Test & Snapshot & Index & Init
+  CLI --> Install & Uninstall & Status & List & Validate & Test & Snapshot & Index & Init & Config
   GitCLI --> AiGitLib
 
   Install --> Resolver
@@ -79,10 +83,12 @@ graph TD
   Snapshot --> SnapLib
   Index --> Decisions
   Index --> Architecture
+  Index --> AiConfig
   Decisions --> IndexDiff
   Architecture --> IndexDiff
   Init --> ProjInit
   ProjInit --> Template
+  Config --> AiConfig
 
   Claude --> Base
   Kiro --> Base
@@ -133,13 +139,14 @@ cut across that boundary and hide it.
 | `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                           | `runSnapshot(parsed, repoRoot)`                                                     |
 | `index.js`     | Generates the decisions and architecture indexes (`aif index decisions\|architecture`).                                            | `runIndex(parsed, repoRoot)`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
 | `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
+| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                       | `runConfig(parsed, cwd)`                                                            |
 
 ### Core libraries (`lib/*.js`) — see §5.03
 
 | Block           | Responsibility                                                                                                                                                                 | Interface                                                                             |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
 | `resolver.js`   | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                            | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
-| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js` — see §5.03. | See §5.03.                                                                            |
+| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
