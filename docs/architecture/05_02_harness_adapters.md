@@ -50,6 +50,27 @@ transform → write → manifest-record loop), so adding a harness means writing
 new config object, never touching the loop itself — the structural mechanism
 behind the portability quality goal (§1), not just a convention.
 
+## Steering frontmatter scoping
+
+Steering files declare conditional loading via one harness-agnostic frontmatter
+field, `file_patterns: []` (empty = always load, populated = load only for matching
+files) — never a harness-native concept (Kiro's `inclusion`, Copilot's `applyTo`,
+Claude Code's `paths`) directly in the source file. Each adapter translates the same
+source value to its own native mechanism at install time:
+
+| `file_patterns` value  | Kiro                     | Copilot                     | Claude Code                   |
+| ---------------------- | ------------------------ | --------------------------- | ----------------------------- |
+| `[]` (or omitted)      | `inclusion: "always"`    | `applyTo: "**"`             | no `paths` field              |
+| `["**/*.test.js"]`     | `inclusion: "fileMatch"` | `applyTo: "**/*.test.js"`   | `paths: ["**/*.test.js"]`     |
+| `["src/**", "lib/**"]` | `inclusion: "fileMatch"` | `applyTo: "src/**, lib/**"` | `paths: ["src/**", "lib/**"]` |
+
+An earlier `applies_to` field (agent/role scoping, distinct from file-pattern
+scoping) was tried and dropped: no harness supports loading part of a file based on
+which agent is reading it — a steering file loads whole or not at all — so
+role-scoping has to happen at bundle composition (install a different bundle per
+agent) or in the agent's own `prompt`, not in steering frontmatter. See §11 Risks for
+a known reliability gap in Kiro's `fileMatch` mode.
+
 ## Where Claude Code and Kiro actually diverge
 
 | Aspect                          | Claude Code (`claude.js`)                                                                                                                                                             | Kiro (`kiro.js`)                                                                                                                                                             |

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-24T02:25:03.066Z",
+  "generated_at": "2026-09-25T17:17:20.569Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -136,6 +136,41 @@
       ],
       "last_verified": "3129874",
       "stale": false
+    },
+    {
+      "path": "06_runtime.md",
+      "section": "06",
+      "title": "Runtime View",
+      "summary": "How installing and uninstalling a bundle actually behaves at runtime, where that behavior isn't obvious from §5's static block list — specifically, shared-resource lifecycle (MCP servers, the Claude Code hook script) and freshness detection.",
+      "lifecycle": "published",
+      "tags": [
+        "runtime",
+        "manifest",
+        "snapshot"
+      ],
+      "key_files": [
+        "lib/manifest.js",
+        "lib/commands/install.js",
+        "lib/commands/uninstall.js",
+        "lib/commands/snapshot.js"
+      ],
+      "last_verified": "0a77aea",
+      "stale": false
+    },
+    {
+      "path": "11_risks.md",
+      "section": "11",
+      "title": "Risks and Technical Debt",
+      "summary": "Known gaps and reliability risks this project accepts rather than solves, and why.",
+      "lifecycle": "published",
+      "tags": [
+        "risks"
+      ],
+      "key_files": [
+        "lib/harnesses/kiro.js"
+      ],
+      "last_verified": "0a77aea",
+      "stale": false
     }
   ],
   "reverse_index": {
@@ -189,10 +224,12 @@
       "05_02_harness_adapters.md"
     ],
     "lib/harnesses/kiro.js": [
-      "05_02_harness_adapters.md"
+      "05_02_harness_adapters.md",
+      "11_risks.md"
     ],
     "lib/manifest.js": [
-      "05_03_core_libraries.md"
+      "05_03_core_libraries.md",
+      "06_runtime.md"
     ],
     "lib/snapshot/io.js": [
       "05_03_core_libraries.md"
@@ -223,6 +260,15 @@
     ],
     "lib/commands/index.js": [
       "05_building_blocks.md"
+    ],
+    "lib/commands/install.js": [
+      "06_runtime.md"
+    ],
+    "lib/commands/uninstall.js": [
+      "06_runtime.md"
+    ],
+    "lib/commands/snapshot.js": [
+      "06_runtime.md"
     ]
   }
 }
