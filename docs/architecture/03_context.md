@@ -2,7 +2,7 @@
 section: '03'
 title: 'System Scope and Context'
 lifecycle: published
-last_verified: faffb74
+last_verified: bfba104
 tags: [context, c4]
 key_files:
   - bin/aif.js
@@ -50,7 +50,7 @@ The actual channels and protocols behind the exchanges above:
 
 | Channel                       | Detail                                                                                                                                                             |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Local filesystem              | `aif install`/`uninstall`/`validate`/`index`/`snapshot` read and write the local filesystem only — no network (§2 Constraints).                                    |
+| Local filesystem              | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config` read and write the local filesystem only — no network (§2 Constraints).                           |
 | git / HTTPS                   | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself.                           |
 | MCP over stdio                | Locally-implemented servers (`servers/dag`, `servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.                         |
 | MCP over HTTP (vendor-hosted) | `servers/youtrack` is a declarative pointer to JetBrains' own hosted MCP endpoint (`hosted: vendor` in its YAML) — no local process; bearer-token auth over HTTPS. |

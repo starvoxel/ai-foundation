@@ -47,6 +47,35 @@ describe('bin/cli parseArgs()', () => {
     assert.equal(result.args.verbose, true);
     assert.equal(result.args.bundle, 'eng');
   });
+
+  describe('short flag aliases', () => {
+    it('normalizes -h onto args.help', () => {
+      const result = parseArgs(['-h']);
+      assert.equal(result.args.help, true);
+    });
+
+    it('normalizes -b <value> onto args.bundle', () => {
+      const result = parseArgs(['install', '-b', 'engineering']);
+      assert.equal(result.args.bundle, 'engineering');
+    });
+
+    it('normalizes -H <value> onto args.harness', () => {
+      const result = parseArgs(['install', '-b', 'engineering', '-H', 'kiro']);
+      assert.equal(result.args.harness, 'kiro');
+    });
+
+    it('short and long forms are interchangeable for the same command', () => {
+      const short = parseArgs(['install', '-b', 'engineering', '-H', 'kiro']);
+      const long = parseArgs(['install', '--bundle', 'engineering', '--harness', 'kiro']);
+      assert.equal(short.args.bundle, long.args.bundle);
+      assert.equal(short.args.harness, long.args.harness);
+    });
+
+    it('long form wins if both short and long are given', () => {
+      const result = parseArgs(['install', '-b', 'short-value', '--bundle', 'long-value']);
+      assert.equal(result.args.bundle, 'long-value');
+    });
+  });
 });
 
 describe('bin/cli run()', () => {

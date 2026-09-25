@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T18:04:04.357Z",
+  "generated_at": "2026-09-25T18:08:32.308Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -55,7 +55,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "faffb74",
+      "last_verified": "bfba104",
       "stale": false
     },
     {
@@ -109,9 +109,12 @@
         "lib/project-init.js",
         "lib/ai-git.js",
         "lib/constants.js",
-        "lib/component-defs.js"
+        "lib/component-defs.js",
+        "lib/aiconfig.js",
+        "lib/aiconfig-resolve.js",
+        "lib/aiconfig-defaults.js"
       ],
-      "last_verified": "9b2a27c",
+      "last_verified": "a82eb75",
       "stale": false
     },
     {
@@ -147,11 +150,13 @@
       "key_files": [
         "bin/aif.js",
         "lib/commands/index.js",
+        "lib/commands/config.js",
         "lib/resolver.js",
+        "lib/aiconfig.js",
         "lib/harnesses/base.js",
         "servers/dag/dag.yaml"
       ],
-      "last_verified": "9b2a27c",
+      "last_verified": "a82eb75",
       "stale": false
     },
     {
@@ -266,6 +271,16 @@
     "lib/component-defs.js": [
       "05_03_core_libraries.md"
     ],
+    "lib/aiconfig.js": [
+      "05_03_core_libraries.md",
+      "05_building_blocks.md"
+    ],
+    "lib/aiconfig-resolve.js": [
+      "05_03_core_libraries.md"
+    ],
+    "lib/aiconfig-defaults.js": [
+      "05_03_core_libraries.md"
+    ],
     "lib/decisions.js": [
       "05_04_decisions_and_architecture_indexing.md"
     ],
@@ -276,6 +291,9 @@
       "05_04_decisions_and_architecture_indexing.md"
     ],
     "lib/commands/index.js": [
+      "05_building_blocks.md"
+    ],
+    "lib/commands/config.js": [
       "05_building_blocks.md"
     ],
     "lib/commands/install.js": [
