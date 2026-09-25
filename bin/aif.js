@@ -16,10 +16,16 @@ import { COMMANDS, HARNESSES } from '../lib/constants.js';
  * be worth a one-letter alias. Deliberately not exhaustive — commands
  * themselves are not short-aliased (install/init/index would collide on
  * "i"), only flags.
+ *
+ * -h is reserved for --help alone, per near-universal CLI convention.
+ * bundle/harness are aliased uppercase instead of lowercase: they combine
+ * on the same commands (install, snapshot), and harness had to be
+ * uppercase to avoid colliding with -h, so bundle follows it rather than
+ * mixing case within one command line.
  */
 const SHORT_FLAG_ALIASES = {
   h: 'help',
-  b: 'bundle',
+  B: 'bundle',
   H: 'harness',
 };
 
@@ -118,7 +124,7 @@ Commands:
   config      Resolve a .aiconfig.json field, falling back to its default
 
 Options:
-  -b, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only); bundle to snapshot (snapshot: name optional, omit for all bundles)
+  -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only); bundle to snapshot (snapshot: name optional, omit for all bundles)
   --server [name]       Server to snapshot (snapshot command; omit name for all servers)
   --hook [name]         Hook resource to snapshot (snapshot command; omit name for all hooks)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
@@ -137,7 +143,7 @@ Init Options:
 
 Examples:
   aif install --bundle engineering --harness kiro
-  aif install -b engineering -H kiro
+  aif install -B engineering -H kiro
   aif install --bundle engineering,product --harness kiro
   aif install --update
   aif uninstall --bundle engineering --harness kiro
