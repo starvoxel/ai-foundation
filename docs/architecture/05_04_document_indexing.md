@@ -2,7 +2,7 @@
 section: '05.04'
 title: 'Document indexing'
 lifecycle: published
-last_verified: 863273a
+last_verified: 75ce1d3
 tags: [building-blocks, indexing, decisions, architecture]
 key_files:
   - lib/decisions.js
