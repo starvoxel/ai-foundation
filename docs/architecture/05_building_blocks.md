@@ -134,14 +134,6 @@ are content the other five groups resolve and install, not code that runs as par
 of `aif` itself. Grouping any other way (e.g. by CLI command, or by file size) would
 cut across that boundary and hide it.
 
-This doc's own `key_files` runs past the 5-entry point
-`steering/engineering/architecture-authoring.md` flags for re-evaluating a split —
-weighed deliberately, not overlooked: three of the six groups above (Core libraries,
-Harness adapters, and, as of this pass, the Command layer) already delegate their
-own detailed tracking to a `§5.0N` whitebox, so this doc only needs to carry the
-files those sub-sections don't own — Entry points and MCP servers, neither of which
-is large or complex enough on its own to earn a further split.
-
 ## Contained Building Blocks
 
 ### Entry points

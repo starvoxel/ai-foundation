@@ -22,8 +22,7 @@ scaffolding, not content.
 
 Body structure follows the official arc42 template
 (`arc42/arc42-template` on GitHub, `EN/adoc/*.adoc`), not a freehand
-convention — §1-§3/§6/§11 already match its fixed/scenario-based shapes.
-For a §5 whitebox section specifically (`05_building_blocks.md` and any
+convention. For a §5 whitebox section specifically (`05_building_blocks.md` and any
 `05.NN` sub-section), that means: Overview Diagram, Motivation, Contained
 Building Blocks, and (optional) Important Interfaces, in that order. A
 repo-specific "Consumers" section may follow those four, clearly separated,
