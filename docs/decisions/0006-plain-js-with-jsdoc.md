@@ -17,9 +17,9 @@ affects:
 ## Context and Problem Statement
 
 This repo runs `tsc --noEmit` in CI and has JSDoc typedefs throughout `lib/`, plus a
-runtime schema library (`zod`, via `@modelcontextprotocol/sdk` and used directly in
-`servers/dag`/`servers/gmail`) — real typechecking infrastructure, yet no `.ts`
-source file exists anywhere. That split was never written down as a decision.
+runtime schema library (`zod`, a direct dependency used in `servers/dag`/
+`servers/gmail`) — real typechecking infrastructure, yet no `.ts` source file
+exists anywhere. That split was never written down as a decision.
 
 ## Decision Drivers
 
