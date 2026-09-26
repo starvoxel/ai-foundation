@@ -40,11 +40,23 @@ tool_definition:
 # --- headers and secrets ---
 #
 # Never write a literal secret (token, API key, etc.) into a committed
-# server yaml. Use a "${ENV_VAR_NAME}" placeholder as the header value;
-# the installer resolves it from process.env at install time and errors
-# clearly if the variable is unset. This mirrors the
-# .aiconfig.json ai_identity.git_token_env pattern (name the env var,
-# never embed the secret).
+# server yaml. Use a "${ENV_VAR_NAME}" placeholder as the header value.
+#
+# The installer (`aif install`) does NOT resolve this placeholder and
+# never needs the secret to be present — it copies the "${VAR}" string
+# through unchanged into the harness's own MCP config. Both supported
+# harnesses expand it themselves, from their own process environment, at
+# connect time:
+#   - Claude Code: confirmed live (see
+#     docs/plans/secrets-resolution-plan.md's Key Findings) — the
+#     placeholder is never written to disk resolved.
+#   - Kiro: same "${VAR}" syntax, gated behind an "Mcp Approved Env Vars"
+#     allowlist the human approves once per variable — see
+#     docs/kiro-mcp-env-var-expansion.md.
+#
+# This mirrors the .aiconfig.json ai_identity.git_token_env pattern (name
+# the env var, never embed the secret) without requiring the referenced
+# variable to be set at install time.
 
 example:
   name: "git"

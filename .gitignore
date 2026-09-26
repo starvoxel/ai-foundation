@@ -24,3 +24,8 @@ local/
 
 # Generated install manifest
 .installs.yaml
+
+# secrets.allow_insecure_dotenv fallback — never commit real secrets here
+.env
+.env.*
+!.env.example

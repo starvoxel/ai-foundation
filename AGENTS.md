@@ -123,28 +123,50 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 
 ### Fields
 
-| Field                          | Type   | Required | Description                                                                                                                                                                  |
-| ------------------------------ | ------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `project_name`                 | string | Yes      | Project identifier used in file naming and human-readable metadata                                                                                                           |
-| `project_shortname`            | string | No       | Short project identifier (max 5 characters) used in Feature IDs and worktree paths. Falls back to `project_name` if unset.                                                   |
-| `repo_type`                    | string | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                                                    |
-| `standards`                    | object | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                                             |
-| `project_standards`            | string | No       | Path to project-specific standards override                                                                                                                                  |
-| `ai_identity`                  | object | No       | AI agent git identity for commits and push auth                                                                                                                              |
-| `ai_identity.git_author_name`  | string | No       | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars                                                                                                                 |
-| `ai_identity.git_author_email` | string | No       | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars                                                                                                              |
-| `ai_identity.git_token_env`    | string | No       | Name of env var holding the PAT for push/PR ops                                                                                                                              |
-| `paths`                        | object | No       | Artifact output directories (relative to repo root)                                                                                                                          |
-| `paths.plans`                  | string | No       | Root for all plan artifacts. Default: `plans`                                                                                                                                |
-| `paths.features`               | string | No       | Root for a Feature's folder — `{paths.features}/{FeatureID}/plan.md`, `tasks.json`, and `orchestration-state.json` all live together as siblings. Default: `plans/features`  |
-| `paths.decisions`              | string | No       | ADRs (MADR format), flat directory, no domain subfolders. Default: `knowledge/decisions`                                                                                     |
-| `paths.knowledge`              | string | No       | Knowledge directory. Default: `knowledge`                                                                                                                                    |
-| `paths.architecture`           | string | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                                               |
-| `paths.research`               | string | No       | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research`                                                                                            |
-| `paths.product`                | string | No       | Reserved for a future product-doc agent. No default — omitted from generated configs until that agent exists; set it explicitly only if you're building that agent yourself. |
-| `paths.worktrees`              | string | No       | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}`                                                                        |
-| `orchestration`                | object | No       | Orchestration behaviour configuration                                                                                                                                        |
-| `orchestration.max_concurrent` | number | No       | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4`                                                                                                |
+| Field                           | Type    | Required | Description                                                                                                                                                                    |
+| -------------------------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `project_name`                   | string  | Yes      | Project identifier used in file naming and human-readable metadata                                                                                                            |
+| `project_shortname`              | string  | No       | Short project identifier (max 5 characters) used in Feature IDs and worktree paths. Falls back to `project_name` if unset.                                                    |
+| `repo_type`                      | string  | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                                                     |
+| `standards`                      | object  | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                                              |
+| `project_standards`              | string  | No       | Path to project-specific standards override                                                                                                                                   |
+| `ai_identity`                    | object  | No       | AI agent git identity for commits and push auth                                                                                                                               |
+| `ai_identity.git_author_name`    | string  | No       | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars                                                                                                                   |
+| `ai_identity.git_author_email`   | string  | No       | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars                                                                                                               |
+| `ai_identity.git_token_env`      | string  | No       | Name of env var holding the PAT for push/PR ops                                                                                                                               |
+| `secrets`                        | object  | No       | Provider-agnostic secrets resolution for `ai-git` (see below)                                                                                                                 |
+| `secrets.run`                    | array   | No       | Command+args prefix for a secrets manager's own "run wrapper" (e.g. `["bws", "run", "--project-id", "${BWS_PROJECT_ID}", "--"]`)                                              |
+| `secrets.allow_insecure_dotenv`  | boolean | No       | Explicit opt-in to a gitignored `.env` fallback when `secrets.run` is unset. Default `false` — for local testing only.                                                        |
+| `paths`                          | object  | No       | Artifact output directories (relative to repo root). Any value may reference another resolved field with `{key.path}` — see below.                                           |
+| `paths.plans`                    | string  | No       | Root for all plan artifacts. Default: `plans`                                                                                                                                 |
+| `paths.features`                 | string  | No       | Root for a Feature's folder — `{paths.features}/{FeatureID}/plan.md`, `tasks.json`, and `orchestration-state.json` all live together as siblings. Default: `plans/features`   |
+| `paths.decisions`                | string  | No       | ADRs (MADR format), flat directory, no domain subfolders. Default: `knowledge/decisions`                                                                                      |
+| `paths.knowledge`                | string  | No       | Knowledge directory. Default: `knowledge`                                                                                                                                     |
+| `paths.architecture`             | string  | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                                                |
+| `paths.research`                 | string  | No       | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research`                                                                                             |
+| `paths.product`                  | string  | No       | Reserved for a future product-doc agent. No default — omitted from generated configs until that agent exists; set it explicitly only if you're building that agent yourself. |
+| `paths.worktrees`                | string  | No       | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}`                                                                        |
+| `orchestration`                  | object  | No       | Orchestration behaviour configuration                                                                                                                                         |
+| `orchestration.max_concurrent`   | number  | No       | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4`                                                                                                 |
+
+#### `{key.path}` references in path values
+
+Any string field — including a custom key not listed above, e.g. `paths.features`
+may reference another field's _resolved_ value with `{key.path}`:
+
+```json
+{
+  "paths": {
+    "plans": "docs/plans",
+    "features": "{paths.plans}/features"
+  }
+}
+```
+
+`paths.features` resolves to `docs/plans/features`. References resolve
+recursively (a reference may itself contain a reference) and may point at a
+field that falls back to its own default. A cycle — directly, or through a
+chain of references — is an error rather than infinite recursion.
 
 #### `standards` field
 
@@ -165,6 +187,46 @@ A map of agent domain → array of tags for tag-based standard matching:
 - A standard loads if **ALL** of its tags are present in the project's collected tags
 - `depends_on` chains are resolved automatically (dependencies load first)
 - Resolution: project-local `./standards/{name}.md` first, then global installed copy
+
+#### `secrets` field
+
+Provider-agnostic secrets resolution for `ai-git`'s `AI_GIT_TOKEN`-equivalent
+token (`ai_identity.git_token_env`). Neither field is required — with
+neither set, `ai-git` behaves exactly as it always has: it reads the token
+from a plain, already-exported environment variable.
+
+```json
+{
+  "secrets": {
+    "run": ["bws", "run", "--project-id", "${BWS_PROJECT_ID}", "--"],
+    "allow_insecure_dotenv": false
+  }
+}
+```
+
+- `secrets.run`: a command+args prefix for a secrets manager's own "run
+  wrapper" — the pattern every major provider CLI already implements
+  (`bws run --project-id X -- <cmd>`, `op run -- <cmd>`, `doppler run --
+  <cmd>`). When the configured token env var is missing and an operation
+  needs it, `ai-git` re-execs itself through this wrapper; the secret is
+  injected straight into the wrapped process's memory and is never
+  written to disk. `${VAR}` placeholders inside individual elements (e.g.
+  `${BWS_PROJECT_ID}` — a non-secret identifier) are resolved against the
+  caller's own environment first. This field never names a specific
+  provider — Bitwarden Secrets Manager is one example, not a special case.
+- `secrets.allow_insecure_dotenv`: explicit, off-by-default opt-in to fall
+  back to a gitignored `.env` file at the repo root when no `run` wrapper
+  is configured or resolves the needed variable. Intended for local
+  testing before a real secrets manager is wired up, never for CI or
+  production — every time it's actually used, `ai-git` prints a warning to
+  stderr so it's never silent.
+- MCP server tokens (a server yaml's `headers` field, e.g.
+  `Authorization: "Bearer ${YOUTRACK_TOKEN}"`) don't need any of this —
+  both supported harnesses (Claude Code, Kiro) natively expand `${VAR}`
+  placeholders from their own process environment at connect time, so
+  `aif install` never resolves or needs the secret at all. See
+  `skills/server-authoring/reference/schema.yaml`'s "headers and secrets"
+  section.
 
 ### Defaults (when `.aiconfig.json` is absent)
 

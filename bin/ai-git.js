@@ -30,6 +30,7 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   getIdentity,
   buildGitEnv,
@@ -40,6 +41,15 @@ import {
   findRemoteName,
   buildAuthConfigArgs,
 } from '../lib/ai-git.js';
+import {
+  getSecretsConfig,
+  parseDotenv,
+  isAlreadyWrapped,
+  buildWrapperInvocation,
+  REEXEC_GUARD_ENV,
+} from '../lib/secrets.js';
+
+const __filename = fileURLToPath(import.meta.url);
 
 // --- Config resolution ---
 
@@ -185,6 +195,60 @@ Configuration:
 `);
 }
 
+/**
+ * If the configured AI_GIT_TOKEN-equivalent env var is missing, try to
+ * resolve it before any git/gh operation runs: re-exec through
+ * `secrets.run` (a provider-agnostic run-wrapper, e.g. `bws run
+ * --project-id X --`) if configured, else load a gitignored `.env` if
+ * `secrets.allow_insecure_dotenv` is explicitly true. Re-exec never
+ * returns — it replaces this process with the wrapped child's exit code.
+ * Mirrors runGit/runGh's existing discipline: the token is never logged
+ * or echoed, only passed via `stdio: 'inherit'` env injection.
+ * @param {object} config - Parsed .aiconfig.json
+ * @param {string} root - Project root (where .aiconfig.json was found)
+ * @param {{ tokenEnvName: string|null }} identity
+ */
+function resolveSecrets(config, root, identity) {
+  if (!identity.tokenEnvName || process.env[identity.tokenEnvName]) return;
+
+  const { run, allowInsecureDotenv } = getSecretsConfig(config);
+
+  if (run && !isAlreadyWrapped(process.env)) {
+    // Bare "node" rather than process.execPath: some secrets-manager run
+    // wrappers (confirmed with `bws run` on Windows) relay the wrapped
+    // command through a shell without quoting, so an absolute path
+    // containing spaces (e.g. "C:\Program Files\nodejs\node.exe") breaks.
+    // node must already be resolvable on PATH here regardless, since
+    // this script itself only runs via `node ...` or a PATH-based shim.
+    const { command, args: wrapperArgs } = buildWrapperInvocation(
+      run,
+      'node',
+      __filename,
+      process.argv.slice(2),
+      process.env,
+    );
+    const result = spawnSync(command, wrapperArgs, {
+      env: { ...process.env, [REEXEC_GUARD_ENV]: '1' },
+      stdio: 'inherit',
+      cwd: process.cwd(),
+    });
+    process.exit(result.status ?? 1);
+  }
+
+  if (allowInsecureDotenv) {
+    const dotenvPath = join(root, '.env');
+    if (existsSync(dotenvPath)) {
+      console.error(
+        `⚠ secrets.allow_insecure_dotenv is enabled — loading ${dotenvPath} in plaintext. Not for production use.`,
+      );
+      const parsed = parseDotenv(readFileSync(dotenvPath, 'utf8'));
+      for (const [key, value] of Object.entries(parsed)) {
+        if (!(key in process.env)) process.env[key] = value;
+      }
+    }
+  }
+}
+
 function main() {
   const args = process.argv.slice(2);
 
@@ -204,6 +268,14 @@ function main() {
   const identity = getIdentity(found.config);
   const command = args[0];
   const commandArgs = args.slice(1);
+
+  // Only resolve secrets for operations that actually need the token —
+  // every other invocation (commit, add, status, log, worktree, ...)
+  // must stay fast and must not depend on a secrets backend being
+  // installed/reachable.
+  if (isGhCommand(command) || needsPushAuth(command)) {
+    resolveSecrets(found.config, found.root, identity);
+  }
 
   // Route to git or gh
   if (isGhCommand(command)) {

@@ -87,5 +87,70 @@ describe('unit: aiconfig', () => {
         assert.equal(resolveConfigValue(config, 'paths.worktrees', FAKE_ROOT), '../worktrees/wid');
       });
     });
+
+    describe('{key.path} references in configured values', () => {
+      it('substitutes a reference to another configured field', () => {
+        const config = { paths: { plans: 'docs/plans', features: '{paths.plans}/features' } };
+        assert.equal(
+          resolveConfigValue(config, 'paths.features', FAKE_ROOT),
+          'docs/plans/features',
+        );
+      });
+
+      it('substitutes a reference to another field default', () => {
+        const config = { paths: { features: '{paths.plans}/features' } };
+        assert.equal(resolveConfigValue(config, 'paths.features', FAKE_ROOT), 'plans/features');
+      });
+
+      it('resolves multiple references in one value', () => {
+        const config = {
+          paths: {
+            plans: 'docs/plans',
+            knowledge: 'docs/knowledge',
+            shared: '{paths.plans}+{paths.knowledge}',
+          },
+        };
+        assert.equal(
+          resolveConfigValue(config, 'paths.shared', FAKE_ROOT),
+          'docs/plans+docs/knowledge',
+        );
+      });
+
+      it('resolves a reference that itself contains a reference', () => {
+        const config = {
+          paths: {
+            plans: 'docs/plans',
+            features: '{paths.plans}/features',
+            spikes: '{paths.features}/spikes',
+          },
+        };
+        assert.equal(
+          resolveConfigValue(config, 'paths.spikes', FAKE_ROOT),
+          'docs/plans/features/spikes',
+        );
+      });
+
+      it('throws for a direct self-reference', () => {
+        const config = { paths: { plans: '{paths.plans}/x' } };
+        assert.throws(() => resolveConfigValue(config, 'paths.plans', FAKE_ROOT), /Circular/);
+      });
+
+      it('throws for an indirect cycle', () => {
+        const config = { paths: { plans: '{paths.epics}', epics: '{paths.plans}' } };
+        assert.throws(() => resolveConfigValue(config, 'paths.plans', FAKE_ROOT), /Circular/);
+      });
+
+      it('throws when a configured override creates a cycle through a derived default', () => {
+        // paths.decisions defaults to nesting under paths.knowledge; pointing
+        // paths.knowledge back at paths.decisions closes the loop.
+        const config = { paths: { knowledge: '{paths.decisions}' } };
+        assert.throws(() => resolveConfigValue(config, 'paths.decisions', FAKE_ROOT), /Circular/);
+      });
+
+      it('propagates an unknown field referenced inside a placeholder', () => {
+        const config = { paths: { features: '{paths.not_a_real_field}' } };
+        assert.throws(() => resolveConfigValue(config, 'paths.features', FAKE_ROOT), /Unknown/);
+      });
+    });
   });
 });
