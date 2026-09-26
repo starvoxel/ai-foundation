@@ -2,7 +2,7 @@
 section: '05.03'
 title: 'Core libraries'
 lifecycle: published
-last_verified: 0441de2
+last_verified: 5944c97
 tags: [building-blocks, core-libraries]
 key_files:
   - lib/manifest.js
