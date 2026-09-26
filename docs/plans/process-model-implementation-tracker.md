@@ -1092,11 +1092,33 @@ and green after.
 
 ## Phase 16 — CI guards (check 33)
 
-- [ ] **Check 33** — New guards in `.github/workflows/ci.yml`: staleness check,
-      relative-link resolution across `docs/architecture`, `aif index decisions --check`.
-      Commit: `_____`
+**Branch cut directly from the integration branch's tip (`b2d87d7`), not from Phase
+15's unmerged tip — check 33 doesn't depend on check 32's content, so there's no
+reason to stack it. This branch's copy of the "Resuming after a break" header above
+still reflects the pre-Phase-15 state; that reconciles naturally as a merge conflict
+(or a clean fast-forward) once both PRs land, whichever order they merge in.**
 
-**Checkpoint 16:** _____
+- [x] **Check 33** — New guards in `.github/workflows/ci.yml`: staleness check,
+      relative-link resolution across `docs/architecture`, `aif index decisions --check`.
+      The staleness/decisions checks were already-built tools (checks 5/30) that had
+      simply never been wired into CI — just new `ci.yml` steps. Relative-link
+      resolution needed real new code: `lib/architecture.js` gains `extractRelativeLinks()`
+      (pure) and `findBrokenLinks()` (io wrapper), wired into `aif index architecture`'s
+      existing `--check`/generation paths rather than a separate command, so one CI step
+      (`node bin/aif.js index architecture --check`) covers both staleness and broken
+      links. Commit: `75ce1d3`.
+
+**Checkpoint 16:** `npm test` 793/793 (14 new — 9 unit for `extractRelativeLinks`, 5
+integration for `findBrokenLinks` + CLI wiring), `npm run validate`/`lint`/`typecheck`/
+`format:check` clean, `aif index architecture|decisions --check` and `aif snapshot
+--check` all clean. `05_04_document_indexing.md`'s Important Interfaces table and
+Consumers section updated for the two new `architecture.js` functions;
+`05_05_command_layer.md` needed no content change (its `index.js` row already
+describes `runIndex()`/`resolveDecisionsPath()`/`resolveArchitecturePath()`, unaffected
+by internally wiring in `findBrokenLinks()`) — both got a `last_verified` bump for
+their changed `key_files` (`lib/architecture.js`, `lib/commands/index.js`), landed as a
+separate follow-up commit (`c786129`) per the established
+`d0b0c27`/`cf22bd8`/`ec5bf70` precedent. Ready for PR.
 
 ---
 
