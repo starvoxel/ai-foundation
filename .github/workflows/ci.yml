@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    branches: [main]
-  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,110 +20,25 @@ env:
   NODE_VERSION_MAX: "26.x"
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION_MIN }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Lint
-        run: npm run lint
-
-  typecheck:
-    name: Type-check (JSDoc via tsc)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION_MIN }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type-check
-        run: npm run typecheck
-
-  format:
-    name: Format check
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION_MIN }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Format check
-        run: npm run format:check
-
+  # Lint, typecheck, format, validate, snapshot-freshness, and version-bump
+  # each run in a few seconds but GitHub bills every job a full minute
+  # minimum — as separate jobs they cost ~6x more than the work they do.
+  # One job, one checkout, one npm ci; steps are prefixed "Check:" to keep
+  # them distinct from the shared setup steps above them in the log.
+  # Named for the category (validating the repo meets its various
+  # specifications) rather than enumerating the steps, so adding/removing
+  # a check here doesn't also mean updating this job's name — and any
+  # required-status-check config pinned to it — every time.
   validate:
-    name: Validate (schema, refs, bundles)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION_MIN }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Validate
-        run: npm run validate
-
-  snapshot-freshness:
-    name: Snapshot freshness (bundles, servers, hooks)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v5
-        with:
-          node-version: ${{ env.NODE_VERSION_MIN }}
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Check snapshots are current
-        run: node bin/aif.js snapshot --check
-
-  version-bump-check:
-    name: Version bump check
+    name: Validate
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          # Full history needed to diff against the PR base / previous push —
-          # a shallow checkout can't resolve the base commit.
+          # Full history needed to diff against the previous push for the
+          # version-bump check — a shallow checkout can't resolve the base
+          # commit.
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -137,21 +50,32 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Determine base commit
+      - name: "Check: lint"
+        run: npm run lint
+
+      - name: "Check: types (JSDoc via tsc)"
+        run: npm run typecheck
+
+      - name: "Check: format"
+        run: npm run format:check
+
+      - name: "Check: schema, refs, bundles"
+        run: npm run validate
+
+      - name: "Check: snapshot freshness (bundles, servers, hooks)"
+        run: node bin/aif.js snapshot --check
+
+      - name: "Check: version bump — determine base commit"
         id: base
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "sha=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          before="${{ github.event.before }}"
+          if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
+            echo "sha=" >> "$GITHUB_OUTPUT"
           else
-            before="${{ github.event.before }}"
-            if [ -z "$before" ] || [ "$before" = "0000000000000000000000000000000000000000" ]; then
-              echo "sha=" >> "$GITHUB_OUTPUT"
-            else
-              echo "sha=$before" >> "$GITHUB_OUTPUT"
-            fi
+            echo "sha=$before" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check version bumps
+      - name: "Check: version bump"
         run: node .github/scripts/check-version-bumps.mjs "${{ steps.base.outputs.sha }}"
 
   test-node-min:
