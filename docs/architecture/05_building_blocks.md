@@ -19,7 +19,7 @@ key_files:
 > transforms, and installs — decomposed into black boxes, each with its
 > responsibility and interface.
 
-## Overview
+## Overview Diagram
 
 ```mermaid
 graph TD
@@ -117,7 +117,7 @@ which get installed; the actual MCP connection is a harness-runtime relationship
 (harness ↔ server process/endpoint), not a static code dependency. See the MCP
 servers table below and §3 Technical context.
 
-## Motivation for this decomposition
+## Motivation
 
 The six groups below split along the one boundary that actually matters for this
 system: **what has to change together when a harness is added, vs. what never
@@ -129,7 +129,7 @@ are content the other five groups resolve and install, not code that runs as par
 of `aif` itself. Grouping any other way (e.g. by CLI command, or by file size) would
 cut across that boundary and hide it.
 
-## Building blocks
+## Contained Building Blocks
 
 ### Entry points
 
