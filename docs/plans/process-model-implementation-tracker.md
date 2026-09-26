@@ -1035,7 +1035,19 @@ green throughout (751/751 tests, validate/lint/typecheck/format clean, both inde
 snapshot `--check` clean) — no `key_files`/factual claims changed, so no
 `last_verified` bumps were needed either.
 
----
+**Same branch, follow-up per direct human instruction ("validate that no §5 section
+needs more key_files... do that analysis 3 times"):** three independent passes
+comparing every §5 doc's actual per-file claims against its own `key_files` list.
+§5.01–§5.04 were already complete. `05_building_blocks.md` (Level 1) wasn't: its
+Entry points/Command layer/MCP servers rows make specific per-file claims with no
+`§5.0N` delegation pointer, yet most of those files (`bin/ai-git.js`, all 10
+`lib/commands/*.js`, 5 of 6 MCP server implementation files) weren't tracked
+anywhere. Recommended, and human approved, splitting Command layer into a new
+**§5.05** (`05_05_command_layer.md`) — same profile as §5.01–§5.04 (a cohesive
+group whose own `key_files` list would otherwise bloat Level-1's) — while adding
+the smaller Entry points/MCP servers gaps directly to Level-1's own `key_files`
+(too few files each to warrant a further split). Every added claim was verified
+against real source before being asserted. Full validation gate green again after.
 
 ## Phase 15 — Unwind merged half of AIF-003 (check 32)
 
