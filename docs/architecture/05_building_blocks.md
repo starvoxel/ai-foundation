@@ -32,38 +32,9 @@ graph TD
     GitCLI["bin/ai-git.js"]
   end
 
-  subgraph Commands["Command layer — lib/commands/*"]
-    Install["install.js"]
-    Uninstall["uninstall.js"]
-    Status["status.js"]
-    List["list.js"]
-    Validate["validate.js"]
-    Test["test.js"]
-    Snapshot["snapshot.js"]
-    Index["index.js"]
-    Init["init.js"]
-    Config["config.js"]
-  end
-
-  subgraph Core["Core libraries — lib/*.js"]
-    Resolver["resolver.js"]
-    Manifest["manifest.js"]
-    SnapLib["snapshot/io.js + pure.js"]
-    Decisions["decisions.js"]
-    Architecture["architecture.js"]
-    IndexDiff["index-diff.js"]
-    ProjInit["project-init.js"]
-    AiGitLib["ai-git.js"]
-    Const["constants.js / component-defs.js"]
-    AiConfig["aiconfig.js + aiconfig-resolve.js + aiconfig-defaults.js"]
-    FileUtils["file-utils.js"]
-  end
-
-  subgraph Harnesses["Harness adapters — lib/harnesses/*"]
-    Base["base.js — createAdapter()"]
-    Claude["claude.js"]
-    Kiro["kiro.js"]
-  end
+  Commands["Command layer — lib/commands/* (§5.05)"]
+  CoreLibs["Core libraries — lib/*.js (§5.01/§5.03/§5.04)"]
+  Harnesses["Harness adapters — lib/harnesses/* (§5.02)"]
 
   subgraph Sources["Component sources — declarative"]
     Agents["agents/"]
@@ -74,47 +45,20 @@ graph TD
     Template["projects/_template/"]
   end
 
-  CLI --> Install & Uninstall & Status & List & Validate & Test & Snapshot & Index & Init & Config
-  GitCLI --> AiGitLib
+  CLI --> Commands
+  GitCLI --> CoreLibs
 
-  Install --> Resolver
-  Install --> Claude
-  Install --> Kiro
-  Install --> Manifest
-  Install --> SnapLib
-  Uninstall --> Manifest
-  Uninstall --> Claude
-  Uninstall --> Kiro
-  Status --> Manifest
-  Status --> SnapLib
-  Snapshot --> SnapLib
-  List --> Resolver
-  Validate --> Resolver
-  Index --> Decisions
-  Index --> Architecture
-  Index --> AiConfig
-  Decisions --> IndexDiff
-  Architecture --> IndexDiff
-  Init --> ProjInit
-  ProjInit --> Template
-  Config --> AiConfig
+  Commands --> CoreLibs
+  Commands --> Harnesses
+  Harnesses --> CoreLibs
 
-  Claude --> Base
-  Kiro --> Base
-  Claude --> FileUtils
-  Kiro --> FileUtils
-  Base --> FileUtils
-  SnapLib --> FileUtils
-  Decisions --> FileUtils
-  Architecture --> FileUtils
-  SnapLib --> Resolver
-
-  Resolver --> Agents
-  Resolver --> Skills
-  Resolver --> Steering
-  Resolver --> Bundles
-  Resolver --> Standards
+  CoreLibs --> Agents & Skills & Steering & Standards & Bundles & Template
 ```
+
+Every group above with its own `§5.0N` whitebox is shown as a single collapsed
+node here — Command layer, Core libraries, and Harness adapters each have a more
+detailed diagram at that level. Entry points and Component sources stay fully
+expanded since neither has one.
 
 MCP servers (`servers/dag`, `servers/gmail`, `servers/youtrack`) aren't shown as
 graph nodes here — `resolver.js` only reads their `*.yaml` definitions to resolve
