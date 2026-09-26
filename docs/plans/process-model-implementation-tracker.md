@@ -1000,6 +1000,22 @@ addition vs. this branch's §5.04 extraction of the same table). Resolved by mer
 integration branch in and reconciling both sides' content rather than picking one; full
 validation gate re-run and green after. PR #69 is pushed and should now show mergeable.
 
+Human review on PR #69 (16 comments) landed 14 fixes: extracted `parseFrontmatter`/
+`collectFiles`/`hashContent`/`writeToTarget` out of `lib/harnesses/base.js` into a new
+`lib/file-utils.js` (they carried no harness-specific behavior); declared `zod` as a
+direct `package.json` dependency (was an undeclared transitive dependency of
+`@modelcontextprotocol/sdk`); removed ADRs 0007 and 0008 (0008 also fails
+`adr-authoring`'s own litmus test); renamed §5.04 to "Document indexing"
+(`05_04_document_indexing.md`) since the pipeline isn't tied to decisions/architecture
+specifically; cited ADRs 0002/0003's arc42 cross-references by section number instead
+of filename; trimmed wordy/change-history-framed prose in `02_constraints.md` and
+`05_03_core_libraries.md`; converted §5.01's Consumers prose to a table; made
+`skill/adr-authoring` agent-agnostic. Two comments (arc42-template fidelity for
+§5.01–§5.04, including the freehand "Why this needs its own section" convention) are
+deferred to a dedicated follow-up PR given the size of restructuring 4 already-published
+pages — confirmed against the actual official template (`arc42/arc42-template` on
+GitHub) rather than assumed; those two review threads stay open until that PR lands.
+
 ---
 
 ## Phase 15 — Unwind merged half of AIF-003 (check 32)
