@@ -2,7 +2,7 @@
 section: '05.02'
 title: 'Harness adapters'
 lifecycle: published
-last_verified: 9b2a27c
+last_verified: 863273a
 tags: [building-blocks, harnesses]
 key_files:
   - lib/harnesses/base.js
@@ -105,11 +105,15 @@ For the adapter contract itself (picking an adapter by the `--harness` flag and
 calling its `install*`/`removeMcpSetting` functions): `lib/commands/install.js` and
 `uninstall.js` are the only callers.
 
-Three other modules import individual utility functions straight out of `base.js`,
-bypassing the adapter contract entirely — `base.js` doubles as a home for a few
-generic helpers with no harness-specific behavior, not only the adapter loop:
-`lib/decisions.js` and `lib/architecture.js` both use `parseFrontmatter()` to parse
-MADR/arc42 YAML frontmatter, and `lib/snapshot/io.js` uses `collectFiles()`/
-`hashContent()` to build source-hash snapshots. None of the three touch
-`TARGETS`/`TOOL_MAP`/`transformAgent`/`transformSteering` or anything else
+`base.js` itself exports only the adapter factory (`createAdapter`) and two
+skill-preload helpers (`stripSkillPrefix`, `resolvePreloadSkills`) — genuinely
+harness-adapter concepts. The generic file/hash/frontmatter helpers the adapter
+loop needs (`parseFrontmatter`, `collectFiles`, `hashContent`, `writeToTarget`)
+live in `lib/file-utils.js` instead, since they carry no harness-specific
+behavior: `claude.js` and `kiro.js` both import them from there directly (for
+their own `transformSteering()` and skill/server file installation), and so do
+`lib/decisions.js`/`lib/architecture.js` (`parseFrontmatter()`, to parse
+MADR/arc42 YAML frontmatter) and `lib/snapshot/io.js` (`collectFiles()`/
+`hashContent()`, to build source-hash snapshots). None of the latter three
+touch `TARGETS`/`TOOL_MAP`/`transformAgent`/`transformSteering` or anything else
 harness-specific.

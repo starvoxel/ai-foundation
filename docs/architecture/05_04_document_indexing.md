@@ -1,8 +1,8 @@
 ---
 section: '05.04'
-title: 'Decisions and architecture indexing'
+title: 'Document indexing'
 lifecycle: published
-last_verified: a82eb75
+last_verified: 863273a
 tags: [building-blocks, indexing, decisions, architecture]
 key_files:
   - lib/decisions.js
@@ -11,7 +11,8 @@ key_files:
 ---
 
 > How `aif index decisions` and `aif index architecture` each turn a directory of
-> Markdown files into a diffable `index.json` — one shared pipeline shape, two
+> Markdown files into a diffable `index.json` — one shared pipeline shape,
+> currently instantiated for two document types (ADRs and arc42 sections), two
 > different frontmatter formats and identity/relationship rules.
 
 ## Why this needs its own section
@@ -23,7 +24,10 @@ frontmatter into a record, assemble an index, invert one relationship across the
 whole set, and diff against a previously-committed index, sharing the one
 generic comparison primitive (`index-diff.js`) rather than each hand-rolling
 their own. `05_03_core_libraries.md`'s one-row treatment undersold that shared
-shape and the real format-specific logic each one carries.
+shape and the real format-specific logic each one carries. The pipeline itself
+is `aif index`'s own general-purpose shape, not tied to ADRs and arc42 sections
+specifically — a third document type is expected to reuse it by adding a third
+`parse*`/`build*`/`diff*` set, not a new architecture.
 
 ## The shared pipeline
 
@@ -55,8 +59,8 @@ diff step itself, against whatever `index.json` is already on disk.
 | Diff key                        | `id`                                                                                                                        | `path`                                                                                                                                                                                                               |
 
 Both parse their frontmatter via the same `parseFrontmatter()` helper
-(`lib/harnesses/base.js` — see `05_02_harness_adapters.md`'s Consumers section for
-why a harness-adapter file is also a generic-utility home), and both diff via
+(`lib/file-utils.js` — see §5.02's Consumers section for the other consumers of
+that same generic-utility module), and both diff via
 `index-diff.js`'s `entriesEqual()`, which sorts every array-valued field generically
 rather than hardcoding either entry shape's field list — the same function serves
 `decisions.js`'s `supersedes`/`superseded_by`/`tags`/`affects`/`decision_makers` and

@@ -2,7 +2,7 @@
 section: '05.03'
 title: 'Core libraries'
 lifecycle: published
-last_verified: 11b4da8
+last_verified: 863273a
 tags: [building-blocks, core-libraries]
 key_files:
   - lib/manifest.js
@@ -15,25 +15,28 @@ key_files:
   - lib/aiconfig.js
   - lib/aiconfig-resolve.js
   - lib/aiconfig-defaults.js
+  - lib/file-utils.js
 ---
 
-> The remaining harness-agnostic support libraries (`lib/*.js`, excluding
-> `resolver.js`, `lib/harnesses/*`, and the decisions/architecture indexing pair,
-> each covered by their own §5.01/§5.02/§5.04 expansion) that every command
-> reuses — manifest tracking, snapshot diffing, project scaffolding, and shared
-> constants.
+> `lib/*.js`'s harness-agnostic support libraries, excluding `resolver.js`
+> (§5.01), `lib/harnesses/*` (§5.02), and the decisions/architecture indexing
+> pair (§5.04) — manifest tracking, snapshot diffing, project scaffolding, and
+> shared constants that every command reuses.
 
 ## Why this needs its own section
 
-This is still the largest heterogeneous group in §5's "Core libraries" row — 10
-files across 5 unrelated responsibilities, and the one most likely to gain a new
-file as the CLI grows. Giving it its own `key_files` list keeps the top-level §5
-doc's own list short enough that a rename or deletion there stays a meaningful
-signal, while these files' individual freshness stays tracked here instead of
-silently dropping out of `aif index architecture --check` coverage.
-`decisions.js`/`architecture.js`/`index-diff.js` used to live in this table too,
-but at 583 lines together — more than `resolver.js`'s own §5.01 — and sharing a
-real, cohesive pipeline shape, they outgrew a single row; see §5.04.
+The largest heterogeneous group in §5's "Core libraries" row: 11 files across 6
+unrelated responsibilities, and the group most likely to gain a new file as the
+CLI grows. Its own `key_files` list keeps the top-level §5 doc's list short
+enough that a rename or deletion there stays a meaningful signal, while these
+11 files' individual freshness stays tracked here instead of silently dropping
+out of `aif index architecture --check` coverage. `file-utils.js`'s addition
+(splitting generic file/hash/frontmatter helpers out of `lib/harnesses/base.js`
+— see §5.02's Consumers section) is exactly the split-trigger case
+`steering/engineering/architecture-authoring.md` names past 5 entries; a finer
+`05.0x` subsection isn't warranted yet, since these 6 responsibilities still
+share nothing beyond "not `resolver.js`/harnesses/indexing" the way §5.01's or
+§5.04's content does.
 
 ## Building blocks
 
@@ -45,6 +48,7 @@ real, cohesive pipeline shape, they outgrew a single row; see §5.04.
 | `ai-git.js`                                                    | Pure logic behind the `ai-git` CLI: identity resolution, env injection, gh-command detection and auth-arg construction.                                                                                                                                                                                                                                                                                                                                                                            | `getIdentity()`, `buildGitEnv()`, `buildGhEnv()`                                   |
 | `constants.js` / `component-defs.js`                           | Shared constants (canonical tool names, source directories, CLI command list) and JSDoc-only `AgentDef`/`ServerDef` type shapes — no runtime behavior, just a single owner for both.                                                                                                                                                                                                                                                                                                               | `TOOLS`, `SOURCE_DIRS`, `COMMANDS`                                                 |
 | `aiconfig.js` / `aiconfig-resolve.js` / `aiconfig-defaults.js` | Resolves a `.aiconfig.json` field to its configured value or documented default, without ever writing a default back to disk. `aiconfig-defaults.js` owns the default table (some entries derive from another field's resolved value, e.g. `paths.decisions` nesting under `paths.knowledge`); `aiconfig-resolve.js` is the pure merge logic against a plain object; `aiconfig.js` is the I/O layer that reads `.aiconfig.json` off disk and also finds a project root by walking up for the file. | `getConfigValue()`, `getConfigPath()`, `findProjectRoot()`, `resolveConfigValue()` |
+| `file-utils.js`                                                | Generic file/hash/frontmatter helpers with no harness-specific behavior: YAML frontmatter parsing, recursive file collection, SHA-256 content hashing, writing to a target path.                                                                                                                                                                                                                                                                                                                   | `parseFrontmatter()`, `collectFiles()`, `hashContent()`, `writeToTarget()`         |
 
 ## Consumers
 
@@ -57,4 +61,7 @@ uses `project-init.js`; `index.js` uses `aiconfig.js` for path resolution (see
 `lib/commands/` (10 of 11 files); `component-defs.js` is much narrower — its
 JSDoc-only types are referenced (via `@param {import('./component-defs.js').X}`
 comments, never a runtime `import`) only by the three `lib/harnesses/*` files,
-not repo-wide.
+not repo-wide. `file-utils.js` has the widest reach of any block in this
+table: `lib/harnesses/base.js`/`claude.js`/`kiro.js` (§5.02), `snapshot/io.js`
+(this table), and `lib/decisions.js`/`architecture.js` (§5.04) all import from
+it directly.

@@ -85,14 +85,13 @@ what actually crosses the file's boundary).
 
 ## Consumers
 
-`resolveBundle()` has three callers, not one: `install.js` (the actual install),
-`validate.js` (resolves every bundle to catch broken references — its
-"bundle-resolution integrity checks"), and `lib/snapshot/io.js` (resolves a bundle to
-know what its own snapshot should cover). `listBundles()` is shared by those same
-three plus `list.js`. `listStandards()` has exactly one caller, `install.js`;
-`listServers()`/`listHookResources()` have exactly one caller each too, both in
-`snapshot/io.js` — `list.js`'s own `servers` listing is a separate, local
-implementation with the same name, not this module's `listServers()`. Neither harness
-adapter (`claude.js`/`kiro.js`) calls into `resolver.js` directly — they receive an
-already-resolved component list from `install.js` and only handle the transform/write
-step (§5.02).
+| Export                                  | Callers                                       | Why                                                                                                                                                               |
+| --------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resolveBundle()`                       | `install.js`, `validate.js`, `snapshot/io.js` | The actual install; bundle-resolution integrity checks ("bundle-resolution integrity checks"); knowing what a bundle's own snapshot should cover.                 |
+| `listBundles()`                         | The same three, plus `list.js`                | Directory listing shared by every command that enumerates bundles.                                                                                                |
+| `listStandards()`                       | `install.js`                                  | Only the install path needs the full standards directory listing.                                                                                                 |
+| `listServers()` / `listHookResources()` | `snapshot/io.js`                              | Both listings feed snapshot building; `list.js`'s own `servers` output is a separate, local implementation with the same name, not this module's `listServers()`. |
+
+Neither harness adapter (`claude.js`/`kiro.js`) calls into `resolver.js` directly —
+they receive an already-resolved component list from `install.js` and only handle
+the transform/write step (§5.02).
