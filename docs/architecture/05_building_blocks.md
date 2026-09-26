@@ -2,24 +2,28 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: 863273a
+last_verified: a449e7f
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
-  - lib/commands/index.js
-  - lib/commands/config.js
+  - bin/ai-git.js
   - lib/resolver.js
   - lib/aiconfig.js
   - lib/harnesses/base.js
   - lib/file-utils.js
   - servers/dag/dag.yaml
+  - servers/dag/index.js
+  - servers/dag/logic.js
+  - servers/gmail/gmail.yaml
+  - servers/gmail/auth.js
+  - servers/youtrack/youtrack.yaml
 ---
 
 > Level-1 whitebox of the `aif` CLI and the component directories it resolves,
 > transforms, and installs — decomposed into black boxes, each with its
 > responsibility and interface.
 
-## Overview
+## Overview Diagram
 
 ```mermaid
 graph TD
@@ -28,38 +32,9 @@ graph TD
     GitCLI["bin/ai-git.js"]
   end
 
-  subgraph Commands["Command layer — lib/commands/*"]
-    Install["install.js"]
-    Uninstall["uninstall.js"]
-    Status["status.js"]
-    List["list.js"]
-    Validate["validate.js"]
-    Test["test.js"]
-    Snapshot["snapshot.js"]
-    Index["index.js"]
-    Init["init.js"]
-    Config["config.js"]
-  end
-
-  subgraph Core["Core libraries — lib/*.js"]
-    Resolver["resolver.js"]
-    Manifest["manifest.js"]
-    SnapLib["snapshot/io.js + pure.js"]
-    Decisions["decisions.js"]
-    Architecture["architecture.js"]
-    IndexDiff["index-diff.js"]
-    ProjInit["project-init.js"]
-    AiGitLib["ai-git.js"]
-    Const["constants.js / component-defs.js"]
-    AiConfig["aiconfig.js + aiconfig-resolve.js + aiconfig-defaults.js"]
-    FileUtils["file-utils.js"]
-  end
-
-  subgraph Harnesses["Harness adapters — lib/harnesses/*"]
-    Base["base.js — createAdapter()"]
-    Claude["claude.js"]
-    Kiro["kiro.js"]
-  end
+  Commands["Command layer — lib/commands/* (§5.05)"]
+  CoreLibs["Core libraries — lib/*.js (§5.01/§5.03/§5.04)"]
+  Harnesses["Harness adapters — lib/harnesses/* (§5.02)"]
 
   subgraph Sources["Component sources — declarative"]
     Agents["agents/"]
@@ -70,46 +45,20 @@ graph TD
     Template["projects/_template/"]
   end
 
-  CLI --> Install & Uninstall & Status & List & Validate & Test & Snapshot & Index & Init & Config
-  GitCLI --> AiGitLib
+  CLI --> Commands
+  GitCLI --> CoreLibs
 
-  Install --> Resolver
-  Install --> Claude
-  Install --> Kiro
-  Install --> Manifest
-  Install --> SnapLib
-  Uninstall --> Manifest
-  Uninstall --> Claude
-  Uninstall --> Kiro
-  Status --> Manifest
-  Status --> SnapLib
-  Snapshot --> SnapLib
-  Validate --> Resolver
-  Index --> Decisions
-  Index --> Architecture
-  Index --> AiConfig
-  Decisions --> IndexDiff
-  Architecture --> IndexDiff
-  Init --> ProjInit
-  ProjInit --> Template
-  Config --> AiConfig
+  Commands --> CoreLibs
+  Commands --> Harnesses
+  Harnesses --> CoreLibs
 
-  Claude --> Base
-  Kiro --> Base
-  Claude --> FileUtils
-  Kiro --> FileUtils
-  Base --> FileUtils
-  SnapLib --> FileUtils
-  Decisions --> FileUtils
-  Architecture --> FileUtils
-  SnapLib --> Resolver
-
-  Resolver --> Agents
-  Resolver --> Skills
-  Resolver --> Steering
-  Resolver --> Bundles
-  Resolver --> Standards
+  CoreLibs --> Agents & Skills & Steering & Standards & Bundles & Template
 ```
+
+Every group above with its own `§5.0N` whitebox is shown as a single collapsed
+node here — Command layer, Core libraries, and Harness adapters each have a more
+detailed diagram at that level. Entry points and Component sources stay fully
+expanded since neither has one.
 
 MCP servers (`servers/dag`, `servers/gmail`, `servers/youtrack`) aren't shown as
 graph nodes here — `resolver.js` only reads their `*.yaml` definitions to resolve
@@ -117,7 +66,7 @@ which get installed; the actual MCP connection is a harness-runtime relationship
 (harness ↔ server process/endpoint), not a static code dependency. See the MCP
 servers table below and §3 Technical context.
 
-## Motivation for this decomposition
+## Motivation
 
 The six groups below split along the one boundary that actually matters for this
 system: **what has to change together when a harness is added, vs. what never
@@ -129,7 +78,7 @@ are content the other five groups resolve and install, not code that runs as par
 of `aif` itself. Grouping any other way (e.g. by CLI command, or by file size) would
 cut across that boundary and hide it.
 
-## Building blocks
+## Contained Building Blocks
 
 ### Entry points
 
@@ -138,20 +87,11 @@ cut across that boundary and hide it.
 | `bin/aif.js`    | Parses argv, dispatches to the matching `lib/commands/*` handler.       | `run(parsed)`, `parseArgs(argv)`              |
 | `bin/ai-git.js` | Transparent git/gh wrapper injecting AI author identity and token auth. | CLI passthrough: `ai-git <command> [args...]` |
 
-### Command layer (`lib/commands/*`)
+### Command layer (`lib/commands/*`) — see §5.05
 
-| Block          | Responsibility                                                                                                                     | Interface                                                                           |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `install.js`   | Resolves a bundle via `resolver.js`, writes its components through the target harness adapter, records the result in the manifest. | `runInstall(parsed, repoRoot)`                                                      |
-| `uninstall.js` | Removes previously-installed files using the manifest's recorded file list; per-harness settings cleanup (e.g. MCP entries).       | `runUninstall(parsed, repoRoot)`                                                    |
-| `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                       | `runStatus(parsed, repoRoot)`                                                       |
-| `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                 | `runList(parsed, repoRoot)`                                                         |
-| `validate.js`  | Schema, cross-reference, and bundle-resolution integrity checks (`aif validate`).                                                  | `runValidate(parsed, repoRoot)`                                                     |
-| `test.js`      | Thin wrapper invoking this repo's own `node:test` suite.                                                                           | `runTest(parsed, repoRoot)`                                                         |
-| `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                           | `runSnapshot(parsed, repoRoot)`                                                     |
-| `index.js`     | Generates the decisions and architecture indexes (`aif index decisions\|architecture`).                                            | `runIndex(parsed, repoRoot)`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
-| `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
-| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                       | `runConfig(parsed, cwd)`                                                            |
+| Block           | Responsibility                                                                                                                                                                       | Interface                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| All 10 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
 
 ### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
@@ -200,7 +140,10 @@ cut across that boundary and hide it.
 - **§5.04 Document indexing** (`05_04_document_indexing.md`) — the shared
   parse/build/diff pipeline behind `aif index decisions|architecture`, and
   exactly where the two formats diverge.
+- **§5.05 Command layer** (`05_05_command_layer.md`) — the full per-command
+  responsibility/interface breakdown for all 10 `lib/commands/*.js` files.
 
-Other blocks above stay at this level — each is a single, thin, single-purpose
-module; a further whitebox wouldn't add information a reader doesn't already have
-from the table row.
+Entry points and MCP servers stay at this level — each block in those two groups
+is a single, thin, single-purpose module; a further whitebox wouldn't add
+information a reader doesn't already have from the table row. Component sources
+are declarative directories, not code, so no whitebox applies to them at all.

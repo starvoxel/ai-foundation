@@ -14,14 +14,7 @@ key_files:
 > Code and Kiro diverge — this is what portability (§1 Quality Goals) actually
 > rests on.
 
-## Why this needs its own section
-
-`lib/harnesses/` is 1,212 lines across three files and is where a real design
-constraint gets enforced: adding a harness must mean adding one adapter, never
-touching `agents/`, `skills/`, or `steering/` source. Worth showing exactly how
-that boundary is drawn.
-
-## The shared contract
+## Overview Diagram
 
 ```mermaid
 graph TD
@@ -42,7 +35,7 @@ resolver, write the transformed output, return a manifest-ready `{path, hash}`
 record. Neither `claude.js` nor `kiro.js` re-implements that loop; they each supply
 a config object closing over their own format.
 
-## Motivation for this decomposition
+## Motivation
 
 The split is drawn at exactly the line between "true for every harness" and
 "true for one harness": `base.js` holds everything harness-agnostic (the read →
@@ -50,7 +43,22 @@ transform → write → manifest-record loop), so adding a harness means writing
 new config object, never touching the loop itself — the structural mechanism
 behind the portability quality goal (§1), not just a convention.
 
-## Steering frontmatter scoping
+## Contained Building Blocks
+
+### Where Claude Code and Kiro actually diverge
+
+| Aspect                          | Claude Code (`claude.js`)                                                                                                                                                             | Kiro (`kiro.js`)                                                                                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TARGETS`                       | `.claude/{agents,rules,skills,servers,standards,scripts}`, plus `~/.claude.json` for MCP settings                                                                                     | `.kiro/{agents,steering,skills,servers,standards}`, plus `.kiro/settings/mcp.json`                                                                                           |
+| Agent output format             | Markdown with frontmatter (`agentExt` handled by `base.js`)                                                                                                                           | JSON                                                                                                                                                                         |
+| `TOOL_MAP` shape                | Generic tool name → **array** of native tool names (a cluster, since e.g. `write` needs both `Write` and `Edit`); an empty array means "verified absent," never guessed               | Generic tool name → a **single** native name, or `null` for "verified absent" (Kiro's names are close enough to ai-foundation's own that most entries are identity mappings) |
+| Tools with no native equivalent | `code` → `[]` (no LSP/code-nav tool exists in Claude Code)                                                                                                                            | `plan`, `ask_user`, `task`, `skill` → `null` (no confirmed native equivalent)                                                                                                |
+| Subagent dispatch               | `subagent` → `['Agent', 'ListAgents', 'SendMessage']`                                                                                                                                 | `subagent` → `'subagent'` (identity mapping)                                                                                                                                 |
+| Skill preloading                | Honors `preload_skills` via `resolvePreloadSkills()` (shared, `base.js`) — full content for listed skills goes into the subagent's frontmatter at install time                        | Ignored — Kiro always resources the full `skills` list regardless, via the shared `stripSkillPrefix` helper                                                                  |
+| Shared resources                | `detectSharedResource()` + `installSharedResources()` install a shared `block-command` hook script once, referenced by every agent that needs it, instead of duplicating it per agent | No shared-resource mechanism (not yet needed for anything Kiro installs)                                                                                                     |
+| MCP settings removal            | `removeMcpSetting(serverName)` edits `~/.claude.json`                                                                                                                                 | `removeMcpSetting(serverName)` edits `.kiro/settings/mcp.json`                                                                                                               |
+
+### Steering frontmatter scoping
 
 Steering files declare conditional loading via one harness-agnostic frontmatter
 field, `file_patterns: []` (empty = always load, populated = load only for matching
@@ -71,20 +79,7 @@ role-scoping has to happen at bundle composition (install a different bundle per
 agent) or in the agent's own `prompt`, not in steering frontmatter. See §11 Risks for
 a known reliability gap in Kiro's `fileMatch` mode.
 
-## Where Claude Code and Kiro actually diverge
-
-| Aspect                          | Claude Code (`claude.js`)                                                                                                                                                             | Kiro (`kiro.js`)                                                                                                                                                             |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TARGETS`                       | `.claude/{agents,rules,skills,servers,standards,scripts}`, plus `~/.claude.json` for MCP settings                                                                                     | `.kiro/{agents,steering,skills,servers,standards}`, plus `.kiro/settings/mcp.json`                                                                                           |
-| Agent output format             | Markdown with frontmatter (`agentExt` handled by `base.js`)                                                                                                                           | JSON                                                                                                                                                                         |
-| `TOOL_MAP` shape                | Generic tool name → **array** of native tool names (a cluster, since e.g. `write` needs both `Write` and `Edit`); an empty array means "verified absent," never guessed               | Generic tool name → a **single** native name, or `null` for "verified absent" (Kiro's names are close enough to ai-foundation's own that most entries are identity mappings) |
-| Tools with no native equivalent | `code` → `[]` (no LSP/code-nav tool exists in Claude Code)                                                                                                                            | `plan`, `ask_user`, `task`, `skill` → `null` (no confirmed native equivalent)                                                                                                |
-| Subagent dispatch               | `subagent` → `['Agent', 'ListAgents', 'SendMessage']`                                                                                                                                 | `subagent` → `'subagent'` (identity mapping)                                                                                                                                 |
-| Skill preloading                | Honors `preload_skills` via `resolvePreloadSkills()` (shared, `base.js`) — full content for listed skills goes into the subagent's frontmatter at install time                        | Ignored — Kiro always resources the full `skills` list regardless, via the shared `stripSkillPrefix` helper                                                                  |
-| Shared resources                | `detectSharedResource()` + `installSharedResources()` install a shared `block-command` hook script once, referenced by every agent that needs it, instead of duplicating it per agent | No shared-resource mechanism (not yet needed for anything Kiro installs)                                                                                                     |
-| MCP settings removal            | `removeMcpSetting(serverName)` edits `~/.claude.json`                                                                                                                                 | `removeMcpSetting(serverName)` edits `.kiro/settings/mcp.json`                                                                                                               |
-
-## Interface
+## Important Interfaces
 
 Both adapters export the identical surface (enforced by convention, not a shared
 TypeScript interface, since this codebase has none — §2 Constraints):

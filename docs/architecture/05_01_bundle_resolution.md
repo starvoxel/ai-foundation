@@ -11,13 +11,7 @@ key_files:
 > How `resolveBundle()` turns a `bundle.yaml` into the concrete set of
 > agents/skills/steering/servers that get installed.
 
-## Why this needs its own section
-
-`resolver.js` is 353 lines implementing a multi-step algorithm with real
-branching (domain auto-discovery vs. explicit lists vs. both), not a thin
-pass-through like most of §5's other blocks — worth opening up on its own.
-
-## Resolution flow
+## Overview Diagram
 
 ```mermaid
 flowchart TD
@@ -35,7 +29,7 @@ flowchart TD
   Dedupe --> Out["ResolvedBundle { name, version, description, agents, skills, steering, servers }"]
 ```
 
-## Motivation for this decomposition
+## Motivation
 
 Each domain-discovery sub-step below is a single read against one source
 directory (`agents/`, `steering/`, `servers/`), triggered by one specific
@@ -44,7 +38,9 @@ all four reads — is what makes each independently testable and lets
 `resolveBundle` itself stay a thin, linear pipeline: load → validate → discover
 → append → dedupe.
 
-## Pipeline stages
+## Contained Building Blocks
+
+### Pipeline stages
 
 1. **Load** — read `{paths per SOURCE_DIRS.bundles}/{bundleName}/bundle.yaml`; throw if
    missing, empty, or invalid YAML.
@@ -60,7 +56,7 @@ all four reads — is what makes each independently testable and lets
 5. **Dedupe** — each of the four resulting lists is passed through `dedupe()`
    independently before being returned as the `ResolvedBundle`.
 
-## Domain auto-discovery — internal building blocks
+### Domain auto-discovery — internal building blocks
 
 Private helper functions `discoverByDomain` calls, in this fixed order. None of
 these are exported — they're internal to `resolver.js` (see Interface below for
@@ -73,7 +69,7 @@ what actually crosses the file's boundary).
 | `collectSteering`          | `steering/global/**/*.md` plus `steering/{domain}/**/*.md`, via the shared recursive `collectMdFiles` walk.                                                                             |
 | `resolveServersFromAgents` | Any `@server/tool`-format tool reference in a matched agent's `tools` list, parsed via `parseServerToolRef` — filtered to server names that actually have a directory under `servers/`. |
 
-## Interface
+## Important Interfaces
 
 | Export                                                  | Purpose                                                                                        |
 | ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
@@ -87,7 +83,7 @@ what actually crosses the file's boundary).
 
 | Export                                  | Callers                                       | Why                                                                                                                                                               |
 | --------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `resolveBundle()`                       | `install.js`, `validate.js`, `snapshot/io.js` | The actual install; bundle-resolution integrity checks ("bundle-resolution integrity checks"); knowing what a bundle's own snapshot should cover.                 |
+| `resolveBundle()`                       | `install.js`, `validate.js`, `snapshot/io.js` | The actual install; `validate.js`'s bundle-resolution integrity checks; knowing what a bundle's own snapshot should cover.                                        |
 | `listBundles()`                         | The same three, plus `list.js`                | Directory listing shared by every command that enumerates bundles.                                                                                                |
 | `listStandards()`                       | `install.js`                                  | Only the install path needs the full standards directory listing.                                                                                                 |
 | `listServers()` / `listHookResources()` | `snapshot/io.js`                              | Both listings feed snapshot building; `list.js`'s own `servers` output is a separate, local implementation with the same name, not this module's `listServers()`. |
