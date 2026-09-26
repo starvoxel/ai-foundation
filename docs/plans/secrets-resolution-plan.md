@@ -1,6 +1,6 @@
 # Pluggable Secrets Resolution for `aif`
 
-> Status: Approved
+> Status: Done
 > Created: 2026-09-25
 > Approved by: Jeremy
 
