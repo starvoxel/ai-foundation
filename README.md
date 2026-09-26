@@ -135,6 +135,16 @@ aif test validation    # Real repo checks
 
 Requires Node.js 22+. Install dependencies: `npm install`.
 
+### Claude Code Cloud
+
+`scripts/setup-cloud.sh` is the environment's **Setup script** — paste its
+path into the cloud environment config. It only installs tooling (`npm ci`,
+`gh`, `bws`) and runs lint/typecheck/validate; its output is cached in the
+environment snapshot and reused across sessions, so it must never touch real
+secrets. Put those in the environment's **Environment variables** field
+instead. See `docs/plans/secrets-resolution-plan.md` ("Cloud Testing Setup")
+for the reasoning.
+
 ---
 
 ## Contributing
