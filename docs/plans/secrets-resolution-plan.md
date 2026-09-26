@@ -45,21 +45,21 @@ into its own config file.
 
 ## Components Affected
 
-| Component                                | Action | Notes                                                                            |
-| ----------------------------------------- | ------ | --------------------------------------------------------------------------------- |
-| `lib/secrets.js`                         | Create | Pure logic: `getSecretsConfig`, `resolvePlaceholders`, `parseDotenv`, wrapper-invocation building, re-exec guard |
-| `lib/harnesses/claude.js`                | Modify | Remove `resolveHeaderPlaceholders`; `installMcpHttp` passes `serverDef.headers` through unresolved, matching `kiro.js` |
-| `bin/ai-git.js`                          | Modify | Reactive secrets resolution before token use (wrapper, then `.env` fallback)     |
-| `.aiconfig.json` (this repo)             | Modify | Add `secrets.run` wired to `bws run`                                            |
-| `.gitignore`                             | Modify | Ignore `.env` / `.env.*`, keep `.env.example`                                   |
-| `.env.example`                           | Create | Documents expected var names, insecure-fallback opt-in                          |
-| `AGENTS.md`                              | Modify | Document `secrets.run` / `secrets.allow_insecure_dotenv` fields                 |
-| `projects/_template/.aiconfig.json`      | Modify | Add commented example `secrets` block                                           |
-| `skills/server-authoring/reference/schema.yaml` | Modify | Update "headers and secrets" note: harness expands `${VAR}` natively at connect time; installer never resolves it. Note Kiro's approval-allowlist caveat. |
-| `docs/kiro-mcp-env-var-expansion.md`     | Keep (already committed) | Sourced research backing the schema.yaml update                                 |
-| `tests/unit/secrets.test.js`             | Create | Unit coverage for `lib/secrets.js`                                              |
-| `tests/unit/claude-adapter.test.js`      | Modify | Remove/replace `resolveHeaderPlaceholders` tests with a pass-through assertion  |
-| `tests/integration/ai-git-auth.test.js`  | Modify | Add wrapper re-exec case + dotenv fallback case                                 |
+| Component                                       | Action                   | Notes                                                                                                                                                     |
+| ----------------------------------------------- | ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lib/secrets.js`                                | Create                   | Pure logic: `getSecretsConfig`, `resolvePlaceholders`, `parseDotenv`, wrapper-invocation building, re-exec guard                                          |
+| `lib/harnesses/claude.js`                       | Modify                   | Remove `resolveHeaderPlaceholders`; `installMcpHttp` passes `serverDef.headers` through unresolved, matching `kiro.js`                                    |
+| `bin/ai-git.js`                                 | Modify                   | Reactive secrets resolution before token use (wrapper, then `.env` fallback)                                                                              |
+| `.aiconfig.json` (this repo)                    | Modify                   | Add `secrets.run` wired to `bws run`                                                                                                                      |
+| `.gitignore`                                    | Modify                   | Ignore `.env` / `.env.*`, keep `.env.example`                                                                                                             |
+| `.env.example`                                  | Create                   | Documents expected var names, insecure-fallback opt-in                                                                                                    |
+| `AGENTS.md`                                     | Modify                   | Document `secrets.run` / `secrets.allow_insecure_dotenv` fields                                                                                           |
+| `projects/_template/.aiconfig.json`             | Modify                   | Add commented example `secrets` block                                                                                                                     |
+| `skills/server-authoring/reference/schema.yaml` | Modify                   | Update "headers and secrets" note: harness expands `${VAR}` natively at connect time; installer never resolves it. Note Kiro's approval-allowlist caveat. |
+| `docs/kiro-mcp-env-var-expansion.md`            | Keep (already committed) | Sourced research backing the schema.yaml update                                                                                                           |
+| `tests/unit/secrets.test.js`                    | Create                   | Unit coverage for `lib/secrets.js`                                                                                                                        |
+| `tests/unit/claude-adapter.test.js`             | Modify                   | Remove/replace `resolveHeaderPlaceholders` tests with a pass-through assertion                                                                            |
+| `tests/integration/ai-git-auth.test.js`         | Modify                   | Add wrapper re-exec case + dotenv fallback case                                                                                                           |
 
 ## Approach
 
