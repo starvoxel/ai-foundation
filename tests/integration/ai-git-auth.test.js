@@ -33,7 +33,7 @@ function runGit(cwd, args) {
   return result;
 }
 
-function setUpRepo() {
+function setUpRepo(extraConfig = {}) {
   const root = mkdtempSync(join(tmpdir(), 'ai-git-auth-test-'));
 
   writeFileSync(
@@ -46,6 +46,7 @@ function setUpRepo() {
         git_author_email: 'bot@example.com',
         git_token_env: 'AI_GIT_TOKEN_TEST',
       },
+      ...extraConfig,
     }),
     'utf8',
   );
@@ -75,6 +76,16 @@ function tearDownRepo(root) {
   rmSync(root, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }
 
+const NETWORK_BLOCK_ENV = {
+  // Force any real network attempt to fail immediately (connection
+  // refused on localhost) instead of hanging on DNS/TLS against a
+  // nonexistent GitHub repo. Keeps the test fast and avoids
+  // orphaned git subprocesses holding file handles on Windows.
+  HTTPS_PROXY: 'http://127.0.0.1:1',
+  HTTP_PROXY: 'http://127.0.0.1:1',
+  GIT_TERMINAL_PROMPT: '0',
+};
+
 function runAiGit(cwd, args) {
   return spawnSync('node', [BIN_PATH, ...args], {
     cwd,
@@ -82,14 +93,26 @@ function runAiGit(cwd, args) {
     env: {
       ...process.env,
       AI_GIT_TOKEN_TEST: FAKE_TOKEN,
-      // Force any real network attempt to fail immediately (connection
-      // refused on localhost) instead of hanging on DNS/TLS against a
-      // nonexistent GitHub repo. Keeps the test fast and avoids
-      // orphaned git subprocesses holding file handles on Windows.
-      HTTPS_PROXY: 'http://127.0.0.1:1',
-      HTTP_PROXY: 'http://127.0.0.1:1',
-      GIT_TERMINAL_PROMPT: '0',
+      ...NETWORK_BLOCK_ENV,
     },
+    timeout: 10000,
+  });
+}
+
+/**
+ * Runs `ai-git` without pre-setting AI_GIT_TOKEN_TEST, so secrets
+ * resolution (wrapper re-exec or .env fallback) is what has to supply it.
+ * @param {string} cwd
+ * @param {string[]} args
+ * @param {Record<string, string>} [extraEnv]
+ */
+function runAiGitNoToken(cwd, args, extraEnv = {}) {
+  const env = { ...process.env, ...NETWORK_BLOCK_ENV, ...extraEnv };
+  delete env.AI_GIT_TOKEN_TEST;
+  return spawnSync('node', [BIN_PATH, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env,
     timeout: 10000,
   });
 }
@@ -145,5 +168,101 @@ describe('integration: ai-git push auth injection', () => {
 
     const gitConfig = readFileSync(join(repo, '.git', 'config'), 'utf8');
     assert.ok(!gitConfig.includes(FAKE_TOKEN));
+  });
+});
+
+describe('integration: ai-git secrets resolution', () => {
+  describe('secrets.run wrapper', () => {
+    const WRAPPER_TOKEN = 'wrapper-injected-token-98765';
+    let repo;
+    let wrapperPath;
+
+    beforeEach(() => {
+      // A fake secrets-manager "run wrapper" (stands in for `bws run --
+      // ...`): re-execs ai-git with the token injected into the child's
+      // env only, exactly like a real provider CLI would.
+      wrapperPath = join(mkdtempSync(join(tmpdir(), 'ai-git-wrapper-')), 'fake-wrapper.mjs');
+      writeFileSync(
+        wrapperPath,
+        `
+        import { spawnSync } from 'node:child_process';
+        const [, , execPath, scriptPath, ...rest] = process.argv;
+        const result = spawnSync(execPath, [scriptPath, ...rest], {
+          env: { ...process.env, AI_GIT_TOKEN_TEST: '${WRAPPER_TOKEN}' },
+          stdio: 'inherit',
+        });
+        process.exit(result.status ?? 1);
+        `,
+        'utf8',
+      );
+
+      repo = setUpRepo({ secrets: { run: ['node', wrapperPath] } });
+    });
+
+    afterEach(() => {
+      tearDownRepo(repo);
+      rmSync(join(wrapperPath, '..'), { recursive: true, force: true });
+    });
+
+    it('re-execs through the wrapper and never leaks the injected token', () => {
+      const result = runAiGitNoToken(repo, ['push', 'origin', 'main']);
+
+      assert.ok(
+        !result.stdout.includes(WRAPPER_TOKEN),
+        `token leaked to stdout: ${result.stdout}`,
+      );
+      assert.ok(
+        !result.stderr.includes(WRAPPER_TOKEN),
+        `token leaked to stderr: ${result.stderr}`,
+      );
+
+      const gitConfig = readFileSync(join(repo, '.git', 'config'), 'utf8');
+      assert.ok(!gitConfig.includes(WRAPPER_TOKEN), `token leaked into .git/config: ${gitConfig}`);
+    });
+  });
+
+  describe('.env insecure fallback', () => {
+    const DOTENV_TOKEN = 'dotenv-fallback-token-13579';
+    let repo;
+
+    beforeEach(() => {
+      repo = setUpRepo({ secrets: { allow_insecure_dotenv: true } });
+      writeFileSync(join(repo, '.env'), `AI_GIT_TOKEN_TEST=${DOTENV_TOKEN}\n`, 'utf8');
+    });
+
+    afterEach(() => {
+      tearDownRepo(repo);
+    });
+
+    it('prints a warning and loads the token from .env when no wrapper is configured', () => {
+      const result = runAiGitNoToken(repo, ['push', 'origin', 'main']);
+
+      assert.ok(
+        result.stderr.includes('allow_insecure_dotenv'),
+        `expected insecure-fallback warning in stderr, got: ${result.stderr}`,
+      );
+      assert.ok(
+        !result.stdout.includes(DOTENV_TOKEN),
+        `token leaked to stdout: ${result.stdout}`,
+      );
+      assert.ok(
+        !result.stderr.includes(DOTENV_TOKEN),
+        `token leaked to stderr: ${result.stderr}`,
+      );
+
+      const gitConfig = readFileSync(join(repo, '.git', 'config'), 'utf8');
+      assert.ok(!gitConfig.includes(DOTENV_TOKEN), `token leaked into .git/config: ${gitConfig}`);
+    });
+
+    it('does not use .env when the var is already set in the environment', () => {
+      const result = spawnSync('node', [BIN_PATH, 'push', 'origin', 'main'], {
+        cwd: repo,
+        encoding: 'utf8',
+        env: { ...process.env, ...NETWORK_BLOCK_ENV, AI_GIT_TOKEN_TEST: FAKE_TOKEN },
+        timeout: 10000,
+      });
+
+      assert.ok(!result.stderr.includes('allow_insecure_dotenv'));
+    });
   });
 });
