@@ -63,7 +63,7 @@ paths.architecture/paths.research`). If a check is bigger than expected, split i
 4. If a check's box is ticked but its commit SHA is blank, treat it as **not done** —
    re-verify before trusting the checkbox.
 
-**Last commit at last tracker update:** `c02ee52` (`claude/process-model-implementation-plan-lty3ia`)
+**Last commit at last tracker update:** `2406a50` (`process-model/phase-15-unwind-aif-003`)
 **Current phase:** Phases 1–9 done and merged, plus the structural-review phase
 (checks 36–37) and `process-model/arc42-no-plan-references`. Phases 1–6 merged (PRs
 #35, #36, #38, #40, #41, #42). Phase 7 (checks 9–11, vocabulary rename) merged via PR
@@ -153,7 +153,8 @@ against process-model's already-landed path vocabulary, updated the affected arc
 docs) — that merge and PR #69's branch aren't on the same branch; PR #69 will pick up
 the integration branch's current tip as its base once it's ready to merge. Full
 validation gate green at every commit (see Checkpoint 14 above for the one known,
-expressly-scoped exception). Next: Phase 15 (check 32, unwind merged half of `AIF-003`).
+expressly-scoped exception). Phase 15 (check 32, unwind merged half of `AIF-003`)
+done — see Phase 15 below. Next: Phase 16 (check 33, CI guards).
 
 ---
 
@@ -1082,11 +1083,16 @@ and green after.
 
 ## Phase 15 — Unwind merged half of AIF-003 (check 32)
 
-- [ ] **Check 32** — Revert `AIF-003-004`'s `Amending` status from
+- [x] **Check 32** — Revert `AIF-003-004`'s `Amending` status from
       `plan-lifecycle/reference/status-vocabulary.md` by hand (the other two merged
-      chunks' effects already die with checks 13/30; `-005` is kept). Commit: `_____`
+      chunks' effects already die with checks 13/30; `-005` is kept). Commit: `2406a50`.
 
-**Checkpoint 15:** _____
+**Checkpoint 15:** `npm test` 779/779, `npm run validate`/`lint`/`typecheck`/
+`format:check` clean, `aif index architecture|decisions --check` and `aif snapshot
+--check` all clean (the edited file isn't a `key_files` entry for any arc42 section,
+so no staleness/snapshot impact). `skills/adr-authoring/SKILL.md`'s own mention of
+`Amending` checked and left as-is — it already describes the concept as retired past
+tense, not as a live status value, so it needed no edit. Ready for PR.
 
 ---
 
