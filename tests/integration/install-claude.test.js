@@ -4,6 +4,7 @@ import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
+import YAML from 'yaml';
 
 import { runInstall } from '../../lib/commands/install.js';
 import { runUninstall } from '../../lib/commands/uninstall.js';
@@ -219,5 +220,50 @@ describe('integration: install (claude-specific)', () => {
     assert.ok(!existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
     manifest = readManifest(repo);
     assert.equal(manifest.hooks['block-command_claude'], undefined);
+  });
+
+  it('passes an http server\'s ${VAR} header placeholders through unresolved (no secret needed at install time)', () => {
+    const serverDir = join(repo, 'servers', 'test-http-server');
+    mkdirSync(serverDir, { recursive: true });
+    writeFileSync(
+      join(serverDir, 'test-http-server.yaml'),
+      YAML.stringify({
+        name: 'test-http-server',
+        version: '0.1.0',
+        protocol: 'mcp',
+        transport: 'http',
+        description: 'Test http server.',
+        url: 'https://example.com/mcp',
+        headers: { Authorization: 'Bearer ${TEST_HTTP_SERVER_TOKEN}' },
+      }),
+      'utf8',
+    );
+
+    const bundleDir = join(repo, 'bundles', 'http-bundle');
+    mkdirSync(bundleDir, { recursive: true });
+    writeFileSync(
+      join(bundleDir, 'bundle.yaml'),
+      YAML.stringify({
+        name: 'http-bundle',
+        version: '1.0.0',
+        description: 'Bundle with an http server.',
+        servers: ['test-http-server'],
+      }),
+      'utf8',
+    );
+
+    // Deliberately not setting TEST_HTTP_SERVER_TOKEN — install must not
+    // need it, since Claude Code itself expands the placeholder later.
+    delete process.env.TEST_HTTP_SERVER_TOKEN;
+
+    quiet(() =>
+      runInstall({ args: { bundle: 'http-bundle', harness: 'claude' }, positional: [] }, repo),
+    );
+
+    const settings = JSON.parse(readFileSync(TARGETS.mcpSettings, 'utf8'));
+    assert.equal(
+      settings.mcpServers['test-http-server'].headers.Authorization,
+      'Bearer ${TEST_HTTP_SERVER_TOKEN}',
+    );
   });
 });
