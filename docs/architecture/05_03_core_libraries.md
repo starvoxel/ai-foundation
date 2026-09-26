@@ -23,7 +23,7 @@ key_files:
 > pair (§5.04) — manifest tracking, snapshot diffing, project scaffolding, and
 > shared constants that every command reuses.
 
-## Why this needs its own section
+## Motivation
 
 The largest heterogeneous group in §5's "Core libraries" row: 11 files across 6
 unrelated responsibilities, and the group most likely to gain a new file as the
@@ -38,7 +38,7 @@ out of `aif index architecture --check` coverage. `file-utils.js`'s addition
 share nothing beyond "not `resolver.js`/harnesses/indexing" the way §5.01's or
 §5.04's content does.
 
-## Building blocks
+## Contained Building Blocks
 
 | Block                                                          | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Interface                                                                          |
 | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
