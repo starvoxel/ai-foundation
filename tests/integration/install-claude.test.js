@@ -222,7 +222,7 @@ describe('integration: install (claude-specific)', () => {
     assert.equal(manifest.hooks['block-command_claude'], undefined);
   });
 
-  it('passes an http server\'s ${VAR} header placeholders through unresolved (no secret needed at install time)', () => {
+  it("passes an http server's ${VAR} header placeholders through unresolved (no secret needed at install time)", () => {
     const serverDir = join(repo, 'servers', 'test-http-server');
     mkdirSync(serverDir, { recursive: true });
     writeFileSync(

@@ -45,8 +45,14 @@ describe('unit: secrets', () => {
     });
 
     it('only treats literal true as allowInsecureDotenv', () => {
-      assert.equal(getSecretsConfig({ secrets: { allow_insecure_dotenv: 'true' } }).allowInsecureDotenv, false);
-      assert.equal(getSecretsConfig({ secrets: { allow_insecure_dotenv: false } }).allowInsecureDotenv, false);
+      assert.equal(
+        getSecretsConfig({ secrets: { allow_insecure_dotenv: 'true' } }).allowInsecureDotenv,
+        false,
+      );
+      assert.equal(
+        getSecretsConfig({ secrets: { allow_insecure_dotenv: false } }).allowInsecureDotenv,
+        false,
+      );
     });
   });
 
@@ -56,10 +62,7 @@ describe('unit: secrets', () => {
     });
 
     it('resolves multiple placeholders in one string', () => {
-      assert.equal(
-        resolvePlaceholders('${A}-${B}', { A: '1', B: '2' }),
-        '1-2',
-      );
+      assert.equal(resolvePlaceholders('${A}-${B}', { A: '1', B: '2' }), '1-2');
     });
 
     it('leaves a string with no placeholders unchanged', () => {

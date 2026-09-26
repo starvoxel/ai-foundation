@@ -1049,6 +1049,37 @@ the smaller Entry points/MCP servers gaps directly to Level-1's own `key_files`
 (too few files each to warrant a further split). Every added claim was verified
 against real source before being asserted. Full validation gate green again after.
 
+PR #70's review round (`jsmellie`, 4 threads) landed 3 direct fixes and 1
+human-directed choice: dropped the key_files split-trigger justification paragraph
+from `05_building_blocks.md`'s Motivation ("we don't need to document it"); dropped
+`_template.md`'s repo-specific "§1-§3/§6/§11 already match" claim ("don't reference
+what is implemented in this repo — git tells that story"); reworked §5.04's Motivation
+to lead with genuine subsystem cohesion instead of a line-count comparison ("a bad
+reason to split it"); and, for "this mermaid diagram looks messy, what options do we
+have?", presented 3 concrete collapse options rather than guessing — human chose the
+most aggressive one (collapse Command layer/Core libraries/Harness adapters to single
+nodes, since each already has its own `§5.0N` diagram). PR #70 merged into this
+integration branch clean.
+
+**Main-merge adaptation, this session:** merged `origin/main`'s 22 commits (chiefly
+the now-`Done` `docs/plans/secrets-resolution-plan.md` — a new `lib/secrets.js` core
+library, `bin/ai-git.js` wired to resolve `AI_GIT_TOKEN` via a secrets-manager
+run-wrapper or a gitignored `.env` fallback, and `lib/harnesses/claude.js`'s MCP header
+resolution removed so no harness ever bakes a literal secret into its own config) into
+this branch. Two real conflicts: `.aiconfig.json` and `AGENTS.md`'s `.aiconfig.json`
+field table, both from this branch's earlier `paths.*` rename (epics/chunks/orchestration
+→ features) landing independently of main's new `secrets`/`secrets.allow_insecure_dotenv`
+fields and its `{key.path}` path-reference feature — resolved by keeping this branch's
+renamed paths and folding in main's new fields/section rather than picking one side.
+Adapted `05_03_core_libraries.md` for the new `lib/secrets.js` (added to `key_files`,
+Contained Building Blocks, Consumers, and the file/responsibility count in Motivation)
+and fixed `05_building_blocks.md`'s now-stale "Everything else" file enumeration to
+include it — both delegate to §5.03 already, so no other `key_files` change was needed.
+No other new-from-main file (`lib/aiconfig-resolve.js`'s `{key.path}` support, the
+`docs/kiro-mcp-env-var-expansion.md` knowledge file, `scripts/setup-cloud.sh`) made an
+existing arc42 claim wrong or needed a new key_files entry. Full validation gate re-run
+and green after.
+
 ## Phase 15 — Unwind merged half of AIF-003 (check 32)
 
 - [ ] **Check 32** — Revert `AIF-003-004`'s `Amending` status from

@@ -216,14 +216,8 @@ describe('integration: ai-git secrets resolution', () => {
     it('re-execs through the wrapper and never leaks the injected token', () => {
       const result = runAiGitNoToken(repo, ['push', 'origin', 'main']);
 
-      assert.ok(
-        !result.stdout.includes(WRAPPER_TOKEN),
-        `token leaked to stdout: ${result.stdout}`,
-      );
-      assert.ok(
-        !result.stderr.includes(WRAPPER_TOKEN),
-        `token leaked to stderr: ${result.stderr}`,
-      );
+      assert.ok(!result.stdout.includes(WRAPPER_TOKEN), `token leaked to stdout: ${result.stdout}`);
+      assert.ok(!result.stderr.includes(WRAPPER_TOKEN), `token leaked to stderr: ${result.stderr}`);
 
       const gitConfig = readFileSync(join(repo, '.git', 'config'), 'utf8');
       assert.ok(!gitConfig.includes(WRAPPER_TOKEN), `token leaked into .git/config: ${gitConfig}`);
@@ -250,14 +244,8 @@ describe('integration: ai-git secrets resolution', () => {
         result.stderr.includes('allow_insecure_dotenv'),
         `expected insecure-fallback warning in stderr, got: ${result.stderr}`,
       );
-      assert.ok(
-        !result.stdout.includes(DOTENV_TOKEN),
-        `token leaked to stdout: ${result.stdout}`,
-      );
-      assert.ok(
-        !result.stderr.includes(DOTENV_TOKEN),
-        `token leaked to stderr: ${result.stderr}`,
-      );
+      assert.ok(!result.stdout.includes(DOTENV_TOKEN), `token leaked to stdout: ${result.stdout}`);
+      assert.ok(!result.stderr.includes(DOTENV_TOKEN), `token leaked to stderr: ${result.stderr}`);
 
       const gitConfig = readFileSync(join(repo, '.git', 'config'), 'utf8');
       assert.ok(!gitConfig.includes(DOTENV_TOKEN), `token leaked into .git/config: ${gitConfig}`);

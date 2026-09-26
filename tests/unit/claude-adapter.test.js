@@ -332,5 +332,4 @@ describe('unit: claude adapter', () => {
       assert.equal(detectSharedResource(agent), null);
     });
   });
-
 });
