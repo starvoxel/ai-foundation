@@ -187,6 +187,15 @@ describe('integration: ai-git secrets resolution', () => {
         `
         import { spawnSync } from 'node:child_process';
         const [, , execPath, scriptPath, ...rest] = process.argv;
+        // Regression guard: real-world "bws run" on Windows relays the
+        // wrapped command through a shell without quoting, so a
+        // space-containing execPath (e.g. an absolute node.exe path under
+        // "Program Files") breaks. Confirmed live against the real bws
+        // CLI. ai-git must pass a space-free command (bare "node") here.
+        if (execPath.includes(' ')) {
+          console.error('FAKE_WRAPPER: execPath contains a space, would break real bws run');
+          process.exit(1);
+        }
         const result = spawnSync(execPath, [scriptPath, ...rest], {
           env: { ...process.env, AI_GIT_TOKEN_TEST: '${WRAPPER_TOKEN}' },
           stdio: 'inherit',

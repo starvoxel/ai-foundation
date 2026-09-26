@@ -214,9 +214,15 @@ function resolveSecrets(config, root, identity) {
   const { run, allowInsecureDotenv } = getSecretsConfig(config);
 
   if (run && !isAlreadyWrapped(process.env)) {
+    // Bare "node" rather than process.execPath: some secrets-manager run
+    // wrappers (confirmed with `bws run` on Windows) relay the wrapped
+    // command through a shell without quoting, so an absolute path
+    // containing spaces (e.g. "C:\Program Files\nodejs\node.exe") breaks.
+    // node must already be resolvable on PATH here regardless, since
+    // this script itself only runs via `node ...` or a PATH-based shim.
     const { command, args: wrapperArgs } = buildWrapperInvocation(
       run,
-      process.execPath,
+      'node',
       __filename,
       process.argv.slice(2),
       process.env,
