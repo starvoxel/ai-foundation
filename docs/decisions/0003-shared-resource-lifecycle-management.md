@@ -43,12 +43,11 @@ installed by more than one thing.
 
 Chosen: split `.installs.yaml` into `bundles`/`servers`/`hooks` sections, each
 shared resource tracking its own `installedBy: [bundleName, ...]` list, physically
-removed only when that list empties. See
-`docs/architecture/06_runtime.md`'s "Shared resource lifecycle" and "Freshness
-detection" sections for the resulting install/uninstall behavior and
-`05_03_core_libraries.md` for `manifest.js`'s building-block role — both kept
-current there, not reproduced here. Explicit, inspectable ownership beat rescanning
-on every uninstall, and it's the only option that also fixed the hook-script leak.
+removed only when that list empties. See arc42 §6's "Shared resource lifecycle"
+and "Freshness detection" sections for the resulting install/uninstall behavior
+and §5.03 for `manifest.js`'s building-block role — both kept current there, not
+reproduced here. Explicit, inspectable ownership beat rescanning on every
+uninstall, and it's the only option that also fixed the hook-script leak.
 
 ## Consequences
 

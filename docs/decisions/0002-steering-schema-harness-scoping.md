@@ -37,12 +37,12 @@ harness-specific concept into the source files.
 ## Decision Outcome
 
 Chosen: `file_patterns: []` (empty = always load, populated = conditional). Each
-adapter mechanically maps it to its own native mechanism — see
-`docs/architecture/05_02_harness_adapters.md`'s "Steering frontmatter scoping"
-section for the current translation table. An earlier `applies_to` (agent/role
-scoping) field was tried and removed — no harness supports partial-file loading by
-agent, so role scoping happens via bundle composition or the agent's own prompt
-instead.
+adapter mechanically maps it to its own native mechanism — see arc42 §5.02's
+"Steering frontmatter scoping" section (`docs/architecture/index.json` resolves
+the section number to its current file) for the translation table. An earlier
+`applies_to` (agent/role scoping) field was tried and removed — no harness
+supports partial-file loading by agent, so role scoping happens via bundle
+composition or the agent's own prompt instead.
 
 ## Consequences
 
@@ -50,5 +50,5 @@ instead.
   shouldn't auto-load is simply left out of a bundle.
 - Every adapter owns its own translation logic; a new harness needs one new mapping,
   not a schema change.
-- Kiro's `fileMatch` mode has a known reliability gap — see
-  `docs/architecture/11_risks.md`.
+- Kiro's `fileMatch` mode has a known reliability gap — see arc42 §11 (Risks and
+  Technical Debt).

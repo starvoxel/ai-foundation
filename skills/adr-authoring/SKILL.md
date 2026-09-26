@@ -6,7 +6,7 @@ description: 'Writes an Architecture Decision Record in MADR format — frontmat
 
 ## Purpose
 
-Guides Architect through writing a single ADR by hand, in plain MADR, and deciding
+Guides an agent through writing a single ADR by hand, in plain MADR, and deciding
 what belongs in it versus what belongs in `docs/architecture/` instead. There is no
 tooling enforcing any of this (`docs/process-model.md`'s "ADR tooling — not needed for
 the proof of concept") — this skill and Principal-Engineer review are the only gates.
