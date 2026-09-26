@@ -2,17 +2,21 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: 863273a
+last_verified: a449e7f
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
-  - lib/commands/index.js
-  - lib/commands/config.js
+  - bin/ai-git.js
   - lib/resolver.js
   - lib/aiconfig.js
   - lib/harnesses/base.js
   - lib/file-utils.js
   - servers/dag/dag.yaml
+  - servers/dag/index.js
+  - servers/dag/logic.js
+  - servers/gmail/gmail.yaml
+  - servers/gmail/auth.js
+  - servers/youtrack/youtrack.yaml
 ---
 
 > Level-1 whitebox of the `aif` CLI and the component directories it resolves,
@@ -84,6 +88,7 @@ graph TD
   Status --> Manifest
   Status --> SnapLib
   Snapshot --> SnapLib
+  List --> Resolver
   Validate --> Resolver
   Index --> Decisions
   Index --> Architecture
@@ -129,6 +134,14 @@ are content the other five groups resolve and install, not code that runs as par
 of `aif` itself. Grouping any other way (e.g. by CLI command, or by file size) would
 cut across that boundary and hide it.
 
+This doc's own `key_files` runs past the 5-entry point
+`steering/engineering/architecture-authoring.md` flags for re-evaluating a split —
+weighed deliberately, not overlooked: three of the six groups above (Core libraries,
+Harness adapters, and, as of this pass, the Command layer) already delegate their
+own detailed tracking to a `§5.0N` whitebox, so this doc only needs to carry the
+files those sub-sections don't own — Entry points and MCP servers, neither of which
+is large or complex enough on its own to earn a further split.
+
 ## Contained Building Blocks
 
 ### Entry points
@@ -138,20 +151,11 @@ cut across that boundary and hide it.
 | `bin/aif.js`    | Parses argv, dispatches to the matching `lib/commands/*` handler.       | `run(parsed)`, `parseArgs(argv)`              |
 | `bin/ai-git.js` | Transparent git/gh wrapper injecting AI author identity and token auth. | CLI passthrough: `ai-git <command> [args...]` |
 
-### Command layer (`lib/commands/*`)
+### Command layer (`lib/commands/*`) — see §5.05
 
-| Block          | Responsibility                                                                                                                     | Interface                                                                           |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `install.js`   | Resolves a bundle via `resolver.js`, writes its components through the target harness adapter, records the result in the manifest. | `runInstall(parsed, repoRoot)`                                                      |
-| `uninstall.js` | Removes previously-installed files using the manifest's recorded file list; per-harness settings cleanup (e.g. MCP entries).       | `runUninstall(parsed, repoRoot)`                                                    |
-| `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                       | `runStatus(parsed, repoRoot)`                                                       |
-| `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                 | `runList(parsed, repoRoot)`                                                         |
-| `validate.js`  | Schema, cross-reference, and bundle-resolution integrity checks (`aif validate`).                                                  | `runValidate(parsed, repoRoot)`                                                     |
-| `test.js`      | Thin wrapper invoking this repo's own `node:test` suite.                                                                           | `runTest(parsed, repoRoot)`                                                         |
-| `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                           | `runSnapshot(parsed, repoRoot)`                                                     |
-| `index.js`     | Generates the decisions and architecture indexes (`aif index decisions\|architecture`).                                            | `runIndex(parsed, repoRoot)`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
-| `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
-| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                       | `runConfig(parsed, cwd)`                                                            |
+| Block           | Responsibility                                                                                                                                                                       | Interface                                                                                  |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| All 10 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
 
 ### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
@@ -200,7 +204,10 @@ cut across that boundary and hide it.
 - **§5.04 Document indexing** (`05_04_document_indexing.md`) — the shared
   parse/build/diff pipeline behind `aif index decisions|architecture`, and
   exactly where the two formats diverge.
+- **§5.05 Command layer** (`05_05_command_layer.md`) — the full per-command
+  responsibility/interface breakdown for all 10 `lib/commands/*.js` files.
 
-Other blocks above stay at this level — each is a single, thin, single-purpose
-module; a further whitebox wouldn't add information a reader doesn't already have
-from the table row.
+Entry points and MCP servers stay at this level — each block in those two groups
+is a single, thin, single-purpose module; a further whitebox wouldn't add
+information a reader doesn't already have from the table row. Component sources
+are declarative directories, not code, so no whitebox applies to them at all.
