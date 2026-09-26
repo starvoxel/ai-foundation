@@ -260,9 +260,16 @@ function main() {
   }
 
   const identity = getIdentity(found.config);
-  resolveSecrets(found.config, found.root, identity);
   const command = args[0];
   const commandArgs = args.slice(1);
+
+  // Only resolve secrets for operations that actually need the token —
+  // every other invocation (commit, add, status, log, worktree, ...)
+  // must stay fast and must not depend on a secrets backend being
+  // installed/reachable.
+  if (isGhCommand(command) || needsPushAuth(command)) {
+    resolveSecrets(found.config, found.root, identity);
+  }
 
   // Route to git or gh
   if (isGhCommand(command)) {
