@@ -8,6 +8,10 @@
     "git_author_email": "{ai-agent@example.com}",
     "git_token_env": "{AI_GIT_TOKEN}"
   },
+  "secrets": {
+    "run": ["{secrets-cli}", "run", "--project-id", "${BWS_PROJECT_ID}", "--"],
+    "allow_insecure_dotenv": false
+  },
   "standards": {
     "engineering": [],
     "all": []
