@@ -35,16 +35,15 @@ diff step itself, against whatever `index.json` is already on disk.
 
 ## Motivation
 
-`decisions.js` + `architecture.js` + `index-diff.js` are 583 lines together —
-larger than `resolver.js`'s 353 lines, which already earned its own §5.01 — and
-form a genuinely cohesive subsystem: both indexers parse a Markdown file's
-frontmatter into a record, assemble an index, invert one relationship across the
-whole set, and diff against a previously-committed index, sharing the one
-generic comparison primitive (`index-diff.js`) rather than each hand-rolling
-their own. The pipeline itself is `aif index`'s own general-purpose shape, not
-tied to ADRs and arc42 sections specifically — a third document type is
-expected to reuse it by adding a third `parse*`/`build*`/`diff*` set, not a new
-architecture.
+`decisions.js`, `architecture.js`, and `index-diff.js` form a genuinely cohesive
+subsystem, not three unrelated files bundled together: both indexers parse a
+Markdown file's frontmatter into a record, assemble an index, invert one
+relationship across the whole set, and diff against a previously-committed
+index — sharing the one generic comparison primitive (`index-diff.js`) rather
+than each hand-rolling their own. The pipeline itself is `aif index`'s own
+general-purpose shape, not tied to ADRs and arc42 sections specifically — a
+third document type is expected to reuse it by adding a third
+`parse*`/`build*`/`diff*` set, not a new architecture.
 
 ## Contained Building Blocks
 
