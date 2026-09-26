@@ -139,12 +139,21 @@ wrong default) → added (`76e2521`); check 36 will collapse it into
 freshness — run `node bin/aif.js snapshot --check` too, every push. A
 locally-clean `validate` run failed CI on #44 once for a stale snapshot.
 
-Next: Phase 14 (checks 26–31, decisions conversion). Check 26's human decision gate is
-resolved — `ARCH-004`, `ARCH-007`, `PROC-003` all `Deferred` (human call, chat, this
-session) — on branch `process-model/phase-14-decisions-conversion`. Check 27 (existing
-decision records dispositioned per the table) is next; the phase's second pause point
-(after checks 28–29's bulk MADR rewrite, before check 30's indexer retarget) still
-applies (tracker ground rules above, "Phase 14" pause note).
+Phase 14 (checks 26–31, decisions conversion) is complete. Check 26 (human decision
+gate: `ARCH-004`/`ARCH-007`/`PROC-003` all `Deferred`) landed on
+`process-model/phase-14-decisions-conversion`, out for review as PR #67. Checks 27–31
+(disposition/archive, MADR flattening + rewrite, arc42 Design-section splits, the
+indexer retarget, and the three new ADRs) all landed on a new branch cut from that PR's
+tip, `process-model/phase-14-check-27-disposition-records`, out for review as PR #69 —
+per human direction this session, finishing the whole phase on one branch/PR rather than
+splitting further or pausing at the mid-phase checkpoint after checks 28–29. Also merged
+`main` into the integration branch directly (PR #68's new `.aiconfig.json` resolver /
+`aif config` command; reconciled `lib/commands/index.js` and `lib/aiconfig-defaults.js`
+against process-model's already-landed path vocabulary, updated the affected arc42
+docs) — that merge and PR #69's branch aren't on the same branch; PR #69 will pick up
+the integration branch's current tip as its base once it's ready to merge. Full
+validation gate green at every commit (see Checkpoint 14 above for the one known,
+expressly-scoped exception). Next: Phase 15 (check 32, unwind merged half of `AIF-003`).
 
 ---
 
@@ -908,29 +917,104 @@ non-`Approved` records rather than converting their `Design` sections into arc42
 `PROC-003`'s worktrees ratification stay exactly as authored, just now `Deferred`
 instead of `Draft` — nothing about their content changed.
 
-- [ ] **Check 27** — Existing decision records dispositioned per the table; archive
-      location created. Commit: `_____`
-- [ ] **Check 28** — `docs/decisions/` flattened to bare-number MADR counter; every
-      surviving record rewritten into MADR within budget. Also add `docs/decisions/_template.md`
-      (mirrors `docs/architecture/_template.md`) and a new `skill/adr-authoring` for
-      Architect — frontmatter shape, section order, the per-section word-budget table, the
-      litmus test, and `links.supersedes`/`Superseded` mechanics, all currently living only
-      in this doc's "ADR format — MADR" prose. A skill isn't the CLI/MCP/binary tooling
-      "ADR tooling — not needed for the proof of concept" declines to build — it's
-      guidance an agent loads, same category as the template it already names as the
-      enforcement mechanism (human decision during this session, 2026-09-18: distinguishing
-      a format-guidance skill from tooling). Commit: `_____`
-- [ ] **Check 29** — `Design` sections split into arc42 homes for
-      `ARCH-001/002/003/007` (+`004` if approved); `005/006` converted whole. Commit: `_____`
+- [x] **Check 27** — Existing decision records dispositioned per the table; archive
+      location created. 10 of 15 on-disk records moved into new `docs/decisions/archive/`
+      (mirroring `docs/plans/archive/`'s convention, domain subfolders kept):
+      `ARCH-004`/`ARCH-007`/`PROC-003` (already `Deferred` at check 26) archived as-is;
+      `PROC-001`/`PROC-002`/`PROC-006`/`META-001`/`META-002` `Approved` → `Superseded`;
+      `PROC-004`/`PROC-005` `Draft` → `Deferred` (never reached `Approved`, so
+      `Superseded` doesn't apply). The 5 surviving records
+      (`ARCH-001`/`002`/`003`/`005`/`006`) are untouched, staying in place for check 28's
+      MADR rewrite. `docs/decisions/index.json` regenerated (still 15 entries — the
+      collector isn't archive-aware yet; whether archived records should drop out of the
+      generated index is left for check 30's `lib/decisions.js` retarget to decide, not
+      pre-empted here). Commit: `f7bce7c`
+- [x] **Check 28** — `docs/decisions/` flattened to bare-number MADR counter (no more
+      `architecture/`/`process/`/`meta-process/` subfolders for the live corpus — those
+      only survive under `archive/`, from check 27). Added `skills/adr-authoring/SKILL.md`
+      and `docs/decisions/_template.md`. Renumbered and rewrote the 5 surviving records
+      (`ARCH-001→0001`, `002→0002`, `003→0003`, `005→0004`, `006→0005`) by hand into MADR,
+      216–331 words each (budget: 150–350). `ARCH-005`/`006` converted whole per their
+      disposition-table exceptions; `ARCH-001/002/003` had their `Design` sections dropped
+      from the record (migrated at check 29, or — for `ARCH-001` — already fully covered by
+      current arc42 content, needing no migration at all). Known gap, resolved at check 30:
+      `lib/decisions.js` still only found the 10 archived `.decision.md` files until its
+      parser was retargeted. Commit: `0a77aea`
+- [x] **Check 29** — `Design` content split into arc42 homes: `ARCH-002`'s steering
+      `file_patterns` schema + adapter translation table → a new "Steering frontmatter
+      scoping" section in `05_02_harness_adapters.md`; its Kiro `fileMatch` reliability gap
+      → new `docs/architecture/11_risks.md` (§11 didn't exist yet). `ARCH-003`'s shared
+      resource `installedBy` reference-counting lifecycle + decoupled freshness model → new
+      `docs/architecture/06_runtime.md` (§6 didn't exist yet). `ARCH-001` needed no
+      migration — `05_01_bundle_resolution.md`/`05_building_blocks.md` already describe the
+      current, evolved implementation more accurately than its frozen 2026-07-31 `Design`
+      section did. `ARCH-004`/`ARCH-007` (Deferred at check 26) and their "once approved"
+      arc42-migration paths are moot, same as check 26 itself already established. Commit:
+      `380b889`
 
-**Mid-phase checkpoint (bulk rewrite done, before retargeting the indexer):** _____
+**Mid-phase checkpoint (bulk rewrite done, before retargeting the indexer):** Skipped —
+human direction, this session: finish the whole phase before opening/updating any PR,
+rather than pausing here.
 
-- [ ] **Check 30** — `lib/decisions.js` retargeted to MADR frontmatter, keeps
-      `supersedes`→`superseded_by`; test fixtures updated. Commit: `_____`
-- [ ] **Check 31** — The three new ADRs (plain JS+JSDoc, `node:test`, MCP credential
-      handling) written in MADR form. Commit: `_____`
+- [x] **Check 30** — `lib/decisions.js` retargeted to MADR frontmatter
+      (`status`/`date`/`decision-makers`/`tags`/`links.supersedes`/`affects`); ID is now the
+      filename's own zero-padded number, not a frontmatter field. Collection is flat,
+      non-recursive — `docs/decisions/archive/`'s old-format records are never scanned, no
+      exclusion rule needed (resolves the open question check 27 flagged).
+      `tier`/`domain`/`references`/`referenced_by` dropped (no longer meaningful under
+      MADR — only `links.supersedes`→`superseded_by` is inverted; `related`/`amends` stay
+      reserved). Rewrote `tests/unit/decisions.test.js` (21 tests) and
+      `tests/integration/decisions-index.test.js` (11 tests) against MADR fixtures, with
+      explicit archive/`_template.md` exclusion coverage. Regenerated
+      `docs/decisions/index.json`: 5 entries, now finding every live record and none of the
+      10 archived ones — also what retires the stale `AIF-PLAN-001` index reference (already
+      gone from disk, never reappearing in a fresh crawl). Commit: `041234a`
+- [x] **Check 31** — The three new ADRs (`0006-plain-js-with-jsdoc.md`,
+      `0007-node-test-over-third-party-runners.md`,
+      `0008-mcp-server-credential-handling.md`) written in MADR form, 244–333 words each.
+      Regenerating the architecture index while finishing this check surfaced two other
+      now-stale arc42 references (`05_03_core_libraries.md`'s `decisions.js` row still
+      described the pre-check-30 parser as current; `02_constraints.md`'s artifact-naming
+      and frontmatter-first rows still called MADR's flat numbering/frontmatter "pending") —
+      fixed alongside, not deferred. Commit: `8e410ec`
 
-**Checkpoint 14:** _____
+**Checkpoint 14:** Phase 14 (checks 26–31) complete. Full validation gate green at every
+commit (`npm test`, `npm run validate`, `npm run lint`, `npm run typecheck`,
+`npm run format:check`, both indexers' `--check`, `snapshot --check`) — the one exception
+is checks 28–29's known, expressly-scoped intermediate gap (the not-yet-retargeted indexer
+missing the 5 new MADR records), closed by check 30 within this same session before any PR
+review. Still on `process-model/phase-14-check-27-disposition-records` (PR #69, already
+open from check 27) — per human direction this session, the whole phase lands there before
+the PR is presented as ready, rather than one PR per check.
+
+Two follow-ups landed on the same branch/PR after the phase itself was done, both
+human-requested this session: a full accuracy audit of arc42 §5 against the real source
+(fixed several pre-existing inaccuracies — see the PR description), then splitting
+`decisions.js`/`architecture.js`/`index-diff.js` out of `05_03_core_libraries.md` into a
+new `05_04_decisions_and_architecture_indexing.md` (583 combined lines, bigger than
+`resolver.js`'s own §5.01). PR #69's base (the integration branch) then advanced out from
+under it — PR #67 (check 26) merged, on top of the earlier direct `main`-merge — producing
+a real merge conflict in `05_03_core_libraries.md`/`05_building_blocks.md`/
+`docs/architecture/index.json` (the integration branch's independent `aiconfig.js` cluster
+addition vs. this branch's §5.04 extraction of the same table). Resolved by merging the
+integration branch in and reconciling both sides' content rather than picking one; full
+validation gate re-run and green after. PR #69 is pushed and should now show mergeable.
+
+Human review on PR #69 (16 comments) landed 14 fixes: extracted `parseFrontmatter`/
+`collectFiles`/`hashContent`/`writeToTarget` out of `lib/harnesses/base.js` into a new
+`lib/file-utils.js` (they carried no harness-specific behavior); declared `zod` as a
+direct `package.json` dependency (was an undeclared transitive dependency of
+`@modelcontextprotocol/sdk`); removed ADRs 0007 and 0008 (0008 also fails
+`adr-authoring`'s own litmus test); renamed §5.04 to "Document indexing"
+(`05_04_document_indexing.md`) since the pipeline isn't tied to decisions/architecture
+specifically; cited ADRs 0002/0003's arc42 cross-references by section number instead
+of filename; trimmed wordy/change-history-framed prose in `02_constraints.md` and
+`05_03_core_libraries.md`; converted §5.01's Consumers prose to a table; made
+`skill/adr-authoring` agent-agnostic. Two comments (arc42-template fidelity for
+§5.01–§5.04, including the freehand "Why this needs its own section" convention) are
+deferred to a dedicated follow-up PR given the size of restructuring 4 already-published
+pages — confirmed against the actual official template (`arc42/arc42-template` on
+GitHub) rather than assumed; those two review threads stay open until that PR lands.
 
 ---
 

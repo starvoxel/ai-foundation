@@ -8,7 +8,7 @@
 | Project        | ai-foundation                                          |
 | Tier           | A                                                      |
 | Domain         | process                                                |
-| Status         | Approved                                               |
+| Status         | Superseded                                             |
 | Author (Agent) | Architect                                              |
 | Approved By    | Jeremy                                                 |
 | Created        | 2026-08-13                                             |
@@ -17,6 +17,12 @@
 | Tags           | orchestration, dual-track, dispatch                    |
 
 ---
+
+> **Archived, `Superseded`** (process-model check 27, 2026-09-25): the AI-track/
+> software-track dispatch distinction this record decided retires with the
+> process-model merge — task-orchestration is now uniform for every task, per
+> `docs/process-model.md`'s Agent roster and `skill/task-orchestration`. Kept here as
+> historical record — not converted to MADR.
 
 ## Problem Statement
 

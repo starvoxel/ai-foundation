@@ -8,7 +8,7 @@
 | Project        | ai-foundation                                          |
 | Tier           | A                                                      |
 | Domain         | process                                                |
-| Status         | Approved                                               |
+| Status         | Superseded                                             |
 | Author (Agent) | Architect                                              |
 | Approved By    | Jeremy                                                 |
 | Created        | 2026-08-13                                             |
@@ -17,6 +17,12 @@
 | Tags           | boundary, ownership, application-code                  |
 
 ---
+
+> **Archived, `Superseded`** (process-model check 27, 2026-09-25): the ai-engineer /
+> software-engineer boundary this record decided no longer exists — both roles
+> consolidated into one `software-engineer` agent under `docs/process-model.md`'s Agent
+> roster (`agents/ai-engineer.yaml` retired). Kept here as historical record — not
+> converted to MADR.
 
 ## Problem Statement
 

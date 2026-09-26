@@ -20,6 +20,11 @@
 
 ---
 
+> **Archived** (process-model check 27, 2026-09-25): `Deferred` at check 26 (human call,
+> this migration); dropped from MADR conversion per its row in `docs/process-model.md`'s
+> Decision-record disposition table. Kept here as historical record — not converted to
+> MADR.
+
 ## Problem Statement
 
 Epic/Chunk tracking currently lives entirely in git: `chunks.json` (structural decomposition), Epic/Chunk Plan `.md` files (content, approval gate), and `orchestration-state.json` (live pipeline status, PR links, escalations, and a hand-authored prose work log). This record decides how much of that model moves to YouTrack, what the resulting field/link/workflow schema looks like, and what stays local — with the explicit goals of reducing manual record-keeping (principally the hand-written `orchestration-state.json` log) and gaining a built-in, tamper-resistant audit trail for the Epic approval gate.

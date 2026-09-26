@@ -2,7 +2,7 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: bfba104
+last_verified: 863273a
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
@@ -11,6 +11,7 @@ key_files:
   - lib/resolver.js
   - lib/aiconfig.js
   - lib/harnesses/base.js
+  - lib/file-utils.js
   - servers/dag/dag.yaml
 ---
 
@@ -51,6 +52,7 @@ graph TD
     AiGitLib["ai-git.js"]
     Const["constants.js / component-defs.js"]
     AiConfig["aiconfig.js + aiconfig-resolve.js + aiconfig-defaults.js"]
+    FileUtils["file-utils.js"]
   end
 
   subgraph Harnesses["Harness adapters — lib/harnesses/*"]
@@ -75,12 +77,14 @@ graph TD
   Install --> Claude
   Install --> Kiro
   Install --> Manifest
+  Install --> SnapLib
   Uninstall --> Manifest
   Uninstall --> Claude
   Uninstall --> Kiro
   Status --> Manifest
   Status --> SnapLib
   Snapshot --> SnapLib
+  Validate --> Resolver
   Index --> Decisions
   Index --> Architecture
   Index --> AiConfig
@@ -92,11 +96,19 @@ graph TD
 
   Claude --> Base
   Kiro --> Base
+  Claude --> FileUtils
+  Kiro --> FileUtils
+  Base --> FileUtils
+  SnapLib --> FileUtils
+  Decisions --> FileUtils
+  Architecture --> FileUtils
+  SnapLib --> Resolver
 
   Resolver --> Agents
   Resolver --> Skills
   Resolver --> Steering
   Resolver --> Bundles
+  Resolver --> Standards
 ```
 
 MCP servers (`servers/dag`, `servers/gmail`, `servers/youtrack`) aren't shown as
@@ -133,7 +145,7 @@ cut across that boundary and hide it.
 | `install.js`   | Resolves a bundle via `resolver.js`, writes its components through the target harness adapter, records the result in the manifest. | `runInstall(parsed, repoRoot)`                                                      |
 | `uninstall.js` | Removes previously-installed files using the manifest's recorded file list; per-harness settings cleanup (e.g. MCP entries).       | `runUninstall(parsed, repoRoot)`                                                    |
 | `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                       | `runStatus(parsed, repoRoot)`                                                       |
-| `list.js`      | Lists available bundles/agents/skills/standards/servers in this repo.                                                              | `runList(parsed, repoRoot)`                                                         |
+| `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                 | `runList(parsed, repoRoot)`                                                         |
 | `validate.js`  | Schema, cross-reference, and bundle-resolution integrity checks (`aif validate`).                                                  | `runValidate(parsed, repoRoot)`                                                     |
 | `test.js`      | Thin wrapper invoking this repo's own `node:test` suite.                                                                           | `runTest(parsed, repoRoot)`                                                         |
 | `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                           | `runSnapshot(parsed, repoRoot)`                                                     |
@@ -141,20 +153,21 @@ cut across that boundary and hide it.
 | `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
 | `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                       | `runConfig(parsed, cwd)`                                                            |
 
-### Core libraries (`lib/*.js`) — see §5.03
+### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
-| Block           | Responsibility                                                                                                                                                                                                                             | Interface                                                                             |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
-| `resolver.js`   | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                                                                                        | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
-| Everything else | `manifest.js`, `snapshot/io.js`+`pure.js`, `decisions.js`, `architecture.js`, `index-diff.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js` — see §5.03. | See §5.03.                                                                            |
+| Block                                                | Responsibility                                                                                                                                                                                          | Interface                                                                             |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `resolver.js`                                        | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe. See §5.01.                                                                                                     | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
+| `decisions.js` / `architecture.js` / `index-diff.js` | Parse, index, and diff ADRs and arc42 sections respectively, sharing one generic diffing primitive. See §5.04.                                                                                          | See §5.04.                                                                            |
+| Everything else                                      | `manifest.js`, `snapshot/io.js`+`pure.js`, `project-init.js`, `ai-git.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js`, `file-utils.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
-| Block       | Responsibility                                                                                                                         | Interface                                                                                 |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `base.js`   | Shared install orchestration every adapter reuses: read source → transform → write → return a manifest-ready record. Adapter-agnostic. | `createAdapter(config)`, `parseFrontmatter()`, `resolvePreloadSkills()`, `collectFiles()` |
-| `claude.js` | Claude Code adapter: agent/steering transforms, native-tool-cluster `TOOL_MAP`, shared block-command hook install.                     | `transformAgent()`, `transformSteering()`, `TOOL_MAP`, `TARGETS`                          |
-| `kiro.js`   | Kiro adapter: same `createAdapter` contract, Kiro's own JSON agent format and steering inclusion rules.                                | `transformAgent()`, `transformSteering()`, `TOOL_MAP`, `TARGETS`                          |
+| Block       | Responsibility                                                                                                                         | Interface                                                               |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `base.js`   | Shared install orchestration every adapter reuses: read source → transform → write → return a manifest-ready record. Adapter-agnostic. | `createAdapter(config)`, `stripSkillPrefix()`, `resolvePreloadSkills()` |
+| `claude.js` | Claude Code adapter: agent/steering transforms, native-tool-cluster `TOOL_MAP`, shared block-command hook install.                     | `transformAgent()`, `transformSteering()`, `TOOL_MAP`, `TARGETS`        |
+| `kiro.js`   | Kiro adapter: same `createAdapter` contract, Kiro's own JSON agent format and steering inclusion rules.                                | `transformAgent()`, `transformSteering()`, `TOOL_MAP`, `TARGETS`        |
 
 ### MCP servers (`servers/*`)
 
@@ -182,7 +195,11 @@ cut across that boundary and hide it.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
 - **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining
-  harness-agnostic support libraries `resolver.js` isn't part of.
+  harness-agnostic support libraries `resolver.js` and the decisions/architecture
+  indexing pair aren't part of.
+- **§5.04 Document indexing** (`05_04_document_indexing.md`) — the shared
+  parse/build/diff pipeline behind `aif index decisions|architecture`, and
+  exactly where the two formats diverge.
 
 Other blocks above stay at this level — each is a single, thin, single-purpose
 module; a further whitebox wouldn't add information a reader doesn't already have

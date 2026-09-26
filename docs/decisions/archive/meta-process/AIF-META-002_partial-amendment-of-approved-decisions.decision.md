@@ -8,7 +8,7 @@
 | Project        | ai-foundation                                                         |
 | Tier           | A                                                                     |
 | Domain         | meta-process                                                          |
-| Status         | Approved                                                              |
+| Status         | Superseded                                                            |
 | Author (Agent) | Generic Agent                                                         |
 | Approved By    | Jeremy Smellie                                                        |
 | Created        | 2026-08-25 12:36                                                      |
@@ -17,6 +17,13 @@
 | Tags           | decision-record, amendment, errata, plan-lifecycle, status-vocabulary |
 
 ---
+
+> **Archived, `Superseded`** (process-model check 27, 2026-09-25): the Errata/Amendment
+> ladder this record introduced retires wholesale under MADR's single `Superseded`
+> whole-record post-approval path, per `docs/process-model.md`'s Decision-record
+> disposition table. The `Amending` status itself is removed from
+> `skill/plan-lifecycle`'s `reference/status-vocabulary.md` separately, at check 32 (part
+> of unwinding `AIF-003`). Kept here as historical record — not converted to MADR.
 
 ## Problem Statement
 

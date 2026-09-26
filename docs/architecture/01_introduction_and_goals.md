@@ -2,7 +2,7 @@
 section: '01'
 title: 'Introduction and Goals'
 lifecycle: published
-last_verified: ffbc8a7
+last_verified: ecf3245
 tags: [overview]
 key_files:
   - README.md
@@ -40,7 +40,7 @@ just by describing them.
 | -------- | -------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1        | Portability                | One definition installs into multiple harnesses without per-harness rewrites.                            | Installs into 2 harnesses today (Claude Code, Kiro) from one component set — zero harness-specific source duplication in `agents/`/`skills/`/`steering/`. |
 | 2        | Ease of use                | `aif install`/`init` work with sensible defaults.                                                        | `aif init --name X` needs only that one flag; `aif install` resolves a full component set from a single `--bundle` argument.                              |
-| 3        | Minimal-dependency tooling | Small dependency footprint avoids the framework becoming a supply-chain or portability liability itself. | 3 runtime dependencies total (`package.json`): `@modelcontextprotocol/sdk`, `googleapis`, `yaml`.                                                         |
+| 3        | Minimal-dependency tooling | Small dependency footprint avoids the framework becoming a supply-chain or portability liability itself. | 4 runtime dependencies total (`package.json`): `@modelcontextprotocol/sdk`, `googleapis`, `yaml`, `zod`.                                                  |
 
 ## Stakeholders
 

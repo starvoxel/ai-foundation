@@ -85,7 +85,13 @@ what actually crosses the file's boundary).
 
 ## Consumers
 
-`lib/commands/install.js` is the only caller of `resolveBundle()` itself; `list.js`
-uses the standalone `list*` helpers. Neither harness adapter (`claude.js`/`kiro.js`)
-calls into `resolver.js` directly — they receive an already-resolved component list
-from `install.js` and only handle the transform/write step (§5.02).
+| Export                                  | Callers                                       | Why                                                                                                                                                               |
+| --------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resolveBundle()`                       | `install.js`, `validate.js`, `snapshot/io.js` | The actual install; bundle-resolution integrity checks ("bundle-resolution integrity checks"); knowing what a bundle's own snapshot should cover.                 |
+| `listBundles()`                         | The same three, plus `list.js`                | Directory listing shared by every command that enumerates bundles.                                                                                                |
+| `listStandards()`                       | `install.js`                                  | Only the install path needs the full standards directory listing.                                                                                                 |
+| `listServers()` / `listHookResources()` | `snapshot/io.js`                              | Both listings feed snapshot building; `list.js`'s own `servers` output is a separate, local implementation with the same name, not this module's `listServers()`. |
+
+Neither harness adapter (`claude.js`/`kiro.js`) calls into `resolver.js` directly —
+they receive an already-resolved component list from `install.js` and only handle
+the transform/write step (§5.02).
