@@ -1118,7 +1118,22 @@ describes `runIndex()`/`resolveDecisionsPath()`/`resolveArchitecturePath()`, una
 by internally wiring in `findBrokenLinks()`) — both got a `last_verified` bump for
 their changed `key_files` (`lib/architecture.js`, `lib/commands/index.js`), landed as a
 separate follow-up commit (`c786129`) per the established
-`d0b0c27`/`cf22bd8`/`ec5bf70` precedent. Ready for PR.
+`d0b0c27`/`cf22bd8`/`ec5bf70` precedent. Opened as PR #73.
+
+**Review round (`jsmellie`, 1 thread):** `extractRelativeLinks()`'s fenced-code-block
+skip logic duplicated `validateCitations()`'s own (`lib/commands/validate.js`) —
+flagged, both extracted to a new shared `lib/file-utils.js` export,
+`nonFencedLines()`. Caught and fixed the same class of duplication a second time
+while in there: `findBrokenLinks()` and `buildArchitectureIndexForDir()` both
+independently looped `collectArchitectureFiles()` + read each file — collapsed into
+one shared `readArchitectureFiles()` helper. `npm test` 799/799 (6 new — the
+`nonFencedLines()` unit suite), full validation gate green again.
+`05_03_core_libraries.md` (`file-utils.js`'s Interface/Consumers, plus its own new
+consumer `lib/commands/validate.js`), `05_04_document_indexing.md`,
+`05_05_command_layer.md`, and `05_building_blocks.md` (all four `key_files`-track one
+or more of the three changed files) all got a `last_verified` bump in a separate
+follow-up commit, `05_03` also gaining the content fix. Commits: `5944c97`
+(de-dup fix), `397ebca` (`last_verified` bumps). Ready for re-review.
 
 ---
 
