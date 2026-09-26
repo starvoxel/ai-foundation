@@ -1,8 +1,8 @@
 # Pluggable Secrets Resolution for `aif`
 
-> Status: Draft
+> Status: Approved
 > Created: 2026-09-25
-> Approved by: Pending
+> Approved by: Jeremy
 
 ## Goal
 
