@@ -141,6 +141,59 @@ None.
 - Manual: `.env` fallback path prints its warning and never appears in
   `git status`.
 
+## Cloud Testing Setup
+
+A Claude Code Cloud environment is a good place to exercise the real `bws
+run` wrapper path end-to-end. Confirmed via docs
+(`code.claude.com/docs/en/cloud-environments.md`): environments are
+account-scoped, not repo-scoped, so one environment can be reused across
+repos.
+
+Considered three options for getting `BWS_ACCESS_TOKEN` into a live
+session without it sitting untouched in the environment's cached
+filesystem snapshot (a setup script's output is snapshotted and reused
+across sessions — never decrypt/export a real secret there):
+
+1. **Chosen: put the token directly in the environment's "Environment
+   variables" field**, scoped to a disposable test Bitwarden project and
+   a short-lived, scoped machine-account token (Bitwarden access tokens
+   support an optional expiration, confirmed via Bitwarden's docs). No
+   broker infrastructure, no per-session manual step. The environment's
+   own "anyone who uses the environment can read the values" caveat is
+   aimed at shared/org environments — for a personal environment "anyone"
+   is just the account owner, the same trust level as GitHub Actions
+   secrets or Vercel env vars.
+2. A self-hosted token-broker + `SessionStart` hook, authenticated via
+   the environment's "API credential" feature (Pro/Max) so no long-lived
+   secret ever touches Claude's stored config at all — rejected for this
+   pass as more infrastructure than a hobby project needs; noted as the
+   fully-automated option if that trust boundary ever matters more.
+3. Encrypt the token with `age`, commit the ciphertext, decrypt with a
+   manually-typed private key each session — rejected as too cumbersome
+   for routine testing; the encryption doesn't reduce exposure unless the
+   key is kept out of Claude's own storage entirely.
+
+**Setup**, once a disposable Bitwarden test project + scoped short-lived
+token exist:
+
+- Cloud environment → **Environment variables**:
+  ```
+  BWS_PROJECT_ID=<test project id>
+  BWS_ACCESS_TOKEN=<scoped, short-lived test token>
+  ```
+- **Setup script** (tooling only — cached in the snapshot; `crates.io` is
+  in the default Trusted allowlist, no network-access changes needed):
+  ```bash
+  #!/usr/bin/env bash
+  set -euo pipefail
+  cargo install bws --locked || true
+  ```
+- Exercise: `node bin/ai-git.js gh-repo-view` with `AI_GIT_TOKEN` unset —
+  should re-exec through `bws run --project-id "$BWS_PROJECT_ID" --` and
+  succeed via the injected token.
+- Afterward: revoke the test BWS token/project, clear the environment's
+  `BWS_ACCESS_TOKEN`.
+
 ## Out of Scope
 
 - Provisioning an actual Bitwarden Secrets Manager account/project — a
