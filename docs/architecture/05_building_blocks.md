@@ -147,4 +147,3 @@ Entry points and MCP servers stay at this level — each block in those two grou
 is a single, thin, single-purpose module; a further whitebox wouldn't add
 information a reader doesn't already have from the table row. Component sources
 are declarative directories, not code, so no whitebox applies to them at all.
-
