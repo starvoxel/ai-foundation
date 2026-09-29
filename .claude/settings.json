@@ -1,0 +1,5 @@
+{
+  "env": {
+    "SANDBOX_MARKER": "project-settings-loaded"
+  }
+}

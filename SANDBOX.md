@@ -19,3 +19,11 @@ The repo root has no `.claude/`. Paste `test2-setup-script.sh` into the environm
 > State which agent you are running as and your first-reply marker. List every tool you can call.
 
 Expected if it works: the reply starts with `SETUP_SCRIPT_AGENT`. Note the Setup script is cached, so changing it triggers a rebuild on the next session.
+
+## Test 3 — committed `.claude/` without `agent`, plus Setup-script `agent`
+
+Repo root has `.claude/settings.json` (an `env` marker `SANDBOX_MARKER=project-settings-loaded`, no `agent` key) and `.claude/agents/principal-engineer.md`. The Setup script is the same `test2-setup-script.sh` as Test 2: it writes the user-level `engineering-manager` agent and `agent` setting. Start a new cloud session on this branch and send:
+
+> State your first-reply marker and which agent you are. Run `echo $SANDBOX_MARKER` with Bash and report the output. Then dispatch principal-engineer with the prompt "Reply with exactly PONG" and report its reply.
+
+Pass: `SETUP_SCRIPT_AGENT` marker (user-level `agent` applied), `project-settings-loaded` (committed project settings also loaded), and `PONG` (project-scope agent found alongside the user-scope one). Which one fails tells us which settings source is dropped.
