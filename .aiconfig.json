@@ -1,0 +1,12 @@
+{
+  "project_name": "cloud-sandbox",
+  "repo_type": "framework",
+  "ai_identity": {
+    "git_author_name": "Starvoxel AI Agent",
+    "git_author_email": "ai-agent@starvoxel.com",
+    "git_token_env": "AI_GIT_TOKEN"
+  },
+  "secrets": {
+    "run": ["bws", "run", "--project-id", "${BWS_PROJECT_ID}", "--"]
+  }
+}
