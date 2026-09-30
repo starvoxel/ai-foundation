@@ -1,0 +1,20 @@
+{
+  "feature_id": "cloud-sandbox-002",
+  "tasks": [
+    {
+      "id": "001",
+      "title": "bin/hello.js prints hello",
+      "depends_on": []
+    },
+    {
+      "id": "002",
+      "title": "bin/goodbye.js prints goodbye",
+      "depends_on": []
+    },
+    {
+      "id": "003",
+      "title": "README.md section documenting hello and goodbye",
+      "depends_on": ["001", "002"]
+    }
+  ]
+}

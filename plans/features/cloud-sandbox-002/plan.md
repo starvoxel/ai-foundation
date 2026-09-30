@@ -12,7 +12,7 @@
 | Created             | 2026-09-30 00:10                                           |
 | Last Updated        | 2026-09-30 00:15                                           |
 | Standards           | None (no `standards` in `.aiconfig.json`; no `standards/`) |
-| Total Tasks         | 3 (to be decomposed after approval)                        |
+| Total Tasks         | 3                                                          |
 | Product Requirement | None                                                       |
 | ADRs                | None (no `knowledge/` directory; none found)               |
 
@@ -110,17 +110,19 @@ The two scripts are independent of each other. The README section describes both
 
 ## 9. Task Decomposition
 
-Left empty until this plan is Approved. Proposed shape (not yet a `tasks.json`):
+Dependency graph: [`tasks.json`](./tasks.json)
 
-| Task | Scope                                   | Depends on |
-| ---- | --------------------------------------- | ---------- |
-| T1   | `bin/hello.js`                          | —          |
-| T2   | `bin/goodbye.js`                        | —          |
-| T3   | `README.md` section for both commands   | T1, T2     |
+Summary: 3 Tasks across 2 waves. 001 and 002 run in parallel; 003 follows once both are Done.
+
+| Task | Scope                                   | Depends on | Wave |
+| ---- | --------------------------------------- | ---------- | ---- |
+| 001  | `bin/hello.js`                          | —          | 1    |
+| 002  | `bin/goodbye.js`                        | —          | 1    |
+| 003  | `README.md` section for both commands   | 001, 002   | 2    |
 
 Parallelization notes:
 
-- T1 and T2 touch different files and run in parallel (wave 1); T3 runs alone in wave 2 after both are Done.
+- 001 and 002 touch different files; no overlap warning.
 
 ---
 
@@ -139,3 +141,4 @@ Parallelization notes:
 
 [2026-09-30 00:10] [Engineering Manager] [Drafted] [cloud-sandbox-002] [Feature Plan committed as Draft. Decision: three Tasks (T1/T2 parallel, T3 depends on both). **Why:** matches the requested split; `hello` and `goodbye` are independent, README needs both.]
 [2026-09-30 00:15] [Engineering Manager] [Approved] [cloud-sandbox-002] [Human approved. Decision: open questions 1-2 resolved to the stated defaults (shebang + executable bit; T3 creates README.md). **Why:** approval given without amendments.]
+[2026-09-30 00:20] [Engineering Manager] [Decomposed] [cloud-sandbox-002] [tasks.json created; dag-validate passed; 2 waves (001+002, then 003).]
