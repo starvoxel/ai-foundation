@@ -3,7 +3,8 @@
 # verify the agent exists, merge it into user settings, and log everything. Always exits 0.
 # This also covers the old stage A: env facts are always logged, and if the fetch fails the log says which of
 # git, the codeload tarball, or npm is blocked.
-REF="95156a2373883f3b982067855585dc41da671294"   # pin a tag or full commit SHA; change it to rebuild the cache
+REF="95156a2373883f3b982067855585dc41da671294"   # pin a tag or full commit SHA; changing it installs a different ai-foundation
+REV=1                                             # increment to force a rebuild of the cached environment without changing REF
 BUNDLES="engineering"                             # comma-separated
 AGENT="engineering-manager"
 LOG=/root/.claude/aif-setup.log
@@ -11,7 +12,7 @@ WORK=/opt/aif
 mkdir -p /root/.claude
 log() { echo "$(date -u +%FT%TZ) $*" >> "$LOG"; }
 now() { date +%s; }
-log "B start ref=$REF bundles=$BUNDLES agent=$AGENT host=$(hostname) node=$(node -v 2>&1) npm=$(npm -v 2>&1)"
+log "B start rev=$REV ref=$REF bundles=$BUNDLES agent=$AGENT host=$(hostname) node=$(node -v 2>&1) npm=$(npm -v 2>&1)"
 log "env: HTTPS_PROXY=${HTTPS_PROXY:+set} GITHUB_TOKEN=${GITHUB_TOKEN:+set} GH_TOKEN=${GH_TOKEN:+set} bws=$(command -v bws || echo none) cargo=$(command -v cargo || echo none) gh=$(command -v gh || echo none)"
 t0=$(now)
 rm -rf "$WORK" && mkdir -p "$WORK" && cd "$WORK" || { log "cannot create $WORK"; exit 0; }
