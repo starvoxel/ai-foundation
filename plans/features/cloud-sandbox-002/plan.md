@@ -6,11 +6,11 @@
 | ------------------- | ---------------------------------------------------------- |
 | Feature ID          | cloud-sandbox-002                                          |
 | Project             | cloud-sandbox                                              |
-| Status              | Draft                                                      |
+| Status              | Approved                                                   |
 | Author (Agent)      | Engineering Manager                                        |
-| Reviewed By         | Pending                                                    |
+| Reviewed By         | Human (jeremysmellie@gmail.com)                                                   |
 | Created             | 2026-09-30 00:10                                           |
-| Last Updated        | 2026-09-30 00:10                                           |
+| Last Updated        | 2026-09-30 00:15                                           |
 | Standards           | None (no `standards` in `.aiconfig.json`; no `standards/`) |
 | Total Tasks         | 3 (to be decomposed after approval)                        |
 | Product Requirement | None                                                       |
@@ -28,7 +28,7 @@ Add two Node.js commands, `bin/hello.js` (prints `hello`) and `bin/goodbye.js` (
 
 ## 3. Quick Summary
 
-**Open Items:** 2 open (0 High / 2 Medium / 0 Low) — see Section 8
+**Open Items:** 0 open (0 High / 0 Medium / 0 Low) — see Section 8
 
 ---
 
@@ -103,8 +103,8 @@ The two scripts are independent of each other. The README section describes both
 
 | #   | Risk / Question                                                                                                                                      | Type     | Impact | Source | Raised By | Resolved |
 | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------ | --------- | -------- |
-| 1   | Should each script include a `#!/usr/bin/env node` shebang and executable bit (so `./bin/hello.js` works)? Default assumed: yes, consistent with cloud-sandbox-001. | Question | M      | Design | Agent     | No       |
-| 2   | No `README.md` exists at the repo root today. Default assumed: the README Task creates it with a title plus the new section. Acceptable?            | Question | M      | Design | Agent     | No       |
+| 1   | Should each script include a `#!/usr/bin/env node` shebang and executable bit (so `./bin/hello.js` works)? Default assumed: yes, consistent with cloud-sandbox-001. | Question | M      | Design | Agent     | Yes      |
+| 2   | No `README.md` exists at the repo root today. Default assumed: the README Task creates it with a title plus the new section. Acceptable?            | Question | M      | Design | Agent     | Yes      |
 
 ---
 
@@ -138,3 +138,4 @@ Parallelization notes:
 ## 11. Work Log
 
 [2026-09-30 00:10] [Engineering Manager] [Drafted] [cloud-sandbox-002] [Feature Plan committed as Draft. Decision: three Tasks (T1/T2 parallel, T3 depends on both). **Why:** matches the requested split; `hello` and `goodbye` are independent, README needs both.]
+[2026-09-30 00:15] [Engineering Manager] [Approved] [cloud-sandbox-002] [Human approved. Decision: open questions 1-2 resolved to the stated defaults (shebang + executable bit; T3 creates README.md). **Why:** approval given without amendments.]
