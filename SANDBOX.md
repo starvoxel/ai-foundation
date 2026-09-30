@@ -27,3 +27,7 @@ Repo root has `.claude/settings.json` (an `env` marker `SANDBOX_MARKER=project-s
 > State your first-reply marker and which agent you are. Run `echo $SANDBOX_MARKER` with Bash and report the output. Then dispatch principal-engineer with the prompt "Reply with exactly PONG" and report its reply.
 
 Pass: `SETUP_SCRIPT_AGENT` marker (user-level `agent` applied), `project-settings-loaded` (committed project settings also loaded), and `PONG` (project-scope agent found alongside the user-scope one). Which one fails tells us which settings source is dropped.
+
+## Cloud test ladder (AIF-005)
+
+Staged tests with a decision point after each are described in `docs/plans/features/AIF-005/spike-main-thread-agent.md` on the `claude/bundles-install-check-f73zcv` branch of this repo. Setup scripts: `cloud-tests/A-probe.sh` (reach, timing, cache), `cloud-tests/A2-toolchain.sh` (bws binary vs cargo), `cloud-tests/B-install.sh` (install the real bundle and set the agent; also the base for stages C and D). Paste one at a time into the sandbox environment's Setup script field.
