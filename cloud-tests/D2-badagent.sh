@@ -34,6 +34,11 @@ if "$WORK/node_modules/.bin/aif" install -B "$BUNDLES" -H claude >> "$LOG" 2>&1;
 else
   log "aif install FAILED after $(( $(now) - s ))s; agent not set"; exit 0
 fi
+# Put aif and ai-git on PATH: the steering requires ai-git, and the installed block-command hook blocks raw git.
+for bin in aif ai-git; do
+  if ln -sf "$WORK/node_modules/.bin/$bin" "/usr/local/bin/$bin"; then log "linked $bin"; else log "linking $bin FAILED"; fi
+done
+log "on PATH: aif=$(command -v aif || echo none) ai-git=$(command -v ai-git || echo none)"
 if [ -f "/root/.claude/agents/$AGENT.md" ]; then
   if AGENT="$AGENT" node -e '
     const fs = require("fs");
