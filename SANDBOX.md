@@ -1,6 +1,6 @@
 # cloud-sandbox
 
-Empty-history scratch branch for testing Claude Code cloud sessions (AIF-012 spike). Not part of the framework; safe to reset or delete.
+Empty-history scratch branch for testing Claude Code cloud sessions (AIF-005 spike). Not part of the framework; safe to reset or delete.
 
 ## Test 1 — `agent` in committed project settings
 

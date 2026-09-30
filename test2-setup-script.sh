@@ -1,5 +1,5 @@
 #!/bin/bash
-# AIF-012 spike Test 2: provision a primary agent from the environment Setup script only.
+# AIF-005 spike Test 2: provision a primary agent from the environment Setup script only.
 mkdir -p /root/.claude/agents
 
 cat > /root/.claude/agents/engineering-manager.md <<'AGENT'
