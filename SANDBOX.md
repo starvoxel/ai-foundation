@@ -30,4 +30,4 @@ Pass: `SETUP_SCRIPT_AGENT` marker (user-level `agent` applied), `project-setting
 
 ## Cloud test ladder (AIF-005)
 
-Staged tests with a decision point after each are described in `docs/plans/features/AIF-005/spike-main-thread-agent.md` on the `claude/bundles-install-check-f73zcv` branch of this repo. Setup scripts: `cloud-tests/A-probe.sh` (reach, timing, cache), `cloud-tests/A2-toolchain.sh` (bws binary vs cargo), `cloud-tests/B-install.sh` (install the real bundle and set the agent; also the base for stages C and D). Paste one at a time into the sandbox environment's Setup script field.
+Staged tests with a decision point after each are described in `docs/plans/features/AIF-005/spike-main-thread-agent.md` on the `claude/bundles-install-check-f73zcv` branch of this repo. Setup scripts: `cloud-tests/A2-toolchain.sh` (bws binary vs cargo), `cloud-tests/B-install.sh` (fetch a pinned aif, install the real bundle, set the agent, log reach and timing; also the base for stages C and D). Paste one at a time into the sandbox environment's Setup script field.
