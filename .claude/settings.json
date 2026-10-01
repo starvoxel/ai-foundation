@@ -1,5 +1,8 @@
 {
   "env": {
     "SANDBOX_MARKER": "project-settings-loaded"
+  },
+  "permissions": {
+    "deny": ["mcp__github"]
   }
 }

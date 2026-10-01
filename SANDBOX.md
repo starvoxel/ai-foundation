@@ -32,3 +32,11 @@ Pass: `SETUP_SCRIPT_AGENT` marker (user-level `agent` applied), `project-setting
 
 Staged tests with a decision point after each are described in `docs/plans/features/AIF-005/spike-main-thread-agent.md` on the `claude/bundles-install-check-f73zcv` branch of this repo. Setup scripts: `cloud-tests/A2-toolchain.sh` (bws binary vs cargo), `cloud-tests/B-install.sh` (fetch a pinned aif, install the real bundle, set the agent, log reach and timing; also the base for stage C). Paste one at a time into the sandbox environment's Setup script field.
 Wave 2: `cloud-tests/D1-refbump.sh` (B pinned to the older commit e2d8a5c, to prove a ref bump rebuilds the cache) and `cloud-tests/D2-badagent.sh` (B with a misspelled agent name, to prove the agent is not set and the log says so).
+
+## Test E — GitHub MCP off, `ai-git` only
+
+`.claude/settings.json` denies the whole `github` MCP server (`permissions.deny: ["mcp__github"]`). Repo and branch selection at session start is unaffected (the platform clones via the GitHub connection, not the MCP). Start a new cloud session on this branch and send:
+
+> List every tool whose name starts with `mcp__github`. Then, using only `ai-git` (never raw `git`/`gh`): create branch `e-test/<timestamp>`, commit a file `cloud-tests/E-ping.txt`, push it, run `ai-git gh-pr-create` as a draft PR into `cloud-sandbox`, run `ai-git gh-pr-view`, and `ai-git gh-run-list`. Report each command's exit status and first error line.
+
+Pass: zero `mcp__github*` tools listed (denied, not merely deferred); clone/branch checkout worked; push and draft PR succeed via `ai-git`. Record separately: whether `ai-git` is on PATH (Setup script B links it), whether `AI_GIT_TOKEN` resolves via `bws`, whether `api.github.com` is reachable (network policy), and whether PR activity events still arrive after the PR is opened (`subscribe_pr_activity`). Fail modes to note: tools still listed (deny not honored for platform-injected MCP — fall back to removing the connector or an environment-level toggle), `gh` not authenticated, or push 403.
