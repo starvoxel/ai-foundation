@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-03T01:29:54.007Z",
+  "generated_at": "2026-10-03T17:04:28.937Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -15,7 +15,7 @@
         "AGENTS.md",
         "package.json"
       ],
-      "last_verified": "f3997b3",
+      "last_verified": "cabbb48",
       "stale": false
     },
     {
@@ -91,7 +91,7 @@
         "lib/harnesses/assets/block-command/logic.js",
         "lib/harnesses/assets/block-command/cli.js"
       ],
-      "last_verified": "17aa2d8",
+      "last_verified": "cabbb48",
       "stale": false
     },
     {
