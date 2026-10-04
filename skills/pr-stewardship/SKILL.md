@@ -1,6 +1,6 @@
 ---
 name: 'pr-stewardship'
-version: '0.3.1'
+version: '0.3.2'
 description: 'Drives an open pull request to a green, mergeable state — checking CI, merge conflicts, and review feedback, and fixing or reporting what blocks it.'
 ---
 
@@ -31,7 +31,7 @@ GitHub-side actions in cloud carry the proxy's identity, not the `ai-git` token'
 
 **Follow-through mode.** How a re-check gets triggered depends on the tools the invoking agent holds; Steps 1–3 are the same either way and use no new tooling.
 
-- **PR-subscription tools available** (the `pr_follow_through` group, Claude Code only; see `docs/decisions/0007-harness-neutral-platform-tool-groups.md`: "Decision Outcome"): subscribe to the PR with `subscribe_pr_activity`, and after the `subscription.created` turn read later PR events with `ReadNotifications`. Each event triggers a run of Steps 1–3; it never replaces them. Unsubscribe once the PR is merged or closed.
+- **PR-subscription tools available** (the `pr_follow_through` group, Claude Code only; see `docs/decisions/0007-harness-neutral-platform-tool-groups.md`: "Decision Outcome"): subscribe to the PR with `subscribe_pr_activity` (end it with `unsubscribe_pr_activity`), and after the `subscription.created` turn read later PR events with `ReadNotifications`. Each event triggers a run of Steps 1–3; it never replaces them. Unsubscribe once the PR is merged or closed.
 - **Not available** (Kiro, Copilot, or an agent not granted the group): use the manual check in Steps 1–3. Where the harness supports the tools but this agent was not granted the group, report that once to the caller, naming the human route (add `pr_follow_through` to the agent's `tools` in its agent yaml), then proceed with the manual check. Cadence rule, absent an instruction from the caller: re-check after every push to the PR branch, before reporting the Task done or ready, and each time the caller next engages. Never loop or sleep to wait for a change.
 - **Only the agent that runs the session subscribes.** Subagents do not inherit tools, and a subscription made inside a subagent belongs to the parent session, so a subagent must never rely on subscribing; it uses the manual check. Only the most recent subscriber to a PR receives its events, so two agents must not subscribe to the same PR.
 
