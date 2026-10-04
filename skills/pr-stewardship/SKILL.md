@@ -1,12 +1,12 @@
 ---
 name: 'pr-stewardship'
-version: '0.2.0'
+version: '0.3.0'
 description: 'Drives an open pull request to a green, mergeable state — checking CI, merge conflicts, and review feedback, and fixing or reporting what blocks it.'
 ---
 
 ## Purpose
 
-Checks an open pull request's CI status, merge state, and review feedback in one pass, and acts: fixes failing CI, resolves a merge conflict, responds to review comments, or reports the specific blocker to the human. Poll-based, not subscription-based — it reads and writes GitHub through `ai-git`, and works whether it runs as a short-lived local dispatch or a long-running cloud session.
+Checks an open pull request's CI status, merge state, and review feedback in one pass, and acts: fixes failing CI, resolves a merge conflict, responds to review comments, or reports the specific blocker to the human. Poll-based; PR-subscription tools, where the harness has them, only trigger a pass (see Follow-through mode in Inputs) — it reads and writes GitHub through `ai-git`, and works whether it runs as a short-lived local dispatch or a long-running cloud session.
 
 This skill does one check-and-act pass per invocation; it does not loop or sleep. Whoever dispatches it (a human, an orchestration skill, a scheduled re-check) decides how often to re-invoke it until the PR is done.
 
@@ -28,6 +28,12 @@ This skill does one check-and-act pass per invocation; it does not loop or sleep
 | Review threads, auto-merge, ready-for-review | The proxy's `ccr/...` routes (the proxy's 403 message lists them), not GraphQL                                           |
 
 GitHub-side actions in cloud carry the proxy's identity, not the `ai-git` token's.
+
+**Follow-through mode.** How a re-check gets triggered depends on the tools the invoking agent holds; Steps 1–3 are the same either way and use no new tooling.
+
+- **PR-subscription tools available** (the `pr_follow_through` group: `subscribe_pr_activity`, `unsubscribe_pr_activity`, `send_later`, plus `ReadNotifications`; Claude Code only, see `docs/decisions/0007-harness-neutral-platform-tool-groups.md`): subscribe to the PR, and after the `subscription.created` turn read later PR events with `ReadNotifications`. Each event triggers a run of Steps 1–3; it never replaces them. Unsubscribe once the PR is merged or closed.
+- **Not available** (Kiro, Copilot, or an agent not granted the group): use the manual check in Steps 1–3. Cadence rule, absent an instruction from the caller: re-check after every push to the PR branch, before reporting the Task done or ready, and each time the caller next engages. Never loop or sleep to wait for a change.
+- **Only the agent that runs the session subscribes.** Subagents do not inherit tools, and a subscription made inside a subagent belongs to the parent session, so a subagent must never rely on subscribing; it uses the manual check. Only the most recent subscriber to a PR receives its events, so two agents must not subscribe to the same PR.
 
 ## Steps
 
@@ -74,4 +80,5 @@ If nothing needed fixing and the PR is green and mergeable, there is nothing fur
 - **CI is still running** — not a failure; report "pending" and let the caller decide when to re-check.
 - **Everything is green, only waiting on a human reviewer's approval** — say so once; do not re-push or nudge repeatedly.
 - **Suspected flaky failure** — re-run once if `ai-git` supports it; a second failure is treated as real, not a flake.
+- **Subscription tools exist but no event arrives** — silence means "nothing observed", not "green"; still run Steps 1–3 before reporting done.
 - **The PR was opened by a different agent or session** — still driveable the same way; nothing in this procedure assumes the invoker created the PR.
