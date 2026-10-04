@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T13:54:41.145Z",
+  "generated_at": "2026-10-04T17:30:37.517Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -92,7 +92,7 @@
         "lib/harnesses/assets/block-command/logic.js",
         "lib/harnesses/assets/block-command/cli.js"
       ],
-      "last_verified": "d6ab78e",
+      "last_verified": "90f3406",
       "stale": false
     },
     {
