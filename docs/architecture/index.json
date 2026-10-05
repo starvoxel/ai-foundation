@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T01:10:38.695Z",
+  "generated_at": "2026-10-05T14:59:11.575Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -15,7 +15,7 @@
         "AGENTS.md",
         "package.json"
       ],
-      "last_verified": "044e4bf",
+      "last_verified": "89595c0",
       "stale": false
     },
     {
@@ -36,7 +36,7 @@
         "steering/engineering/git-workflow-core.md",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "677f1fb",
+      "last_verified": "909d860",
       "stale": false
     },
     {
@@ -55,7 +55,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "122137a",
+      "last_verified": "89595c0",
       "stale": false
     },
     {
@@ -92,7 +92,7 @@
         "lib/harnesses/assets/block-command/logic.js",
         "lib/harnesses/assets/block-command/cli.js"
       ],
-      "last_verified": "8e22ec0",
+      "last_verified": "89595c0",
       "stale": false
     },
     {
@@ -120,7 +120,7 @@
         "lib/aiconfig-defaults.js",
         "lib/file-utils.js"
       ],
-      "last_verified": "677f1fb",
+      "last_verified": "9c05fcd",
       "stale": false
     },
     {
@@ -163,9 +163,36 @@
         "lib/commands/snapshot.js",
         "lib/commands/index.js",
         "lib/commands/init.js",
-        "lib/commands/config.js"
+        "lib/commands/config.js",
+        "lib/commands/pr-watch.js"
       ],
-      "last_verified": "abf05d1",
+      "last_verified": "909d860",
+      "stale": false
+    },
+    {
+      "path": "05_06_pr_watch.md",
+      "section": "05.06",
+      "title": "PR watch helper",
+      "summary": "The deterministic half of `skill/pr-stewardship`: one pass reads a PR's state fresh through `ai-git`, diffs it against a remembered record, and returns a digest — the same way no matter what woke the session.",
+      "lifecycle": "published",
+      "tags": [
+        "building-blocks",
+        "pr-watch",
+        "security"
+      ],
+      "key_files": [
+        "lib/pr-watch/actors.js",
+        "lib/pr-watch/checks.js",
+        "lib/pr-watch/feedback.js",
+        "lib/pr-watch/sanitize.js",
+        "lib/pr-watch/schedule.js",
+        "lib/pr-watch/observe.js",
+        "lib/pr-watch/digest.js",
+        "lib/pr-watch/github.js",
+        "lib/pr-watch/store.js",
+        "lib/pr-watch/engine.js"
+      ],
+      "last_verified": "909d860",
       "stale": false
     },
     {
@@ -192,7 +219,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "677f1fb",
+      "last_verified": "9c05fcd",
       "stale": false
     },
     {
@@ -377,6 +404,39 @@
     ],
     "lib/commands/config.js": [
       "05_05_command_layer.md"
+    ],
+    "lib/commands/pr-watch.js": [
+      "05_05_command_layer.md"
+    ],
+    "lib/pr-watch/actors.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/checks.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/feedback.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/sanitize.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/schedule.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/observe.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/digest.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/github.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/store.js": [
+      "05_06_pr_watch.md"
+    ],
+    "lib/pr-watch/engine.js": [
+      "05_06_pr_watch.md"
     ],
     "bin/ai-git.js": [
       "05_building_blocks.md"

@@ -2,7 +2,7 @@
 section: '03'
 title: 'System Scope and Context'
 lifecycle: published
-last_verified: 122137a
+last_verified: 89595c0
 tags: [context, c4]
 key_files:
   - bin/aif.js
@@ -37,24 +37,24 @@ C4 support is inconsistent — so this uses a plain flowchart instead, same as �
 
 Domain-level communication partners and what they exchange, independent of protocol:
 
-| Partner                           | Domain-level exchange                                                                                                                                            |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Human developer / project adopter | Chooses a bundle and approves Feature Plans/ADRs; receives an installed rule set (agents, skills, steering, standards) tailored to that choice.                  |
-| AI harness                        | Receives the installed, harness-native component set and runs agents against it — a domain-level "consumer of the compiled output," not yet a specific protocol. |
-| Target project repo               | Supplies its own `.aiconfig.json` (bundle choice, paths, standards tags); receives the components `aif install` writes.                                          |
-| GitHub                            | A development-time partner for this repo's own source/PRs — not a runtime partner of the CLI.                                                                    |
+| Partner                           | Domain-level exchange                                                                                                                                                  |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human developer / project adopter | Chooses a bundle and approves Feature Plans/ADRs; receives an installed rule set (agents, skills, steering, standards) tailored to that choice.                        |
+| AI harness                        | Receives the installed, harness-native component set and runs agents against it — a domain-level "consumer of the compiled output," not yet a specific protocol.       |
+| Target project repo               | Supplies its own `.aiconfig.json` (bundle choice, paths, standards tags); receives the components `aif install` writes.                                                |
+| GitHub                            | A development-time partner for this repo's own source/PRs — not a runtime partner of the CLI, except that `aif pr-watch` reads PR state when an agent runs it (below). |
 
 ## Technical context
 
 The actual channels and protocols behind the exchanges above:
 
-| Channel                       | Detail                                                                                                                                                             |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Local filesystem              | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config` read and write the local filesystem only — no network (§2 Constraints).                           |
-| git / HTTPS                   | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself.                           |
-| MCP over stdio                | Locally-implemented servers (`servers/dag`, `servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.                         |
-| MCP over HTTP (vendor-hosted) | `servers/youtrack` is a declarative pointer to JetBrains' own hosted MCP endpoint (`hosted: vendor` in its YAML) — no local process; bearer-token auth over HTTPS. |
-| Per-server credentials        | Gmail uses OAuth2 (`servers/gmail/auth.js`); YouTrack a static bearer token from `${YOUTRACK_TOKEN}`.                                                              |
+| Channel                       | Detail                                                                                                                                                                                                                                                                                 |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Local filesystem              | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config` read and write the local filesystem only — no network (§2 Constraints).                                                                                                                                               |
+| git / HTTPS                   | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself. The one exception is `aif pr-watch`, which spawns `ai-git gh-api` (REST, read-only) to read a PR's state; it never holds a credential itself. |
+| MCP over stdio                | Locally-implemented servers (`servers/dag`, `servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.                                                                                                                                             |
+| MCP over HTTP (vendor-hosted) | `servers/youtrack` is a declarative pointer to JetBrains' own hosted MCP endpoint (`hosted: vendor` in its YAML) — no local process; bearer-token auth over HTTPS.                                                                                                                     |
+| Per-server credentials        | Gmail uses OAuth2 (`servers/gmail/auth.js`); YouTrack a static bearer token from `${YOUTRACK_TOKEN}`.                                                                                                                                                                                  |
 
 ## Out of scope here
 
