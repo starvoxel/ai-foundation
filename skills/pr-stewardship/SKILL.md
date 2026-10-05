@@ -1,12 +1,12 @@
 ---
 name: 'pr-stewardship'
-version: '0.4.1'
+version: '0.5.0'
 description: 'Drives an open pull request to a green, mergeable state — checking CI, merge conflicts, and review feedback, and fixing or reporting what blocks it, and optionally watching the PR across status changes until it merges or closes.'
 ---
 
 ## Purpose
 
-Checks an open pull request's CI status, merge state, and review feedback in one pass, and acts: fixes failing CI, resolves a merge conflict, responds to review comments, or reports the specific blocker to the human. Poll-based, not subscription-based — it reads and writes GitHub through `ai-git`, and works whether it runs as a short-lived local dispatch or a long-running cloud session.
+Checks an open pull request's CI status, merge state, and review feedback in one pass, and acts: fixes failing CI, resolves a merge conflict, responds to review comments, or reports the specific blocker to the human. Poll-based: a PR-subscription capability, where the harness has one, only triggers a pass (see Step 6) — it reads and writes GitHub through `ai-git`, and works whether it runs as a short-lived local dispatch or a long-running cloud session.
 
 The unit of work is one check-and-act pass per invocation; a pass does not loop or sleep. To follow a PR across status changes — CI going green or red, new comments or reviews, a merge conflict, the merge or close — the session repeats passes under Step 6 — "Watch until done" — which owns the wake path, the remembered state, the cadence, and when to stop. No harness offers every session a PR event subscription, so the watch never assumes one.
 
@@ -14,9 +14,9 @@ The unit of work is one check-and-act pass per invocation; a pass does not loop 
 
 - **PR number or URL** — which pull request to check
 - **Repository** — owner/name, if not already implied by the working directory's git remote
-- **GitHub access method** — always through `ai-git`; never raw `gh`/`git`, never GitHub MCP tools. Locally, `ai-git gh-*` subcommands work. In a Claude Code cloud session use `ai-git gh-api` — see the cloud table below.
+- **GitHub access method** — always through `ai-git`; never raw `gh`/`git`, never GitHub MCP tools. Locally, `ai-git gh-*` subcommands work. In a hosted session whose proxy blocks GraphQL (a cloud session) use `ai-git gh-api` — see the cloud table below.
 
-**Cloud table.** The cloud session proxy blocks GraphQL, so `gh pr ...` (every `ai-git gh-pr-*`, including `ai-git gh-pr-create`) and `gh repo view` (`ai-git gh-repo-view`) fail there with HTTP 403 and are unavailable. Use REST through `ai-git gh-api`, repository-scoped paths only (`repos/{owner}/{repo}/...`; non-repo paths are blocked too):
+**Cloud table.** A cloud session's proxy blocks GraphQL, so `gh pr ...` (every `ai-git gh-pr-*`, including `ai-git gh-pr-create`) and `gh repo view` (`ai-git gh-repo-view`) fail there with HTTP 403 and are unavailable. Use REST through `ai-git gh-api`, repository-scoped paths only (`repos/{owner}/{repo}/...`; non-repo paths are blocked too):
 
 | Need                                         | Call                                                                                                                     |
 | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -74,13 +74,17 @@ If nothing needed fixing and the PR is green and mergeable, there is nothing fur
 
 ### Step 6 — Watch until done
 
-Watching repeats the pass in Steps 1–5 until the PR is done. It applies whenever the caller asks to follow a PR and whenever `steering/engineering/git-workflow-core.md`: "Keep Watching an Open PR Until It Is Done" binds the agent. A `push-check/**` branch with no PR is watched the same way, with Step 4 as its end state. Start the watch from the main session only — a timer or monitor started by a subagent stops with it or notifies only it.
+Watching repeats the pass in Steps 1–5 until the PR is done. It applies whenever the caller asks to follow a PR and whenever `steering/engineering/git-workflow-core.md`: "Keep Watching an Open PR Until It Is Done" binds the agent. A `push-check/**` branch with no PR is watched the same way, with Step 4 as its end state. Start the watch from the main session only — a timer, monitor, or subscription started by a subagent stops with it or reaches only it, and two agents never watch the same PR.
 
 **Wake path.** Use the first that the session actually has; choose at runtime, never by editing this skill per harness.
 
-1. **A harness PR monitor or subscription**, if the session has one. An event is a trigger to run a pass, not a verdict — re-read the PR's state, and keep one long re-check (every hour) in case an event is missed.
+1. **A PR-activity subscription or monitor**, if the session holds one — a capability the harness provides, granted to agents as the `pr_follow_through` group (`docs/decisions/0007-harness-neutral-platform-tool-groups.md`: "Decision Outcome").
+   - Take tool names and the subscribe, read-events, and unsubscribe mechanics from the tools' own descriptions. This skill names no harness and no tool, so a harness that adds or changes support through its adapter needs no edit here.
+   - An event is a trigger to run a pass, not a verdict: re-read the PR's state. Keep one long re-check (every hour) in case an event is missed.
+   - Unsubscribe when the watch stops.
+   - If the harness is known to offer this but the agent was not granted it, report that once to the caller, naming the human route (add `pr_follow_through` to the agent's `tools`), then use 2 or 3.
 2. **A self-paced re-check** through the session's own loop, schedule, or wake-up tool, re-invoking this skill with the PR and the watch record.
-3. **Neither:** run a pass at the caller's natural checkpoints (before dispatching more work, when a Task returns, at session start) and state once that watching is not automatic.
+3. **Neither:** run a pass after every push to the PR branch, before reporting the Task done or ready, and each time the caller next engages; state once that watching is not automatic.
 
 **Watch record.** Kept for the life of the watch (restated in the re-check prompt if the session cannot hold state). Each pass reads the PR, diffs it against the record, acts only on differences, then updates the record.
 
@@ -130,4 +134,5 @@ Watching repeats the pass in Steps 1–5 until the PR is done. It applies whenev
 - **A watch outlives its session** — the record dies with it. On resume or hand-off, rebuild it from a fresh read: treat feedback the agent already replied to or resolved as handled, everything else as new.
 - **Everything is green, only waiting on a human reviewer's approval** — say so once; do not re-push or nudge repeatedly.
 - **Suspected flaky failure** — re-run once if `ai-git` supports it; a second failure is treated as real, not a flake.
+- **An event source is silent** — silence means "nothing observed", not "green"; still run Steps 1–3 before reporting done.
 - **The PR was opened by a different agent or session** — still driveable the same way; nothing in this procedure assumes the invoker created the PR.
