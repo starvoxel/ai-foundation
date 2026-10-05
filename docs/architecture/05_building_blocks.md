@@ -91,7 +91,7 @@ cut across that boundary and hide it.
 
 | Block           | Responsibility                                                                                                                                                                       | Interface                                                                                  |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| All 10 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
+| All 11 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
 
 ### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
@@ -141,7 +141,9 @@ cut across that boundary and hide it.
   parse/build/diff pipeline behind `aif index decisions|architecture`, and
   exactly where the two formats diverge.
 - **§5.05 Command layer** (`05_05_command_layer.md`) — the full per-command
-  responsibility/interface breakdown for all 10 `lib/commands/*.js` files.
+  responsibility/interface breakdown for all 11 `lib/commands/*.js` files.
+- **§5.06 PR watch helper** (`05_06_pr_watch.md`) — the pure and I/O modules behind
+  `aif pr-watch`, the deterministic half of `skill/pr-stewardship`.
 
 Entry points and MCP servers stay at this level — each block in those two groups
 is a single, thin, single-purpose module; a further whitebox wouldn't add
