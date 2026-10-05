@@ -167,6 +167,7 @@ describe('normalizeFeedback', () => {
 });
 
 describe('triageFeedback', () => {
+  const tctx = { ...ctx, repo: 'o/r', pr: 1, self: 'agent-bot' };
   const items = [
     normalizeFeedback('issue_comment', comment({ id: 1, user: { login: 'alice' } })),
     normalizeFeedback('issue_comment', comment({ id: 2, user: { login: 'mallory' } })),
@@ -174,7 +175,7 @@ describe('triageFeedback', () => {
   ].filter((i) => i !== null);
 
   it('splits permitted and non-permitted actors', () => {
-    const t = triageFeedback(items, {}, ctx);
+    const t = triageFeedback(items, {}, tctx);
     assert.deepEqual(
       t.act.map((i) => i.key),
       ['issue_comment:1', 'review_comment:3'],
@@ -187,14 +188,14 @@ describe('triageFeedback', () => {
 
   it('skips handled items but re-surfaces an edited one', () => {
     const handled = { 'issue_comment:2': items[1].version };
-    assert.equal(triageFeedback(items, handled, ctx).escalate.length, 0);
+    assert.equal(triageFeedback(items, handled, tctx).escalate.length, 0);
     const edited = { 'issue_comment:2': 'older' };
-    const t = triageFeedback(items, edited, ctx);
+    const t = triageFeedback(items, edited, tctx);
     assert.equal(t.escalate[0].edited, true);
   });
 
   it('records the agent’s own items as handled without reporting them', () => {
-    const t = triageFeedback(items, {}, { ...ctx, self: 'ALICE' });
+    const t = triageFeedback(items, {}, { ...tctx, self: 'ALICE' });
     assert.deepEqual(Object.keys(t.ownKeys), ['issue_comment:1']);
     assert.equal(
       t.act.some((i) => i.key === 'issue_comment:1'),

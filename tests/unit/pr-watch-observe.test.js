@@ -147,8 +147,10 @@ describe('observe', () => {
   });
 
   it('uses the caller-supplied human, never PR content', () => {
-    const rec = { ...fresh(), human: 'carol' };
-    const r = observe(rec, obs({ feedbackItems: [comment(1, 'carol')] }), { now: T0 });
+    const r = observe(fresh(), obs({ feedbackItems: [comment(1, 'carol')] }), {
+      now: T0,
+      human: 'carol',
+    });
     assert.equal(r.digest.feedback.act.length, 1);
     const none = observe(fresh(), obs({ feedbackItems: [comment(1, 'carol')] }), { now: T0 });
     assert.equal(none.digest.feedback.escalate.length, 1);
