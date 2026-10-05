@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-core'
-version: '0.9.0'
+version: '0.9.1'
 description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, PR stewardship and watching, the required-CI gate on main, and branch naming and lifecycle.'
 file_patterns: []
 ---
@@ -70,7 +70,7 @@ file_patterns: []
 
 ### Rule: Keep Watching an Open PR Until It Is Done
 
-- The session that owns an open PR (or a `push-check/**` branch), or is asked to follow one, watches it per `skill/pr-stewardship`: "Step 6 — Watch until done", and never ends a turn on pending CI with nothing scheduled.
+- The session that owns an open PR (or a `push-check/**` branch), or is asked to follow one, watches it per `skill/pr-stewardship`: "Step 6 — Watch until done", and never ends a turn on pending CI with nothing scheduled; a session that cannot schedule anything reports the pending CI and the missing re-check to the caller before ending the turn.
 
 ---
 
