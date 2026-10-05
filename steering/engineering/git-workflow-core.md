@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-core'
-version: '0.9.1'
+version: '0.9.2'
 description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, PR stewardship and watching, the required-CI gate on main, and branch naming and lifecycle.'
 file_patterns: []
 ---
@@ -70,7 +70,7 @@ file_patterns: []
 
 ### Rule: Keep Watching an Open PR Until It Is Done
 
-- The session that owns an open PR (or a `push-check/**` branch), or is asked to follow one, watches it per `skill/pr-stewardship`: "Step 6 — Watch until done", and never ends a turn on pending CI with nothing scheduled; a session that cannot schedule anything reports the pending CI and the missing re-check to the caller before ending the turn.
+- The session that owns an open PR (or a `push-check/**` branch), or is asked to follow one, watches it per `skill/pr-stewardship`: "Step 6 — Watch until done", and never ends a turn on pending CI with nothing scheduled, unless it cannot schedule anything and first reports the pending CI and the missing re-check to the caller.
 
 ---
 
@@ -102,7 +102,7 @@ file_patterns: []
 - **Logging or echoing the token value:** A CRITICAL finding, not a style issue — this is credential exposure. See `steering/global/core.md`: "Security Requirements Are Never Optional".
 - **Bypassing required CI checks:** A HIGH finding — any use of a bypass, override, or change to a check or ruleset to land a commit that has not passed CI.
 - **Hand-deleting branches or editing the cleanup thresholds or protected list to dodge it:** A HIGH finding — branch lifecycle is the workflow's job; a branch that must live belongs on the protected list, added by the human.
-- **Unwatched-PR violations:** A MEDIUM finding — the owning session leaves an open PR with no watch started and nothing scheduled.
+- **Unwatched-PR violations:** A MEDIUM finding — the owning session leaves an open PR with no watch started and nothing scheduled, and did not report the pending CI and the missing re-check to the caller before ending the turn.
 - **Abandoned-PR violations:** A red or conflicted PR sitting unattended with no blocker reported is a HIGH finding — the opening agent should have followed `skill/pr-stewardship`.
 
 ---
