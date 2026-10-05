@@ -2,7 +2,7 @@
 section: '05.06'
 title: 'PR watch helper'
 lifecycle: published
-last_verified: d8d59ea
+last_verified: 9c05fcd
 tags: [building-blocks, pr-watch, security]
 key_files:
   - lib/pr-watch/actors.js
