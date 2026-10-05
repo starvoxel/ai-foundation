@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-05T00:50:41.538Z",
+  "generated_at": "2026-10-05T00:54:15.536Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -36,8 +36,8 @@
         "steering/engineering/git-workflow-core.md",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "454ff9d",
-      "stale": true
+      "last_verified": "5c74d05",
+      "stale": false
     },
     {
       "path": "03_context.md",
@@ -92,7 +92,7 @@
         "lib/harnesses/assets/block-command/logic.js",
         "lib/harnesses/assets/block-command/cli.js"
       ],
-      "last_verified": "90f3406",
+      "last_verified": "5c74d05",
       "stale": false
     },
     {
