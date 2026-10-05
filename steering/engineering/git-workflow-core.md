@@ -1,7 +1,7 @@
 ---
 name: 'git-workflow-core'
-version: '0.7.1'
-description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, PR stewardship, the required-CI gate on main, and branch naming and lifecycle.'
+version: '0.8.0'
+description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, PR stewardship and watching, the required-CI gate on main, and branch naming and lifecycle.'
 file_patterns: []
 ---
 
@@ -68,6 +68,13 @@ file_patterns: []
 
 ---
 
+### Rule: Keep Watching an Open PR Until It Is Done
+
+- An agent that opens a PR (or a `push-check/**` branch) or is asked to follow one does not end its turn at "CI pending" with nothing scheduled. It watches per `skill/pr-stewardship`: "Step 6 — Watch until done" until the PR merges or closes, the branch lands, or one blocker has been reported.
+- Start the watch from the main session, not a subagent, and report status transitions only.
+
+---
+
 ### Rule: Required CI Checks Gate Main — Never Bypass Them
 
 - `main` only accepts commits whose required status checks have passed. Never bypass that gate: no admin override, no push through a ruleset bypass list, and no disabling, weakening, renaming, or skipping a required check (including editing the workflow or ruleset to make it pass).
@@ -96,6 +103,7 @@ file_patterns: []
 - **Logging or echoing the token value:** A CRITICAL finding, not a style issue — this is credential exposure. See `steering/global/core.md`: "Security Requirements Are Never Optional".
 - **Bypassing required CI checks:** A HIGH finding — any use of a bypass, override, or change to a check or ruleset to land a commit that has not passed CI.
 - **Hand-deleting branches or editing the cleanup thresholds or protected list to dodge it:** A HIGH finding — branch lifecycle is the workflow's job; a branch that must live belongs on the protected list, added by the human.
+- **Unwatched-PR violations:** A MEDIUM finding — an open PR left with no watch started and no checkpoint check, or a watch that posts "still pending" comments or re-handles the same feedback.
 - **Abandoned-PR violations:** A red or conflicted PR sitting unattended with no blocker reported is a HIGH finding — the opening agent should have followed `skill/pr-stewardship`.
 
 ---
