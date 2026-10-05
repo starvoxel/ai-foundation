@@ -1,6 +1,6 @@
 ---
 name: 'pr-stewardship'
-version: '0.9.0'
+version: '0.9.1'
 description: 'Drives an open pull request to a green, mergeable state — checking CI, merge conflicts, and review feedback, and fixing or reporting what blocks it, and optionally watching the PR across status changes until it merges or closes.'
 ---
 
@@ -35,7 +35,7 @@ GitHub-side actions in cloud carry the proxy's identity, not the `ai-git` token'
 
 ### Step 1 — Check mergeable state
 
-Run `pr-watch check` and read `mergeable` and `status` (the cloud table in Inputs lists the raw calls if the helper is unavailable). If the digest reports `conflict` or the PR is not cleanly mergeable:
+Run `pr-watch check` and read `mergeable` and `status` (if the helper fails or is unavailable, report to the human and use raw reads for status only, never to hand-process feedback or apply the actor rule: see Edge Cases). If the digest reports `conflict` or the PR is not cleanly mergeable:
 
 1. Merge the base branch into the PR branch. Regenerate lockfiles or other generated files with the repo's own tooling — never by hand.
 2. Never rewrite history on a branch you did not create (no rebase, amend, or force-push — a merge commit is always safe). On a branch you created yourself, follow `steering/engineering/git-workflow-projects.md`'s branching convention instead.
@@ -87,7 +87,7 @@ Watching repeats the pass in Steps 1–5 until the helper says to stop. It appli
    - Unsubscribe when the watch stops.
    - If the harness is known to offer this but the agent was not granted it, report that once to the caller, naming the human route (add `pr_follow_through` to the agent's `tools`), then use 2 or 3.
 2. **A self-paced re-check** through the session's own loop, schedule, or wake-up tool, running `pr-watch check` every `next_check_after_s`. If it can no longer be scheduled, fall to 3 and report once.
-3. **Neither:** run `pr-watch check` after every push to the PR branch, before reporting the Task done or ready, and each time the caller next engages. A session that can schedule nothing still obeys `steering/engineering/git-workflow-core.md`: "Keep Watching an Open PR Until It Is Done" by reporting to the caller, before ending its turn, that CI is pending and that no re-check is scheduled.
+3. **Neither:** run `pr-watch check` after every push to the PR branch, before reporting the Task done or ready, and each time the caller next engages. A session that can schedule nothing follows `steering/engineering/git-workflow-core.md`: "Keep Watching an Open PR Until It Is Done".
 
 Paths 2 and 3 in a desktop (local) session are unverified pending the spike in `docs/research/desktop-pr-tracking.md` (sections 8 and 9).
 
