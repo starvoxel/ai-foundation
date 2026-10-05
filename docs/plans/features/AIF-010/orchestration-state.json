@@ -51,16 +51,23 @@
     {
       "id": "005",
       "wave": 3,
-      "status": "Implementing",
+      "status": "Blocked",
       "branch": "AIF-010/005-skill-degradation-docs",
       "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-010/005-skill-degradation-docs",
       "pr_number": 98,
       "pr_url": "https://github.com/starvoxel/ai-foundation/pull/98",
       "iterations": 5,
-      "blocked_reason": null
+      "blocked_reason": "pr-watch scope superseded by AIF-012; PR 98 unmerged pending human disposition"
     }
   ],
-  "escalations": [],
+  "escalations": [
+    {
+      "task_id": "005",
+      "reason": "PR 98 (pr-watch) held. Human accepted LOW findings (lock race, rename spin, repo-name length, test timeouts). Disposition after AIF-012 gates.",
+      "raised_at": "2026-10-05T23:21:14.052Z",
+      "resolved": false
+    }
+  ],
   "log": [
     {
       "timestamp": "2026-10-02T17:26:36.872Z",
@@ -411,6 +418,20 @@
       "action": "review_loop",
       "task_id": "005",
       "details": "iteration 5; human: add pr-watch script to PR 98"
+    },
+    {
+      "timestamp": "2026-10-05T23:21:14.052Z",
+      "agent": "engineering-manager",
+      "action": "task_blocked",
+      "task_id": "005",
+      "details": "PR 98 held; superseded by AIF-012"
+    },
+    {
+      "timestamp": "2026-10-05T23:21:14.052Z",
+      "agent": "engineering-manager",
+      "action": "escalation_raised",
+      "task_id": "005",
+      "details": "human chooses PR 98 disposition after AIF-012 gates"
     }
   ]
 }
