@@ -18,6 +18,7 @@ key_files:
   - lib/aiconfig-resolve.js
   - lib/aiconfig-defaults.js
   - lib/file-utils.js
+  - lib/skill-mentions.js
 ---
 
 > `lib/*.js`'s harness-agnostic support libraries, excluding `resolver.js`
@@ -27,19 +28,19 @@ key_files:
 
 ## Motivation
 
-The largest heterogeneous group in §5's "Core libraries" row: 13 files across 8
+The largest heterogeneous group in §5's "Core libraries" row: 14 files across 9
 unrelated responsibilities, and the group most likely to gain a new file as the
 CLI grows. Its own `key_files` list keeps the top-level §5 doc's list short
 enough that a rename or deletion there stays a meaningful signal, while these
-13 files' individual freshness stays tracked here instead of silently dropping
+14 files' individual freshness stays tracked here instead of silently dropping
 out of `aif index architecture --check` coverage. `file-utils.js`'s addition
 (splitting generic file/hash/frontmatter helpers out of `lib/harnesses/base.js`
 — see §5.02's Consumers section) and `secrets.js`'s addition (provider-agnostic
 secrets resolution for `ai-git`, per `docs/plans/secrets-resolution-plan.md`),
-and `doctor-probe.js`'s addition (the `ai-git doctor` token probe, a tiny
-argv-safe script kept apart from `ai-git.js`'s pure logic) are exactly the split-trigger case `steering/engineering/architecture-authoring.md`
+`doctor-probe.js`'s addition (the `ai-git doctor` token probe, a tiny
+argv-safe script kept apart from `ai-git.js`'s pure logic), and `skill-mentions.js`'s addition (the pure `skill/<name>` mention classifier behind `aif validate skill-deps`) are exactly the split-trigger case `steering/engineering/architecture-authoring.md`
 names past 5 entries; a finer `05.0x` subsection isn't warranted yet, since these
-8 responsibilities still share nothing beyond "not `resolver.js`/harnesses/indexing"
+9 responsibilities still share nothing beyond "not `resolver.js`/harnesses/indexing"
 the way §5.01's or §5.04's content does.
 
 ## Contained Building Blocks
@@ -54,6 +55,7 @@ the way §5.01's or §5.04's content does.
 | `constants.js` / `component-defs.js`                           | Shared constants (canonical tool names, including the ADR 0007 platform-tool group names, source directories, CLI command list) and JSDoc-only `AgentDef`/`ServerDef`/`RequiresSkillsFrontmatter` type shapes — no runtime behavior, just a single owner for both.                                                                                                                                                                                                                                                                                                                      | `TOOLS`, `SOURCE_DIRS`, `COMMANDS`                                                                                                                                                     |
 | `aiconfig.js` / `aiconfig-resolve.js` / `aiconfig-defaults.js` | Resolves a `.aiconfig.json` field to its configured value or documented default, without ever writing a default back to disk. `aiconfig-defaults.js` owns the default table (some entries derive from another field's resolved value, e.g. `paths.decisions` nesting under `paths.knowledge`); `aiconfig-resolve.js` is the pure merge logic against a plain object; `aiconfig.js` is the I/O layer that reads `.aiconfig.json` off disk and also finds a project root by walking up for the file.                                                                                      | `getConfigValue()`, `getConfigPath()`, `findProjectRoot()`, `resolveConfigValue()`                                                                                                     |
 | `file-utils.js`                                                | Generic file/hash/frontmatter helpers with no harness-specific behavior: YAML frontmatter parsing, recursive file collection, SHA-256 content hashing, writing to a target path, and line-oriented scanning that skips fenced code blocks.                                                                                                                                                                                                                                                                                                                                              | `parseFrontmatter()`, `collectFiles()`, `hashContent()`, `writeToTarget()`, `nonFencedLines()`                                                                                         |
+| `skill-mentions.js`                                            | Pure (no I/O) classifier and checker for `skill/<name>` mentions in prose: each mention is a reference (an inline code span holding exactly `skill/<name>`), an example (longer code span, or followed immediately by `<!-- skill-ref: ignore -->`), or other; a skill's own name is skipped. Checking turns them into errors (reference to a missing or undeclared skill) and warnings (other), given the file's `requires_skills` closure. Used by `validate.js`'s `skill-deps` check (§5.05).                                                                                        | `classifySkillMentions()`, `checkSkillMentions()`, `requiresSkillsLines()`, `SKILL_REF_IGNORE_MARKER`                                                                                  |
 
 ## Consumers
 
@@ -72,4 +74,4 @@ JSDoc-only types are referenced (via `@param {import('./component-defs.js').X}`
 comments, never a runtime `import`) only by the three `lib/harnesses/*` files,
 not repo-wide. `file-utils.js` has the widest reach of any block in this
 table: `lib/harnesses/base.js`/`claude.js`/`kiro.js` (§5.02), `snapshot/io.js`
-(this table), `lib/decisions.js`/`architecture.js` (§5.04), and `lib/commands/validate.js`'s citation checker (§5.05) all import from it directly — `nonFencedLines()` specifically is shared by `architecture.js`'s relative-link extractor and `validate.js`'s citation checker, the one piece of logic those two otherwise-unrelated checks would each have hand-rolled separately.
+(this table), `lib/decisions.js`/`architecture.js` (§5.04), and `lib/commands/validate.js`'s citation checker and frontmatter reading (§5.05) all import from it directly — `nonFencedLines()` specifically is shared by `architecture.js`'s relative-link extractor and `validate.js`'s citation checker, the one piece of logic those two otherwise-unrelated checks would each have hand-rolled separately.
