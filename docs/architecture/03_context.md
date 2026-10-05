@@ -2,7 +2,7 @@
 section: '03'
 title: 'System Scope and Context'
 lifecycle: published
-last_verified: 122137a
+last_verified: 89595c0
 tags: [context, c4]
 key_files:
   - bin/aif.js
