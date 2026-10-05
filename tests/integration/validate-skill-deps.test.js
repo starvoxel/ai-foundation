@@ -86,6 +86,17 @@ describe('integration: validate skill-deps / requires_skills', () => {
     assert.match(output, /steering\/global\/x\.md: requires_skills entry 'ghost' not found/);
   });
 
+  it('does not crash on a missing transitive dependency (a -> b -> ghost)', () => {
+    skill('a', { requires: ['b'] });
+    skill('b', { requires: ['ghost'] });
+    steering('global/x.md', { requires: ['a'] });
+    const { code, output } = validate(repo, 'skill-deps');
+    assert.equal(code, 1);
+    assert.match(output, /skills\/b\/SKILL\.md: requires_skills entry 'ghost' not found/);
+    assert.doesNotMatch(output, /skills\/a\/SKILL\.md: requires_skills entry/);
+    assert.doesNotMatch(output, /steering\/global\/x\.md: requires_skills entry/);
+  });
+
   it('rejects malformed fields in the schema check (non-list, traversal, non-kebab)', () => {
     skill('a', { requires: 'b' });
     skill('b', { requires: ['../evil'] });
