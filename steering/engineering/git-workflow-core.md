@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow-core'
-version: '0.8.0'
+version: '0.9.0'
 description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, PR stewardship and watching, the required-CI gate on main, and branch naming and lifecycle.'
 file_patterns: []
 ---
@@ -64,14 +64,13 @@ file_patterns: []
 
 ### Rule: An Agent That Opens a PR Drives It to Green
 
-- Opening the PR is not the end of the task. The agent that opened it (or was asked to drive it) follows `skill/pr-stewardship` until the PR is green and mergeable, or a specific blocker has been reported once — never leaves a red or conflicted PR unattended.
+- Opening the PR is not the end of the task. The agent that opened it (or was asked to drive it) follows `skill/pr-stewardship` until the PR is green and mergeable, or a specific blocker has been reported once — never leaves a red or conflicted PR unattended. A subagent that opened it meets this by running one pass and handing the watch to the session that owns the PR (see "Keep Watching an Open PR Until It Is Done").
 
 ---
 
 ### Rule: Keep Watching an Open PR Until It Is Done
 
-- An agent that opens a PR (or a `push-check/**` branch) or is asked to follow one does not end its turn at "CI pending" with nothing scheduled. It watches per `skill/pr-stewardship`: "Step 6 — Watch until done" until the PR merges or closes, the branch lands, or one blocker has been reported.
-- Start the watch from the main session, not a subagent, and report status transitions only.
+- The session that owns an open PR (or a `push-check/**` branch), or is asked to follow one, watches it per `skill/pr-stewardship`: "Step 6 — Watch until done", and never ends a turn on pending CI with nothing scheduled.
 
 ---
 
@@ -103,14 +102,14 @@ file_patterns: []
 - **Logging or echoing the token value:** A CRITICAL finding, not a style issue — this is credential exposure. See `steering/global/core.md`: "Security Requirements Are Never Optional".
 - **Bypassing required CI checks:** A HIGH finding — any use of a bypass, override, or change to a check or ruleset to land a commit that has not passed CI.
 - **Hand-deleting branches or editing the cleanup thresholds or protected list to dodge it:** A HIGH finding — branch lifecycle is the workflow's job; a branch that must live belongs on the protected list, added by the human.
-- **Unwatched-PR violations:** A MEDIUM finding — an open PR left with no watch started and no checkpoint check, or a watch that posts "still pending" comments or re-handles the same feedback.
+- **Unwatched-PR violations:** A MEDIUM finding — the owning session leaves an open PR with no watch started and nothing scheduled.
 - **Abandoned-PR violations:** A red or conflicted PR sitting unattended with no blocker reported is a HIGH finding — the opening agent should have followed `skill/pr-stewardship`.
 
 ---
 
 ## Rationale
 
-These rules hold regardless of branching model — a framework repo committing straight to `main` and a project repo working through branches and PRs both need atomic, incremental commits and the same `ai-git` identity/credential discipline, for the same reasons in both cases: `ai-git` keeps agent commits clearly attributable under a separate AI identity and prevents agents from acting under the human's credentials, and small, verified commits make review, bisection, and recovery from a bad step cheaper than one large commit at the end. PR stewardship holds the same way: any repo type can end up with an open PR (a framework repo doing branch-per-phase work at scale, same as a project repo's default), and a PR that sits red or conflicted is a stalled task regardless of which repo type opened it.
+These rules hold regardless of branching model — a framework repo committing straight to `main` and a project repo working through branches and PRs both need atomic, incremental commits and the same `ai-git` identity/credential discipline, for the same reasons in both cases: `ai-git` keeps agent commits clearly attributable under a separate AI identity and prevents agents from acting under the human's credentials, and small, verified commits make review, bisection, and recovery from a bad step cheaper than one large commit at the end. PR stewardship holds the same way: any repo type can end up with an open PR (a framework repo doing branch-per-phase work at scale, same as a project repo's default), and a PR that sits red or conflicted is a stalled task regardless of which repo type opened it, and an open PR can stall between checks unless the owning session keeps watching it until it is done.
 
 Splitting these out here, instead of stating them independently in both `git-workflow-framework.md` and `git-workflow-projects.md`, is what let those two files drift on this exact content: `git-workflow-framework.md` said `ai-git` "authenticates push operations," `git-workflow-projects.md` said "push/PR operations" — the same tool, described two different ways, caught by an AI-component duplication audit. One definition here removes the chance of that recurring.
 
