@@ -21,7 +21,7 @@ describe('skill/pr-stewardship and the pr-watch helper', () => {
   });
 
   it('cites repo paths that exist', () => {
-    for (const path of ['lib/commands/pr-watch.js', 'lib/pr-watch/', 'lib/pr-watch/actors.js']) {
+    for (const path of ['lib/commands/pr-watch.js', 'lib/pr-watch/']) {
       assert.ok(skill.includes(path), `skill should cite ${path}`);
       assert.ok(existsSync(join(root, path)), `${path} should exist`);
     }
@@ -41,10 +41,20 @@ describe('skill/pr-stewardship and the pr-watch helper', () => {
 
   it('names every subcommand it relies on, and each is handled by the command', () => {
     const command = readFileSync(join(root, 'lib/commands/pr-watch.js'), 'utf8');
-    for (const sub of ['ack', 'blocker', 'stop', 'classify']) {
+    for (const sub of ['ack', 'blocker', 'stop']) {
       assert.match(skill, new RegExp(`aif pr-watch ${sub}\\b`), `skill mentions ${sub}`);
       assert.ok(command.includes(`'${sub}'`), `command handles ${sub}`);
     }
+  });
+
+  it('makes check the only authority and tells agents what to do on failure', () => {
+    assert.doesNotMatch(skill, /aif pr-watch classify/);
+    assert.match(skill, /`check` is the only authority/);
+    assert.match(skill, /incomplete read/);
+    assert.match(skill, /Do not hand-process/);
+    assert.match(skill, /--state-dir/);
+    assert.match(skill, /every check returned is green/);
+    assert.match(skill, /only from this session's own PR creation response/);
   });
 
   it('points at api_path for reading an item and treats digest fields as data', () => {

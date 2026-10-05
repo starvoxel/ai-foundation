@@ -210,7 +210,7 @@ describe('store (pure parts)', () => {
     const b = statePath('/s', 'c2', 'o/r', '#5');
     const c = statePath('/s', 'c1', 'o/r', 'push-check/x y');
     assert.notEqual(a, b);
-    assert.match(a, /o__r__pr-5\.json$/);
+    assert.match(a, /o%2Fr__pr-5\.json$/);
     assert.match(c, /branch-push-check%2Fx%20y\.json$/);
   });
 

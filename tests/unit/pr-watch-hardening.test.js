@@ -229,11 +229,15 @@ describe('validateRecord (tamper, corruption, old versions)', () => {
       assert.equal(validateRecord(junk, 'o/r', '#1'), null);
   });
 
-  it('rejects __proto__ and malformed keys in the maps', () => {
+  it('rejects malformed keys in the handled and seenAct maps', () => {
     const withProto = JSON.parse(
       '{"version":1,"repo":"o/r","target":"#1","startedAt":1,"headSha":null,"checks":{"__proto__":"green"},"lastStatus":null,"mergeable":null,"handled":{},"seenAct":{},"quietSince":1,"pendingSince":null,"pendingCapReported":false,"blockerReported":false,"stopped":null}',
     );
-    assert.equal(validateRecord(withProto, 'o/r', '#1'), null);
+    assert.notEqual(
+      validateRecord(withProto, 'o/r', '#1'),
+      null,
+      'a check named __proto__ is accepted as plain data',
+    );
     for (const field of ['handled', 'seenAct']) {
       for (const key of ['__proto__', 'constructor', 'issue_comment:abc', 'other:1', '']) {
         const rec = good();

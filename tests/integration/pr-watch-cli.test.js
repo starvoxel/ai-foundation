@@ -15,7 +15,17 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync, readdirSync, readFileSync, existsSync } from 'node:fs';
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -93,10 +103,11 @@ describe('aif pr-watch (fake ai-git gh-api)', () => {
     writeFileSync(fixturePath, JSON.stringify(f), 'utf8');
   }
 
-  function aif(args, consumer = 'it', env = {}) {
+  function aif(args, consumer = 'it', env = {}, { defaultState = false } = {}) {
+    const stateArgs = defaultState ? [] : ['--state-dir', join(dir, 'state')];
     const r = spawnSync(
       process.execPath,
-      [AIF, 'pr-watch', ...args, '--state-dir', join(dir, 'state'), '--consumer', consumer],
+      [AIF, 'pr-watch', ...args, ...stateArgs, '--consumer', consumer],
       {
         encoding: 'utf8',
         env: {
@@ -530,6 +541,58 @@ describe('aif pr-watch (fake ai-git gh-api)', () => {
     const r = aif(CHECK);
     assert.equal(r.status, 1);
     assert.match(r.stderr, /pr-watch: /);
+  });
+
+  it('classify applies the same decision as check, including --self', () => {
+    const base = ['classify', '--login', 'alice', '--association', 'OWNER', '--pr-author', 'alice'];
+    assert.deepEqual(aif(base).json, { verdict: 'escalate', reason: 'self_unset_author' });
+    assert.deepEqual(aif([...base, '--self', 'ALICE']).json, { verdict: 'own', reason: 'self' });
+    assert.deepEqual(aif([...base, '--self', 'agent-bot']).json, {
+      verdict: 'permitted',
+      reason: 'pr_author',
+    });
+  });
+
+  describe('list size boundary', () => {
+    const items = (n, from = 0) =>
+      Array.from({ length: n }, (_, i) => comment(10_000 + from + i, 'bob', 'MEMBER'));
+    const fullPages = Array.from({ length: 10 }, (_, p) => items(100, p * 100));
+
+    it('reads a list of exactly 1000 items completely', () => {
+      setFixture(fixture({ 'repos/o/r/issues/5/comments': { $pages: fullPages } }));
+      const r = aif(CHECK);
+      assert.equal(r.status, 0, r.stderr);
+      assert.equal(r.json.feedback.act.length, 1000);
+    });
+
+    it('fails closed on 1001 items', () => {
+      setFixture(
+        fixture({ 'repos/o/r/issues/5/comments': { $pages: [...fullPages, items(1, 1000)] } }),
+      );
+      const r = aif(CHECK);
+      assert.equal(r.status, 1);
+      assert.match(r.stderr, /cannot read it completely/);
+      assert.deepEqual(stateFiles(), []);
+    });
+  });
+
+  it('uses and protects the default per-user state directory end to end', (t) => {
+    if (process.platform === 'win32') {
+      return t.skip('the default per-user directory ownership and mode checks are POSIX-only');
+    }
+    setFixture(fixture());
+    const tmp = join(dir, 'tmp');
+    mkdirSync(tmp);
+    const env = { TMPDIR: tmp, TEMP: tmp, TMP: tmp };
+    const ok = aif(CHECK, 'it', env, { defaultState: true });
+    assert.equal(ok.status, 0, ok.stderr);
+    const userDir = readdirSync(tmp).find((n) => n.startsWith('aif-pr-watch-'));
+    assert.ok(userDir, 'a per-user directory was created under the temp dir');
+    assert.equal(statSync(join(tmp, userDir)).mode & 0o077, 0, 'mode is owner-only');
+    chmodSync(join(tmp, userDir), 0o755);
+    const refused = aif(CHECK, 'it', env, { defaultState: true });
+    assert.equal(refused.status, 1);
+    assert.match(refused.stderr, /wider than 0700.*--state-dir/);
   });
 
   it('ignores the test-only ai-git override outside NODE_ENV=test', () => {
