@@ -553,6 +553,24 @@ describe('aif pr-watch (fake ai-git gh-api)', () => {
     });
   });
 
+  it('classify normalises its inputs exactly as check does', () => {
+    const run = (extra) =>
+      aif(['classify', '--pr-author', 'alice', '--self', 'agent-bot', ...extra]).json;
+    // not login-shaped: treated as no author, never as a match
+    assert.deepEqual(run(['--login', 'bad login', '--association', 'OWNER']), {
+      verdict: 'escalate',
+      reason: 'no_author',
+    });
+    // a lower-case association is not the documented enum value
+    assert.deepEqual(run(['--login', 'bob', '--association', 'owner']), {
+      verdict: 'escalate',
+      reason: 'not_permitted',
+    });
+    // a look-alike login does not fold onto the PR author
+    assert.equal(run(['--login', 'Klice']).verdict, 'escalate');
+    assert.equal(run(['--login', 'ALICE']).verdict, 'permitted');
+  });
+
   describe('list size boundary', () => {
     const items = (n, from = 0) =>
       Array.from({ length: n }, (_, i) => comment(10_000 + from + i, 'bob', 'MEMBER'));
