@@ -1,5 +1,9 @@
 {
+<<<<<<< HEAD
   "generated_at": "2026-10-05T02:22:57.796Z",
+=======
+  "generated_at": "2026-10-05T01:10:38.695Z",
+>>>>>>> origin/main
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -28,7 +32,11 @@
         "steering/engineering/git-workflow-core.md",
         "steering/engineering/git-workflow-projects.md"
       ],
+<<<<<<< HEAD
       "last_verified": "1e0de5f",
+=======
+      "last_verified": "677f1fb",
+>>>>>>> origin/main
       "stale": false
     },
     {
@@ -53,9 +61,20 @@
       "title": "Bundle resolution",
       "summary": "How `resolveBundle()` turns a `bundle.yaml` into the concrete set of agents/skills/steering/servers that get installed.",
       "lifecycle": "published",
+<<<<<<< HEAD
       "tags": ["building-blocks", "resolver"],
       "key_files": ["lib/resolver.js"],
       "last_verified": "faffb74",
+=======
+      "tags": [
+        "building-blocks",
+        "resolver"
+      ],
+      "key_files": [
+        "lib/resolver.js"
+      ],
+      "last_verified": "677f1fb",
+>>>>>>> origin/main
       "stale": false
     },
     {
@@ -98,7 +117,11 @@
         "lib/aiconfig-defaults.js",
         "lib/file-utils.js"
       ],
+<<<<<<< HEAD
       "last_verified": "89595c0",
+=======
+      "last_verified": "677f1fb",
+>>>>>>> origin/main
       "stale": false
     },
     {
@@ -178,7 +201,11 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
+<<<<<<< HEAD
       "last_verified": "89595c0",
+=======
+      "last_verified": "677f1fb",
+>>>>>>> origin/main
       "stale": false
     },
     {

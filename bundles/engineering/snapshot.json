@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-05T02:20:36.513Z",
+  "computed_at": "2026-10-05T02:35:24.217Z",
   "sources": {
     "agents/architect.yaml": "sha256:84b6372493c4788aadf27fde85d28bf3131b62e44d49e109bbec3bdb2d88ed26",
     "agents/engineering-manager.yaml": "sha256:b7cad09f2319daf4230b0b04263963f48a86f21d4838ee4ee5fd91bc4839d18c",
@@ -16,7 +16,7 @@
     "steering/engineering/architecture-authoring.md": "sha256:40c4b8380a63ba1df5fbb2e055f9abf5edb5477cc341deb089d38a7939fa2a98",
     "steering/engineering/core.md": "sha256:db6d8fe1b257040dc44f114362f8d527b309b18f535fe74cc77dd8d1274269a9",
     "steering/engineering/document-types.md": "sha256:63353bd63f60344fe107c67726b1c193950e55d9875728a0c768fc28922fbf02",
-    "steering/engineering/git-workflow-core.md": "sha256:48b200819ffd65368831b693277b6b13fae371fe7ace6c51122cf538b14e93be",
+    "steering/engineering/git-workflow-core.md": "sha256:7551e306aa5923961fb82472a0a56adabf19b8653e16bdb4975aeeca6dd28a3c",
     "steering/engineering/git-workflow-framework.md": "sha256:ed06d2c247e1389a1933ad80733e9b510b63652f43a477e145b4beb8aada0ac6",
     "steering/engineering/git-workflow-projects.md": "sha256:0faea2ef125f62804422f76a165c201f51f961b11b2807bb73d3ebb398de7ae8",
     "steering/engineering/pr-descriptions.md": "sha256:0bc6300744a89781c3a8d004212469081bcad459e0c29d268abf3d02ed7083c1",
@@ -28,7 +28,7 @@
     "skills/task-orchestration/reference/state-schema.md": "sha256:2930c0dc5254aac6aee521823482627a2867ff32c7ba328222ee9cba1959a004",
     "skills/task-orchestration/SKILL.md": "sha256:dc282a58c7c13669d66e22f1ff3e3ba0837ba9bcc89cc8b2b7b6a1c54e2ebf15",
     "skills/worktree-management/SKILL.md": "sha256:4b8d779059294b3e8c87acf6f782cb2eb6614482ad305e425b11578053a82f64",
-    "skills/pr-stewardship/SKILL.md": "sha256:3ffd2bee4ec7b00442c120dbda57a6ea7eb46471660a5dbdba0d58d2facb2c7a",
+    "skills/pr-stewardship/SKILL.md": "sha256:04ebd424ec47e63531e0acfd9097b2dc97f637e0db1224d4a5d069834f6e80f6",
     "skills/code-review/SKILL.md": "sha256:ff798a222a8bd46631547446c637ac981330917599d61fb8aec2ff6ae09eb80b",
     "skills/ai-component-review/SKILL.md": "sha256:42bdd527afa570c52a9e2d7169f4b6f5ba3ba6b38f7aed6dffd9216d4da70610",
     "skills/review-severity/reference/template.md": "sha256:4723ccca313a70db603991584d23408231fb5045730a0127f2a2ffc68a0428be",

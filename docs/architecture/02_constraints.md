@@ -2,7 +2,11 @@
 section: '02'
 title: 'Constraints'
 lifecycle: published
+<<<<<<< HEAD
 last_verified: 1e0de5f
+=======
+last_verified: 677f1fb
+>>>>>>> origin/main
 tags: [constraints]
 key_files:
   - package.json
