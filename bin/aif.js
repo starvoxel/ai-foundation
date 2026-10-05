@@ -122,6 +122,7 @@ Commands:
   index       Generate a decision or architecture index for a project
   init        Scaffold a new project directory
   config      Resolve a .aiconfig.json field, falling back to its default
+  pr-watch    Check an open PR for changes and say when to check next (see skill/pr-stewardship)
 
 Options:
   -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only); bundle to snapshot (snapshot: name optional, omit for all bundles)
@@ -184,6 +185,7 @@ import { runSnapshot } from '../lib/commands/snapshot.js';
 import { runIndex } from '../lib/commands/index.js';
 import { runInit } from '../lib/commands/init.js';
 import { runConfig } from '../lib/commands/config.js';
+import { runPrWatch } from '../lib/commands/pr-watch.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -225,6 +227,8 @@ export async function run(parsed) {
       return runIndex(parsed, process.cwd());
     case 'init':
       return runInit(parsed, process.cwd());
+    case 'pr-watch':
+      return runPrWatch(parsed, process.cwd());
     case 'config':
       return runConfig(parsed, process.cwd());
     default:
