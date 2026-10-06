@@ -45,6 +45,10 @@ env:
   # their name has the project short code and a test/valid/verif word (the
   # script reads the short code from .aiconfig.json). Edit this list as needed.
   PROTECTED_BRANCHES: "cloud-sandbox agent-testing docs"
+  # Branches AI sessions create, which are often never used. An empty one
+  # (no commits of its own) of these, or a throwaway test branch, ages out from
+  # its creation date; any other empty branch is kept.
+  AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ai/"
   # A branch is Active under ACTIVE_DAYS, Stale up to ARCHIVE_DAYS, then Archive.
   ACTIVE_DAYS: 7
   ARCHIVE_DAYS: 14

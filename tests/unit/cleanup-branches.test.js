@@ -13,6 +13,7 @@ const SCRIPT = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/cleanup-branches.mjs'),
 ).href;
 const {
+  agesWhenEmpty,
   classify,
   createApi,
   isPlainBranchName,
@@ -30,6 +31,7 @@ const CFG = {
   defaultBranch: 'main',
   protectedBranches: ['cloud-sandbox', 'agent-testing', 'docs'],
   shortcode: 'AIF',
+  aiPrefixes: ['copilot/', 'kiro/', 'claude/', 'ai/'],
   activeDays: 7,
   archiveDays: 14,
 };
@@ -68,40 +70,64 @@ describe('classify', () => {
       /push-check/,
     ],
     [
-      'empty branch created 3 days ago is kept, however old its tip',
+      'empty session branch created 3 days ago is Active, however old its tip',
       { name: 'claude/new', ahead: 0, lastCommit: daysAgo(90), createdAt: daysAgo(3) },
-      'Mandatory',
-      /empty.*created 3d ago/,
+      'Active',
+      /empty branch, created 3d ago/,
     ],
     [
-      'empty branch is still kept at exactly 14 days',
+      'empty session branch created 7 days ago goes Stale (the usual flow)',
+      { name: 'claude/new', ahead: 0, createdAt: daysAgo(7) },
+      'Stale',
+      /created 7d ago/,
+    ],
+    [
+      'empty session branch is still Stale at exactly 14 days',
       { name: 'claude/new', ahead: 0, createdAt: daysAgo(14) },
-      'Mandatory',
+      'Stale',
       /created 14d ago/,
     ],
     [
-      'empty branch created more than 14 days ago is archived (a session that never used it)',
+      'empty session branch created more than 14 days ago is archived (never used)',
       { name: 'claude/unused', ahead: 0, lastCommit: daysAgo(1), createdAt: daysAgo(15) },
       'Archive',
       /empty branch, created 15d ago/,
     ],
     [
-      'empty branch with no creation record ages from its tip date',
+      'empty session branch with no creation record ages from its tip date',
       { name: 'claude/unused', ahead: 0, lastCommit: daysAgo(40), createdAt: null },
       'Archive',
       /creation date unknown, tip 40d old/,
     ],
     [
-      'empty branch with no creation record and a recent tip is kept',
+      'empty session branch with no creation record and a recent tip is Active',
       { name: 'claude/new', ahead: 0, lastCommit: daysAgo(5), createdAt: null },
-      'Mandatory',
+      'Active',
       /creation date unknown, tip 5d old/,
     ],
     [
-      'an old empty branch with an open PR is kept',
-      { name: 'claude/odd', ahead: 0, createdAt: daysAgo(60), openPr: pr(9, 60) },
+      'copilot/, kiro/ and ai/ empty branches age out too',
+      { name: 'kiro/unused', ahead: 0, createdAt: daysAgo(20) },
+      'Archive',
+      /created 20d ago/,
+    ],
+    [
+      'empty throwaway test branch (AIF + test) ages out too',
+      { name: 'AIF-test/ping', ahead: 0, createdAt: daysAgo(20) },
+      'Archive',
+      /created 20d ago/,
+    ],
+    [
+      'any other empty branch is kept (Mandatory), however old',
+      { name: 'AIF-010/work', ahead: 0, lastCommit: daysAgo(90), createdAt: daysAgo(90) },
       'Mandatory',
-      /empty/,
+      /empty branch \(no commits of its own\)/,
+    ],
+    [
+      'an old empty session branch with an open PR goes through the PR rules',
+      { name: 'claude/odd', ahead: 0, createdAt: daysAgo(60), openPr: pr(9, 60) },
+      'Stale',
+      /PR #9/,
     ],
     ['commit 2 days ago', { lastCommit: daysAgo(2) }, 'Active', /2d/],
     ['commit 6 days ago is still Active', { lastCommit: daysAgo(6) }, 'Active', /6d/],
@@ -172,6 +198,24 @@ describe('classify', () => {
         const v = classify(facts({ lastCommit: daysAgo(commit), openPr: pr(1, age) }), CFG, NOW);
         assert.notEqual(v.category, 'Archive', `PR ${age}d, commit ${commit}d`);
       }
+    }
+  });
+});
+
+describe('agesWhenEmpty', () => {
+  it('is true for AI session prefixes and throwaway test names only', () => {
+    for (const n of [
+      'claude/x',
+      'copilot/x',
+      'kiro/x',
+      'ai/x',
+      'AIF-test/x',
+      'AIF-010-verification',
+    ]) {
+      assert.equal(agesWhenEmpty(n, CFG), true, n);
+    }
+    for (const n of ['AIF-010/work', 'scratch', 'docs', 'not-claude/x', 'claudex/y', 'a/i', 'ai']) {
+      assert.equal(agesWhenEmpty(n, CFG), false, n);
     }
   });
 });
@@ -325,6 +369,8 @@ const WORLD = () => ({
     branch('claude/ancient', 'sha_ancient', 40),
     branch('claude/landed', 'sha_landed', 2),
     branch('claude/empty', 'sha_empty', 60, 0, { createdDays: 3 }),
+    branch('AIF-1/idle', 'sha_idle', 90, 0, { createdDays: 90 }),
+    branch('kiro/unused', 'sha_kiro', 60, 0, { createdDays: 30 }),
     branch('claude/unused', 'sha_unused', 60, 0, { createdDays: 30 }),
     branch('claude/unused-undated', 'sha_undated', 40, 0),
     branch('claude/unused-failed', 'sha_failed', 40, 0, { activityFails: true }),
@@ -365,7 +411,9 @@ describe('runSweep', () => {
       'claude/stale-pr': 'Stale',
       'claude/ancient': 'Archive',
       'claude/landed': 'Archive',
-      'claude/empty': 'Mandatory',
+      'claude/empty': 'Active',
+      'AIF-1/idle': 'Mandatory',
+      'kiro/unused': 'Archive',
       'claude/unused': 'Archive',
       'claude/unused-undated': 'Archive',
       'claude/unused-failed': 'Archive',
@@ -387,6 +435,7 @@ describe('runSweep', () => {
       '/repos/o/r/git/refs/heads/claude/unused',
       '/repos/o/r/git/refs/heads/claude/unused-failed',
       '/repos/o/r/git/refs/heads/claude/unused-undated',
+      '/repos/o/r/git/refs/heads/kiro/unused',
       '/repos/o/r/git/refs/heads/push-check/done',
     ]);
     const paths = api.calls.map((c) => `${c.method} ${c.path}`);
