@@ -1,7 +1,7 @@
 {
   "feature_id": "AIF-006",
   "status": "In Progress",
-  "current_wave": 0,
+  "current_wave": 1,
   "total_waves": 4,
   "tasks": [
     {
@@ -9,21 +9,21 @@
       "wave": 0,
       "status": "Done",
       "branch": "AIF-006/001-requires-skills-resolver",
-      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/001-requires-skills-resolver",
+      "worktree_path": "",
       "pr_number": 100,
       "pr_url": "https://github.com/starvoxel/ai-foundation/pull/100",
-      "iterations": 0,
+      "iterations": 1,
       "blocked_reason": null
     },
     {
       "id": "002",
       "wave": 1,
-      "status": "Ready",
-      "branch": "",
-      "worktree_path": "",
-      "pr_number": null,
-      "pr_url": null,
-      "iterations": 0,
+      "status": "Done",
+      "branch": "AIF-006/002-validator-requires-skills",
+      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/002-validator-requires-skills",
+      "pr_number": 101,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/101",
+      "iterations": 1,
       "blocked_reason": null
     },
     {
@@ -85,6 +85,83 @@
       "action": "task_status_changed",
       "task_id": "001",
       "details": "Reviewing -> Done, PR 100 ready"
+    },
+    {
+      "timestamp": "2026-10-05T01:05:42.635Z",
+      "agent": "Engineering-Manager",
+      "action": "review_loop",
+      "task_id": "001",
+      "details": "iteration 1: arc42 stale in CI, rebased onto main"
+    },
+    {
+      "timestamp": "2026-10-05T01:12:46.242Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "001",
+      "details": "Implementing -> Reviewing, iteration 1"
+    },
+    {
+      "timestamp": "2026-10-05T01:13:46.024Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "001",
+      "details": "Reviewing -> Done, PR 100 ready, iteration 1"
+    },
+    {
+      "timestamp": "2026-10-05T14:48:26.914Z",
+      "agent": "Engineering-Manager",
+      "action": "worktree_removed",
+      "task_id": "001",
+      "details": "PR 100 merged"
+    },
+    {
+      "timestamp": "2026-10-05T14:48:26.915Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_completed",
+      "task_id": null,
+      "details": "wave 0"
+    },
+    {
+      "timestamp": "2026-10-05T14:48:26.915Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "task_id": null,
+      "details": "wave 1 of 4"
+    },
+    {
+      "timestamp": "2026-10-05T14:48:26.915Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "002",
+      "details": "software-engineer, branch AIF-006/002-validator-requires-skills"
+    },
+    {
+      "timestamp": "2026-10-05T15:02:38.044Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "002",
+      "details": "draft PR 101"
+    },
+    {
+      "timestamp": "2026-10-05T15:02:38.044Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "002",
+      "details": "Implementing -> Reviewing"
+    },
+    {
+      "timestamp": "2026-10-05T15:04:33.602Z",
+      "agent": "Engineering-Manager",
+      "action": "review_loop",
+      "task_id": "002",
+      "details": "iteration 1: MEDIUM-0 transitive missing crash"
+    },
+    {
+      "timestamp": "2026-10-05T15:11:01.917Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "002",
+      "details": "Reviewing -> Done, PR 101 ready, iteration 1"
     }
   ]
 }

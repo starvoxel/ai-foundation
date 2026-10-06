@@ -42,7 +42,7 @@
       "wave": 3,
       "status": "Done",
       "branch": "AIF-010/004-agent-tool-grants",
-      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-010/004-agent-tool-grants",
+      "worktree_path": "",
       "pr_number": 99,
       "pr_url": "https://github.com/starvoxel/ai-foundation/pull/99",
       "iterations": 1,
@@ -51,16 +51,23 @@
     {
       "id": "005",
       "wave": 3,
-      "status": "Done",
+      "status": "Blocked",
       "branch": "AIF-010/005-skill-degradation-docs",
       "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-010/005-skill-degradation-docs",
       "pr_number": 98,
       "pr_url": "https://github.com/starvoxel/ai-foundation/pull/98",
-      "iterations": 2,
-      "blocked_reason": null
+      "iterations": 5,
+      "blocked_reason": "pr-watch scope superseded by AIF-012; PR 98 unmerged pending human disposition"
     }
   ],
-  "escalations": [],
+  "escalations": [
+    {
+      "task_id": "005",
+      "reason": "PR 98 (pr-watch) held. Human accepted LOW findings (lock race, rename spin, repo-name length, test timeouts). Disposition after AIF-012 gates.",
+      "raised_at": "2026-10-05T23:21:14.052Z",
+      "resolved": false
+    }
+  ],
   "log": [
     {
       "timestamp": "2026-10-02T17:26:36.872Z",
@@ -383,6 +390,48 @@
       "action": "task_status_changed",
       "task_id": "004",
       "details": "Implementing -> Done (iter 1); PR 99 ready"
+    },
+    {
+      "timestamp": "2026-10-05T01:08:13.023Z",
+      "agent": "engineering-manager",
+      "action": "task_status_changed",
+      "task_id": "005",
+      "details": "Done -> Reviewing; human hand-off added Step 6, PR 98"
+    },
+    {
+      "timestamp": "2026-10-05T01:08:13.023Z",
+      "agent": "engineering-manager",
+      "action": "review_loop",
+      "task_id": "005",
+      "details": "iteration 3; NEEDS_CHANGES 1H 4M 2L on PR 98"
+    },
+    {
+      "timestamp": "2026-10-05T01:51:01.440Z",
+      "agent": "engineering-manager",
+      "action": "task_status_changed",
+      "task_id": "004",
+      "details": "PR 99 merged"
+    },
+    {
+      "timestamp": "2026-10-05T01:51:01.440Z",
+      "agent": "engineering-manager",
+      "action": "review_loop",
+      "task_id": "005",
+      "details": "iteration 5; human: add pr-watch script to PR 98"
+    },
+    {
+      "timestamp": "2026-10-05T23:21:14.052Z",
+      "agent": "engineering-manager",
+      "action": "task_blocked",
+      "task_id": "005",
+      "details": "PR 98 held; superseded by AIF-012"
+    },
+    {
+      "timestamp": "2026-10-05T23:21:14.052Z",
+      "agent": "engineering-manager",
+      "action": "escalation_raised",
+      "task_id": "005",
+      "details": "human chooses PR 98 disposition after AIF-012 gates"
     }
   ]
 }
