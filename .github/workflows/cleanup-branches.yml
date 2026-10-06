@@ -34,9 +34,10 @@ permissions:
 env:
   GH_TOKEN: ${{ github.token }}
   REPO: ${{ github.repository }}
-  # Report only until this is "true". Scheduled runs only ever report while it
-  # is "false"; flip it after reading the first job summary.
-  ENFORCE: "false"
+  # "true": scheduled and manual sweeps delete Archive branches and close Stale
+  # PRs. Set it to "false" to go back to report only. A manual dispatch with
+  # dry_run ticked is always report only, whatever this says.
+  ENFORCE: "true"
   # Empty on a scheduled run, so only a manual dispatch can set these.
   DRY_RUN: ${{ inputs.dry_run }}
   BRANCHES: ${{ inputs.branches }}
