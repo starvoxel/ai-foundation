@@ -10,10 +10,13 @@
  *   Mandatory  default branch, protected branches, branches not forked from
  *              the default branch (unrelated history) unless their name marks
  *              them as throwaway tests (project short code + test/valid/verif),
- *              and empty branches (no commits of its own, so nothing to lose
- *              and a session may be about to use it).                  -> keep
+ *              and empty branches (no commits of its own) until they are
+ *              ARCHIVE_DAYS old, counted from creation. An empty branch holds
+ *              nothing to lose, but a session may be about to use it.  -> keep
  *   Archive    merged by a PR whose head was exactly this tip; or a
  *              `push-check/` branch the default branch already contains;
+ *              or an empty branch created more than ARCHIVE_DAYS ago with no
+ *              open PR (a session branch that was never used);
  *              or last commit older than ARCHIVE_DAYS with no open PR. -> delete
  *   Active     last commit within ACTIVE_DAYS, or an open PR younger than
  *              ACTIVE_DAYS (or one reopened after being marked stale).  -> keep
@@ -58,6 +61,7 @@ export const STALE_LABEL = 'stale';
  * @property {number|null} ahead  Commits not on the default branch; null when the history is unrelated.
  * @property {OpenPr|null} openPr
  * @property {boolean} merged  A merged PR whose head was exactly this tip.
+ * @property {Date|null} [createdAt]  When the branch was created; read only for empty branches, null if GitHub has no record.
  *
  * @typedef {object} Config
  * @property {string} defaultBranch
@@ -116,7 +120,19 @@ export function classify(f, cfg, now) {
         reason: 'push-check branch already contained in the default branch',
       };
     }
-    return { category: 'Mandatory', reason: 'empty branch (no commits of its own)' };
+    // An empty branch's last commit is just the default branch's tip, which
+    // says nothing about the branch, so age it from creation when known. The
+    // tip's date is the fallback: it can only make the branch look older, and
+    // deleting an empty branch loses no commits.
+    const since = f.createdAt ?? f.lastCommit;
+    const emptyDays = wholeDays(now, since);
+    const dated = f.createdAt
+      ? `created ${emptyDays}d ago`
+      : `creation date unknown, tip ${emptyDays}d old`;
+    if (!f.openPr && emptyDays > cfg.archiveDays) {
+      return { category: 'Archive', reason: `empty branch, ${dated}` };
+    }
+    return { category: 'Mandatory', reason: `empty branch (no commits of its own), ${dated}` };
   }
 
   const pr = f.openPr;
@@ -265,6 +281,28 @@ async function readOpenPrs(api, repo) {
 }
 
 /**
+ * When a branch was created, from the repository activity log (its earliest
+ * `branch_creation` event). Null when there is no record or the lookup fails.
+ *
+ * @param {ReturnType<typeof createApi>} api
+ * @param {string} repo
+ * @param {string} name
+ * @returns {Promise<Date|null>}
+ */
+async function readCreatedAt(api, repo, name) {
+  try {
+    const ref = encodeURIComponent(`refs/heads/${name}`);
+    const { data } = await api.request(
+      'GET',
+      `/repos/${repo}/activity?ref=${ref}&activity_type=branch_creation&direction=asc&per_page=1`,
+    );
+    return data?.[0]?.timestamp ? new Date(data[0].timestamp) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Reads what GitHub knows about every branch except the default and protected
  * ones. A branch whose lookup fails is returned with `error` and kept.
  *
@@ -310,11 +348,13 @@ export async function gatherFacts(api, repo, cfg) {
         // other failure leaves the branch uninspected, and so kept.
         if (!(err.status === 404 && /common ancestor/i.test(err.message))) throw err;
       }
+      const createdAt = ahead === 0 ? await readCreatedAt(api, repo, name) : null;
       facts.push({
         ...base,
         merged: false,
         lastCommit: new Date(commit.commit.committer.date),
         ahead,
+        createdAt,
       });
     } catch (err) {
       facts.push({ ...base, merged: false, error: err.message });

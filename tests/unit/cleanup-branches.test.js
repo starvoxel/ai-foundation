@@ -68,8 +68,38 @@ describe('classify', () => {
       /push-check/,
     ],
     [
-      'empty non-push-check branch is kept',
-      { name: 'claude/new', ahead: 0, lastCommit: daysAgo(90) },
+      'empty branch created 3 days ago is kept, however old its tip',
+      { name: 'claude/new', ahead: 0, lastCommit: daysAgo(90), createdAt: daysAgo(3) },
+      'Mandatory',
+      /empty.*created 3d ago/,
+    ],
+    [
+      'empty branch is still kept at exactly 14 days',
+      { name: 'claude/new', ahead: 0, createdAt: daysAgo(14) },
+      'Mandatory',
+      /created 14d ago/,
+    ],
+    [
+      'empty branch created more than 14 days ago is archived (a session that never used it)',
+      { name: 'claude/unused', ahead: 0, lastCommit: daysAgo(1), createdAt: daysAgo(15) },
+      'Archive',
+      /empty branch, created 15d ago/,
+    ],
+    [
+      'empty branch with no creation record ages from its tip date',
+      { name: 'claude/unused', ahead: 0, lastCommit: daysAgo(40), createdAt: null },
+      'Archive',
+      /creation date unknown, tip 40d old/,
+    ],
+    [
+      'empty branch with no creation record and a recent tip is kept',
+      { name: 'claude/new', ahead: 0, lastCommit: daysAgo(5), createdAt: null },
+      'Mandatory',
+      /creation date unknown, tip 5d old/,
+    ],
+    [
+      'an old empty branch with an open PR is kept',
+      { name: 'claude/odd', ahead: 0, createdAt: daysAgo(60), openPr: pr(9, 60) },
       'Mandatory',
       /empty/,
     ],
@@ -242,6 +272,12 @@ function fakeApi(world) {
         if (b.ahead === null) throw err(404, 'No common ancestor between main and it');
         return { data: { ahead_by: b.ahead } };
       }
+      if ((m = path.match(/^\/repos\/o\/r\/activity\?ref=([^&]+)&activity_type=branch_creation/))) {
+        const b = byName(decodeURIComponent(m[1]).replace('refs/heads/', ''));
+        if (b.activityFails) throw err(500, 'activity unavailable');
+        if (b.createdDays === undefined) return { data: [] };
+        return { data: [{ timestamp: daysAgo(b.createdDays).toISOString() }] };
+      }
       if ((m = path.match(/^\/repos\/o\/r\/git\/ref\/heads\/(.+)$/))) {
         if (!byName(m[1])) throw err(404, 'Not Found');
         return { data: {} };
@@ -288,7 +324,10 @@ const WORLD = () => ({
     branch('claude/stale-pr', 'sha_stalepr', 20),
     branch('claude/ancient', 'sha_ancient', 40),
     branch('claude/landed', 'sha_landed', 2),
-    branch('claude/empty', 'sha_empty', 60, 0),
+    branch('claude/empty', 'sha_empty', 60, 0, { createdDays: 3 }),
+    branch('claude/unused', 'sha_unused', 60, 0, { createdDays: 30 }),
+    branch('claude/unused-undated', 'sha_undated', 40, 0),
+    branch('claude/unused-failed', 'sha_failed', 40, 0, { activityFails: true }),
     branch('push-check/done', 'sha_pc', 3, 0),
     branch('AIF-test/20261001-002928', 'sha_etest', 30, null),
     branch('e-test/legacy', 'sha_legacy', 90, null),
@@ -327,6 +366,9 @@ describe('runSweep', () => {
       'claude/ancient': 'Archive',
       'claude/landed': 'Archive',
       'claude/empty': 'Mandatory',
+      'claude/unused': 'Archive',
+      'claude/unused-undated': 'Archive',
+      'claude/unused-failed': 'Archive',
       'push-check/done': 'Archive',
       'AIF-test/20261001-002928': 'Archive',
       'e-test/legacy': 'Mandatory',
@@ -342,6 +384,9 @@ describe('runSweep', () => {
       '/repos/o/r/git/refs/heads/AIF-test/20261001-002928',
       '/repos/o/r/git/refs/heads/claude/ancient',
       '/repos/o/r/git/refs/heads/claude/landed',
+      '/repos/o/r/git/refs/heads/claude/unused',
+      '/repos/o/r/git/refs/heads/claude/unused-failed',
+      '/repos/o/r/git/refs/heads/claude/unused-undated',
       '/repos/o/r/git/refs/heads/push-check/done',
     ]);
     const paths = api.calls.map((c) => `${c.method} ${c.path}`);
