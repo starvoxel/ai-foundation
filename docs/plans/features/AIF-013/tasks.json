@@ -1,0 +1,40 @@
+{
+  "feature_id": "AIF-013",
+  "tasks": [
+    {
+      "id": "001",
+      "title": "On-demand deterministic index generation; gitignore and untrack both index.json; drop stored-diff; remove index-diff.js; CI step updates",
+      "depends_on": []
+    },
+    {
+      "id": "002",
+      "title": "lib/arch-waivers.js: parse/validate Arch-Unaffected waivers, git log wrapper, unit tests incl. squash-shaped fixture",
+      "depends_on": []
+    },
+    {
+      "id": "003",
+      "title": "PR-range gate (pure + io), --check integration, CI base resolution; unit and temp-git-repo integration tests",
+      "depends_on": ["001", "002"]
+    },
+    {
+      "id": "004",
+      "title": "aif index architecture --waivers [--section] [--since] report + CI job summary",
+      "depends_on": ["003"]
+    },
+    {
+      "id": "005",
+      "title": "Remove last_verified (docs, template, REQUIRED_FIELDS, parser, old staleness check, tests); key_files pruning + audit note; migration note",
+      "depends_on": ["003"]
+    },
+    {
+      "id": "006",
+      "title": "Steering/skills/README/AGENTS/arc42 prose updates; mechanism rationale in arc42 05_04; process-model.md supersession pointer",
+      "depends_on": ["004", "005"]
+    },
+    {
+      "id": "007",
+      "title": "Principal-Engineer: validate waiver reasons in every review (code-review skill checklist + MEDIUM severity; agent yaml only if needed)",
+      "depends_on": ["004"]
+    }
+  ]
+}

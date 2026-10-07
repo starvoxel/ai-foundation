@@ -1,0 +1,158 @@
+{
+  "feature_id": "AIF-013",
+  "status": "In Progress",
+  "current_wave": 1,
+  "total_waves": 4,
+  "tasks": [
+    {
+      "id": "001",
+      "wave": 0,
+      "status": "Done",
+      "branch": "AIF-013/001-on-demand-index",
+      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-013/001-on-demand-index",
+      "pr_number": 107,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/107",
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "002",
+      "wave": 0,
+      "status": "Done",
+      "branch": "AIF-013/002-arch-waivers",
+      "worktree_path": "",
+      "pr_number": 106,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/106",
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "003",
+      "wave": 1,
+      "status": "Ready",
+      "branch": "",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "004",
+      "wave": 2,
+      "status": "Ready",
+      "branch": "",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "005",
+      "wave": 2,
+      "status": "Ready",
+      "branch": "",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "006",
+      "wave": 3,
+      "status": "Ready",
+      "branch": "",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "007",
+      "wave": 3,
+      "status": "Ready",
+      "branch": "",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    }
+  ],
+  "escalations": [
+    {
+      "task_id": "001",
+      "reason": "PAT lacks workflow scope; ci.yml step rename not pushed (cosmetic). Task 003 will need ci.yml edits.",
+      "raised_at": "2026-10-07T02:18:48.812Z",
+      "resolved": false
+    }
+  ],
+  "log": [
+    {
+      "timestamp": "2026-10-06T00:00:00Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "task_id": null,
+      "details": "wave 0: tasks 001,002"
+    },
+    {
+      "timestamp": "2026-10-07T02:07:07.088Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "001",
+      "details": "Software-Engineer; branch AIF-013/001-on-demand-index"
+    },
+    {
+      "timestamp": "2026-10-07T02:07:07.088Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "002",
+      "details": "Software-Engineer; branch AIF-013/002-arch-waivers"
+    },
+    {
+      "timestamp": "2026-10-07T02:16:22.205Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "002",
+      "details": "002 PR 106 draft"
+    },
+    {
+      "timestamp": "2026-10-07T02:16:22.205Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "002",
+      "details": "002 Reviewing->Done, PR 106 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:18:48.812Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "001",
+      "details": "001 PR 107 draft"
+    },
+    {
+      "timestamp": "2026-10-07T02:18:48.812Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "001",
+      "details": "001 Reviewing->Done, PR 107 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:36:05.127Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_completed",
+      "task_id": null,
+      "details": "wave 0: PRs 106,107 merged"
+    },
+    {
+      "timestamp": "2026-10-07T02:36:05.127Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "task_id": null,
+      "details": "wave 1: task 003"
+    }
+  ]
+}

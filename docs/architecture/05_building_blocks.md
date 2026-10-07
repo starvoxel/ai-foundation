@@ -95,11 +95,11 @@ cut across that boundary and hide it.
 
 ### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
-| Block                                                | Responsibility                                                                                                                                                                                                        | Interface                                                                             |
-| ---------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `resolver.js`                                        | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe + `requires_skills` skill closure. See §5.01.                                                                                 | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
-| `decisions.js` / `architecture.js` / `index-diff.js` | Parse, index, and diff ADRs and arc42 sections respectively, sharing one generic diffing primitive. See §5.04.                                                                                                        | See §5.04.                                                                            |
-| Everything else                                      | `manifest.js`, `snapshot/io.js`+`pure.js`, `project-init.js`, `ai-git.js`, `secrets.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js`, `file-utils.js` — see §5.03. | See §5.03.                                                                            |
+| Block                              | Responsibility                                                                                                                                                                                                        | Interface                                                                             |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `resolver.js`                      | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe + `requires_skills` skill closure. See §5.01.                                                                                 | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
+| `decisions.js` / `architecture.js` | Parse ADRs and arc42 sections respectively and build their deterministic, on-demand (gitignored) indexes. See §5.04.                                                                                                  | See §5.04.                                                                            |
+| Everything else                    | `manifest.js`, `snapshot/io.js`+`pure.js`, `project-init.js`, `ai-git.js`, `secrets.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js`, `file-utils.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
@@ -138,7 +138,7 @@ cut across that boundary and hide it.
   harness-agnostic support libraries `resolver.js` and the decisions/architecture
   indexing pair aren't part of.
 - **§5.04 Document indexing** (`05_04_document_indexing.md`) — the shared
-  parse/build/diff pipeline behind `aif index decisions|architecture`, and
+  parse/build pipeline behind `aif index decisions|architecture`, and
   exactly where the two formats diverge.
 - **§5.05 Command layer** (`05_05_command_layer.md`) — the full per-command
   responsibility/interface breakdown for all 10 `lib/commands/*.js` files.

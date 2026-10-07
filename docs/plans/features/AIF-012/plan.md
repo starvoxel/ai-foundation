@@ -6,11 +6,11 @@
 | ------------------- | ------------------------------------------------------------------------------------------ |
 | Feature ID          | AIF-012                                                                                    |
 | Project             | ai-foundation                                                                              |
-| Status              | Draft                                                                                      |
+| Status              | Approved                                                                                   |
 | Author (Agent)      | Engineering Manager                                                                        |
 | Reviewed By         | Pending                                                                                    |
 | Created             | 2026-10-05                                                                                 |
-| Last Updated        | 2026-10-05                                                                                 |
+| Last Updated        | 2026-10-06                                                                                 |
 | Standards           | `javascript`, `node` (per `.aiconfig.json`)                                                |
 | Total Tasks         | Not yet decomposed (Draft)                                                                 |
 | Product Requirement | None. Human request 2026-10-05 (feedback on AIF-010 PR 98)                                 |
@@ -29,7 +29,7 @@ A session that owns a pull request resumes itself when the PR changes (CI result
 
 ## 3. Quick Summary
 
-**Open Items:** 8 open (1 High / 4 Medium / 3 Low) — see Section 8
+**Open Items:** 6 open (1 High / 4 Medium / 1 Low), 2 resolved — see Section 8
 
 ---
 
@@ -130,7 +130,7 @@ Environment key: **H** = the human runs it in a real session (the EM cannot), **
 
 ### Independent planning protocol (after the gates)
 
-- Three Software-Engineer subagents, dispatched in parallel from one identical brief: the goal, the results document, the four gate decisions, the constraints and anti-goals above, and the salvage list below. No cross-talk between them. Planning only: they write no code and open no PR, so no branch or worktree is created (nothing is written); each returns its plan in its report.
+- Three Software-Engineer subagents, dispatched in parallel from one identical brief: the goal, the results document, the four gate decisions, the constraints and anti-goals above, and the salvage list below. No cross-talk between them. Planning only: they write no code and open no PR. Each still gets its own branch and worktree per the orchestration rules (Section 8 Q8); each returns its plan in its report.
 - Each plan uses one template: architecture and files, interfaces, state and persistence, wake integration, validation functions and where they run, security considerations, tests, rollout and install, size estimate (lines, persisted concepts, concurrency primitives), top three risks, what it deliberately cut, and one alternative considered and rejected with the reason.
 - Engineering Manager compares the three: where they converge (high confidence), where they diverge (examine, because a deviation may reveal a simpler or safer path), and unique ideas. A rubric scores each on lines of code, persisted concepts, concurrency primitives (target zero), security surface, testability and fit to the gates.
 - The EM presents the three plans, a deviation log and one synthesised plan to the human for approval. Only then does implementation start, as ordinary Tasks through the quality pipeline, using the review stopping rule if adopted (Section 8 Q7).
@@ -171,30 +171,22 @@ Not applicable until the gates are decided. The expected shape, for review only:
 
 ## 8. Risks & Open Questions
 
-| #   | Risk / Question                                                                                                                                                                                                              | Type     | Impact | Source                     | Raised By | Resolved                                                           |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | -------------------------- | --------- | ------------------------------------------------------------------ |
-| 1   | A desktop session may not be wakeable without Channels (research preview). Fallback is a pull mode plus a SessionStart digest plus a Stop hook, which is weaker.                                                             | Risk     | H      | Research brief section 8   | EM        | No                                                                 |
-| 2   | Group W and C need real sessions that only the human can run, so the programme depends on human time.                                                                                                                        | Risk     | M      | Plan                       | EM        | No                                                                 |
-| 3   | Do installed skills' `scripts/` folders reach cloud sessions with a usable runtime? Decides whether a skill-local script is viable.                                                                                          | Question | M      | P3, W7                     | EM        | No                                                                 |
-| 4   | Possible genuine forks needing Architect (gated): adopting Channels as a standard; a persistent sidecar; webhook ingress or a third-party relay; MCP server versus CLI (ADR 0004 default).                                   | Question | M      | Research brief section 9   | EM        | No. Dispatch only after the human confirms that specific dispatch. |
-| 5   | AIF-010 cannot complete until PR 98 is dispositioned (Section 5). The cloud PR 83 re-run is unaffected.                                                                                                                      | Question | M      | AIF-010                    | EM        | No. Human chooses (a), (b) or (c) after the gates.                 |
-| 6   | Channels requires a flag that bypasses a confirmation, and org gating may block it. Not to be adopted as a standard without a decision.                                                                                      | Risk     | L      | Research brief section 3   | EM        | No                                                                 |
-| 7   | Proposed review stopping rule (approve when no CRITICAL, HIGH or MEDIUM remains; LOW findings to a backlog list, fixed only on request). Changing it is a process change (skill/steering), implemented as a Task if adopted. | Question | L      | PR 98 experience           | EM        | No                                                                 |
-| 8   | Planning-only dispatches create no branch or worktree because they write nothing. The orchestration skill assumes every dispatched Task gets one; confirm this exception is acceptable.                                      | Question | L      | `skill/task-orchestration` | EM        | No                                                                 |
+| #   | Risk / Question                                                                                                                                                                                                              | Type     | Impact | Source                     | Raised By | Resolved                                                                                  |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | -------------------------- | --------- | ----------------------------------------------------------------------------------------- |
+| 1   | A desktop session may not be wakeable without Channels (research preview). Fallback is a pull mode plus a SessionStart digest plus a Stop hook, which is weaker.                                                             | Risk     | H      | Research brief section 8   | EM        | No                                                                                        |
+| 2   | Group W and C need real sessions that only the human can run, so the programme depends on human time.                                                                                                                        | Risk     | M      | Plan                       | EM        | No                                                                                        |
+| 3   | Do installed skills' `scripts/` folders reach cloud sessions with a usable runtime? Decides whether a skill-local script is viable.                                                                                          | Question | M      | P3, W7                     | EM        | No                                                                                        |
+| 4   | Possible genuine forks needing Architect (gated): adopting Channels as a standard; a persistent sidecar; webhook ingress or a third-party relay; MCP server versus CLI (ADR 0004 default).                                   | Question | M      | Research brief section 9   | EM        | No. Dispatch only after the human confirms that specific dispatch.                        |
+| 5   | AIF-010 cannot complete until PR 98 is dispositioned (Section 5). The cloud PR 83 re-run is unaffected.                                                                                                                      | Question | M      | AIF-010                    | EM        | No. Human chooses (a), (b) or (c) after the gates.                                        |
+| 6   | Channels requires a flag that bypasses a confirmation, and org gating may block it. Not to be adopted as a standard without a decision.                                                                                      | Risk     | L      | Research brief section 3   | EM        | No                                                                                        |
+| 7   | Proposed review stopping rule (approve when no CRITICAL, HIGH or MEDIUM remains; LOW findings to a backlog list, fixed only on request). Changing it is a process change (skill/steering), implemented as a Task if adopted. | Question | L      | PR 98 experience           | EM        | Yes (2026-10-06): adopted; implemented as a process Task before the implementation phase. |
+| 8   | Planning-only dispatches create no branch or worktree because they write nothing. The orchestration skill assumes every dispatched Task gets one; confirm this exception is acceptable.                                      | Question | L      | `skill/task-orchestration` | EM        | Yes (2026-10-06): no exception; planning dispatches get a worktree.                       |
 
 ---
 
 ## 9. Task Decomposition
 
-Not yet decomposed. Decomposition into `tasks.json` happens only after this plan is `Approved`. Expected shape, for review only:
-
-1. Research and spike group S, P and K items that agents can run (documentation research and prototypes on throwaway branches), results into `docs/research/pr-watch-spike-results.md`.
-2. Human spike guide for groups W and C, then the human-run results folded into the same document.
-3. Decision gates G1-G4 (human approval, not Tasks).
-4. Independent planning by three Software-Engineers, comparison and synthesis by the EM (orchestration steps, not Tasks), then human approval of the synthesised plan.
-5. Implementation Tasks, defined by the approved synthesised plan.
-
-Parallelization: Group S, P and K work and the human's group W sessions run in parallel; group C needs the S2 prototype and the W4 hook prototype first.
+Decomposed into 8 Tasks in [`tasks.json`](tasks.json), 3 waves (001-006 in wave 1, parallel; 007 in wave 2; 008 in wave 3). Tasks 001-004 run the agent-runnable spikes (S, P, W4), 005 writes the human guide for groups W and C, 006 is the Q7 process change, 007 builds the group C scenarios, 008 consolidates `docs/research/pr-watch-spike-results.md` and the K1 table. Tasks 001-004 and 007 each add their own sections to the results document, so expect a file-overlap warning in wave 1 (additive sections only). Human-run W and C sessions, gates G1-G4, the three-plan protocol and the implementation Tasks are orchestration or human steps that follow, not Tasks here.
 
 ---
 
