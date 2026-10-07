@@ -6,7 +6,7 @@ frontmatter:
   version: "semver (0.1.0)"
   description: "One sentence — what this enforces"
   file_patterns: "[] = always | ['glob', ...] = conditional"
-  requires_skills: "optional. List of bare skill names (kebab-case) a bundle that installs this file must also install; resolved transitively. Semantics and the prose reference convention: skills/skill-authoring/reference/schema.md"
+  requires_skills: "optional list of skill names — see AGENTS.md"
 
 body_sections:
   - section: "Scope"

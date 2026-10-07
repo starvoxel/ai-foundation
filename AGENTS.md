@@ -85,7 +85,7 @@ Optional frontmatter list of the skills a file tells readers to follow. `aif ins
 
 - Entries are bare kebab-case skill names (a `skill/` prefix is accepted); anything else is an error
 - Cycles are allowed and silent; each skill installs once
-- A name with no `skills/{name}/` folder is an error in bundle resolution and in `aif validate`
+- A name with no `skills/{name}/` folder, a non-list value, or a non-kebab-case entry (`../x`, `a/b`) is an error in bundle resolution and in `aif validate`
 - It never changes an agent's `skills` or `preload_skills`
 - The prose convention for referencing a skill, enforced by `aif validate skill-deps`: `skills/skill-authoring/reference/schema.md`
 

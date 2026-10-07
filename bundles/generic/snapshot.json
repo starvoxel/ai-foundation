@@ -1,12 +1,12 @@
 {
   "bundle": "generic",
   "version": "0.1.0",
-  "computed_at": "2026-10-07T01:53:43.400Z",
+  "computed_at": "2026-10-07T02:52:26.864Z",
   "sources": {
     "steering/generic/gmail-irreversible-action-approval.md": "sha256:d30d2bce85f9547833d21d9674f8d36d1018f30f73cbae1f6b41918cde6e7f45",
-    "skills/steering-authoring/reference/schema.yaml": "sha256:d91633ecc5cd350b5bf1257ada369539ff6bd252ce425e10c911116242646b57",
-    "skills/steering-authoring/SKILL.md": "sha256:4bb0c130f67ed68e52069f53120363b5dee6c92aa0c7bc2be1f23da0db1581f6",
-    "skills/skill-authoring/reference/schema.md": "sha256:366825b4a8d19b2c0de716cbcfa69c80cb08f8748ecee30a04324c2e25e32a16",
-    "skills/skill-authoring/SKILL.md": "sha256:477f04886dc5720550befaf1fa44dd41aca00853d9a782574706b3014dc572f7"
+    "skills/steering-authoring/reference/schema.yaml": "sha256:9cf6f0143b2dc7923454906ddd3bfe487a693aaf5b402808507c1d81ac8cdd00",
+    "skills/steering-authoring/SKILL.md": "sha256:3a7ae4a5112b391307ff4ebba181b914717dfc93c29c994e4c8739994ae8dc20",
+    "skills/skill-authoring/reference/schema.md": "sha256:c91f79d3e3a9e6fccf85bf00c03a5f28cbd1bc6e9829a3990e4af5330dc40aff",
+    "skills/skill-authoring/SKILL.md": "sha256:2d402bbba36d1e16c692b2b1943d317e4514bfc0d89ca0fabd729cf0c06af612"
   }
 }
