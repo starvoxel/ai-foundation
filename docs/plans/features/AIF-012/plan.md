@@ -186,15 +186,7 @@ Not applicable until the gates are decided. The expected shape, for review only:
 
 ## 9. Task Decomposition
 
-Not yet decomposed. Decomposition into `tasks.json` happens only after this plan is `Approved`. Expected shape, for review only:
-
-1. Research and spike group S, P and K items that agents can run (documentation research and prototypes on throwaway branches), results into `docs/research/pr-watch-spike-results.md`.
-2. Human spike guide for groups W and C, then the human-run results folded into the same document.
-3. Decision gates G1-G4 (human approval, not Tasks).
-4. Independent planning by three Software-Engineers, comparison and synthesis by the EM (orchestration steps, not Tasks), then human approval of the synthesised plan.
-5. Implementation Tasks, defined by the approved synthesised plan.
-
-Parallelization: Group S, P and K work and the human's group W sessions run in parallel; group C needs the S2 prototype and the W4 hook prototype first.
+Decomposed into 8 Tasks in [`tasks.json`](tasks.json), 3 waves (001-006 in wave 1, parallel; 007 in wave 2; 008 in wave 3). Tasks 001-004 run the agent-runnable spikes (S, P, W4), 005 writes the human guide for groups W and C, 006 is the Q7 process change, 007 builds the group C scenarios, 008 consolidates `docs/research/pr-watch-spike-results.md` and the K1 table. Tasks 001-004 and 007 each add their own sections to the results document, so expect a file-overlap warning in wave 1 (additive sections only). Human-run W and C sessions, gates G1-G4, the three-plan protocol and the implementation Tasks are orchestration or human steps that follow, not Tasks here.
 
 ---
 

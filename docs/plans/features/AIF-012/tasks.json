@@ -1,0 +1,37 @@
+{
+  "feature_id": "AIF-012",
+  "tasks": [
+    {
+      "id": "001",
+      "title": "State spikes S1-S3: derivable state, stateless cursor, PR-as-state",
+      "depends_on": []
+    },
+    {
+      "id": "002",
+      "title": "GitHub data spikes S4-S6: API cost, actor rule on real data, transport",
+      "depends_on": []
+    },
+    {
+      "id": "003",
+      "title": "Placement research P1-P3: callers, options matrix, skill script shipping",
+      "depends_on": []
+    },
+    {
+      "id": "004",
+      "title": "Hook prototypes W4: Stop hook and SessionStart digest",
+      "depends_on": []
+    },
+    { "id": "005", "title": "Human spike guide for groups W and C", "depends_on": [] },
+    { "id": "006", "title": "Review stopping rule process change (Q7)", "depends_on": [] },
+    {
+      "id": "007",
+      "title": "Compliance scenarios C1-C3: rubric, throwaway-PR scripts, hook and digest reruns",
+      "depends_on": ["001", "004", "005"]
+    },
+    {
+      "id": "008",
+      "title": "Consolidate pr-watch-spike-results.md and K1 cost table",
+      "depends_on": ["001", "002", "003", "004", "007"]
+    }
+  ]
+}
