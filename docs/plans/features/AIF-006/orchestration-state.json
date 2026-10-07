@@ -18,7 +18,7 @@
     {
       "id": "002",
       "wave": 1,
-      "status": "Conflict",
+      "status": "Done",
       "branch": "AIF-006/002-validator-requires-skills",
       "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/002-validator-requires-skills",
       "pr_number": 101,
@@ -169,6 +169,20 @@
       "action": "conflict_detected",
       "task_id": "002",
       "details": "PR 101 dirty: docs/architecture/index.json"
+    },
+    {
+      "timestamp": "2026-10-07T01:11:27.753Z",
+      "agent": "Engineering-Manager",
+      "action": "conflict_resolved",
+      "task_id": "002",
+      "details": "1 file: docs/architecture/index.json"
+    },
+    {
+      "timestamp": "2026-10-07T01:11:27.754Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "002",
+      "details": "Conflict -> Done, PR 101 ready"
     }
   ]
 }
