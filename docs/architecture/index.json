@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T01:34:54.013Z",
+  "generated_at": "2026-10-07T01:55:38.979Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -15,7 +15,7 @@
         "AGENTS.md",
         "package.json"
       ],
-      "last_verified": "044e4bf",
+      "last_verified": "5ccd662",
       "stale": false
     },
     {
@@ -71,7 +71,7 @@
       "key_files": [
         "lib/resolver.js"
       ],
-      "last_verified": "677f1fb",
+      "last_verified": "5ccd662",
       "stale": false
     },
     {
@@ -193,7 +193,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "4cfdc38",
+      "last_verified": "5ccd662",
       "stale": false
     },
     {
