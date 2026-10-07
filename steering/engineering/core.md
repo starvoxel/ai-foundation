@@ -1,7 +1,11 @@
 ---
 name: 'engineering-core'
-version: '0.10.0'
+version: '0.10.1'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
+requires_skills:
+  - 'complexity-tiers'
+  - 'feature-planning'
+  - 'plan-lifecycle'
 file_patterns: []
 ---
 

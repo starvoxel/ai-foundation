@@ -1,13 +1,13 @@
 ---
 name: 'review-severity'
-version: '0.2.1'
+version: '0.2.2'
 description: 'Shared severity taxonomy, blocking rule, and report template used by any domain-specific review skill.'
 ---
 
 ## Purpose
 
 Provides the severity classification, ordering, and outcome rules shared by every review skill in this
-repository, so each domain-specific skill (e.g. `skill/code-review`, `skill/ai-component-review`) defines only
+repository, so each domain-specific skill (e.g. `skill/code-review`<!-- skill-ref: ignore -->, `skill/ai-component-review`<!-- skill-ref: ignore -->) defines only
 what it checks, not how findings are ranked or reported. A domain skill gathers findings through its own
 steps, then hands them to this skill to classify, order, and render into a Review Report.
 
@@ -40,7 +40,7 @@ never redefine the severity table or blocking rule locally.
 | LOW      | Style inconsistency, minor naming deviation                                                |
 
 A domain skill's own steps may name additional situations that are always HIGH-or-above (e.g.
-`skill/ai-component-review`'s rule on `tools`/`approved_tools`/`blocked_commands` diffs) — those are
+`skill/ai-component-review`<!-- skill-ref: ignore -->'s rule on `tools`/`approved_tools`/`blocked_commands` diffs) — those are
 constraints on which bucket a finding falls into, not a different taxonomy.
 
 ### Step 2 — Determine the outcome

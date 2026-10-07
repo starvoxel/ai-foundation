@@ -1,7 +1,9 @@
 ---
 name: 'adr-authoring'
-version: '0.1.0'
+version: '0.1.1'
 description: 'Writes an Architecture Decision Record in MADR format — frontmatter shape, section order, word budget, the litmus test for what belongs in the record vs. arc42, and supersession mechanics.'
+requires_skills:
+  - 'plan-lifecycle'
 ---
 
 ## Purpose

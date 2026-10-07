@@ -1,7 +1,9 @@
 ---
 name: 'git-workflow-framework'
-version: '0.8.2'
+version: '0.8.3'
 description: 'Git workflow for framework-style repositories (no PRs required; every commit passes CI on a push-check branch before landing on main).'
+requires_skills:
+  - 'plan-lifecycle'
 file_patterns: []
 ---
 
