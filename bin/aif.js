@@ -116,7 +116,7 @@ Commands:
   uninstall   Uninstall a bundle from a harness
   status      Show what is currently installed
   list        List available bundles, agents, skills, or servers
-  validate    Check repo health (schema, refs, bundles)
+  validate    Check repo health (schema, refs, bundles, skill-deps)
   test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles, servers, and hook resources
   index       Generate a decision or architecture index for a project
@@ -151,6 +151,7 @@ Examples:
   aif list bundles
   aif validate
   aif validate schema
+  aif validate skill-deps
   aif test unit
   aif snapshot
   aif snapshot --server git
