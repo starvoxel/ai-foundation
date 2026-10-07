@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-07T01:32:47.185Z",
+  "computed_at": "2026-10-07T01:53:43.361Z",
   "sources": {
     "agents/architect.yaml": "sha256:5c04ec268ac33d5e5e20bb96bc958921d3471ab340bebd956378e1a7df61bf0c",
     "agents/engineering-manager.yaml": "sha256:b7cad09f2319daf4230b0b04263963f48a86f21d4838ee4ee5fd91bc4839d18c",
@@ -43,10 +43,10 @@
     "skills/agent-authoring/reference/schema.md": "sha256:f9d75e34f6e21a2f5ce71e0b4541b634e0d18876827507393b806530b1dc414f",
     "skills/agent-authoring/reference/tools.yaml": "sha256:ad7cf3074f407097192629eab9dbdce027502f86aa3cc1f1f41c548bb0e392b8",
     "skills/agent-authoring/SKILL.md": "sha256:65bc0070eafc2e3b8544463d94effb5a05d247c73d2bb765f3f4b2041d176208",
-    "skills/skill-authoring/reference/schema.md": "sha256:8c7927f0fe3539f757a6d5e6d4236cdf37fcdbce66ef928d8216be316e55e658",
-    "skills/skill-authoring/SKILL.md": "sha256:2aae04ef66f11f3968681d354581937cce3bb0207fcd6cc5d810039f90faa4f3",
-    "skills/steering-authoring/reference/schema.yaml": "sha256:75f070764e6870768e7900d7ad681fe2781befaf386042b0b680e8a3f90e49ad",
-    "skills/steering-authoring/SKILL.md": "sha256:347b087d8cdf2d390018376b4fdcc28428b7b09a8e91ad928904ca0ac6f93b41",
+    "skills/skill-authoring/reference/schema.md": "sha256:366825b4a8d19b2c0de716cbcfa69c80cb08f8748ecee30a04324c2e25e32a16",
+    "skills/skill-authoring/SKILL.md": "sha256:477f04886dc5720550befaf1fa44dd41aca00853d9a782574706b3014dc572f7",
+    "skills/steering-authoring/reference/schema.yaml": "sha256:d91633ecc5cd350b5bf1257ada369539ff6bd252ce425e10c911116242646b57",
+    "skills/steering-authoring/SKILL.md": "sha256:4bb0c130f67ed68e52069f53120363b5dee6c92aa0c7bc2be1f23da0db1581f6",
     "skills/server-authoring/reference/schema.yaml": "sha256:37b5c05e8c09cf2515d7e8f4557c448e561e14b2c86f3c1d8973549ee87e0553",
     "skills/server-authoring/SKILL.md": "sha256:3922e5f8a3389809760ffbf704b9b2521e87860b2cccbcb659f04af3a0731aef",
     "skills/bundle-authoring/reference/schema.yaml": "sha256:36d4cd145f5f2846e51bfbc26e30f2daca6f88ae451e0d5f19f40d01b6250810",
