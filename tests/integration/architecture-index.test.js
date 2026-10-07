@@ -4,6 +4,8 @@
  * structure. Unlike decisions, architecture staleness depends on real git
  * history (last_verified vs. key_files), so each test operates against a
  * throwaway git repo in a temp directory.
+ *
+ * Plan: AIF-013 (on-demand, deterministic index; no stored-index diff).
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -17,6 +19,8 @@ import {
   collectArchitectureFiles,
   isStaleAgainstGit,
   buildArchitectureIndexForDir,
+  loadArchitectureRecords,
+  findStaleDocs,
   findBrokenLinks,
 } from '../../lib/architecture.js';
 import { runIndex, resolveArchitecturePath } from '../../lib/commands/index.js';
@@ -147,7 +151,7 @@ describe('architecture index — real git integration', () => {
     assert.equal(isStaleAgainstGit(record, repoRoot), true);
   });
 
-  it('buildArchitectureIndexForDir wires real parsing + git staleness end to end', () => {
+  it('buildArchitectureIndexForDir + findStaleDocs wire parsing and git staleness end to end', () => {
     mkdirSync(join(repoRoot, 'src'), { recursive: true });
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');
     const commitA = commitAll(repoRoot, 'add thing.js');
@@ -157,16 +161,16 @@ describe('architecture index — real git integration', () => {
     writeFileSync(join(archDir, '01_intro.md'), sectionContent({ lastVerified: commitA }));
     commitAll(repoRoot, 'add architecture doc');
 
-    const index = buildArchitectureIndexForDir(archDir, repoRoot);
+    const index = buildArchitectureIndexForDir(archDir);
     assert.equal(index.entries.length, 1);
-    assert.equal(index.entries[0].stale, false);
+    assert.ok(!('stale' in index.entries[0]));
     assert.deepEqual(index.reverse_index, { 'src/thing.js': ['01_intro.md'] });
+    assert.deepEqual(findStaleDocs(loadArchitectureRecords(archDir), repoRoot), []);
 
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
     commitAll(repoRoot, 'change thing.js');
 
-    const index2 = buildArchitectureIndexForDir(archDir, repoRoot);
-    assert.equal(index2.entries[0].stale, true);
+    assert.deepEqual(findStaleDocs(loadArchitectureRecords(archDir), repoRoot), ['01_intro.md']);
   });
 
   it('findBrokenLinks resolves a link relative to its own file, not the arch root', () => {
@@ -257,11 +261,14 @@ describe('aif index architecture — CLI wiring', () => {
     assert.equal(exitCode, 0);
     const written = JSON.parse(readFileSync(join(archDir, 'index.json'), 'utf8'));
     assert.equal(written.entries.length, 1);
-    assert.equal(written.entries[0].stale, false);
+    assert.ok(!('stale' in written.entries[0]));
+    assert.ok(!('generated_at' in written));
   });
 
-  it('--check passes when the written index matches and nothing is stale', () => {
-    setup();
+  it('--check passes when nothing is stale, with or without an index.json present', () => {
+    const { archDir } = setup();
+    assert.ok(!existsSync(join(archDir, 'index.json')));
+    assert.equal(runIndex(parseArgs(['index', 'architecture', '--check']), repoRoot), 0);
     runIndex(parseArgs(['index', 'architecture']), repoRoot);
     const exitCode = runIndex(parseArgs(['index', 'architecture', '--check']), repoRoot);
     assert.equal(exitCode, 0);
@@ -278,10 +285,19 @@ describe('aif index architecture — CLI wiring', () => {
     assert.equal(exitCode, 1);
   });
 
-  it('--check fails with no existing index.json', () => {
-    setup();
-    const exitCode = runIndex(parseArgs(['index', 'architecture', '--check']), repoRoot);
-    assert.equal(exitCode, 1);
+  it('--check does not read or require a stored index (a corrupt one is ignored)', () => {
+    const { archDir } = setup();
+    writeFileSync(join(archDir, 'index.json'), '{ not json');
+    assert.equal(runIndex(parseArgs(['index', 'architecture', '--check']), repoRoot), 0);
+  });
+
+  it('generation is deterministic: two runs write byte-identical index.json', () => {
+    const { archDir } = setup();
+    runIndex(parseArgs(['index', 'architecture']), repoRoot);
+    const first = readFileSync(join(archDir, 'index.json'), 'utf8');
+    runIndex(parseArgs(['index', 'architecture']), repoRoot);
+    const second = readFileSync(join(archDir, 'index.json'), 'utf8');
+    assert.equal(first, second);
   });
 
   it('writes an empty index when no section files exist', () => {

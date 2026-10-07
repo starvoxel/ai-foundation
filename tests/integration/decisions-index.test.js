@@ -2,7 +2,7 @@
 // decisions-index.test.js
 //
 // Author: Starvoxel AI Agent - 2026-08-19
-// Plan: AIF-002-014, docs/process-model.md check 30
+// Plan: AIF-002-014, AIF-013, docs/process-model.md check 30
 //
 // Copyright (c) StarVoxel. All rights reserved.
 // ------------------------------
@@ -106,7 +106,7 @@ describe('integration: decision index', () => {
     assert.ok(!existsSync(join(projectRoot, 'knowledge', 'index.json')));
   });
 
-  it('DEC-IT03: --check against a freshly-generated, unmodified index exits 0', async () => {
+  it('DEC-IT03: --check on a valid corpus exits 0 with no index.json present', async () => {
     const decisionsDir = join(projectRoot, 'docs', 'decisions');
     mkdirSync(decisionsDir, { recursive: true });
     writeFileSync(
@@ -120,16 +120,14 @@ describe('integration: decision index', () => {
       'utf8',
     );
 
-    const gen = await quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot));
-    assert.equal(gen.code, 0);
-
     const check = await quiet(() =>
       runIndex({ args: { check: true }, positional: ['decisions'] }, projectRoot),
     );
     assert.equal(check.code, 0);
+    assert.ok(!existsSync(join(decisionsDir, 'index.json')), '--check must not write an index');
   });
 
-  it('DEC-IT04: --check against a staled index exits non-zero with a diff summary', async () => {
+  it('DEC-IT04: --check ignores a stored index and still validates the sources', async () => {
     const decisionsDir = join(projectRoot, 'docs', 'decisions');
     mkdirSync(decisionsDir, { recursive: true });
     writeFileSync(
@@ -143,18 +141,43 @@ describe('integration: decision index', () => {
     const gen = await quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot));
     assert.equal(gen.code, 0);
 
-    // Stale the index by changing the fixture's status after generation.
+    // A source change after generation is not "stale": nothing is diffed.
     writeFileSync(
       fixturePath,
       decisionFixture({ title: 'First Decision', status: 'deprecated' }),
       'utf8',
     );
-
-    const check = await quiet(() =>
+    const ok = await quiet(() =>
       runIndex({ args: { check: true }, positional: ['decisions'] }, projectRoot),
     );
-    assert.equal(check.code, 1);
-    assert.ok(check.output.some((line) => /0001/.test(line)));
+    assert.equal(ok.code, 0);
+
+    // A malformed source still fails --check and names the file.
+    writeFileSync(join(decisionsDir, '0002-broken.md'), '# Broken\n', 'utf8');
+    const bad = await quiet(() =>
+      runIndex({ args: { check: true }, positional: ['decisions'] }, projectRoot),
+    );
+    assert.equal(bad.code, 1);
+    assert.ok(bad.output.some((line) => /0002-broken\.md/.test(line)));
+  });
+
+  it('DEC-IT10: generation is deterministic — two runs write byte-identical index.json', async () => {
+    const decisionsDir = join(projectRoot, 'docs', 'decisions');
+    mkdirSync(decisionsDir, { recursive: true });
+    writeFileSync(
+      join(projectRoot, '.aiconfig.json'),
+      JSON.stringify({ paths: { decisions: 'docs/decisions' } }),
+      'utf8',
+    );
+    writeFileSync(join(decisionsDir, '0002-b.md'), decisionFixture({ title: 'B' }), 'utf8');
+    writeFileSync(join(decisionsDir, '0001-a.md'), decisionFixture({ title: 'A' }), 'utf8');
+
+    await quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot));
+    const first = readFileSync(join(decisionsDir, 'index.json'), 'utf8');
+    await quiet(() => runIndex({ args: {}, positional: ['decisions'] }, projectRoot));
+    const second = readFileSync(join(decisionsDir, 'index.json'), 'utf8');
+    assert.equal(first, second);
+    assert.ok(!first.includes('generated_at'));
   });
 
   it('DEC-IT05: a malformed fixture file exits non-zero and names the offending file', async () => {
