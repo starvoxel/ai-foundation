@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T01:34:54.013Z",
+  "generated_at": "2026-10-07T02:11:35.662Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -137,11 +137,12 @@
         "architecture"
       ],
       "key_files": [
+        "lib/arch-waivers.js",
         "lib/decisions.js",
         "lib/architecture.js",
         "lib/index-diff.js"
       ],
-      "last_verified": "5944c97",
+      "last_verified": "b6d92f3",
       "stale": false
     },
     {
@@ -339,6 +340,9 @@
     ],
     "lib/skill-mentions.js": [
       "05_03_core_libraries.md"
+    ],
+    "lib/arch-waivers.js": [
+      "05_04_document_indexing.md"
     ],
     "lib/decisions.js": [
       "05_04_document_indexing.md"
