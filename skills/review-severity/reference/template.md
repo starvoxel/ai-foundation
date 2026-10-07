@@ -53,6 +53,20 @@
 
 ---
 
+## LOW Backlog
+
+<!-- LOW findings only; fixed only if the human asks. Omit this whole section when there are none. -->
+
+### [LOW-{n}] {Short Title}
+
+- **Category**: {Coverage dimension(s)}
+- **File**: `{path/to/file}` (line {n})
+- **Violation**: {Which requirement, standard, or schema rule is violated}
+- **Finding**: {What is wrong}
+- **Required action**: {What would resolve it, if the human asks}
+
+---
+
 ## Summary
 
 {One paragraph: overall assessment, what was done well, what must change.}
