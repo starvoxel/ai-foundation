@@ -29,11 +29,11 @@
     {
       "id": "003",
       "wave": 2,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-006/003-declarations-markers",
       "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/003-declarations-markers",
-      "pr_number": null,
-      "pr_url": null,
+      "pr_number": 104,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/104",
       "iterations": 0,
       "blocked_reason": null
     },
@@ -211,6 +211,27 @@
       "action": "task_dispatched",
       "task_id": "003",
       "details": "software-engineer, branch AIF-006/003-declarations-markers"
+    },
+    {
+      "timestamp": "2026-10-07T01:37:27.869Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "003",
+      "details": "draft PR 104"
+    },
+    {
+      "timestamp": "2026-10-07T01:37:27.870Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "003",
+      "details": "Implementing -> Reviewing"
+    },
+    {
+      "timestamp": "2026-10-07T01:38:40.368Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "003",
+      "details": "Reviewing -> Done, PR 104 ready"
     }
   ]
 }
