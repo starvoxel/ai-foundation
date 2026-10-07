@@ -51,22 +51,22 @@
     {
       "id": "005",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-012/005-human-spike-guide",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/005-human-spike-guide",
-      "pr_number": null,
-      "pr_url": null,
+      "pr_number": 109,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/109",
       "iterations": 0,
       "blocked_reason": null
     },
     {
       "id": "006",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Reviewing",
       "branch": "AIF-012/006-review-stop-rule",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/006-review-stop-rule",
-      "pr_number": null,
-      "pr_url": null,
+      "pr_number": 110,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/110",
       "iterations": 0,
       "blocked_reason": null
     },
@@ -143,6 +143,41 @@
       "action": "task_dispatched",
       "task_id": "006",
       "details": "Software-Engineer on AIF-012/006-review-stop-rule"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "005",
+      "details": "PR 109"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "005",
+      "details": "Implementing->Reviewing"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "005",
+      "details": "Reviewing->Done, PR 109 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "006",
+      "details": "PR 110"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "006",
+      "details": "Implementing->Reviewing"
     }
   ]
 }
