@@ -1,0 +1,106 @@
+{
+  "feature_id": "AIF-012",
+  "status": "In Progress",
+  "current_wave": 0,
+  "total_waves": 3,
+  "tasks": [
+    {
+      "id": "001",
+      "wave": 0,
+      "status": "Ready",
+      "branch": "AIF-012/001-state-spikes",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "002",
+      "wave": 0,
+      "status": "Ready",
+      "branch": "AIF-012/002-github-data-spikes",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "003",
+      "wave": 0,
+      "status": "Ready",
+      "branch": "AIF-012/003-placement-research",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "004",
+      "wave": 0,
+      "status": "Ready",
+      "branch": "AIF-012/004-hook-prototypes",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "005",
+      "wave": 0,
+      "status": "Ready",
+      "branch": "AIF-012/005-human-spike-guide",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "006",
+      "wave": 0,
+      "status": "Ready",
+      "branch": "AIF-012/006-review-stop-rule",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "007",
+      "wave": 1,
+      "status": "Ready",
+      "branch": "AIF-012/007-compliance-scenarios",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    },
+    {
+      "id": "008",
+      "wave": 2,
+      "status": "Ready",
+      "branch": "AIF-012/008-consolidate-results",
+      "worktree_path": "",
+      "pr_number": null,
+      "pr_url": null,
+      "iterations": 0,
+      "blocked_reason": null
+    }
+  ],
+  "escalations": [],
+  "log": [
+    {
+      "timestamp": "2026-10-07T02:44:06.966Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "task_id": null,
+      "details": "wave 0"
+    }
+  ]
+}
