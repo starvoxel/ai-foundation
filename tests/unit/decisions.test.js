@@ -2,13 +2,14 @@
 // decisions.test.js
 //
 // Author: Starvoxel AI Agent - 2026-08-19
-// Plan: AIF-002-014, AIF-003-001, docs/process-model.md check 30
+// Plan: AIF-002-014, AIF-003-001, AIF-013, docs/process-model.md check 30
 //
 // Copyright (c) StarVoxel. All rights reserved.
 // ------------------------------
 
 /**
- * Unit tests for ADR (MADR) metadata parsing, index building, and diffing
+ * Unit tests for ADR (MADR) metadata parsing, index building, and
+ * determinism
  * (lib/decisions.js). All fixtures are synthetic in-memory strings — no real
  * disk I/O, keeping the parsing logic testable without disk fixtures.
  */
@@ -16,7 +17,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseDecisionRecord, buildDecisionIndex, diffDecisionIndex } from '../../lib/decisions.js';
+import { parseDecisionRecord, buildDecisionIndex } from '../../lib/decisions.js';
 
 function wellFormedRecord({
   status = 'accepted',
@@ -177,7 +178,7 @@ describe('unit: decisions/buildDecisionIndex', () => {
   it('returns a valid empty index for an empty record list (DEC-T10)', () => {
     const index = buildDecisionIndex([]);
     assert.deepEqual(index.entries, []);
-    assert.ok(index.generated_at);
+    assert.ok(!('generated_at' in index));
   });
 
   it('carries id/title/status/date/decisionMakers/tags/affects straight through (DEC-T11)', () => {
@@ -331,73 +332,28 @@ describe('unit: decisions/buildDecisionIndex', () => {
   });
 });
 
-// ── diffDecisionIndex ────────────────────────────────────────────────────
+// ── determinism ──────────────────────────────────────────────────────────
 
-const baseEntry = {
-  id: '0001',
-  title: 'A',
-  status: 'accepted',
-  date: '2026-09-25',
-  path: '0001-a.md',
-  decision_makers: ['Jeremy'],
-  tags: [],
-  supersedes: [],
-  superseded_by: [],
-  affects: [],
-};
-
-describe('unit: decisions/diffDecisionIndex', () => {
-  it('returns stale: false when entries match, ignoring generated_at (DEC-T16)', () => {
-    const computed = { generated_at: '2026-09-25T00:00:00.000Z', entries: [{ ...baseEntry }] };
-    const existing = { generated_at: '2020-01-01T00:00:00.000Z', entries: [{ ...baseEntry }] };
-
-    const diff = diffDecisionIndex(computed, existing);
-    assert.equal(diff.stale, false);
+describe('unit: decisions/buildDecisionIndex determinism', () => {
+  const record = (id) => ({
+    id,
+    title: 'T' + id,
+    status: 'accepted',
+    date: '2026-09-25',
+    path: id + '-a.md',
+    decisionMakers: [],
+    tags: [],
+    supersedes: [],
+    affects: [],
   });
 
-  it('returns stale: true with a non-empty summary when an entry changed (DEC-T17)', () => {
-    const computed = { generated_at: 'now', entries: [{ ...baseEntry, status: 'deprecated' }] };
-    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
-
-    const diff = diffDecisionIndex(computed, existing);
-    assert.equal(diff.stale, true);
-    assert.ok(diff.summary.length > 0);
-    assert.match(diff.summary, /0001/);
-  });
-
-  it('returns stale: true with a non-empty summary when an entry is added (DEC-T18)', () => {
-    const computed = {
-      generated_at: 'now',
-      entries: [{ ...baseEntry }, { ...baseEntry, id: '0002' }],
-    };
-    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
-
-    const diff = diffDecisionIndex(computed, existing);
-    assert.equal(diff.stale, true);
-    assert.match(diff.summary, /0002/);
-  });
-
-  it('returns stale: true with a non-empty summary when an entry is removed (DEC-T19)', () => {
-    const computed = { generated_at: 'now', entries: [] };
-    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
-
-    const diff = diffDecisionIndex(computed, existing);
-    assert.equal(diff.stale, true);
-    assert.match(diff.summary, /0001/);
-  });
-
-  it('returns stale: true against existing: null (DEC-T20)', () => {
-    const computed = { generated_at: 'now', entries: [{ ...baseEntry }] };
-    const diff = diffDecisionIndex(computed, null);
-    assert.equal(diff.stale, true);
-  });
-
-  it('reports a supersede-only change as stale (DEC-T21)', () => {
-    const computed = { generated_at: 'now', entries: [{ ...baseEntry, supersedes: ['0099'] }] };
-    const existing = { generated_at: 'then', entries: [{ ...baseEntry }] };
-
-    const diff = diffDecisionIndex(computed, existing);
-    assert.equal(diff.stale, true);
-    assert.match(diff.summary, /0001/);
+  it('sorts entries by id and serializes identically for any input order (AIF-013)', () => {
+    const first = JSON.stringify(buildDecisionIndex([record('0002'), record('0001')]));
+    const second = JSON.stringify(buildDecisionIndex([record('0001'), record('0002')]));
+    assert.equal(first, second);
+    assert.deepEqual(
+      buildDecisionIndex([record('0002'), record('0001')]).entries.map((e) => e.id),
+      ['0001', '0002'],
+    );
   });
 });
