@@ -29,11 +29,11 @@
     {
       "id": "003",
       "wave": 1,
-      "status": "Ready",
-      "branch": "",
-      "worktree_path": "",
-      "pr_number": null,
-      "pr_url": null,
+      "status": "Done",
+      "branch": "AIF-013/003-pr-range-gate",
+      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-013/003-pr-range-gate",
+      "pr_number": 108,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/108",
       "iterations": 0,
       "blocked_reason": null
     },
@@ -87,6 +87,12 @@
       "task_id": "001",
       "reason": "PAT lacks workflow scope; ci.yml step rename not pushed (cosmetic). Task 003 will need ci.yml edits.",
       "raised_at": "2026-10-07T02:18:48.812Z",
+      "resolved": false
+    },
+    {
+      "task_id": "003",
+      "reason": "ci.yml gate step not pushed (PAT lacks workflow scope); human applies ci-003.patch",
+      "raised_at": "2026-10-07T02:54:43.497Z",
       "resolved": false
     }
   ],
@@ -153,6 +159,27 @@
       "action": "wave_started",
       "task_id": null,
       "details": "wave 1: task 003"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:43.497Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "003",
+      "details": "Software-Engineer; branch AIF-013/003-pr-range-gate"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:43.497Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "003",
+      "details": "003 PR 108 draft"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:43.497Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "003",
+      "details": "003 Reviewing->Done, PR 108 ready"
     }
   ]
 }
