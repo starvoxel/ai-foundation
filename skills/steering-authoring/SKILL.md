@@ -1,7 +1,9 @@
 ---
 name: 'steering-authoring'
-version: '0.3.1'
+version: '0.4.0'
 description: 'Creates a well-formed steering file with enforced rules, rationale, and exceptions.'
+requires_skills:
+  - skill-authoring
 ---
 
 ## Purpose
@@ -61,11 +63,16 @@ Define what happens when a rule is violated:
 - Omit or set `[]` for always-loaded rules
 - Set glob patterns for rules that only apply when working with certain files
 
-### Step 6 — Self-validate
+### Step 6 — Declare skill dependencies
+
+If the rules tell agents to follow a skill, add it to the file's `requires_skills` so a bundle that installs the steering also installs the skill. Reference it with a `skill/<name>` code span and mark pure pointers as ignored; the field and the reference convention are owned by `skill/skill-authoring`: "Declare skill dependencies" (details in `skills/skill-authoring/reference/schema.md`). `aif validate skill-deps` enforces both.
+
+### Step 7 — Self-validate
 
 - [ ] File is in the correct scope directory
 - [ ] Frontmatter has `name`, `version`, `description`
 - [ ] `name` is kebab-case
+- [ ] Every skill the rules tell agents to follow is in `requires_skills`, and `aif validate` reports no errors or warnings
 - [ ] Every rule is headed `### Rule: Name` — no number
 - [ ] Every rule has a rationale
 - [ ] Every rule has an exceptions process

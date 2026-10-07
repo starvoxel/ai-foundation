@@ -7,8 +7,26 @@
 name: 'skill-name' # Required. Kebab-case. Must match folder name.
 version: '0.1.1' # Required. Semver.
 description: 'One sentence.' # Required. What this skill produces.
+requires_skills: # Optional. Skills a bundle install must also carry.
+  - other-skill-name # Bare kebab-case name; a skill/ prefix is accepted.
 ---
 ```
+
+### `requires_skills`
+
+A list of skill names this skill needs. `aif install` installs the transitive closure of every bundle skill's list, so a dependency need not be listed in any agent. Cycles are allowed and silent. A name with no `skills/<name>/` folder, a non-list value, or a non-kebab-case entry (`../x`, `a/b`) is an error in `aif validate` and in bundle resolution. The field never changes an agent's `skills` or `preload_skills`.
+
+## Skill references in prose
+
+`aif validate skill-deps` classifies every `skill/<name>` mention in a skill's `SKILL.md` and `reference/` files (README files are not scanned; a skill's own name is never a reference):
+
+| Class     | Form                                                                                                                                                    | Result                                                                                             |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Reference | An inline code span holding exactly `skill/<name>` (optionally followed by a named locator, outside the span)                                          | Error if the skill does not exist or is not in the closure of the file's `requires_skills`         |
+| Example   | Inside a fenced code block, inside a longer inline code span, or followed immediately by the marker `<!-- skill-ref: ignore -->` after the closing span | Ignored                                                                                            |
+| Other     | Any other mention (unformatted prose, a frontmatter `description`)                                                                                      | Warning (does not fail the run)                                                                    |
+
+Declare a mention that is a real need; mark one that is only a pointer or consumer mention.
 
 ## Required Body Sections
 

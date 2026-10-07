@@ -1,6 +1,6 @@
 ---
 name: 'skill-authoring'
-version: '0.2.1'
+version: '0.3.0'
 description: 'Creates a well-formed, self-contained skill with proper folder structure and documentation.'
 ---
 
@@ -99,7 +99,15 @@ Scripts go in `scripts/`. Examples:
 
 **Rule:** If a step can be expressed as "run this command and check the exit code," it MUST be a script. Do not ask an agent to manually verify something a script can verify deterministically.
 
-### Step 7 — Self-validate
+### Step 7 — Declare skill dependencies
+
+If this skill tells the reader to follow another skill, declare it so a bundle install carries it along:
+
+- Add `requires_skills` to the frontmatter (field shape and the three mention classes: `skills/skill-authoring/reference/schema.md`)
+- Write each needed skill in the reference form, and mark a mention that is only a pointer or example as ignored
+- Run `aif validate skill-deps` — it errors on a missing or undeclared reference and warns on loose mentions
+
+### Step 8 — Self-validate
 
 Verify against the checklist:
 
@@ -113,6 +121,7 @@ Verify against the checklist:
 - [ ] Any deterministic logic is in `scripts/`, not prose
 - [ ] Reference files are in `reference/`
 - [ ] Assets (output templates, boilerplate) are in `assets/`
+- [ ] Every other skill this one needs is in `requires_skills`, and `aif validate` reports no errors or warnings for it
 - [ ] Every citation of another skill, agent, or doc is checked against `steering/engineering/core.md`: "Cite, Don't Restate"
 
 ---

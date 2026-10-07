@@ -75,9 +75,19 @@ A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
 **Lives in:** `skills/{name}/` | **Format:** `SKILL.md` + `reference/`, `assets/`, `scripts/` | **Authoring:** `skill/skill-authoring`
 
-Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
+Front-matter: `name`, `version`, `description`, optional `requires_skills` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
 Steps are headed `### Step N — Name` — numbered, since order is meaningful. A citation to one specific step, from any document, must name it, never cite the number alone — see `steering/engineering/core.md`: "Cite, Don't Restate".
+
+### `requires_skills` (skills and steering files)
+
+Optional frontmatter list of the skills a file tells readers to follow. `aif install` installs the transitive closure of every bundle skill's and every bundled steering file's list, in addition to the skills agents list.
+
+- Entries are bare kebab-case skill names (a `skill/` prefix is accepted); anything else is an error
+- Cycles are allowed and silent; each skill installs once
+- A name with no `skills/{name}/` folder is an error in bundle resolution and in `aif validate`
+- It never changes an agent's `skills` or `preload_skills`
+- The prose convention for referencing a skill, enforced by `aif validate skill-deps`: `skills/skill-authoring/reference/schema.md`
 
 ### Steering
 
@@ -85,7 +95,7 @@ Always-on rules. Unconditional within scope.
 
 **Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
 
-Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), or `generic/` (catch-all for non-global, non-domain-specific content — loaded via a bundle's explicit `steering:` list, not domain-matched, e.g. `steering/generic/` for the `gmail` server). Agent-specific rules go in the agent's `prompt`.
+Front-matter: `name`, `version`, `description`, optional `file_patterns`, optional `requires_skills` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), or `generic/` (catch-all for non-global, non-domain-specific content — loaded via a bundle's explicit `steering:` list, not domain-matched, e.g. `steering/generic/` for the `gmail` server). Agent-specific rules go in the agent's `prompt`.
 
 Rules are headed `### Rule: Name` — unnumbered, since rules are independent and unordered and a number would only be a drift risk. Same citation requirement as Skill steps: name it, never a number.
 
