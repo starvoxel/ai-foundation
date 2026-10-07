@@ -1,0 +1,399 @@
+[
+  {
+    "pr": 98,
+    "state": "open",
+    "headSha": "92a457e",
+    "fetch": {
+      "processCalls": 7,
+      "restUsed": 0,
+      "graphqlUsed": 0,
+      "wallMs": 19670
+    },
+    "counts": {
+      "checkRuns": 3,
+      "statuses": 0,
+      "reviews": 11,
+      "reviewComments": 2,
+      "issueComments": 0,
+      "threads": 2
+    },
+    "level": {
+      "checks": "passing",
+      "mergeableState": "unknown",
+      "unresolvedThreads": 2,
+      "threadAnswers": {
+        "threads": 2,
+        "answeredBySelf": 0
+      },
+      "derived": {
+        "lastActivityAt": "2026-10-07T01:44:13Z",
+        "lastSelfCommentAt": null,
+        "quietMs": 4010494,
+        "unansweredSinceSelf": 7
+      }
+    },
+    "cursorLen": 183,
+    "noCursor": {
+      "cursorStatus": "lost",
+      "events": 8,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable",
+        "review",
+        "review_comment"
+      ]
+    },
+    "roundTrip": {
+      "cursorStatus": "ok",
+      "events": 0,
+      "eventTypes": []
+    },
+    "stale": {
+      "cursorStatus": "ok",
+      "events": 5,
+      "eventTypes": [
+        "head",
+        "review",
+        "review_comment"
+      ]
+    },
+    "forgedHigh": {
+      "cursorStatus": "ahead",
+      "events": 8,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable",
+        "review",
+        "review_comment"
+      ]
+    },
+    "garbage": {
+      "cursorStatus": "invalid",
+      "events": 8,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable",
+        "review",
+        "review_comment"
+      ]
+    }
+  },
+  {
+    "pr": 105,
+    "state": "open",
+    "headSha": "0e2213c",
+    "fetch": {
+      "processCalls": 7,
+      "restUsed": 0,
+      "graphqlUsed": 0,
+      "wallMs": 26701
+    },
+    "counts": {
+      "checkRuns": 3,
+      "statuses": 0,
+      "reviews": 1,
+      "reviewComments": 0,
+      "issueComments": 1,
+      "threads": 0
+    },
+    "level": {
+      "checks": "passing",
+      "mergeableState": "behind",
+      "unresolvedThreads": 0,
+      "threadAnswers": {
+        "threads": 0,
+        "answeredBySelf": 0
+      },
+      "derived": {
+        "lastActivityAt": "2026-10-07T02:50:41Z",
+        "lastSelfCommentAt": null,
+        "quietMs": 52699,
+        "unansweredSinceSelf": 4
+      }
+    },
+    "cursorLen": 182,
+    "noCursor": {
+      "cursorStatus": "lost",
+      "events": 5,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable",
+        "issue_comment"
+      ]
+    },
+    "roundTrip": {
+      "cursorStatus": "ok",
+      "events": 0,
+      "eventTypes": []
+    },
+    "stale": {
+      "cursorStatus": "ok",
+      "events": 2,
+      "eventTypes": [
+        "head",
+        "issue_comment"
+      ]
+    },
+    "forgedHigh": {
+      "cursorStatus": "ahead",
+      "events": 5,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable",
+        "issue_comment"
+      ]
+    },
+    "garbage": {
+      "cursorStatus": "invalid",
+      "events": 5,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable",
+        "issue_comment"
+      ]
+    }
+  },
+  {
+    "pr": 88,
+    "state": "merged",
+    "headSha": "fc39542",
+    "fetch": {
+      "processCalls": 7,
+      "restUsed": 0,
+      "graphqlUsed": 0,
+      "wallMs": 23549
+    },
+    "counts": {
+      "checkRuns": 3,
+      "statuses": 0,
+      "reviews": 3,
+      "reviewComments": 0,
+      "issueComments": 0,
+      "threads": 0
+    },
+    "level": {
+      "checks": "passing",
+      "mergeableState": "unknown",
+      "unresolvedThreads": 0,
+      "threadAnswers": {
+        "threads": 0,
+        "answeredBySelf": 0
+      },
+      "derived": {
+        "lastActivityAt": "2026-10-02T18:50:45Z",
+        "lastSelfCommentAt": null,
+        "quietMs": 374477180,
+        "unansweredSinceSelf": 3
+      }
+    },
+    "cursorLen": 174,
+    "noCursor": {
+      "cursorStatus": "lost",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    },
+    "roundTrip": {
+      "cursorStatus": "ok",
+      "events": 0,
+      "eventTypes": []
+    },
+    "stale": {
+      "cursorStatus": "ok",
+      "events": 1,
+      "eventTypes": [
+        "head"
+      ]
+    },
+    "forgedHigh": {
+      "cursorStatus": "ahead",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    },
+    "garbage": {
+      "cursorStatus": "invalid",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    }
+  },
+  {
+    "pr": 95,
+    "state": "merged",
+    "headSha": "dee1323",
+    "fetch": {
+      "processCalls": 7,
+      "restUsed": 0,
+      "graphqlUsed": 0,
+      "wallMs": 21613
+    },
+    "counts": {
+      "checkRuns": 3,
+      "statuses": 0,
+      "reviews": 1,
+      "reviewComments": 0,
+      "issueComments": 0,
+      "threads": 0
+    },
+    "level": {
+      "checks": "passing",
+      "mergeableState": "unknown",
+      "unresolvedThreads": 0,
+      "threadAnswers": {
+        "threads": 0,
+        "answeredBySelf": 0
+      },
+      "derived": {
+        "lastActivityAt": "2026-10-03T01:30:22Z",
+        "lastSelfCommentAt": null,
+        "quietMs": 350525457,
+        "unansweredSinceSelf": 3
+      }
+    },
+    "cursorLen": 174,
+    "noCursor": {
+      "cursorStatus": "lost",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    },
+    "roundTrip": {
+      "cursorStatus": "ok",
+      "events": 0,
+      "eventTypes": []
+    },
+    "stale": {
+      "cursorStatus": "ok",
+      "events": 1,
+      "eventTypes": [
+        "head"
+      ]
+    },
+    "forgedHigh": {
+      "cursorStatus": "ahead",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    },
+    "garbage": {
+      "cursorStatus": "invalid",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    }
+  },
+  {
+    "pr": 107,
+    "state": "merged",
+    "headSha": "e6522f8",
+    "fetch": {
+      "processCalls": 7,
+      "restUsed": 0,
+      "graphqlUsed": 0,
+      "wallMs": 16867
+    },
+    "counts": {
+      "checkRuns": 3,
+      "statuses": 0,
+      "reviews": 1,
+      "reviewComments": 0,
+      "issueComments": 0,
+      "threads": 0
+    },
+    "level": {
+      "checks": "passing",
+      "mergeableState": "unknown",
+      "unresolvedThreads": 0,
+      "threadAnswers": {
+        "threads": 0,
+        "answeredBySelf": 0
+      },
+      "derived": {
+        "lastActivityAt": "2026-10-07T02:35:15Z",
+        "lastSelfCommentAt": null,
+        "quietMs": 1053159,
+        "unansweredSinceSelf": 3
+      }
+    },
+    "cursorLen": 174,
+    "noCursor": {
+      "cursorStatus": "lost",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    },
+    "roundTrip": {
+      "cursorStatus": "ok",
+      "events": 0,
+      "eventTypes": []
+    },
+    "stale": {
+      "cursorStatus": "ok",
+      "events": 1,
+      "eventTypes": [
+        "head"
+      ]
+    },
+    "forgedHigh": {
+      "cursorStatus": "ahead",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    },
+    "garbage": {
+      "cursorStatus": "invalid",
+      "events": 4,
+      "eventTypes": [
+        "head",
+        "state",
+        "checks",
+        "mergeable"
+      ]
+    }
+  }
+]
