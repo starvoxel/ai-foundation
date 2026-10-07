@@ -12,7 +12,7 @@
 | Created             | 2026-10-06                                                         |
 | Last Updated        | 2026-10-06                                                         |
 | Standards           | `javascript`, `node` (per `.aiconfig.json`)                        |
-| Total Tasks         | Not yet decomposed (Draft)                                         |
+| Total Tasks         | 7                                                                  |
 | Product Requirement | None. Human request 2026-10-06                                     |
 | Depends On          | None                                                               |
 | ADRs                | 0006 (plain JS + JSDoc) applies. No new ADR (see Section 8, row 8) |
@@ -155,7 +155,7 @@ Ordering to minimize disruption: Task 005 (the only task that deletes `last_veri
 
 ## 9. Task Decomposition
 
-Pending approval of this plan. Intended breakdown (to be written to [`tasks.json`](./tasks.json) after approval):
+Dependency graph: [`tasks.json`](./tasks.json). 7 Tasks across 4 waves:
 
 | ID  | Task                                                                                                                                                   | Depends on |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
@@ -167,7 +167,7 @@ Pending approval of this plan. Intended breakdown (to be written to [`tasks.json
 | 006 | Steering/skills/README/AGENTS/arc42 prose updates, mechanism rationale in arc42 05_04, `process-model.md` supersession pointer                         | 004, 005   |
 | 007 | Principal-Engineer: validate waiver reasons in every review (`skills/code-review/SKILL.md` checklist + MEDIUM severity; agent yaml only if needed)     | 004        |
 
-Expected waves: W1 {001, 002} · W2 {003} · W3 {004, 005, 007} · W4 {006}.
+Waves (dag-compute-waves): W1 {001, 002} · W2 {003} · W3 {004, 005} · W4 {006, 007}.
 
 Parallelization notes:
 
