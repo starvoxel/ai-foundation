@@ -20,11 +20,11 @@ A list of skill names this skill needs. `aif install` installs the transitive cl
 
 `aif validate skill-deps` classifies every `skill/<name>` mention in a skill's `SKILL.md` and `reference/` files (README files are not scanned; a skill's own name is never a reference):
 
-| Class     | Form                                                                                                                                                    | Result                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Reference | An inline code span holding exactly `skill/<name>` (optionally followed by a named locator, outside the span)                                          | Error if the skill does not exist or is not in the closure of the file's `requires_skills`         |
-| Example   | Inside a fenced code block, inside a longer inline code span, or followed immediately by the marker `<!-- skill-ref: ignore -->` after the closing span | Ignored                                                                                            |
-| Other     | Any other mention (unformatted prose, a frontmatter `description`)                                                                                      | Warning (does not fail the run)                                                                    |
+| Class     | Form                                                                                                                                                    | Result                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Reference | An inline code span holding exactly `skill/<name>` (optionally followed by a named locator, outside the span)                                           | Error if the skill does not exist or is not in the closure of the file's `requires_skills` |
+| Example   | Inside a fenced code block, inside a longer inline code span, or followed immediately by the marker `<!-- skill-ref: ignore -->` after the closing span | Ignored                                                                                    |
+| Other     | Any other mention (unformatted prose, a frontmatter `description`)                                                                                      | Warning (does not fail the run)                                                            |
 
 Declare a mention that is a real need; mark one that is only a pointer or consumer mention.
 

@@ -131,7 +131,7 @@ cut across that boundary and hide it.
 ## White-box expansions
 
 - **§5.01 Bundle resolution** (`05_01_bundle_resolution.md`) — `resolver.js`'s
-  domain-auto-discovery algorithm in full.
+  domain-auto-discovery algorithm and `requires_skills` skill closure in full.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
 - **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining
