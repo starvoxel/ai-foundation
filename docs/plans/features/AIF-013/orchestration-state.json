@@ -7,9 +7,9 @@
     {
       "id": "001",
       "wave": 0,
-      "status": "Ready",
-      "branch": "",
-      "worktree_path": "",
+      "status": "Implementing",
+      "branch": "AIF-013/001-on-demand-index",
+      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-013/001-on-demand-index",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -18,9 +18,9 @@
     {
       "id": "002",
       "wave": 0,
-      "status": "Ready",
-      "branch": "",
-      "worktree_path": "",
+      "status": "Implementing",
+      "branch": "AIF-013/002-arch-waivers",
+      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-013/002-arch-waivers",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -90,6 +90,20 @@
       "action": "wave_started",
       "task_id": null,
       "details": "wave 0: tasks 001,002"
+    },
+    {
+      "timestamp": "2026-10-07T02:07:07.088Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "001",
+      "details": "Software-Engineer; branch AIF-013/001-on-demand-index"
+    },
+    {
+      "timestamp": "2026-10-07T02:07:07.088Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "002",
+      "details": "Software-Engineer; branch AIF-013/002-arch-waivers"
     }
   ]
 }
