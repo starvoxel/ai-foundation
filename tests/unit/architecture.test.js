@@ -1,6 +1,6 @@
 /**
- * Unit tests for arc42 architecture-section parsing, index building, and
- * diffing (lib/architecture.js). All fixtures are synthetic in-memory
+ * Unit tests for arc42 architecture-section parsing and deterministic index
+ * building (lib/architecture.js). Plan: AIF-013. All fixtures are synthetic in-memory
  * strings — no real disk or git I/O, per this repo's testability convention
  * (mirrors tests/unit/decisions.test.js).
  */
@@ -12,7 +12,6 @@ import {
   parseArchitectureSection,
   buildReverseIndex,
   buildArchitectureIndex,
-  diffArchitectureIndex,
   extractRelativeLinks,
 } from '../../lib/architecture.js';
 
@@ -145,54 +144,57 @@ describe('buildReverseIndex', () => {
 });
 
 describe('buildArchitectureIndex', () => {
-  it('assembles entries with the injected stale predicate per record', () => {
-    const records = [
-      {
-        path: '01.md',
-        section: '01',
-        title: 'A',
-        summary: 's',
-        lifecycle: 'published',
-        tags: [],
-        key_files: ['a.js'],
-        last_verified: 'x',
-      },
-      {
-        path: '02.md',
-        section: '02',
-        title: 'B',
-        summary: 's',
-        lifecycle: 'published',
-        tags: [],
-        key_files: ['b.js'],
-        last_verified: 'y',
-      },
-    ];
-    const index = buildArchitectureIndex(records, (r) => r.path === '02.md');
-    assert.equal(index.entries.find((e) => e.path === '01.md').stale, false);
-    assert.equal(index.entries.find((e) => e.path === '02.md').stale, true);
+  const records = () => [
+    {
+      path: '02.md',
+      section: '02',
+      title: 'T02',
+      summary: 's',
+      lifecycle: 'published',
+      tags: [],
+      key_files: ['b.js'],
+      last_verified: 'x',
+    },
+    {
+      path: '01.md',
+      section: '01',
+      title: 'T01',
+      summary: 's',
+      lifecycle: 'published',
+      tags: [],
+      key_files: ['a.js'],
+      last_verified: 'x',
+    },
+  ];
+
+  it('assembles entries without per-entry stale state', () => {
+    const index = buildArchitectureIndex(records());
+    assert.equal(index.entries.length, 2);
+    for (const entry of index.entries) assert.ok(!('stale' in entry));
   });
 
-  it('includes a reverse_index built from the same records', () => {
-    const records = [
-      {
-        path: '01.md',
-        section: '01',
-        title: 'A',
-        summary: 's',
-        lifecycle: 'published',
-        tags: [],
-        key_files: ['a.js'],
-        last_verified: 'x',
-      },
-    ];
-    const index = buildArchitectureIndex(records, () => false);
-    assert.deepEqual(index.reverse_index, { 'a.js': ['01.md'] });
+  it('sorts entries by path regardless of input order', () => {
+    const index = buildArchitectureIndex(records());
+    assert.deepEqual(
+      index.entries.map((e) => e.path),
+      ['01.md', '02.md'],
+    );
   });
 
-  it('stamps generated_at as an ISO timestamp', () => {
-    const index = buildArchitectureIndex([], () => false);
-    assert.doesNotThrow(() => new Date(index.generated_at).toISOString());
+  it('includes a reverse_index built from the same records, with sorted keys', () => {
+    const index = buildArchitectureIndex(records());
+    assert.deepEqual(index.reverse_index, { 'a.js': ['01.md'], 'b.js': ['02.md'] });
+    assert.deepEqual(Object.keys(index.reverse_index), ['a.js', 'b.js']);
+  });
+
+  it('has no generated_at timestamp', () => {
+    assert.ok(!('generated_at' in buildArchitectureIndex([])));
+  });
+
+  it('is deterministic: the same records always serialize identically', () => {
+    const first = JSON.stringify(buildArchitectureIndex(records()));
+    const second = JSON.stringify(buildArchitectureIndex(records().reverse()));
+    assert.equal(first, second);
   });
 });
 
@@ -244,45 +246,5 @@ describe('extractRelativeLinks', () => {
       links.map((l) => l.target),
       ['a.md', 'b.md'],
     );
-  });
-});
-
-describe('diffArchitectureIndex', () => {
-  const entry = (overrides = {}) => ({
-    path: '01.md',
-    section: '01',
-    title: 'A',
-    summary: 's',
-    lifecycle: 'published',
-    tags: ['a', 'b'],
-    key_files: ['x.js'],
-    last_verified: 'abc',
-    stale: false,
-    ...overrides,
-  });
-
-  it('reports stale with no existing index', () => {
-    const diff = diffArchitectureIndex({ entries: [entry()] }, null);
-    assert.equal(diff.stale, true);
-    assert.match(diff.summary, /No existing index found/);
-  });
-
-  it('is not stale when entries are identical (array order ignored)', () => {
-    const computed = { entries: [entry({ tags: ['b', 'a'] })] };
-    const existing = { entries: [entry({ tags: ['a', 'b'] })] };
-    const diff = diffArchitectureIndex(computed, existing);
-    assert.equal(diff.stale, false);
-  });
-
-  it('detects added, removed, and changed entries by path', () => {
-    const existing = { entries: [entry({ path: '01.md' }), entry({ path: '02.md' })] };
-    const computed = {
-      entries: [entry({ path: '01.md', title: 'Changed' }), entry({ path: '03.md' })],
-    };
-    const diff = diffArchitectureIndex(computed, existing);
-    assert.equal(diff.stale, true);
-    assert.match(diff.summary, /Added: 03\.md/);
-    assert.match(diff.summary, /Removed: 02\.md/);
-    assert.match(diff.summary, /Changed: 01\.md/);
   });
 });
