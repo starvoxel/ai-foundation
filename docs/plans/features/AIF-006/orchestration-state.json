@@ -40,7 +40,7 @@
     {
       "id": "004",
       "wave": 3,
-      "status": "Conflict",
+      "status": "Done",
       "branch": "AIF-006/004-docs-arc42",
       "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/004-docs-arc42",
       "pr_number": 105,
@@ -288,6 +288,20 @@
       "action": "conflict_detected",
       "task_id": "004",
       "details": "PR 105 dirty: docs/architecture/index.json deleted on main"
+    },
+    {
+      "timestamp": "2026-10-07T02:57:50.855Z",
+      "agent": "Engineering-Manager",
+      "action": "conflict_resolved",
+      "task_id": "004",
+      "details": "docs/architecture/index.json; deletion taken"
+    },
+    {
+      "timestamp": "2026-10-07T02:57:50.856Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "004",
+      "details": "Conflict -> Done, PR 105 ready"
     }
   ]
 }
