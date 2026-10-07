@@ -1,7 +1,7 @@
 {
   "feature_id": "AIF-013",
   "status": "In Progress",
-  "current_wave": 0,
+  "current_wave": 1,
   "total_waves": 4,
   "tasks": [
     {
@@ -20,7 +20,7 @@
       "wave": 0,
       "status": "Done",
       "branch": "AIF-013/002-arch-waivers",
-      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-013/002-arch-waivers",
+      "worktree_path": "",
       "pr_number": 106,
       "pr_url": "https://github.com/starvoxel/ai-foundation/pull/106",
       "iterations": 0,
@@ -139,6 +139,20 @@
       "action": "task_status_changed",
       "task_id": "001",
       "details": "001 Reviewing->Done, PR 107 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:36:05.127Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_completed",
+      "task_id": null,
+      "details": "wave 0: PRs 106,107 merged"
+    },
+    {
+      "timestamp": "2026-10-07T02:36:05.127Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "task_id": null,
+      "details": "wave 1: task 003"
     }
   ]
 }
