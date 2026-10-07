@@ -5,6 +5,7 @@ lifecycle: published
 last_verified: 3f70937391bc7c52ec4f3afeb4dcf45f5d735ed4
 tags: [building-blocks, indexing, decisions, architecture]
 key_files:
+  - lib/arch-waivers.js
   - lib/decisions.js
   - lib/architecture.js
 ---
@@ -81,3 +82,14 @@ files, so only `architecture.js` scans for broken ones; `decisions.js` records h
 no equivalent link convention to check. `aif index decisions|architecture` and their
 `--check` mode are the only entry points into either module. Nothing else in this
 repo imports `decisions.js` or `architecture.js` directly.
+
+## Waiver Parsing (`arch-waivers.js`)
+
+`lib/arch-waivers.js` (AIF-013) parses `Arch-Unaffected: <section> — <reason>`
+commit waivers, used by the PR-range staleness gate. Pure: `parseWaivers()` (matches
+the line anywhere in a message, including bullet-prefixed squash bodies; em dash or
+spaced ASCII `--`/`-` separator), `validateReason()` (at least 10 non-space characters,
+not a placeholder), `evaluateWaivers()` (section-level coverage: one accepted waiver
+covers every changed file its section lists; unknown or non-listing sections are
+rejected), `escapeTableCell()` (markdown/HTML-safe output). io: `readCommits()` runs
+`git log` via `execFileSync` with an argument array, rejecting refs starting with `-`.
