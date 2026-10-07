@@ -10,7 +10,7 @@
 | Author (Agent)      | Engineering Manager                                                                        |
 | Reviewed By         | Pending                                                                                    |
 | Created             | 2026-10-05                                                                                 |
-| Last Updated        | 2026-10-05                                                                                 |
+| Last Updated        | 2026-10-06                                                                                 |
 | Standards           | `javascript`, `node` (per `.aiconfig.json`)                                                |
 | Total Tasks         | Not yet decomposed (Draft)                                                                 |
 | Product Requirement | None. Human request 2026-10-05 (feedback on AIF-010 PR 98)                                 |
@@ -29,7 +29,7 @@ A session that owns a pull request resumes itself when the PR changes (CI result
 
 ## 3. Quick Summary
 
-**Open Items:** 8 open (1 High / 4 Medium / 3 Low) — see Section 8
+**Open Items:** 6 open (1 High / 4 Medium / 1 Low), 2 resolved — see Section 8
 
 ---
 
@@ -130,7 +130,7 @@ Environment key: **H** = the human runs it in a real session (the EM cannot), **
 
 ### Independent planning protocol (after the gates)
 
-- Three Software-Engineer subagents, dispatched in parallel from one identical brief: the goal, the results document, the four gate decisions, the constraints and anti-goals above, and the salvage list below. No cross-talk between them. Planning only: they write no code and open no PR, so no branch or worktree is created (nothing is written); each returns its plan in its report.
+- Three Software-Engineer subagents, dispatched in parallel from one identical brief: the goal, the results document, the four gate decisions, the constraints and anti-goals above, and the salvage list below. No cross-talk between them. Planning only: they write no code and open no PR. Each still gets its own branch and worktree per the orchestration rules (Section 8 Q8); each returns its plan in its report.
 - Each plan uses one template: architecture and files, interfaces, state and persistence, wake integration, validation functions and where they run, security considerations, tests, rollout and install, size estimate (lines, persisted concepts, concurrency primitives), top three risks, what it deliberately cut, and one alternative considered and rejected with the reason.
 - Engineering Manager compares the three: where they converge (high confidence), where they diverge (examine, because a deviation may reveal a simpler or safer path), and unique ideas. A rubric scores each on lines of code, persisted concepts, concurrency primitives (target zero), security surface, testability and fit to the gates.
 - The EM presents the three plans, a deviation log and one synthesised plan to the human for approval. Only then does implementation start, as ordinary Tasks through the quality pipeline, using the review stopping rule if adopted (Section 8 Q7).
@@ -179,8 +179,8 @@ Not applicable until the gates are decided. The expected shape, for review only:
 | 4   | Possible genuine forks needing Architect (gated): adopting Channels as a standard; a persistent sidecar; webhook ingress or a third-party relay; MCP server versus CLI (ADR 0004 default).                                   | Question | M      | Research brief section 9   | EM        | No. Dispatch only after the human confirms that specific dispatch. |
 | 5   | AIF-010 cannot complete until PR 98 is dispositioned (Section 5). The cloud PR 83 re-run is unaffected.                                                                                                                      | Question | M      | AIF-010                    | EM        | No. Human chooses (a), (b) or (c) after the gates.                 |
 | 6   | Channels requires a flag that bypasses a confirmation, and org gating may block it. Not to be adopted as a standard without a decision.                                                                                      | Risk     | L      | Research brief section 3   | EM        | No                                                                 |
-| 7   | Proposed review stopping rule (approve when no CRITICAL, HIGH or MEDIUM remains; LOW findings to a backlog list, fixed only on request). Changing it is a process change (skill/steering), implemented as a Task if adopted. | Question | L      | PR 98 experience           | EM        | No                                                                 |
-| 8   | Planning-only dispatches create no branch or worktree because they write nothing. The orchestration skill assumes every dispatched Task gets one; confirm this exception is acceptable.                                      | Question | L      | `skill/task-orchestration` | EM        | No                                                                 |
+| 7   | Proposed review stopping rule (approve when no CRITICAL, HIGH or MEDIUM remains; LOW findings to a backlog list, fixed only on request). Changing it is a process change (skill/steering), implemented as a Task if adopted. | Question | L      | PR 98 experience           | EM        | Yes (2026-10-06): adopted; implemented as a process Task before the implementation phase. |
+| 8   | Planning-only dispatches create no branch or worktree because they write nothing. The orchestration skill assumes every dispatched Task gets one; confirm this exception is acceptable.                                      | Question | L      | `skill/task-orchestration` | EM        | Yes (2026-10-06): no exception; planning dispatches get a worktree. |
 
 ---
 
