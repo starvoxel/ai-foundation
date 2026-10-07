@@ -62,7 +62,7 @@
     {
       "id": "006",
       "wave": 0,
-      "status": "Reviewing",
+      "status": "Done",
       "branch": "AIF-012/006-review-stop-rule",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/006-review-stop-rule",
       "pr_number": 110,
@@ -178,6 +178,13 @@
       "action": "task_status_changed",
       "task_id": "006",
       "details": "Implementing->Reviewing"
+    },
+    {
+      "timestamp": "2026-10-07T02:55:40.267Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "006",
+      "details": "Reviewing->Done, PR 110 ready"
     }
   ]
 }
