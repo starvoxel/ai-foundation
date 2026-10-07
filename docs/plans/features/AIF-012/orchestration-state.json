@@ -29,11 +29,11 @@
     {
       "id": "003",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-012/003-placement-research",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/003-placement-research",
-      "pr_number": null,
-      "pr_url": null,
+      "pr_number": 114,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/114",
       "iterations": 0,
       "blocked_reason": null
     },
@@ -62,7 +62,7 @@
     {
       "id": "006",
       "wave": 0,
-      "status": "Done",
+      "status": "Implementing",
       "branch": "AIF-012/006-review-stop-rule",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/006-review-stop-rule",
       "pr_number": 110,
@@ -185,6 +185,27 @@
       "action": "task_status_changed",
       "task_id": "006",
       "details": "Reviewing->Done, PR 110 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:58:13.332Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "003",
+      "details": "PR 114"
+    },
+    {
+      "timestamp": "2026-10-07T02:58:13.332Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "003",
+      "details": "Reviewing->Done, PR 114 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:58:13.332Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "006",
+      "details": "Done->Implementing, CI red snapshot stale"
     }
   ]
 }
