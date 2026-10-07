@@ -9,17 +9,24 @@
  *
  *   Mandatory  default branch, protected branches, branches not forked from
  *              the default branch (unrelated history) unless their name marks
- *              them as throwaway tests (project short code + test/valid/verif),
- *              and empty branches (no commits of its own, so nothing to lose
- *              and a session may be about to use it).                  -> keep
+ *              them as throwaway tests (project short code + test/valid/verif).
+ *                                                                      -> keep
  *   Archive    merged by a PR whose head was exactly this tip; or a
  *              `push-check/` branch the default branch already contains;
- *              or last commit older than ARCHIVE_DAYS with no open PR. -> delete
- *   Active     last commit within ACTIVE_DAYS, or an open PR younger than
+ *              or last activity older than ARCHIVE_DAYS with no open PR. -> delete
+ *   Active     last activity within ACTIVE_DAYS, or an open PR younger than
  *              ACTIVE_DAYS (or one reopened after being marked stale).  -> keep
- *   Stale      an open PR ACTIVE_DAYS or older, or last commit between
+ *   Stale      an open PR ACTIVE_DAYS or older, or last activity between
  *              ACTIVE_DAYS and ARCHIVE_DAYS old.      -> close the PR, label it
  *              `stale`; the branch is kept until it reaches Archive.
+ *
+ * "Last activity" is the date of the branch's last commit. An empty branch (no
+ * commits of its own) is kept as Mandatory, with two exceptions: AI session
+ * branches (AI_BRANCH_PREFIXES, e.g. `claude/`), which are often created and
+ * never used, and throwaway test branches. For those, last activity is when the
+ * branch was created, from the repository activity log (falling back to the
+ * date of the commit it points at), so an unused one goes Active, Stale,
+ * Archive like any other.
  *
  * A branch with an open PR is never deleted: the PR is closed first, and the
  * branch only reaches Archive on a later run.
@@ -32,6 +39,8 @@
  *   BRANCHES                 optional space/comma list: delete exactly these
  *                            instead of running the sweep (see runList)
  *   PROTECTED_BRANCHES       space-separated names that are never touched
+ *   AI_BRANCH_PREFIXES       space-separated prefixes of AI session branches
+ *                            (default: "copilot/ kiro/ claude/ ai/")
  *   PROJECT_SHORTCODE        e.g. AIF; defaults to .aiconfig.json's
  *                            project_shortname (else project_name). Without
  *                            one, no branch counts as a throwaway test, so
@@ -58,11 +67,13 @@ export const STALE_LABEL = 'stale';
  * @property {number|null} ahead  Commits not on the default branch; null when the history is unrelated.
  * @property {OpenPr|null} openPr
  * @property {boolean} merged  A merged PR whose head was exactly this tip.
+ * @property {Date|null} [createdAt]  When the branch was created; read only for empty branches, null if GitHub has no record.
  *
  * @typedef {object} Config
  * @property {string} defaultBranch
  * @property {string[]} protectedBranches
  * @property {string} shortcode  Project short code; '' when unknown.
+ * @property {string[]} aiPrefixes  Branch name prefixes used by AI sessions, e.g. 'claude/'.
  * @property {number} activeDays
  * @property {number} archiveDays
  *
@@ -83,6 +94,22 @@ export function isThrowawayTestName(name, shortcode) {
   const escaped = shortcode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const hasShortcode = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(name);
   return hasShortcode && /test|valid|verif/i.test(name);
+}
+
+/**
+ * Whether an empty branch (no commits of its own) goes through the age-out
+ * flow instead of being kept: AI session branches (`claude/…`, `copilot/…`,
+ * `kiro/…`, `ai/…`), which are created and then often never used, and
+ * throwaway test branches. Any other empty branch is kept.
+ *
+ * @param {string} name
+ * @param {Pick<Config, 'aiPrefixes' | 'shortcode'>} cfg
+ */
+export function agesWhenEmpty(name, cfg) {
+  return (
+    cfg.aiPrefixes.some((prefix) => name.startsWith(prefix)) ||
+    isThrowawayTestName(name, cfg.shortcode)
+  );
 }
 
 /** @param {Date} later @param {Date} earlier */
@@ -109,13 +136,15 @@ export function classify(f, cfg, now) {
       reason: 'not forked from the default branch (unrelated history)',
     };
   }
-  if (f.ahead === 0) {
-    if (f.name.startsWith('push-check/')) {
-      return {
-        category: 'Archive',
-        reason: 'push-check branch already contained in the default branch',
-      };
-    }
+  const empty = f.ahead === 0;
+  if (empty && f.name.startsWith('push-check/')) {
+    return {
+      category: 'Archive',
+      reason: 'push-check branch already contained in the default branch',
+    };
+  }
+
+  if (empty && !agesWhenEmpty(f.name, cfg)) {
     return { category: 'Mandatory', reason: 'empty branch (no commits of its own)' };
   }
 
@@ -123,19 +152,27 @@ export function classify(f, cfg, now) {
   if (pr && pr.labels.includes(STALE_LABEL)) {
     return { category: 'Active', reason: `PR #${pr.number} was reopened after being marked stale` };
   }
-  const commitDays = wholeDays(now, f.lastCommit);
+  // An empty session or test branch has no commits of its own: its last commit
+  // is just the default branch's tip, which says nothing about the branch. Age
+  // it from creation when GitHub has the record; the tip's date is the
+  // fallback, which can only make it look older, and deleting an empty branch
+  // loses no commits. Then it goes through the usual Active -> Stale -> Archive
+  // flow.
+  const since = empty ? (f.createdAt ?? f.lastCommit) : f.lastCommit;
+  const days = wholeDays(now, since);
+  const what = !empty
+    ? `last commit ${days}d ago`
+    : f.createdAt
+      ? `empty branch, created ${days}d ago`
+      : `empty branch, creation date unknown, tip ${days}d old`;
   const prDays = pr ? wholeDays(now, pr.createdAt) : null;
-  if (commitDays < cfg.activeDays) {
-    return { category: 'Active', reason: `last commit ${commitDays}d ago` };
-  }
+  if (days < cfg.activeDays) return { category: 'Active', reason: what };
   if (pr && prDays < cfg.activeDays) {
     return { category: 'Active', reason: `PR #${pr.number} open ${prDays}d` };
   }
   if (pr) return { category: 'Stale', reason: `PR #${pr.number} open ${prDays}d` };
-  if (commitDays <= cfg.archiveDays) {
-    return { category: 'Stale', reason: `last commit ${commitDays}d ago` };
-  }
-  return { category: 'Archive', reason: `last commit ${commitDays}d ago` };
+  if (days <= cfg.archiveDays) return { category: 'Stale', reason: what };
+  return { category: 'Archive', reason: what };
 }
 
 /**
@@ -265,6 +302,28 @@ async function readOpenPrs(api, repo) {
 }
 
 /**
+ * When a branch was created, from the repository activity log (its earliest
+ * `branch_creation` event). Null when there is no record or the lookup fails.
+ *
+ * @param {ReturnType<typeof createApi>} api
+ * @param {string} repo
+ * @param {string} name
+ * @returns {Promise<Date|null>}
+ */
+async function readCreatedAt(api, repo, name) {
+  try {
+    const ref = encodeURIComponent(`refs/heads/${name}`);
+    const { data } = await api.request(
+      'GET',
+      `/repos/${repo}/activity?ref=${ref}&activity_type=branch_creation&direction=asc&per_page=1`,
+    );
+    return data?.[0]?.timestamp ? new Date(data[0].timestamp) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Reads what GitHub knows about every branch except the default and protected
  * ones. A branch whose lookup fails is returned with `error` and kept.
  *
@@ -310,11 +369,14 @@ export async function gatherFacts(api, repo, cfg) {
         // other failure leaves the branch uninspected, and so kept.
         if (!(err.status === 404 && /common ancestor/i.test(err.message))) throw err;
       }
+      const createdAt =
+        ahead === 0 && agesWhenEmpty(name, cfg) ? await readCreatedAt(api, repo, name) : null;
       facts.push({
         ...base,
         merged: false,
         lastCommit: new Date(commit.commit.committer.date),
         ahead,
+        createdAt,
       });
     } catch (err) {
       facts.push({ ...base, merged: false, error: err.message });
@@ -538,6 +600,9 @@ export async function run(
     defaultBranch: data.default_branch,
     protectedBranches: (env.PROTECTED_BRANCHES ?? '').split(/\s+/).filter(Boolean),
     shortcode: env.PROJECT_SHORTCODE ?? shortcodeFrom(readAiconfig()),
+    aiPrefixes: (env.AI_BRANCH_PREFIXES ?? 'copilot/ kiro/ claude/ ai/')
+      .split(/\s+/)
+      .filter(Boolean),
     activeDays: Number(env.ACTIVE_DAYS ?? 7),
     archiveDays: Number(env.ARCHIVE_DAYS ?? 14),
   };
