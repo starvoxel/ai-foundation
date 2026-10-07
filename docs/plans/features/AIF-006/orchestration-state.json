@@ -1,7 +1,7 @@
 {
   "feature_id": "AIF-006",
   "status": "In Progress",
-  "current_wave": 1,
+  "current_wave": 2,
   "total_waves": 4,
   "tasks": [
     {
@@ -20,7 +20,7 @@
       "wave": 1,
       "status": "Done",
       "branch": "AIF-006/002-validator-requires-skills",
-      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/002-validator-requires-skills",
+      "worktree_path": "",
       "pr_number": 101,
       "pr_url": "https://github.com/starvoxel/ai-foundation/pull/101",
       "iterations": 1,
@@ -29,9 +29,9 @@
     {
       "id": "003",
       "wave": 2,
-      "status": "Ready",
-      "branch": "",
-      "worktree_path": "",
+      "status": "Implementing",
+      "branch": "AIF-006/003-declarations-markers",
+      "worktree_path": "D:/Programming/StarVoxel/worktrees/ai-foundation/AIF-006/003-declarations-markers",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -183,6 +183,34 @@
       "action": "task_status_changed",
       "task_id": "002",
       "details": "Conflict -> Done, PR 101 ready"
+    },
+    {
+      "timestamp": "2026-10-07T01:31:14.581Z",
+      "agent": "Engineering-Manager",
+      "action": "worktree_removed",
+      "task_id": "002",
+      "details": "PR 101 merged"
+    },
+    {
+      "timestamp": "2026-10-07T01:31:14.582Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_completed",
+      "task_id": null,
+      "details": "wave 1"
+    },
+    {
+      "timestamp": "2026-10-07T01:31:14.582Z",
+      "agent": "Engineering-Manager",
+      "action": "wave_started",
+      "task_id": null,
+      "details": "wave 2 of 4"
+    },
+    {
+      "timestamp": "2026-10-07T01:31:14.582Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "003",
+      "details": "software-engineer, branch AIF-006/003-declarations-markers"
     }
   ]
 }
