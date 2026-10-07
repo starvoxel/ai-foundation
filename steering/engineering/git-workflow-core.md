@@ -1,7 +1,9 @@
 ---
 name: 'git-workflow-core'
-version: '0.7.3'
+version: '0.7.4'
 description: 'Git workflow rules shared by every repo type — commit hygiene, ai-git usage, token handling, PR stewardship, the required-CI gate on main, and branch naming and lifecycle.'
+requires_skills:
+  - 'pr-stewardship'
 file_patterns: []
 ---
 

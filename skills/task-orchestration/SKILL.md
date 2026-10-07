@@ -1,7 +1,12 @@
 ---
 name: 'task-orchestration'
-version: '0.4.2'
+version: '0.4.3'
 description: 'Orchestrates parallel Task execution across engineering agents with wave-based dispatch and quality gates.'
+requires_skills:
+  - 'complexity-tiers'
+  - 'plan-lifecycle'
+  - 'test-execution'
+  - 'worktree-management'
 ---
 
 ## Purpose

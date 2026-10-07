@@ -1,8 +1,10 @@
 {
   "bundle": "generic",
   "version": "0.1.0",
-  "computed_at": "2026-10-01T23:48:27.789Z",
+  "computed_at": "2026-10-07T01:32:47.224Z",
   "sources": {
-    "steering/generic/gmail-irreversible-action-approval.md": "sha256:9863543ba1ce32b93d5a4a7d834464085dc1b899dfa7dfbbd45c66b203a1feb5"
+    "steering/generic/gmail-irreversible-action-approval.md": "sha256:d30d2bce85f9547833d21d9674f8d36d1018f30f73cbae1f6b41918cde6e7f45",
+    "skills/steering-authoring/reference/schema.yaml": "sha256:75f070764e6870768e7900d7ad681fe2781befaf386042b0b680e8a3f90e49ad",
+    "skills/steering-authoring/SKILL.md": "sha256:347b087d8cdf2d390018376b4fdcc28428b7b09a8e91ad928904ca0ac6f93b41"
   }
 }

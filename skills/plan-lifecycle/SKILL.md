@@ -1,6 +1,6 @@
 ---
 name: 'plan-lifecycle'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Shared commit-gate procedure and status vocabulary for any artifact requiring human approval before dependent work begins.'
 ---
 
@@ -62,5 +62,5 @@ When the work the artifact describes is finished (implementation merged, decisio
 - **Human says "just do it" / approves verbally in chat only** — still requires the committed `Approved` status update before implementation starts. Do the commit first, then proceed.
 - **Human wants to defer rather than approve or reject** — set `Status: Deferred` and commit. A `Deferred` artifact is not approved; nothing may treat it as satisfying an approval gate. It can later be revisited (moved back to `Draft`) or approved directly from `Deferred`.
 - **Checking whether a specific piece of dependent work may proceed** — check only for `Status: Approved` on the governing artifact. Do not add special-case handling for `Deferred`, `Draft`, or any other non-`Approved` value — the absence of `Approved` is sufficient by itself to block dependent work.
-- **Repo has no `paths.plans` (or equivalent) configured in `.aiconfig.json`** — fall back to `docs/plans/` for Tier 3 plans; Feature Plans use `skill/feature-planning`'s documented path defaults, ADRs use Architect's documented `write` scope (`{paths.decisions}/`).
+- **Repo has no `paths.plans` (or equivalent) configured in `.aiconfig.json`** — fall back to `docs/plans/` for Tier 3 plans; Feature Plans use `skill/feature-planning`<!-- skill-ref: ignore -->'s documented path defaults, ADRs use Architect's documented `write` scope (`{paths.decisions}/`).
 - **Framework repo (direct commits to main)** — the commit gate still applies. There is no branch/PR step, but the Draft and Approved commits must still exist as separate, real commits on `main` before implementation commits follow.

@@ -1,7 +1,10 @@
 ---
 name: 'ai-component-review'
-version: '0.3.1'
-description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via skill/review-severity.'
+version: '0.3.3'
+description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via the shared review-severity taxonomy.'
+requires_skills:
+  - 'code-review'
+  - 'review-severity'
 ---
 
 ## Purpose

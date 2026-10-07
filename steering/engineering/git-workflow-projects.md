@@ -1,7 +1,9 @@
 ---
 name: 'git-workflow-projects'
-version: '0.7.2'
+version: '0.7.3'
 description: 'Git workflow for project repositories where agents produce code.'
+requires_skills:
+  - 'plan-lifecycle'
 file_patterns: []
 ---
 
