@@ -2,7 +2,7 @@
 section: '05.04'
 title: 'Document indexing'
 lifecycle: published
-last_verified: 5944c97
+last_verified: b6d92f3
 tags: [building-blocks, indexing, decisions, architecture]
 key_files:
   - lib/arch-waivers.js
