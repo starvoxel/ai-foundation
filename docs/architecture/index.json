@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-07T01:07:42.646Z",
+  "generated_at": "2026-10-07T01:34:54.013Z",
   "entries": [
     {
       "path": "01_introduction_and_goals.md",
@@ -36,7 +36,7 @@
         "steering/engineering/git-workflow-core.md",
         "steering/engineering/git-workflow-projects.md"
       ],
-      "last_verified": "8ad5e57",
+      "last_verified": "4cfdc38",
       "stale": false
     },
     {
@@ -55,7 +55,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "122137a",
+      "last_verified": "4cfdc38",
       "stale": false
     },
     {
@@ -166,7 +166,7 @@
         "lib/commands/init.js",
         "lib/commands/config.js"
       ],
-      "last_verified": "27e189f",
+      "last_verified": "4cfdc38",
       "stale": false
     },
     {
@@ -193,7 +193,7 @@
         "servers/gmail/auth.js",
         "servers/youtrack/youtrack.yaml"
       ],
-      "last_verified": "677f1fb",
+      "last_verified": "4cfdc38",
       "stale": false
     },
     {

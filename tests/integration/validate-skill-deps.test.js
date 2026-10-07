@@ -186,10 +186,12 @@ describe('integration: validate skill-deps / requires_skills', () => {
     assert.doesNotMatch(output, /warning/);
   });
 
-  it('is not part of the default run (transitional, until Task 003)', () => {
+  it('is part of the default run', () => {
     skill('a', { body: 'Needs `skill/b`.' });
     skill('b');
-    assert.equal(validate(repo).code, 0);
+    const { code, output } = validate(repo);
+    assert.equal(code, 1, output);
+    assert.match(output, /skill-deps/);
     assert.equal(validate(repo, 'skill-deps').code, 1);
   });
 });

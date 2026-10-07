@@ -1,7 +1,11 @@
 ---
 name: 'code-review'
-version: '0.5.1'
-description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via skill/review-severity.'
+version: '0.5.3'
+description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via the shared review-severity taxonomy.'
+requires_skills:
+  - 'ai-component-review'
+  - 'complexity-tiers'
+  - 'review-severity'
 ---
 
 ## Purpose

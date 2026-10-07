@@ -1,7 +1,10 @@
 ---
 name: 'feature-planning'
-version: '0.3.2'
+version: '0.3.3'
 description: 'Produces a Feature Plan describing a complete feature at a human-reviewable level, decomposed into Tasks when more than one is needed.'
+requires_skills:
+  - 'complexity-tiers'
+  - 'plan-lifecycle'
 ---
 
 ## Purpose

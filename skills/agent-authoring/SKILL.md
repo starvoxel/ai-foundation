@@ -1,7 +1,9 @@
 ---
 name: 'agent-authoring'
-version: '0.6.0'
+version: '0.6.1'
 description: 'Creates a well-formed agent definition with proper tool selection and prompt design.'
+requires_skills:
+  - 'skill-authoring'
 ---
 
 ## Purpose
