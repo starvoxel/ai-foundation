@@ -13,12 +13,19 @@
  *                                                                      -> keep
  *   Archive    merged by a PR whose head was exactly this tip; or a
  *              `push-check/` branch the default branch already contains;
- *              or last activity older than ARCHIVE_DAYS with no open PR. -> delete
- *   Active     last activity within ACTIVE_DAYS, or an open PR younger than
- *              ACTIVE_DAYS (or one reopened after being marked stale).  -> keep
+ *              or last activity older than ARCHIVE_DAYS and outside the
+ *              ARCHIVE_BRANCHES most recently active, with no open PR.   -> delete
+ *   Active     last activity within ACTIVE_DAYS, or among the ACTIVE_BRANCHES
+ *              most recently active, or an open PR younger than ACTIVE_DAYS
+ *              (or one reopened after being marked stale).               -> keep
  *   Stale      an open PR ACTIVE_DAYS or older, or last activity between
- *              ACTIVE_DAYS and ARCHIVE_DAYS old.      -> close the PR, label it
- *              `stale`; the branch is kept until it reaches Archive.
+ *              ACTIVE_DAYS and ARCHIVE_DAYS old, or among the ARCHIVE_BRANCHES
+ *              most recently active.  -> close the PR, label it `stale`; the
+ *              branch is kept until it reaches Archive.
+ *
+ * Time is forgiving by design: a branch ages out only once it is both old in
+ * days and pushed down the recency ranking by newer branches, so a quiet repo
+ * keeps its latest branches however long ago they were touched.
  *
  * "Last activity" is the date of the branch's last commit. An empty branch (no
  * commits of its own) is kept as Mandatory, with two exceptions: AI session
@@ -45,7 +52,8 @@
  *                            project_shortname (else project_name). Without
  *                            one, no branch counts as a throwaway test, so
  *                            every unrelated-history branch is kept.
- *   ACTIVE_DAYS (7), ARCHIVE_DAYS (14)
+ *   ACTIVE_DAYS (14), ARCHIVE_DAYS (30)
+ *   ACTIVE_BRANCHES (5), ARCHIVE_BRANCHES (15)
  *   GITHUB_STEP_SUMMARY      file the Markdown report is appended to
  */
 
@@ -68,6 +76,7 @@ export const STALE_LABEL = 'stale';
  * @property {OpenPr|null} openPr
  * @property {boolean} merged  A merged PR whose head was exactly this tip.
  * @property {Date|null} [createdAt]  When the branch was created; read only for empty branches, null if GitHub has no record.
+ * @property {number} [rank]  0-based recency rank among the branches that age out (0 = most recently active); unset counts as last.
  *
  * @typedef {object} Config
  * @property {string} defaultBranch
@@ -76,6 +85,8 @@ export const STALE_LABEL = 'stale';
  * @property {string[]} aiPrefixes  Branch name prefixes used by AI sessions, e.g. 'claude/'.
  * @property {number} activeDays
  * @property {number} archiveDays
+ * @property {number} [activeBranches]  The most recently active branches are Active whatever their age.
+ * @property {number} [archiveBranches]  The most recently active branches are never archived.
  *
  * @typedef {{category: 'Mandatory'|'Archive'|'Active'|'Stale', reason: string}} Verdict
  */
@@ -110,6 +121,41 @@ export function agesWhenEmpty(name, cfg) {
     cfg.aiPrefixes.some((prefix) => name.startsWith(prefix)) ||
     isThrowawayTestName(name, cfg.shortcode)
   );
+}
+
+/**
+ * The date a branch's age is measured from. An empty session or test branch
+ * has no commits of its own: its last commit is just the default branch's tip,
+ * which says nothing about the branch, so it ages from creation when GitHub has
+ * the record; the tip's date is the fallback, which can only make it look
+ * older, and deleting an empty branch loses no commits.
+ *
+ * @param {BranchFacts} f
+ */
+const activityDate = (f) => (f.ahead === 0 ? (f.createdAt ?? f.lastCommit) : f.lastCommit);
+
+/**
+ * Recency ranks (0 = most recently active) for the branches that go through
+ * the age-out flow. Branches that are kept or archived outright (default,
+ * protected, merged, unrelated history, kept-empty) take no rank, so they
+ * cannot push a live branch down the list. Pure.
+ *
+ * @param {Array<BranchFacts & {error?: string}>} facts
+ * @param {Config} cfg
+ * @returns {Map<string, number>}
+ */
+export function rankBranches(facts, cfg) {
+  const eligible = facts.filter((f) => {
+    if (f.error || f.merged || !f.lastCommit) return false;
+    if (f.name === cfg.defaultBranch || cfg.protectedBranches.includes(f.name)) return false;
+    if (f.ahead === null) return isThrowawayTestName(f.name, cfg.shortcode);
+    if (f.ahead === 0) return !f.name.startsWith('push-check/') && agesWhenEmpty(f.name, cfg);
+    return true;
+  });
+  eligible.sort(
+    (a, b) => activityDate(b).getTime() - activityDate(a).getTime() || a.name.localeCompare(b.name),
+  );
+  return new Map(eligible.map((f, i) => [f.name, i]));
 }
 
 /** @param {Date} later @param {Date} earlier */
@@ -152,14 +198,9 @@ export function classify(f, cfg, now) {
   if (pr && pr.labels.includes(STALE_LABEL)) {
     return { category: 'Active', reason: `PR #${pr.number} was reopened after being marked stale` };
   }
-  // An empty session or test branch has no commits of its own: its last commit
-  // is just the default branch's tip, which says nothing about the branch. Age
-  // it from creation when GitHub has the record; the tip's date is the
-  // fallback, which can only make it look older, and deleting an empty branch
-  // loses no commits. Then it goes through the usual Active -> Stale -> Archive
-  // flow.
-  const since = empty ? (f.createdAt ?? f.lastCommit) : f.lastCommit;
-  const days = wholeDays(now, since);
+  // Then the usual Active -> Stale -> Archive flow, by days and by recency rank.
+  const days = wholeDays(now, activityDate(f));
+  const rank = f.rank ?? Infinity;
   const what = !empty
     ? `last commit ${days}d ago`
     : f.createdAt
@@ -167,11 +208,23 @@ export function classify(f, cfg, now) {
       : `empty branch, creation date unknown, tip ${days}d old`;
   const prDays = pr ? wholeDays(now, pr.createdAt) : null;
   if (days < cfg.activeDays) return { category: 'Active', reason: what };
+  if (rank < (cfg.activeBranches ?? 0)) {
+    return {
+      category: 'Active',
+      reason: `${what}, but among the ${cfg.activeBranches} most recent branches`,
+    };
+  }
   if (pr && prDays < cfg.activeDays) {
     return { category: 'Active', reason: `PR #${pr.number} open ${prDays}d` };
   }
   if (pr) return { category: 'Stale', reason: `PR #${pr.number} open ${prDays}d` };
   if (days <= cfg.archiveDays) return { category: 'Stale', reason: what };
+  if (rank < (cfg.archiveBranches ?? 0)) {
+    return {
+      category: 'Stale',
+      reason: `${what}, but among the ${cfg.archiveBranches} most recent branches`,
+    };
+  }
   return { category: 'Archive', reason: what };
 }
 
@@ -405,6 +458,8 @@ export async function gatherFacts(api, repo, cfg) {
  */
 export async function runSweep({ api, repo, cfg, enforce, now, log = () => {} }) {
   const facts = await gatherFacts(api, repo, cfg);
+  const ranks = rankBranches(facts, cfg);
+  for (const f of facts) f.rank = ranks.get(f.name);
   /** @type {Row[]} */
   const rows = [];
   let labelReady = false;
@@ -526,7 +581,7 @@ function staleComment(branch, cfg) {
   return [
     `This PR has been open for ${cfg.activeDays} days or more without recent activity, so the scheduled branch cleanup is closing it and labelling it \`${STALE_LABEL}\`.`,
     '',
-    `The branch \`${branch}\` is kept for now. Reopen this PR to keep the work active; otherwise the branch is deleted once its last commit is more than ${cfg.archiveDays} days old.`,
+    `The branch \`${branch}\` is kept for now. Reopen this PR to keep the work active; otherwise the branch is deleted once its last commit is more than ${cfg.archiveDays} days old and it is no longer among the ${cfg.archiveBranches} most recently active branches.`,
   ].join('\n');
 }
 
@@ -603,8 +658,10 @@ export async function run(
     aiPrefixes: (env.AI_BRANCH_PREFIXES ?? 'copilot/ kiro/ claude/ ai/')
       .split(/\s+/)
       .filter(Boolean),
-    activeDays: Number(env.ACTIVE_DAYS ?? 7),
-    archiveDays: Number(env.ARCHIVE_DAYS ?? 14),
+    activeDays: Number(env.ACTIVE_DAYS ?? 14),
+    archiveDays: Number(env.ARCHIVE_DAYS ?? 30),
+    activeBranches: Number(env.ACTIVE_BRANCHES ?? 5),
+    archiveBranches: Number(env.ARCHIVE_BRANCHES ?? 15),
   };
   const dryRun = env.DRY_RUN === 'true';
   const names = parseBranchList(env.BRANCHES);

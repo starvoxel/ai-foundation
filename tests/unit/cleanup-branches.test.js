@@ -19,6 +19,7 @@ const {
   isPlainBranchName,
   isThrowawayTestName,
   parseBranchList,
+  rankBranches,
   renderSummary,
   run,
   runList,
@@ -47,6 +48,53 @@ function facts(overrides) {
   };
 }
 const pr = (number, ageDays, labels = []) => ({ number, createdAt: daysAgo(ageDays), labels });
+
+describe('classify by recency rank', () => {
+  const ranked = { ...CFG, activeBranches: 3, archiveBranches: 8 };
+  it('a top-ranked branch stays Active however old', () => {
+    const v = classify(facts({ lastCommit: daysAgo(200), rank: 2 }), ranked, NOW);
+    assert.equal(v.category, 'Active');
+    assert.match(v.reason, /3 most recent/);
+  });
+  it('a mid-ranked old branch is Stale, not Archive', () => {
+    const v = classify(facts({ lastCommit: daysAgo(200), rank: 7 }), ranked, NOW);
+    assert.equal(v.category, 'Stale');
+  });
+  it('an old branch past the archive rank is Archive', () => {
+    const v = classify(facts({ lastCommit: daysAgo(200), rank: 8 }), ranked, NOW);
+    assert.equal(v.category, 'Archive');
+  });
+  it('an unranked branch ages by days alone', () => {
+    assert.equal(classify(facts({ lastCommit: daysAgo(200) }), ranked, NOW).category, 'Archive');
+  });
+  it('a top-ranked branch is not closed as stale because of an old PR', () => {
+    const v = classify(facts({ lastCommit: daysAgo(40), rank: 0, openPr: pr(3, 30) }), ranked, NOW);
+    assert.equal(v.category, 'Active');
+  });
+});
+
+describe('rankBranches', () => {
+  it('ranks newest first and skips branches that never age out', () => {
+    const list = [
+      facts({ name: 'old', lastCommit: daysAgo(50) }),
+      facts({ name: 'new', lastCommit: daysAgo(1) }),
+      facts({ name: 'docs', lastCommit: daysAgo(0) }),
+      facts({ name: 'merged', lastCommit: daysAgo(0), merged: true }),
+      facts({ name: 'scratch', ahead: null, lastCommit: daysAgo(0) }),
+      facts({ name: 'AIF-010/empty', ahead: 0, lastCommit: daysAgo(0) }),
+      facts({ name: 'claude/idle', ahead: 0, lastCommit: daysAgo(0), createdAt: daysAgo(10) }),
+    ];
+    const ranks = rankBranches(list, CFG);
+    assert.deepEqual(
+      [...ranks.entries()],
+      [
+        ['new', 0],
+        ['claude/idle', 1],
+        ['old', 2],
+      ],
+    );
+  });
+});
 
 describe('classify', () => {
   const cases = [
