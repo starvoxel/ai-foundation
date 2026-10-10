@@ -129,7 +129,10 @@ Options:
   --hook [name]         Hook resource to snapshot (snapshot command; omit name for all hooks)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
   --update              Update all installed bundles that are stale
-  --check               Verify snapshots without writing (snapshot command)
+  --check               Verify without writing (snapshot and index commands)
+  --base <ref>          Base ref for the architecture PR-range gate (index architecture --check);
+                        default: merge-base with origin/main, then main (gate skipped if neither resolves)
+  --head <ref>          Head ref for the range gate (default: HEAD)
   -h, --help            Show this help message
 
 Init Options:
@@ -159,6 +162,7 @@ Examples:
   aif snapshot --bundle --check
   aif index decisions
   aif index decisions --check
+  aif index architecture --check --base origin/main
   aif init --name my-app --language typescript --org acme
   aif init --interactive
   aif config paths.decisions

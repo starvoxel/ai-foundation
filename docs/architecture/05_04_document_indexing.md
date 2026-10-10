@@ -2,7 +2,7 @@
 section: '05.04'
 title: 'Document indexing'
 lifecycle: published
-last_verified: e8dadca32560c33f8cd7633f18c9bae23acc6768
+last_verified: dce084b77ba3d13d7b073afe3944ac8a4535b385
 tags: [building-blocks, indexing, decisions, architecture]
 key_files:
   - lib/arch-waivers.js
@@ -60,10 +60,10 @@ that same generic-utility module).
 
 ## Important Interfaces
 
-| Block             | Pure functions                                                                                            | io wrappers                                                                                                                                                |
-| ----------------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `decisions.js`    | `parseDecisionRecord()`, `buildDecisionIndex()`                                                           | `collectDecisionFiles()`, `buildDecisionIndexForDir()`                                                                                                     |
-| `architecture.js` | `parseArchitectureSection()`, `buildReverseIndex()`, `buildArchitectureIndex()`, `extractRelativeLinks()` | `collectArchitectureFiles()`, `loadArchitectureRecords()`, `isStaleAgainstGit()`, `findStaleDocs()`, `findBrokenLinks()`, `buildArchitectureIndexForDir()` |
+| Block             | Pure functions                                                                                            | io wrappers                                                                                                                                                                                              |
+| ----------------- | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `decisions.js`    | `parseDecisionRecord()`, `buildDecisionIndex()`                                                           | `collectDecisionFiles()`, `buildDecisionIndexForDir()`                                                                                                                                                   |
+| `architecture.js` | `parseArchitectureSection()`, `buildReverseIndex()`, `buildArchitectureIndex()`, `extractRelativeLinks()` | `collectArchitectureFiles()`, `loadArchitectureRecords()`, `isStaleAgainstGit()`, `findStaleDocs()`, `findBrokenLinks()`, `buildArchitectureIndexForDir()`, `checkRangeGate()` (see PR-Range Gate below) |
 
 `architecture.js`'s split is slightly wider than `decisions.js`'s: `isStaleAgainstGit()`
 is the one piece of either module that touches git beyond reading the target
@@ -86,10 +86,33 @@ repo imports `decisions.js` or `architecture.js` directly.
 ## Waiver Parsing (`arch-waivers.js`)
 
 `lib/arch-waivers.js` (AIF-013) parses `Arch-Unaffected: <section> — <reason>`
-commit waivers, used by the PR-range staleness gate. Pure: `parseWaivers()` (matches
+commit waivers, consumed by the PR-range gate described below. Pure: `parseWaivers()` (matches
 the line anywhere in a message, including bullet-prefixed squash bodies; em dash or
 spaced ASCII `--`/`-` separator), `validateReason()` (at least 10 non-space characters,
 not a placeholder), `evaluateWaivers()` (section-level coverage: one accepted waiver
 covers every changed file its section lists; unknown or non-listing sections are
 rejected), `escapeTableCell()` (markdown/HTML-safe output). io: `readCommits()` runs
 `git log` via `execFileSync` with an argument array, rejecting refs starting with `-`.
+
+## PR-Range Gate (`architecture.js`)
+
+`aif index architecture --check --base <ref> [--head <ref>]` (AIF-013) checks a git
+range: every file changed in `base...head` (changes since the merge-base; deletions
+included, renames split into delete + add via `--no-renames`) that appears in any
+doc's `key_files` must be covered by (a) a change to a doc listing it in the same
+range, or (b) an accepted `Arch-Unaffected` waiver, from any commit of `base..head`,
+whose section lists it. A waiver is section-level, so one covers every changed file
+that section lists; rejected waivers (placeholder or short reason, unknown section,
+section lists none of the changed files) are reported and leave the file uncovered.
+Nothing is stored, so there is nothing to conflict on.
+
+Pure: `evaluateRangeGate()` (records + changed files + commits in; `{violations,
+acceptedWaivers, rejectedWaivers, coveredFiles}` out), `buildSectionKeyFiles()`,
+`parseNameOnlyOutput()`. io: `resolveCommit()` and `readRange()` run git via
+`execFileSync` argument arrays only, after `assertSafeRef()`, and use resolved SHAs for
+the diff/log; `findDefaultBase()` picks the merge-base with `origin/main`, then `main`;
+`checkRangeGate()` composes them. The CLI skips the gate with a printed notice when no
+`--base` is given and no default base resolves, but an explicit `--base` or `--head`
+that does not resolve fails closed. CI passes the PR base SHA (or the `push-check/**`
+merge-base) and skips pushes to `main`, which are already gated pre-merge. The older
+`last_verified` staleness check still runs alongside it until AIF-013 Task 005.
