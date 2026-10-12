@@ -7,9 +7,9 @@
     {
       "id": "001",
       "wave": 0,
-      "status": "Ready",
+      "status": "Implementing",
       "branch": "AIF-012/001-state-spikes",
-      "worktree_path": "",
+      "worktree_path": "../worktrees/ai-foundation/AIF-012/001-state-spikes",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -18,9 +18,9 @@
     {
       "id": "002",
       "wave": 0,
-      "status": "Ready",
+      "status": "Implementing",
       "branch": "AIF-012/002-github-data-spikes",
-      "worktree_path": "",
+      "worktree_path": "../worktrees/ai-foundation/AIF-012/002-github-data-spikes",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -29,9 +29,9 @@
     {
       "id": "003",
       "wave": 0,
-      "status": "Ready",
+      "status": "Implementing",
       "branch": "AIF-012/003-placement-research",
-      "worktree_path": "",
+      "worktree_path": "../worktrees/ai-foundation/AIF-012/003-placement-research",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -40,9 +40,9 @@
     {
       "id": "004",
       "wave": 0,
-      "status": "Ready",
+      "status": "Implementing",
       "branch": "AIF-012/004-hook-prototypes",
-      "worktree_path": "",
+      "worktree_path": "../worktrees/ai-foundation/AIF-012/004-hook-prototypes",
       "pr_number": null,
       "pr_url": null,
       "iterations": 0,
@@ -51,22 +51,22 @@
     {
       "id": "005",
       "wave": 0,
-      "status": "Ready",
+      "status": "Done",
       "branch": "AIF-012/005-human-spike-guide",
-      "worktree_path": "",
-      "pr_number": null,
-      "pr_url": null,
+      "worktree_path": "../worktrees/ai-foundation/AIF-012/005-human-spike-guide",
+      "pr_number": 109,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/109",
       "iterations": 0,
       "blocked_reason": null
     },
     {
       "id": "006",
       "wave": 0,
-      "status": "Ready",
+      "status": "Reviewing",
       "branch": "AIF-012/006-review-stop-rule",
-      "worktree_path": "",
-      "pr_number": null,
-      "pr_url": null,
+      "worktree_path": "../worktrees/ai-foundation/AIF-012/006-review-stop-rule",
+      "pr_number": 110,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/110",
       "iterations": 0,
       "blocked_reason": null
     },
@@ -101,6 +101,83 @@
       "action": "wave_started",
       "task_id": null,
       "details": "wave 0"
+    },
+    {
+      "timestamp": "2026-10-07T02:47:52.711Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "001",
+      "details": "Software-Engineer on AIF-012/001-state-spikes"
+    },
+    {
+      "timestamp": "2026-10-07T02:47:52.711Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "002",
+      "details": "Software-Engineer on AIF-012/002-github-data-spikes"
+    },
+    {
+      "timestamp": "2026-10-07T02:47:52.711Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "003",
+      "details": "Software-Engineer on AIF-012/003-placement-research"
+    },
+    {
+      "timestamp": "2026-10-07T02:47:52.711Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "004",
+      "details": "Software-Engineer on AIF-012/004-hook-prototypes"
+    },
+    {
+      "timestamp": "2026-10-07T02:47:52.711Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "005",
+      "details": "Software-Engineer on AIF-012/005-human-spike-guide"
+    },
+    {
+      "timestamp": "2026-10-07T02:47:52.711Z",
+      "agent": "Engineering-Manager",
+      "action": "task_dispatched",
+      "task_id": "006",
+      "details": "Software-Engineer on AIF-012/006-review-stop-rule"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "005",
+      "details": "PR 109"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "005",
+      "details": "Implementing->Reviewing"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "005",
+      "details": "Reviewing->Done, PR 109 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "006",
+      "details": "PR 110"
+    },
+    {
+      "timestamp": "2026-10-07T02:54:37.145Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "006",
+      "details": "Implementing->Reviewing"
     }
   ]
 }
