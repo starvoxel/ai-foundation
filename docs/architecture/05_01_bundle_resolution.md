@@ -2,7 +2,7 @@
 section: '05.01'
 title: 'Bundle resolution'
 lifecycle: published
-last_verified: 677f1fb
+last_verified: 5ccd662
 tags: [building-blocks, resolver]
 key_files:
   - lib/resolver.js
@@ -37,7 +37,7 @@ directory (`agents/`, `steering/`, `servers/`), triggered by one specific
 condition. Keeping them as separate functions — rather than one function doing
 all four reads — is what makes each independently testable and lets
 `resolveBundle` itself stay a thin, linear pipeline: load → validate → discover
-→ append → dedupe → expand skills.
+→ append → dedupe → expand skills (the skills of steering files too).
 
 ## Contained Building Blocks
 
@@ -89,6 +89,22 @@ what actually crosses the file's boundary).
 | `collectSkillsFromAgents`  | Union of `skill/*` entries across those matched agents' `skills` fields, de-prefixed via `parseSkillRef`.                                                                               |
 | `collectSteering`          | `steering/global/**/*.md` plus `steering/{domain}/**/*.md`, via the shared recursive `collectMdFiles` walk.                                                                             |
 | `resolveServersFromAgents` | Any `@server/tool`-format tool reference in a matched agent's `tools` list, parsed via `parseServerToolRef` — filtered to server names that actually have a directory under `servers/`. |
+
+### Error cases
+
+| Condition                                                                                        | Result                                                                                                                                 |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| A `requires_skills` entry (or a seed skill) has no `skills/{name}/SKILL.md`                      | `resolveBundle` throws `Missing skill in dependency chain: a → b → (missing)`                                                          |
+| `requires_skills` is not a list of strings, or an entry is not a kebab-case name (`../x`, `a/b`) | Throws from `parseRequiresSkills` / `createSkillDepsReader` before any path is built, so a crafted entry cannot read outside `skills/` |
+| A cycle (A requires B, B requires A)                                                             | Not an error: the visited set ends the walk at the first repeat, each skill is returned once, no diagnostic                            |
+
+`aif validate` reports the same conditions against the declaring file through the same parser and closure (§5.05).
+
+### Bundle composition and staleness
+
+- **Engineering:** `plan-lifecycle` is installed because the engineering steering files declare it, and `adr-authoring` because `agents/architect.yaml` lists it in `skills` (not in `preload_skills`). Neither needs a bundle-level list.
+- **Generic:** `steering-authoring` (and its own dependency `skill-authoring`) is installed through the `gmail` steering file's `requires_skills`, though the bundle has no domain and no agents.
+- **Staleness:** the closure is `ResolvedBundle.skills`, which `snapshot/io.js` hashes file by file (§5.03), alongside the resolved steering files. Editing a required skill, or a `requires_skills` line in a skill or steering file, therefore changes the bundle's source hashes with no change to the snapshot format.
 
 ## Important Interfaces
 

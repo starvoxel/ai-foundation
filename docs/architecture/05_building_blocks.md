@@ -2,7 +2,7 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: 4cfdc38
+last_verified: 5ccd662
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
@@ -131,7 +131,7 @@ cut across that boundary and hide it.
 ## White-box expansions
 
 - **§5.01 Bundle resolution** (`05_01_bundle_resolution.md`) — `resolver.js`'s
-  domain-auto-discovery algorithm in full.
+  domain-auto-discovery algorithm and `requires_skills` skill closure in full.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
 - **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining

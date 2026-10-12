@@ -1,10 +1,12 @@
 {
   "bundle": "generic",
   "version": "0.1.0",
-  "computed_at": "2026-10-07T01:32:47.224Z",
+  "computed_at": "2026-10-07T02:52:26.864Z",
   "sources": {
     "steering/generic/gmail-irreversible-action-approval.md": "sha256:d30d2bce85f9547833d21d9674f8d36d1018f30f73cbae1f6b41918cde6e7f45",
-    "skills/steering-authoring/reference/schema.yaml": "sha256:75f070764e6870768e7900d7ad681fe2781befaf386042b0b680e8a3f90e49ad",
-    "skills/steering-authoring/SKILL.md": "sha256:347b087d8cdf2d390018376b4fdcc28428b7b09a8e91ad928904ca0ac6f93b41"
+    "skills/steering-authoring/reference/schema.yaml": "sha256:9cf6f0143b2dc7923454906ddd3bfe487a693aaf5b402808507c1d81ac8cdd00",
+    "skills/steering-authoring/SKILL.md": "sha256:3a7ae4a5112b391307ff4ebba181b914717dfc93c29c994e4c8739994ae8dc20",
+    "skills/skill-authoring/reference/schema.md": "sha256:c91f79d3e3a9e6fccf85bf00c03a5f28cbd1bc6e9829a3990e4af5330dc40aff",
+    "skills/skill-authoring/SKILL.md": "sha256:2d402bbba36d1e16c692b2b1943d317e4514bfc0d89ca0fabd729cf0c06af612"
   }
 }
