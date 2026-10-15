@@ -36,7 +36,7 @@ const MERGE_RE = /^[a-z_]{1,24}$/;
  * Collapse check runs plus combined commit status into one state.
  * @param {Array<{status: string, conclusion: string|null, name: string}>} runs
  * @param {{state?: string, total_count?: number}} [combined]
- * @returns {{state: string, failing: string[], pending: number, total: number}}
+ * @returns {{state: string, failing: number, pending: number, total: number}}
  */
 export function classifyChecks(runs = [], combined = {}) {
   const failing = runs.filter((r) => r.status === 'completed' && FAILING.has(r.conclusion));
@@ -50,7 +50,7 @@ export function classifyChecks(runs = [], combined = {}) {
   else if (pending > 0 || statusPending) state = 'pending';
   return {
     state,
-    failing: failing.map((r) => r.name),
+    failing: failing.length,
     pending,
     total: runs.length + statusCount,
   };

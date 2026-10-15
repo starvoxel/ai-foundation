@@ -59,7 +59,7 @@ Fetch per check (lists of at most 100 items, as in all five PRs): **6 REST reque
 
 "Cold" is the first full run, "warm" the repeat (`real-run.json` holds the warm run). Wall time is dominated by one process start plus secret resolution per `ai-git` call (about 0.7 to 3 s each); not isolated further here (S4/S6 own cost).
 
-Prototype size: `state-digest.js` 250 lines (182 code), `github-fetch.js` 90 (55), 21 passing unit tests. Persisted files: 0. Locks: 0.
+Prototype size: `state-digest.js` 250 lines (182 code), `github-fetch.js` 90 (55), 22 passing unit tests. Persisted files: 0. Locks: 0.
 
 ### Findings (what could not be derived, and surprises)
 
@@ -79,9 +79,9 @@ Of the four fields PR 98 persisted, head SHA, CI, quiet time and unresolved thre
 
 ### Method
 
-`check(snapshot, cursor?) -> { digest, cursor }` with `decodeCursor` doing strict validation. Cursor = base64url JSON of 8 fields: `v` (1), head `sha`, PR state, CI state, `mergeable_state`, and three id watermarks (issue comment, review, review comment). Level state (CI, unresolved threads, mergeable) is always reported from GitHub; the cursor only gates edge events. Scenarios scripted two ways: 21 unit tests on fake GitHub payloads (`state-digest.test.js`), and `run-real.js` against the five real PRs.
+`check(snapshot, cursor?) -> { digest, cursor }` with `decodeCursor` doing strict validation. Cursor = base64url JSON of 8 fields: `v` (1), head `sha`, PR state, CI state, `mergeable_state`, and three id watermarks (issue comment, review, review comment). Level state (CI, unresolved threads, mergeable) is always reported from GitHub; the cursor only gates edge events. Scenarios scripted two ways: 22 unit tests on fake GitHub payloads (`state-digest.test.js`), and `run-real.js` against the five real PRs.
 
-Trust rules in the prototype: the digest carries ids, logins, counts and enums only, never comment bodies or titles (a test plants `IGNORE PREVIOUS INSTRUCTIONS` in bodies and asserts it never reaches the snapshot). The cursor is caller input: schema-validated, length-capped at 400 characters, used only to compute that caller's own diff, never to build a request, path or command.
+Trust rules in the prototype: the digest carries ids, logins, counts and enums only, never comment bodies, titles or check-run names (check-run names are attacker-controllable free text; the digest reports the failing count and the caller fetches names itself if it needs them). Tests plant `IGNORE PREVIOUS INSTRUCTIONS` in comment and review bodies and in a failing check-run name and assert it never reaches the snapshot or digest. The cursor is caller input: schema-validated, length-capped at 400 characters, used only to compute that caller's own diff, never to build a request, path or command.
 
 ### Result: scenarios (real PRs, `real-run.json`)
 
