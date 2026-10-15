@@ -96,7 +96,7 @@ async function main() {
     if (r.status === 200) tag[key] = r.headers.etag;
     return r;
   };
-  let sha = gh(`${P}/pulls/${cleanPr}`).json.head.sha;
+  const sha = gh(`${P}/pulls/${cleanPr}`).json.head.sha;
   const rows = [];
   for (let i = 0; i < 40; i++) {
     const pr = conds('pr', `${P}/pulls/${cleanPr}`);
