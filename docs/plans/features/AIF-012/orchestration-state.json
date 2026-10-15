@@ -18,7 +18,7 @@
     {
       "id": "002",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-012/002-github-data-spikes",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/002-github-data-spikes",
       "pr_number": 118,
@@ -255,6 +255,13 @@
       "action": "review_loop",
       "task_id": "002",
       "details": "iteration 1, HIGH-0 lint"
+    },
+    {
+      "timestamp": "2026-10-15T11:42:25.859Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "002",
+      "details": "Reviewing->Done, PR 118 ready"
     }
   ]
 }
