@@ -7,12 +7,12 @@
     {
       "id": "001",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-012/001-state-spikes",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/001-state-spikes",
-      "pr_number": null,
-      "pr_url": null,
-      "iterations": 0,
+      "pr_number": 116,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/116",
+      "iterations": 1,
       "blocked_reason": null
     },
     {
@@ -21,30 +21,30 @@
       "status": "Implementing",
       "branch": "AIF-012/002-github-data-spikes",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/002-github-data-spikes",
-      "pr_number": null,
-      "pr_url": null,
-      "iterations": 0,
+      "pr_number": 118,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/118",
+      "iterations": 1,
       "blocked_reason": null
     },
     {
       "id": "003",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-012/003-placement-research",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/003-placement-research",
-      "pr_number": null,
-      "pr_url": null,
+      "pr_number": 114,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/114",
       "iterations": 0,
       "blocked_reason": null
     },
     {
       "id": "004",
       "wave": 0,
-      "status": "Implementing",
+      "status": "Done",
       "branch": "AIF-012/004-hook-prototypes",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/004-hook-prototypes",
-      "pr_number": null,
-      "pr_url": null,
+      "pr_number": 117,
+      "pr_url": "https://github.com/starvoxel/ai-foundation/pull/117",
       "iterations": 0,
       "blocked_reason": null
     },
@@ -62,7 +62,7 @@
     {
       "id": "006",
       "wave": 0,
-      "status": "Reviewing",
+      "status": "Implementing",
       "branch": "AIF-012/006-review-stop-rule",
       "worktree_path": "../worktrees/ai-foundation/AIF-012/006-review-stop-rule",
       "pr_number": 110,
@@ -178,6 +178,83 @@
       "action": "task_status_changed",
       "task_id": "006",
       "details": "Implementing->Reviewing"
+    },
+    {
+      "timestamp": "2026-10-07T02:55:40.267Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "006",
+      "details": "Reviewing->Done, PR 110 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:58:13.332Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "003",
+      "details": "PR 114"
+    },
+    {
+      "timestamp": "2026-10-07T02:58:13.332Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "003",
+      "details": "Reviewing->Done, PR 114 ready"
+    },
+    {
+      "timestamp": "2026-10-07T02:58:13.332Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "006",
+      "details": "Done->Implementing, CI red snapshot stale"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "001",
+      "details": "PR 116"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "review_loop",
+      "task_id": "001",
+      "details": "iteration 1, MEDIUM-0"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "001",
+      "details": "Reviewing->Done, PR 116 ready"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "004",
+      "details": "PR 117"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "task_status_changed",
+      "task_id": "004",
+      "details": "Reviewing->Done, PR 117 ready"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "pr_created",
+      "task_id": "002",
+      "details": "PR 118"
+    },
+    {
+      "timestamp": "2026-10-15T11:39:33.681Z",
+      "agent": "Engineering-Manager",
+      "action": "review_loop",
+      "task_id": "002",
+      "details": "iteration 1, HIGH-0 lint"
     }
   ]
 }
