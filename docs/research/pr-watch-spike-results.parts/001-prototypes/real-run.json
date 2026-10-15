@@ -5,9 +5,9 @@
     "headSha": "92a457e",
     "fetch": {
       "processCalls": 7,
-      "restUsed": 0,
-      "graphqlUsed": 0,
-      "wallMs": 19670
+      "restUsed": 51,
+      "graphqlUsed": 24,
+      "wallMs": 12575
     },
     "counts": {
       "checkRuns": 3,
@@ -19,7 +19,7 @@
     },
     "level": {
       "checks": "passing",
-      "mergeableState": "unknown",
+      "mergeableState": "dirty",
       "unresolvedThreads": 2,
       "threadAnswers": {
         "threads": 2,
@@ -28,22 +28,15 @@
       "derived": {
         "lastActivityAt": "2026-10-07T01:44:13Z",
         "lastSelfCommentAt": null,
-        "quietMs": 4010494,
-        "unansweredSinceSelf": 7
+        "quietMs": 4246955,
+        "unansweredSinceSelf": 4
       }
     },
-    "cursorLen": 183,
+    "cursorLen": 180,
     "noCursor": {
       "cursorStatus": "lost",
       "events": 8,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable",
-        "review",
-        "review_comment"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable", "review", "review_comment"]
     },
     "roundTrip": {
       "cursorStatus": "ok",
@@ -53,35 +46,17 @@
     "stale": {
       "cursorStatus": "ok",
       "events": 5,
-      "eventTypes": [
-        "head",
-        "review",
-        "review_comment"
-      ]
+      "eventTypes": ["head", "review", "review_comment"]
     },
     "forgedHigh": {
       "cursorStatus": "ahead",
       "events": 8,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable",
-        "review",
-        "review_comment"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable", "review", "review_comment"]
     },
     "garbage": {
       "cursorStatus": "invalid",
       "events": 8,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable",
-        "review",
-        "review_comment"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable", "review", "review_comment"]
     }
   },
   {
@@ -90,9 +65,9 @@
     "headSha": "0e2213c",
     "fetch": {
       "processCalls": 7,
-      "restUsed": 0,
-      "graphqlUsed": 0,
-      "wallMs": 26701
+      "restUsed": 14,
+      "graphqlUsed": 1,
+      "wallMs": 6279
     },
     "counts": {
       "checkRuns": 3,
@@ -113,21 +88,15 @@
       "derived": {
         "lastActivityAt": "2026-10-07T02:50:41Z",
         "lastSelfCommentAt": null,
-        "quietMs": 52699,
-        "unansweredSinceSelf": 4
+        "quietMs": 266031,
+        "unansweredSinceSelf": 1
       }
     },
     "cursorLen": 182,
     "noCursor": {
       "cursorStatus": "lost",
       "events": 5,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable",
-        "issue_comment"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable", "issue_comment"]
     },
     "roundTrip": {
       "cursorStatus": "ok",
@@ -137,32 +106,17 @@
     "stale": {
       "cursorStatus": "ok",
       "events": 2,
-      "eventTypes": [
-        "head",
-        "issue_comment"
-      ]
+      "eventTypes": ["head", "issue_comment"]
     },
     "forgedHigh": {
       "cursorStatus": "ahead",
       "events": 5,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable",
-        "issue_comment"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable", "issue_comment"]
     },
     "garbage": {
       "cursorStatus": "invalid",
       "events": 5,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable",
-        "issue_comment"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable", "issue_comment"]
     }
   },
   {
@@ -171,9 +125,9 @@
     "headSha": "fc39542",
     "fetch": {
       "processCalls": 7,
-      "restUsed": 0,
-      "graphqlUsed": 0,
-      "wallMs": 23549
+      "restUsed": 69,
+      "graphqlUsed": 26,
+      "wallMs": 4798
     },
     "counts": {
       "checkRuns": 3,
@@ -194,20 +148,15 @@
       "derived": {
         "lastActivityAt": "2026-10-02T18:50:45Z",
         "lastSelfCommentAt": null,
-        "quietMs": 374477180,
-        "unansweredSinceSelf": 3
+        "quietMs": 374667721,
+        "unansweredSinceSelf": 0
       }
     },
     "cursorLen": 174,
     "noCursor": {
       "cursorStatus": "lost",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     },
     "roundTrip": {
       "cursorStatus": "ok",
@@ -217,29 +166,17 @@
     "stale": {
       "cursorStatus": "ok",
       "events": 1,
-      "eventTypes": [
-        "head"
-      ]
+      "eventTypes": ["head"]
     },
     "forgedHigh": {
       "cursorStatus": "ahead",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     },
     "garbage": {
       "cursorStatus": "invalid",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     }
   },
   {
@@ -248,9 +185,9 @@
     "headSha": "dee1323",
     "fetch": {
       "processCalls": 7,
-      "restUsed": 0,
-      "graphqlUsed": 0,
-      "wallMs": 21613
+      "restUsed": 12,
+      "graphqlUsed": 1,
+      "wallMs": 5049
     },
     "counts": {
       "checkRuns": 3,
@@ -271,20 +208,15 @@
       "derived": {
         "lastActivityAt": "2026-10-03T01:30:22Z",
         "lastSelfCommentAt": null,
-        "quietMs": 350525457,
-        "unansweredSinceSelf": 3
+        "quietMs": 350696714,
+        "unansweredSinceSelf": 0
       }
     },
     "cursorLen": 174,
     "noCursor": {
       "cursorStatus": "lost",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     },
     "roundTrip": {
       "cursorStatus": "ok",
@@ -294,29 +226,17 @@
     "stale": {
       "cursorStatus": "ok",
       "events": 1,
-      "eventTypes": [
-        "head"
-      ]
+      "eventTypes": ["head"]
     },
     "forgedHigh": {
       "cursorStatus": "ahead",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     },
     "garbage": {
       "cursorStatus": "invalid",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     }
   },
   {
@@ -325,9 +245,9 @@
     "headSha": "e6522f8",
     "fetch": {
       "processCalls": 7,
-      "restUsed": 0,
-      "graphqlUsed": 0,
-      "wallMs": 16867
+      "restUsed": -85,
+      "graphqlUsed": -27,
+      "wallMs": 4872
     },
     "counts": {
       "checkRuns": 3,
@@ -348,20 +268,15 @@
       "derived": {
         "lastActivityAt": "2026-10-07T02:35:15Z",
         "lastSelfCommentAt": null,
-        "quietMs": 1053159,
-        "unansweredSinceSelf": 3
+        "quietMs": 1209415,
+        "unansweredSinceSelf": 0
       }
     },
     "cursorLen": 174,
     "noCursor": {
       "cursorStatus": "lost",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     },
     "roundTrip": {
       "cursorStatus": "ok",
@@ -371,29 +286,17 @@
     "stale": {
       "cursorStatus": "ok",
       "events": 1,
-      "eventTypes": [
-        "head"
-      ]
+      "eventTypes": ["head"]
     },
     "forgedHigh": {
       "cursorStatus": "ahead",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     },
     "garbage": {
       "cursorStatus": "invalid",
       "events": 4,
-      "eventTypes": [
-        "head",
-        "state",
-        "checks",
-        "mergeable"
-      ]
+      "eventTypes": ["head", "state", "checks", "mergeable"]
     }
   }
 ]
