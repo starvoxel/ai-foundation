@@ -51,8 +51,13 @@ env:
   # its creation date; any other empty branch is kept.
   AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ai/"
   # A branch is Active under ACTIVE_DAYS, Stale up to ARCHIVE_DAYS, then Archive.
-  ACTIVE_DAYS: 7
-  ARCHIVE_DAYS: 14
+  # The ACTIVE_BRANCHES / ARCHIVE_BRANCHES most recently active branches count
+  # as Active / at least Stale whatever their age, so a quiet repo keeps its
+  # latest work.
+  ACTIVE_DAYS: 14
+  ARCHIVE_DAYS: 30
+  ACTIVE_BRANCHES: 5
+  ARCHIVE_BRANCHES: 15
 
 jobs:
   cleanup:
