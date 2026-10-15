@@ -1,6 +1,6 @@
 ---
 name: 'review-severity'
-version: '0.2.2'
+version: '0.3.0'
 description: 'Shared severity taxonomy, blocking rule, and report template used by any domain-specific review skill.'
 ---
 
@@ -46,8 +46,11 @@ constraints on which bucket a finding falls into, not a different taxonomy.
 ### Step 2 — Determine the outcome
 
 Any CRITICAL, HIGH, or MEDIUM finding blocks approval and must be fixed. Outcome is **APPROVED** only when
-zero CRITICAL/HIGH/MEDIUM findings remain; otherwise **NEEDS_CHANGES**. LOW findings never block and need not be
-fixed.
+zero CRITICAL/HIGH/MEDIUM findings remain; otherwise **NEEDS_CHANGES**. This is the review stopping rule: the
+reviewer stops and approves once nothing at MEDIUM or above remains.
+
+LOW findings never block. They go to the report's LOW Backlog (Step 4) and are fixed only if the human asks. A
+re-review never re-raises a LOW backlog item as blocking, and an iteration is never spent on LOW findings alone.
 
 ### Step 3 — Write each finding to be actionable
 
@@ -65,6 +68,7 @@ across the whole report, in that order, and prefix it with the finding's severit
 - **Category** — every finding names the Coverage dimension(s) it falls under, comma-separated when it spans more than one. A finding's ID appears in the Coverage row of every dimension it names.
 - **Acceptance Criteria** — include only when criteria were supplied; one row per criterion, `Met` or `Unmet`. An `Unmet` criterion also needs a finding.
 - **Prior Findings** — include only when Iteration is above 1; one row per finding in the prior report, `Resolved`, `Not resolved`, or `Regressed`. A finding that is not `Resolved` is reported again as a current finding, so it is counted in Outcome.
+- **LOW Backlog** — LOW findings are listed here, not under Findings, in the same ID order and still carrying the three required parts (Step 3). Omit the section when there are none.
 - Omit a conditional section entirely rather than leaving an empty heading — the whole report is posted as one PR review, so an empty section is noise.
 
 ### Step 5 — Never expand scope
