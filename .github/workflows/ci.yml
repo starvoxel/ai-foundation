@@ -8,7 +8,7 @@ on:
   # required status checks reject a commit that hasn't passed CI, so the
   # PR-less way to land one is: push it to a `push-check/**` branch, wait for
   # green, then fast-forward `main` to that exact commit (see
-  # steering/engineering/git-workflow-framework.md).
+  # steering/engineering/git-workflow.md).
   push:
     branches:
       - main

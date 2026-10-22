@@ -1,6 +1,6 @@
 ---
 name: 'pr-stewardship'
-version: '0.3.2'
+version: '0.3.3'
 description: 'Drives an open pull request to a green, mergeable state — checking CI, merge conflicts, and review feedback, and fixing or reporting what blocks it.'
 ---
 
@@ -36,7 +36,7 @@ GitHub-side actions in cloud carry the proxy's identity, not the `ai-git` token'
 Read the PR's mergeable state (locally `ai-git gh-pr-view <n> --json mergeable,mergeStateStatus`; in cloud the cloud table in Inputs). If it is not cleanly mergeable:
 
 1. Merge the base branch into the PR branch. Regenerate lockfiles or other generated files with the repo's own tooling — never by hand.
-2. Never rewrite history on a branch you did not create (no rebase, amend, or force-push — a merge commit is always safe). On a branch you created yourself, follow `steering/engineering/git-workflow-projects.md`'s branching convention instead.
+2. Never rewrite history on a branch you did not create (no rebase, amend, or force-push — a merge commit is always safe). On a branch you created yourself, follow `steering/engineering/git-workflow.md`: "Land Work Through a Branch and PR" — never amend or rebase a pushed commit.
 3. Run the repo's own validation/tests locally, then push.
 4. If both sides changed the same logic such that picking either loses behavior, stop and report to the human instead of guessing.
 
@@ -58,25 +58,14 @@ Read open review threads and comments.
 2. For larger or ambiguous asks (a design change, a multi-file refactor), reply with your assessment rather than guessing at an implementation.
 3. Resolve the threads you addressed.
 
-### Step 4 — Land a green push-check branch
-
-Applies only to a `push-check/**` branch in a `repo_type: framework` repo (`steering/engineering/git-workflow-framework.md`: "Main Only Accepts Commits That Have Already Passed CI"), where the agent that owns the branch lands it. A PR in a project repo is merged by a human (`steering/engineering/git-workflow-projects.md`: "Human Reviews and Merges Every PR") — skip this step there.
-
-1. Confirm every required check is green on the branch's current head commit and nothing has been pushed since.
-2. Fast-forward `main` to that exact commit: `ai-git push origin push-check/{short-description}:main`. Never amend or rebase first — a new SHA has not passed CI.
-3. If the push is rejected as not a fast-forward, `main` has moved: merge `main` into the branch and push it so CI runs again, then return here once it is green.
-4. If it is rejected because a required check has not passed on that commit, do not bypass it — escalate per `steering/engineering/git-workflow-core.md`: "Required CI Checks Gate Main — Never Bypass Them".
-5. Leave the `push-check/` branch in place — the twice-weekly `Cleanup branches` workflow deletes it once `main` contains its tip (cloud sessions can't delete remote branches), so it may linger for a few days.
-
-### Step 5 — Report status
+### Step 4 — Report status
 
 If nothing needed fixing and the PR is green and mergeable, there is nothing further to do or report. Otherwise, summarize what changed (a pushed fix) or what is blocking (a comment already posted per Steps 2–3) so the caller knows whether the PR is done or needs another pass.
 
 ## Outputs
 
 - **A pushed fix**, if Steps 1–3 found something to fix
-- **A landed `main`**, if Step 4 fast-forwarded a green `push-check/` branch
-- **A PR comment**, if something is blocking that this skill cannot resolve on its own (or, for a `push-check/` branch with no PR, an escalation to the managing agent or human)
+- **A PR comment**, if something is blocking that this skill cannot resolve on its own
 - **A status** (done / needs another pass / blocked) returned to whoever invoked this skill
 
 ## Edge Cases

@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '0.10.1'
+version: '0.10.2'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 requires_skills:
   - 'complexity-tiers'
@@ -110,7 +110,7 @@ file_patterns: []
 - Every plan or record requiring human approval (Feature Plan, ADR, or a Tier 3 plan) must be saved to the repository and committed with `Status: Draft` before being presented for review
 - Each round of human-requested revision is committed as a new commit (never amended or squashed) before re-presenting, preserving the full Draft → feedback → Draft → ... history
 - Once the human gives an explicit decision, the agent updates the status field (`Approved` or `Deferred`) and commits that change as its own commit, separate from the revision history and from any implementation commit
-- This applies uniformly in framework and project repos — see `skill/plan-lifecycle` for the full procedure, and the repo-type-specific git-workflow steering for branch/direct-commit mechanics
+- This applies uniformly in framework and project repos — see `skill/plan-lifecycle` for the full procedure, and `steering/engineering/git-workflow.md` for branch mechanics
 
 **Rationale:** Ties directly to "Implementation Follows the Complexity-Tiers Gate": makes "approved" objectively checkable via `git log` instead of relying on conversational memory. Centralizing the procedure in `skill/plan-lifecycle` means every planning skill follows the same mechanics without restating them.
 
@@ -120,8 +120,8 @@ file_patterns: []
 
 ### Rule: Commit Incrementally During Implementation
 
-- Follow `steering/engineering/git-workflow-core.md`: "Commit Implementation Incrementally"'s discipline for every implementation, whichever gate in "Implementation Follows the Complexity-Tiers Gate" it went through
-- Which checkpoint counts as "a completed increment" is repo-type-specific — see `git-workflow-framework.md` or `git-workflow-projects.md`'s own Commit Granularity section for the active default. For ungoverned Tier 1/2 work, the increment is the smallest verified unit of the task itself, not a plan step
+- Follow `steering/engineering/git-workflow.md`: "Commit Small, Verified Increments"'s discipline for every implementation, whichever gate in "Implementation Follows the Complexity-Tiers Gate" it went through
+- The increment is the smallest verified unit of the task itself
 
 **Rationale:** Small commits make review, bisection, and recovery from a bad step far cheaper than a single large commit at the end. Batching everything into one commit defeats the purpose of the atomic-commit rules already required by the git-workflow steering.
 
@@ -153,7 +153,7 @@ file_patterns: []
 - **Testability violations:** Caught during review. Pure logic buried in I/O code without separation is a LOW finding. Refactoring recommended but not blocking.
 - **Security violations:** Always block approval. See Principal-Engineer review process.
 - **Uncommitted-approval violations:** If an agent begins implementation without a committed `Approved` status on the governing plan, work stops immediately and the approval commit is created before continuing.
-- **Batched-commit violations:** See `steering/engineering/git-workflow-core.md`'s own Enforcement section for "Commit Implementation Incrementally" — this repo's home for the incremental-commit rule and its consequence.
+- **Batched-commit violations:** See `steering/engineering/git-workflow.md`'s Enforcement section.
 - **Cite-or-state violations:** Caught during Principal-Engineer review. A document that both cites and restates the same content is a MEDIUM finding; the restatement is removed in favor of the citation.
 - **Ordinal-citation violations:** Caught automatically — `aif validate refs` fails the build on a bare-component reference paired with a raw `Step N`/`Rule N` mention (steering headings carry no number at all, so any such mention next to a cited steering file is always wrong), and on a quoted locator name that no longer matches a heading in the cited component. Fix by naming the locator (or updating the citation to the locator's current name) before merging.
 
@@ -170,6 +170,6 @@ These rules exist because the most common and expensive engineering failures are
 
 When a rule feels like it is slowing things down, that is usually a sign that planning was skipped, not that the rule is wrong.
 
-**Git Workflow Standards:** See `steering/engineering/git-workflow-core.md` (rules shared by every repo type), plus `steering/engineering/git-workflow-framework.md` (this repo) or `steering/engineering/git-workflow-projects.md` (project repos) for repo-type-specific rules and overrides.
+**Git Workflow Standards:** See `steering/engineering/git-workflow.md`.
 
 **Plan Lifecycle:** See `skill/plan-lifecycle` for the commit-gate procedure and status vocabulary referenced in "Implementation Follows the Complexity-Tiers Gate", "Plans Are Committed Artifacts, Not Chat Output", and "Commit Incrementally During Implementation".
