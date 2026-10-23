@@ -4,20 +4,14 @@
 
 {Who has the problem, and what happens today. Two or three sentences.}
 
+## Users
+
+{Who uses it, and what each kind of user needs.}
+
 ## Goals and non-goals
 
 - Goals: {…}
 - Non-goals: {…}
-
-## Key scenarios
-
-1. {Who does what, and what they get}
-
-## Requirements
-
-| ID  | Requirement                      | Priority (must / should / could) |
-| --- | -------------------------------- | -------------------------------- |
-| R1  | {Observable, testable statement} | must                             |
 
 ## Constraints
 
@@ -26,6 +20,18 @@
 ## Success measures
 
 {How we will know it worked.}
+
+## Feature areas
+
+### {Area name}
+
+{One or two lines: what it covers.}
+
+| ID   | Requirement                      | Priority (must / should / could) |
+| ---- | -------------------------------- | -------------------------------- |
+| A1.1 | {Observable, testable statement} | must                             |
+
+Flow and rules: {main flow, alternatives, limits, error and empty states, permissions, data kept, links to other areas — only what the requirements do not already say.}
 
 ## Assumptions and open questions
 

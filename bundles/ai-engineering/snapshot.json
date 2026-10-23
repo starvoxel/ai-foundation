@@ -1,7 +1,7 @@
 {
-  "bundle": "framework",
+  "bundle": "ai-engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T16:32:35.984Z",
+  "computed_at": "2026-10-23T18:38:14.957Z",
   "sources": {
     "skills/component-authoring/SKILL.md": "sha256:b38abafd08f3b5ecba90f9df1e79e0e2c4ffa3cc2fd2e729b67790445f85d3e2",
     "skills/component-authoring/reference/agent-tools.yaml": "sha256:5645094bc88b121bde2efa4290563c38cbb66215e4977a7964b3a0ded9fe145a",

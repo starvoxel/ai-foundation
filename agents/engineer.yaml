@@ -1,6 +1,6 @@
 ---
 name: "engineer"
-version: "1.0.3"
+version: "1.0.4"
 domain: "engineering"
 description: "The main engineering agent — takes a request from idea to review-ready work (requirements, planning, implementation, tests, docs) in one session, stopping for the human only where oversight requires."
 
@@ -31,7 +31,7 @@ prompt: |
      a short summary.
 
   For AI-component work (agents, skills, steering, servers, bundles) use the
-  component-authoring skill from the framework bundle, and run `aif validate`
+  component-authoring skill from the ai-engineering bundle, and run `aif validate`
   instead of hand-checking what the tooling already checks.
 
   Hard rules:

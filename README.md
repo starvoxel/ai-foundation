@@ -177,12 +177,12 @@ setup is not cached) before that tool is installed.
 
 Set these in the environment's **Environment variables**, never in the script:
 
-| Variable            | Value                                                                                                                                                 |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.                     |
-| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.                         |
-| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                             |
-| `AIF_BUNDLES`       | Comma-separated bundles (e.g. `engineering,framework,generic`) that the SessionStart hook installs with `aif install -H claude`; unset installs none. |
+| Variable            | Value                                                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.                          |
+| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.                              |
+| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                                  |
+| `AIF_BUNDLES`       | Comma-separated bundles (e.g. `engineering,ai-engineering,generic`) that the SessionStart hook installs with `aif install -H claude`; unset installs none. |
 
 #### SessionStart hook
 
@@ -227,6 +227,6 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
 
 ## Contributing
 
-This repo is framework only — no application code lives here. When adding or modifying components, use `skill/component-authoring` (installed by the `framework` bundle) for the guided procedure and validation checklist. See `AGENTS.md` for the full specification.
+This repo is framework only — no application code lives here. When adding or modifying components, use `skill/component-authoring` (installed by the `ai-engineering` bundle) for the guided procedure and validation checklist. See `AGENTS.md` for the full specification.
 
 Work within this repo is recommended to be agent-authored using that skill.

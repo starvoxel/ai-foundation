@@ -1,9 +1,9 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T16:34:42.919Z",
+  "computed_at": "2026-10-23T18:38:30.022Z",
   "sources": {
-    "agents/engineer.yaml": "sha256:32c5320cee6fd0aa7d4350b20d8ea9c9e34d3b0e45cbe4516bddd6a9e87cf933",
+    "agents/engineer.yaml": "sha256:c5158ead524edb04bb81536a8af2f023a36314d0701e3c320367279882d2df9f",
     "agents/engineering-researcher.yaml": "sha256:5b603a450d5cb586a3bd30bb19262cfcb2c8cb4391fed66e9e79529e09293064",
     "agents/reviewer.yaml": "sha256:d6b4b055ca211cae3f6ab8a38f591760bcb42b7ba71a8948469d888931fa6e15",
     "steering/global/concision.md": "sha256:b0d635b5e5b4541e3df19bdde178578129fe9fe2fa6b989ae6d9af72a614ee55",
@@ -18,8 +18,8 @@
     "steering/engineering/pr-descriptions.md": "sha256:6d54d315a2a91ae415688eddf90dce26cf508e08b5bbe4bfd9f4b3e2a09be4d0",
     "skills/oversight/SKILL.md": "sha256:3c2d51683f177ded3846d1b2f5f83ae339a60014ecaecd0f595b09fae71b9e65",
     "skills/test-execution/SKILL.md": "sha256:aa43c0d6df7752b9bbbd327c97d4de766f22dc565461ffdae29fd769e90e2a21",
-    "skills/prd/SKILL.md": "sha256:eb375459650a40d8b9fa7f031c601a1c209dbf1134f024cf00b763b3cda55713",
-    "skills/prd/reference/template.md": "sha256:130818bfef97295a5c8a839894d458ccce642f593e54adfd3d6c11b458888891",
+    "skills/prd/SKILL.md": "sha256:96b4d2e1758484247e54eb22a270aaad48f2c8119965fa9db86730716bdfec8b",
+    "skills/prd/reference/template.md": "sha256:a667a61672248db86829c63d358265b77977508c6a3d52ddd6d1086a37658afe",
     "skills/feature-planning/SKILL.md": "sha256:565a06bcfa1ca889388c21120cf8d491165ddb083700e0200aa25f61b5533d21",
     "skills/feature-planning/reference/template.md": "sha256:d91c475b8a2ac745ddc4da27d3fd1d451320204667758fc539afd538688d012d",
     "skills/pr-stewardship/SKILL.md": "sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e",
