@@ -31,7 +31,7 @@ ai-foundation/
 ├── servers/                         ← MCP tool server definitions
 ├── bundles/                         ← Install bundles (per-harness deployment)
 ├── projects/                        ← Per-project overrides
-├── docs/                            ← Plans, ADRs, and arc42 architecture docs
+├── docs/                            ← Plans and arc42 architecture docs
 ├── bin/                             ← CLI entry point (aif)
 ├── lib/                             ← CLI modules
 └── tests/                           ← unit/, integration/, validation/
@@ -140,7 +140,6 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `paths`                         | object  | No       | Artifact output directories (relative to repo root). Any value may reference another resolved field with `{key.path}` — see below.                                           |
 | `paths.plans`                   | string  | No       | Root for all plan artifacts. Default: `plans`                                                                                                                                |
 | `paths.features`                | string  | No       | Root for a Feature's folder — `{paths.features}/{FeatureID}/plan.md`, `tasks.json`, and `orchestration-state.json` all live together as siblings. Default: `plans/features`  |
-| `paths.decisions`               | string  | No       | ADRs (MADR format), flat directory, no domain subfolders. Default: `knowledge/decisions`                                                                                     |
 | `paths.knowledge`               | string  | No       | Knowledge directory. Default: `knowledge`                                                                                                                                    |
 | `paths.architecture`            | string  | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                                               |
 | `paths.research`                | string  | No       | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research`                                                                                            |
@@ -237,7 +236,6 @@ If no config file exists, agents fall back to:
 - `standards`: none (agent must ask or search `standards/`)
 - `paths.plans`: `plans`
 - `paths.features`: `plans/features`
-- `paths.decisions`: `knowledge/decisions`
 - `paths.knowledge`: `knowledge`
 - `paths.architecture`: `knowledge/architecture`
 - `paths.research`: `knowledge/research`

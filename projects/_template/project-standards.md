@@ -99,7 +99,7 @@ follows this section as part of the active standards file; no separate opt-in me
 
 ## Known Constraints & Decisions
 
-Technical decisions and constraints are stored as MADR-format ADRs in `knowledge/decisions/` — see `steering/engineering/document-types.md` for what belongs there and `skill/plan-lifecycle` for the draft-to-approved procedure.
+Technical constraints and how the system works are kept as arc42 sections in `knowledge/architecture/` — see `steering/engineering/document-types.md` for what belongs there.
 
 ---
 

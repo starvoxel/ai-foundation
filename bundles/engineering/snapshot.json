@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T00:12:38.341Z",
+  "computed_at": "2026-10-23T00:13:09.992Z",
   "sources": {
     "agents/engineering-researcher.yaml": "sha256:eb5b9500414d4c4ca1aa3e493a7fafbe4f0d146e7c848c8c472754262bec83e3",
     "agents/principal-engineer.yaml": "sha256:db53483735ca73703465c35994c35e72d93f621ddc48aaa18dff615676fee5ba",
@@ -19,7 +19,7 @@
     "skills/code-review/SKILL.md": "sha256:facec1d3291fdeb476d7ec5aa5a869660092f5b54d65e91245b2160e355af984",
     "skills/ai-component-review/SKILL.md": "sha256:581a72da82b794c92b3e3d3548d208a8700dc47e05e331992b7d7b3fecad1564",
     "skills/review-severity/SKILL.md": "sha256:c71f5209e2a5aadeed3f466b8a0eb9f8f89214dddb1560d7cd7495b4d002f4b5",
-    "skills/review-severity/reference/template.md": "sha256:578ab57841f8b4ab27c63b874a475b4f841add903712c5bc992f59513e607bf1",
+    "skills/review-severity/reference/template.md": "sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5",
     "skills/complexity-tiers/SKILL.md": "sha256:a3f7fe9669b840f8dcb2009439891e23177adbe9561e65a3a5f130c001a2bb5a",
     "skills/test-execution/SKILL.md": "sha256:04a5ee712a6b7d8bc3cc78f3c6fd9d0a2b803f69a176e9484676e7f3b114e6db",
     "skills/test-execution/reference/template.md": "sha256:0f4427d9cc2fbaea4af78b851bf1ffaaf7a17de7d4f951e775e1d228917cb8e5",
@@ -37,6 +37,6 @@
     "skills/pr-stewardship/SKILL.md": "sha256:1f2a9cf5e1c100d4831b69702049c8bec5b9fb5f5bc46d76e777fdac7a1cb786",
     "skills/plan-lifecycle/SKILL.md": "sha256:92f10f6798f209ce24dc1c800e22494687e3ac41bdc7180cc7f96630d297bddc",
     "skills/plan-lifecycle/reference/commit-gate-procedure.md": "sha256:783b97a5b4bdf2fdcce3c4885e3347ca6339eb9c679de7c9d3326ea5a3915d53",
-    "skills/plan-lifecycle/reference/status-vocabulary.md": "sha256:b6d39bbd6043343ac99c0b3b711ed4016b5b49803b1970dd47cc20f6b5ea9f10"
+    "skills/plan-lifecycle/reference/status-vocabulary.md": "sha256:2dbddb2e6664a3e15820218be798b5e9d63a632767edf3279c5cf2ca4832d244"
   }
 }

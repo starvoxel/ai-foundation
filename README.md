@@ -24,7 +24,7 @@ ai-foundation/
 ├── servers/         MCP tool server definitions
 ├── bundles/         Install bundles (per-harness deployment)
 ├── projects/        Per-project overrides and templates
-├── docs/            Plans, ADRs, and arc42 architecture docs
+├── docs/            Plans and arc42 architecture docs
 ├── bin/             CLI entry point (aif)
 ├── lib/             CLI modules
 └── tests/           unit/, integration/, validation/
@@ -38,10 +38,8 @@ For details on component types, field requirements, and loading rules, see [`AGE
 
 | Agent                  | Role                                                                                                 |
 | ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| architect              | Rare, contested, costly-to-reverse decisions — produces ADRs                                         |
-| engineering-manager    | Planning (Feature/Task decomposition) and orchestration across agents                                |
 | software-engineer      | Owns a Task end-to-end: design, implement, test, document — product code and AI-component work alike |
-| engineering-researcher | Web research — decision-ready briefs for Architect, Engineering Manager, or Software Engineer        |
+| engineering-researcher | Web research — decision-ready briefs; the only agent with web access                                 |
 | principal-engineer     | Code review — enforces quality, security, and standards                                              |
 
 ---
@@ -69,8 +67,6 @@ aif snapshot --bundle             # every bundle's snapshot (bare flag = all of 
 aif snapshot --bundle engineering # one bundle's snapshot
 
 # Decision/architecture indexing
-aif index decisions             # generate {paths.decisions}/index.json
-aif index decisions --check     # verify the decision index without writing
 aif index architecture          # generate docs/architecture/index.json
 aif index architecture --check  # verify the architecture index without writing
 
@@ -79,8 +75,8 @@ aif init --name my-app --shortname myapp --language typescript --org acme
 aif init --interactive
 
 # Config field resolution
-aif config paths.decisions          # resolve a .aiconfig.json field, falling back to its default
-aif config paths.decisions --abs    # print an absolute path (for paths.* keys)
+aif config paths.research          # resolve a .aiconfig.json field, falling back to its default
+aif config paths.research --abs    # print an absolute path (for paths.* keys)
 ```
 
 ### Harness Support
