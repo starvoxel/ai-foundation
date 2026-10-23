@@ -1,6 +1,6 @@
 ---
 name: 'pr-descriptions'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Requires PR descriptions to follow the repo PR template exactly — sections, order, and every comment instruction inside it.'
 file_patterns: []
 ---
@@ -27,7 +27,7 @@ All agents that open or update a pull request description, in any repository.
 
 ## Enforcement
 
-- Caught during Principal-Engineer review (or human review, where that role doesn't apply): a PR description that skips a template section, adds an undefined one, or visibly ignores a section's comment (e.g. a long file-by-file Summary when the comment calls for 2-4 sentences) is a LOW-MEDIUM finding depending on severity — send back with a pointer to the specific comment that was ignored, not a rewrite of the rule itself.
+- Caught during review (or human review, where that role doesn't apply): a PR description that skips a template section, adds an undefined one, or visibly ignores a section's comment (e.g. a long file-by-file Summary when the comment calls for 2-4 sentences) is a LOW-MEDIUM finding depending on severity — send back with a pointer to the specific comment that was ignored, not a rewrite of the rule itself.
 
 ---
 

@@ -36,11 +36,11 @@ For details on component types, field requirements, and loading rules, see [`AGE
 
 ## Agents
 
-| Agent                  | Role                                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| software-engineer      | Owns a Task end-to-end: design, implement, test, document — product code and AI-component work alike |
-| engineering-researcher | Web research — decision-ready briefs; the only agent with web access                                 |
-| principal-engineer     | Code review — enforces quality, security, and standards                                              |
+| Agent                  | Role                                                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| engineer               | The main agent: requirements, planning, implementation, tests, docs, and PR — stopping for the human per the `oversight` setting |
+| engineering-researcher | Web research — decision-ready briefs; the only agent with web access                                                             |
+| reviewer               | Independent fresh-context review of a diff — correctness, security, standards                                                    |
 
 ---
 

@@ -1,16 +1,15 @@
 ---
 name: 'code-review'
-version: '0.5.4'
+version: '0.5.5'
 description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via the shared review-severity taxonomy.'
 requires_skills:
   - 'ai-component-review'
-  - 'complexity-tiers'
   - 'review-severity'
 ---
 
 ## Purpose
 
-Reviews source code against its governing plan, language standards, and project standards.
+Reviews source code against its request or plan, language standards, and project standards.
 Produces a structured report that either approves the code or returns it with actionable findings for correction.
 
 ---
@@ -19,7 +18,7 @@ Produces a structured report that either approves the code or returns it with ac
 
 - **Source code** — files to review
 - **Iteration** — the review round, 1 for a first review; on a re-review the reviewer's own prior Review Report is the baseline for Prior Findings
-- **Governing plan** — what was supposed to be built (acceptance criteria, security, logging): the Feature Plan for Task work decomposed from one, a Tier 3 plan for standalone work that rose to Tier 3, or — for standalone Tier 1/2 work, which has no separate plan artifact by default — the task description and any outline produced per `skill/complexity-tiers`, if one exists
+- **Request and plan** — what was supposed to be built (acceptance criteria, security, logging): the approved plan for large work, otherwise the human's request and any outline agreed for it
 - **Language standards** — from `standards/{stack}.md`
 - **Project standards** — from `projects/{name}/project-standards.md`
 
@@ -29,7 +28,7 @@ Produces a structured report that either approves the code or returns it with ac
 
 ### Step 1 — Review Completeness
 
-Verify every component in the plan's component list exists. Missing components are CRITICAL findings before any code quality review begins.
+Verify every component the request or plan calls for exists. Missing components are CRITICAL findings before any code quality review begins.
 
 ### Step 2 — Review Change Scope
 
@@ -42,11 +41,11 @@ Go through security and logging requirements line by line. Each unmet requiremen
 
 ### Step 4 — Review Standards Compliance
 
-Check naming conventions, file headers (including the Plan ID reference), doc comments, async patterns, error handling, and any other rules in the active standards files.
+Check naming conventions, file headers, doc comments, async patterns, error handling, and any other rules in the active standards files.
 
 ### Step 5 — Review Logic and Correctness
 
-Does the implementation match the plan's described behaviour? Are edge cases handled?
+Does the implementation match the described behaviour? Are edge cases handled?
 Are interfaces implemented as specified? Does the Test Results Report cover every test case the plan's Testing Plan defines, with none skipped unflagged?
 
 ### Step 6 — Produce Review Report

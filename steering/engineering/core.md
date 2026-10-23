@@ -1,8 +1,9 @@
 ---
 name: 'engineering-core'
-version: '1.0.1'
+version: '1.0.2'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 requires_skills:
+  - 'oversight'
   - 'plan-lifecycle'
 file_patterns: []
 ---
@@ -19,9 +20,8 @@ file_patterns: []
 
 ### Rule: Plan Proportionately to the Work
 
-- Small, clear work is implemented directly and summarised at the end
-- Work too large to review in one pass is planned first and approved before implementation — follow `steering/engineering/git-workflow.md`: "Large Work Gets a Committed, Approved Plan First"
-- The human's prompt may override the default oversight level unless `.aiconfig.json` enforces it
+- How much sign-off work needs is set by `skill/oversight`: the human's prompt may override the configured level unless `.aiconfig.json` enforces it
+- Large work is planned and approved before implementation — `steering/engineering/git-workflow.md`: "Large Work Gets a Committed, Approved Plan First"
 
 **Rationale:** Process cost should track the cost of a wrong turn. A one-line fix does not carry the risk of a cross-cutting redesign.
 
@@ -78,7 +78,7 @@ file_patterns: []
 
 - Security checklist items in plans and standards are not optional
 - A review with unfulfilled security requirements must not be approved; security violations are always HIGH or CRITICAL
-- Only the research agent may use web tools; every other agent routes outside-information needs through it
+- Only the researcher agent may hold web tools; every other agent routes outside-information needs through it, with the human confirming each dispatch
 
 **Rationale:** The cost of a security violation is disproportionate, and web content in an implementing agent's context is an injection path.
 

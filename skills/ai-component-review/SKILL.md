@@ -1,6 +1,6 @@
 ---
 name: 'ai-component-review'
-version: '0.3.4'
+version: '0.3.5'
 description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via the shared review-severity taxonomy.'
 requires_skills:
   - 'code-review'
@@ -22,7 +22,7 @@ by language standard.
 - **Component diff** — the changed file(s) under `agents/`, `skills/`, `steering/`, `servers/`, or `bundles/`
 - **Governing schema** — AGENTS.md's entry for that component type
 - **Iteration** — the review round, 1 for a first review; on a re-review the reviewer's own prior Review Report is the baseline for Prior Findings
-- **Related plan, if any** — the plan the change implements (if it needed one) — standalone Tier 1/2 work has no separate plan artifact by default
+- **Related plan, if any** — the plan the change implements (if it needed one) — small work has no separate plan artifact
 
 ---
 

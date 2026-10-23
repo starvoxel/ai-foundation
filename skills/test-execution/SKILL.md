@@ -1,19 +1,19 @@
 ---
 name: 'test-execution'
-version: '0.4.2'
+version: '0.4.3'
 description: 'Writes and executes automated tests, producing a Test Results Report with pass/fail/blocked status.'
 ---
 
 ## Purpose
 
-Writes and executes automated tests validating a Task's implementation against its governing plan.
+Writes and executes automated tests validating an implementation against its request or plan.
 Produces a structured report showing pass/fail/blocked status per test case with failure analysis. Applies the testable-by-design principle from `steering/engineering/core.md`.
 
 ---
 
 ## Inputs
 
-- **Governing plan** — the Feature Plan's Acceptance Criteria and Error States sections (a plan's acceptance-criteria and error-state sections), plus a Task-level plan's own test-case detail when the Task's complexity tier produced one
+- **Request and plan** — the acceptance criteria and error states in the approved plan for large work, otherwise the human's request
 - **Source code** — approved implementation to test
 - **Language standards** — testing conventions from `standards/{stack}.md`
 - **Project standards** — test project structure from `projects/{name}/project-standards.md`

@@ -1,6 +1,6 @@
 ---
 name: 'architecture-authoring'
-version: '0.3.0'
+version: '0.3.1'
 description: 'Defines the arc42 section frontmatter schema and the key_files scope/split rules, so any engineering-domain agent can author or maintain architecture docs consistently, in any project.'
 file_patterns: []
 ---
@@ -75,10 +75,10 @@ A doc is stale when any `key_files` entry changed in a commit after the doc's ow
 
 ## Enforcement
 
-- **Malformed frontmatter:** Caught during Principal-Engineer review. A section missing a required field, or using a freeform `lifecycle` value, is a MEDIUM finding.
-- **Out-of-scope key_files entries:** Caught during Principal-Engineer review. A `key_files` entry that's a caller, test, or incidental config file is a LOW finding — remove it.
-- **Unconsidered growth:** Caught during Principal-Engineer review. A `key_files` list that grows past 5 entries with no evidence the split question was weighed (see "key_files Split Trigger — No Hard Cap") is a LOW finding — not "must split," but "must show the trade-off was considered."
-- **Touch-to-clear-check:** Caught during Principal-Engineer review. A doc edited only to clear the staleness check, without being re-read against the changed `key_files` entry, is a MEDIUM finding.
+- **Malformed frontmatter:** Caught during review. A section missing a required field, or using a freeform `lifecycle` value, is a MEDIUM finding.
+- **Out-of-scope key_files entries:** Caught during review. A `key_files` entry that's a caller, test, or incidental config file is a LOW finding — remove it.
+- **Unconsidered growth:** Caught during review. A `key_files` list that grows past 5 entries with no evidence the split question was weighed (see "key_files Split Trigger — No Hard Cap") is a LOW finding — not "must split," but "must show the trade-off was considered."
+- **Touch-to-clear-check:** Caught during review. A doc edited only to clear the staleness check, without being re-read against the changed `key_files` entry, is a MEDIUM finding.
 
 ---
 

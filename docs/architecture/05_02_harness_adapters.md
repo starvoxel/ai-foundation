@@ -64,6 +64,8 @@ behind the portability quality goal (§1), not just a convention.
 | `blocked_commands` enforcement         | A `PreToolUse` hook on the `Bash` tool runs the installed `block-command` script (see "The `block-command` hook")                                                                                                                                                                                                                                                                                                                                       | Emitted as a shell `deny` permission rule in the agent JSON; its matching semantics are unverified and unchanged                                                       |
 | MCP settings removal                   | `removeMcpSetting(serverName)` edits `~/.claude.json`                                                                                                                                                                                                                                                                                                                                                                                                   | `removeMcpSetting(serverName)` edits `.kiro/settings/mcp.json`                                                                                                         |
 
+The same `lib/constants.js` also holds the CLI `COMMANDS` list; that part is not harness-specific and is covered in §5.03.
+
 ### The `block-command` hook
 
 > Claude Code only. Added by AIF-007; replaces a start-of-string glob match that compound commands, pipes, env prefixes, absolute paths and wrappers all bypassed.

@@ -1,6 +1,6 @@
 ---
 name: 'plan-lifecycle'
-version: '0.3.3'
+version: '0.3.4'
 description: 'Shared commit-gate procedure and status vocabulary for any artifact requiring human approval before dependent work begins.'
 ---
 

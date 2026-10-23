@@ -28,7 +28,7 @@
 
 **Failure**: {What the test asserted vs. what actually happened}
 **Likely cause**: {Code bug / test bug / plan ambiguity}
-**Recommended action**: {Return to Software-Engineer / raise on Feature / clarify plan}
+**Recommended action**: {Fix and re-run / raise with the human / clarify the plan}
 
 ### [{Test ID}] {Test Name} — BLOCKED
 

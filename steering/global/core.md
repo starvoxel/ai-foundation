@@ -1,6 +1,6 @@
 ---
 name: 'global-core'
-version: '0.2.1'
+version: '0.2.2'
 description: 'Core rules that apply to all agents in every session.'
 file_patterns: []
 ---
@@ -79,7 +79,7 @@ file_patterns: []
 
 - **Fabrication violations:** If the agent states something as fact that turns out to be invented, the human should call it out immediately. Repeated violations indicate a prompt or process issue to be fixed.
 - **Ambiguity violations:** If the agent proceeds on an assumption that leads to rework, the assumption should have been a question. Retroactive clarification is always more expensive.
-- **Security violations:** Caught during review by Principal-Engineer or human verification. Violations block approval.
+- **Security violations:** Caught during review by the reviewer agent or human verification. Violations block approval.
 - **Escalation violations:** If an agent picks an approach without escalating when it should have, and the choice proves wrong, the failure is analyzed to refine escalation criteria.
 - **Citation violations:** Detected during human review. Agent must retroactively add citations if flagged.
 

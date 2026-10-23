@@ -1,6 +1,6 @@
 ---
 name: 'review-severity'
-version: '0.2.3'
+version: '0.2.4'
 description: 'Shared severity taxonomy, blocking rule, and report template used by any domain-specific review skill.'
 ---
 

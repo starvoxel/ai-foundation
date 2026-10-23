@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.3.4'
+version: '0.3.5'
 description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
@@ -53,7 +53,7 @@ When a task extends or removes a building block an arc42 architecture doc alread
 
 - **Skipped-knowledge violations:** Caught during review. Work that contradicts an available, relevant knowledge entry — that should have been loaded is a MEDIUM finding.
 - **Silent-conflict violations:** Caught during review. Following knowledge over an active standard without raising the conflict as a finding is a MEDIUM finding — the standard should have won, and the conflict should have been surfaced either way.
-- **Doc-update gate violations:** Caught during Principal-Engineer review. A new file extending a described building block with no corresponding `key_files` update is a MEDIUM finding.
+- **Doc-update gate violations:** Caught during review. A new file extending a described building block with no corresponding `key_files` update is a MEDIUM finding.
 
 ---
 
