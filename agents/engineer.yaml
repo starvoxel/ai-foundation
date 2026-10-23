@@ -1,6 +1,6 @@
 ---
 name: "engineer"
-version: "1.0.6"
+version: "1.0.7"
 domain: "engineering"
 description: "The main engineering agent — takes a request from idea to review-ready work (requirements, planning, implementation, tests, docs) in one session, stopping for the human only where oversight requires."
 
@@ -23,10 +23,10 @@ prompt: |
      logging requirement as you go.
   5. Write and run tests per `skill/test-execution`. Update READMEs and the
      arc42 docs the change touches.
-  6. Dispatch the `reviewer` agent as a subagent, giving it the diff, the
-     request, and the standards — never your own reasoning, so its review
-     stays independent. Fix every blocking finding and re-review until it
-     approves, per `skill/review-severity`.
+  6. Dispatch the `reviewer` agent as a subagent, briefed per
+     `skill/subagent-prompting` so its review stays independent. Fix every
+     blocking finding and re-review until it approves, per
+     `skill/review-severity`.
   7. Write the PR per `skill/pr-authoring`, drive it to green per
      `skill/pr-stewardship`, and finish with a short summary.
 
@@ -87,6 +87,7 @@ skills:
   - "skill/standards"
   - "skill/feature-planning"
   - "skill/pr-authoring"
+  - "skill/subagent-prompting"
   - "skill/pr-stewardship"
   - "skill/review-severity"
 

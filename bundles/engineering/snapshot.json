@@ -1,10 +1,10 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T19:42:00.470Z",
+  "computed_at": "2026-10-23T22:10:56.014Z",
   "sources": {
-    "agents/engineer.yaml": "sha256:2fffbb9d5ceec39de2be611eb1f7626a7c0b571bad2dfc1d5dcd934bce1c58bc",
-    "agents/engineering-researcher.yaml": "sha256:5b603a450d5cb586a3bd30bb19262cfcb2c8cb4391fed66e9e79529e09293064",
+    "agents/engineer.yaml": "sha256:16a2e8ac8f6ef5b561352442366edc6d39eb36a868d651b6662775229fa9d532",
+    "agents/engineering-researcher.yaml": "sha256:d63fa402a41d5e4af9e9f614211c1dbefdbbbd6f1e82b8cd68a6dad6ac63f3dc",
     "agents/reviewer.yaml": "sha256:d6b4b055ca211cae3f6ab8a38f591760bcb42b7ba71a8948469d888931fa6e15",
     "steering/global/concision.md": "sha256:413f531a1d1f60ec5ac4ffee419297a675b1af4704df864fdbd43b67377f135a",
     "steering/global/core.md": "sha256:ff2c3dbd4a04e1a0db68b3785bccd404e8c377e3e932014117fe6b93d5f80302",
@@ -26,6 +26,8 @@
     "skills/feature-planning/SKILL.md": "sha256:565a06bcfa1ca889388c21120cf8d491165ddb083700e0200aa25f61b5533d21",
     "skills/feature-planning/reference/template.md": "sha256:d91c475b8a2ac745ddc4da27d3fd1d451320204667758fc539afd538688d012d",
     "skills/pr-authoring/SKILL.md": "sha256:a22b70aee9ffbe68ce556ced343077650c3ece9bae8ad84c1e43a2683b7a3e2b",
+    "skills/subagent-prompting/SKILL.md": "sha256:99e31be24179d0d111e55374ac4305e3e94c7ee8af742c50585bc56cf5ef536f",
+    "skills/subagent-prompting/reference/briefs.md": "sha256:99f0bc20287fb4186f9fadb17602c534daf676223a7717e23435bf709f9ff100",
     "skills/pr-stewardship/SKILL.md": "sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e",
     "skills/review-severity/SKILL.md": "sha256:800b1c45fcedee094908e89156b14b5458c0372320cb37975273e15b586c5b6f",
     "skills/review-severity/reference/template.md": "sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5",
