@@ -3,9 +3,7 @@ section: '01'
 title: 'Introduction and Goals'
 lifecycle: published
 tags: [overview]
-key_files:
-  - README.md
-  - AGENTS.md
+key_files: []
 ---
 
 > What ai-foundation is, who it's for, and the quality goals its design serves.
