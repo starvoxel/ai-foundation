@@ -1,6 +1,6 @@
 ---
 name: 'code-review'
-version: '0.5.5'
+version: '0.5.6'
 description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via the shared review-severity taxonomy.'
 requires_skills:
   - 'ai-component-review'
@@ -33,7 +33,7 @@ Verify every component the request or plan calls for exists. Missing components 
 ### Step 2 — Review Change Scope
 
 - If the diff's author is Engineering Researcher, confirm every touched path stays within that agent's own documented write scope (`agents/engineering-researcher.yaml`'s Hard rules). A path outside that scope is a HIGH finding, the same severity class as `skill/ai-component-review`'s `tools`/`approved_tools`/`blocked_commands` rule.
-- If the diff adds a file under a directory an arc42 section already describes, confirm that section's building-block table and `key_files` were updated to include it, per `steering/global/knowledge-consumption.md`'s Doc-Update Acceptance Gate. A missing update is a MEDIUM finding.
+- If the diff adds a file under a directory an arc42 section already describes, confirm that section's building-block table and `key_files` were updated to include it, per `steering/global/knowledge-consumption.md`'s Doc-Update Acceptance Gate. A missing update is a MEDIUM finding. For each `Arch-Unaffected` waiver in the range, confirm its reason is true; an untrue waiver is a MEDIUM finding.
 
 ### Step 3 — Review Security and Logging
 

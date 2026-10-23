@@ -5,6 +5,7 @@ lifecycle: published
 tags: [building-blocks, indexing, architecture]
 key_files:
   - lib/architecture.js
+  - lib/arch-waivers.js
 ---
 
 > How `aif index architecture` turns a directory of arc42 Markdown files into a deterministic, on-demand `index.json`, and how `--check` validates the same sources.
@@ -30,14 +31,14 @@ The index is kept fresh without anyone running it by hand: `.githooks/` (`post-m
 
 ## Contained Building Blocks
 
-| Aspect                          | `architecture.js` (arc42 sections)                                                                                                                                                                                                |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source format                   | arc42 frontmatter (`section`/`title`/`lifecycle`/`tags`/`key_files`) + a one-line `>` blockquote summary                                                                                                                          |
-| Identity                        | The file's `path`, relative to `paths.architecture` — arc42 sections have no separate ID scheme                                                                                                                                   |
-| File discovery                  | Recursive; `_`-prefixed files (e.g. `_template.md`) excluded                                                                                                                                                                      |
-| Inverted relationship           | `key_files` → `reverse_index` (`source path → [doc paths]`), via `buildReverseIndex()`                                                                                                                                            |
-| Extra validation beyond parsing | `isStaleAgainstGit()`: `git log <doc's last commit>..HEAD -- <key_file>` per `key_file`, plus an unconditional stale if a `key_file` is missing from disk right now. A doc with no commit yet or uncommitted edits is never stale |
-| Sort key                        | `path`                                                                                                                                                                                                                            |
+| Aspect                          | `architecture.js` (arc42 sections)                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Source format                   | arc42 frontmatter (`section`/`title`/`lifecycle`/`tags`/`key_files`) + a one-line `>` blockquote summary                                                                                                                                                                                                                                                                       |
+| Identity                        | The file's `path`, relative to `paths.architecture` — arc42 sections have no separate ID scheme                                                                                                                                                                                                                                                                                |
+| File discovery                  | Recursive; `_`-prefixed files (e.g. `_template.md`) excluded                                                                                                                                                                                                                                                                                                                   |
+| Inverted relationship           | `key_files` → `reverse_index` (`source path → [doc paths]`), via `buildReverseIndex()`                                                                                                                                                                                                                                                                                         |
+| Extra validation beyond parsing | `isStaleAgainstGit()`: `git log <doc's last commit>..HEAD -- <key_file>` per `key_file`; a commit in that range is ignored if its message carries `Arch-Unaffected: <section> — <reason>` for this doc (`lib/arch-waivers.js`, pure). Plus an unconditional stale if a `key_file` is missing from disk right now. A doc with no commit yet or uncommitted edits is never stale |
+| Sort key                        | `path`                                                                                                                                                                                                                                                                                                                                                                         |
 
 It parses its frontmatter via `parseFrontmatter()` (`lib/file-utils.js` — see §5.02's Consumers section for the other consumers of that same generic-utility module).
 

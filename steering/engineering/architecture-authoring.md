@@ -1,6 +1,6 @@
 ---
 name: 'architecture-authoring'
-version: '0.3.1'
+version: '0.4.0'
 description: 'Defines the arc42 section frontmatter schema and the key_files scope/split rules, so any engineering-domain agent can author or maintain architecture docs consistently, in any project.'
 file_patterns: []
 ---
@@ -60,11 +60,11 @@ There is no maximum length for `key_files`. Past 5 entries, treat every new addi
 
 ### Rule: Staleness Is Computed From Git, Not Stored
 
-A doc is stale when any `key_files` entry changed in a commit after the doc's own last commit (or no longer exists). Nothing is recorded in the doc, so parallel branches never conflict on a verification stamp. Committing the doc is what records that it was checked.
+A doc is stale when a `key_files` entry changed in a commit after the doc's own last commit (or no longer exists), unless that commit waives it. Nothing is recorded in the doc, so parallel branches never conflict on a verification stamp.
 
-- When a unit of work changes a `key_files` entry, review the doc and commit it in the same PR, correcting whatever the change made wrong
-- Never touch a doc just to clear the check without re-reading it against the file's current state
-- If the doc is still fully accurate and there is nothing to correct, the file probably fails "key_files Scope" — remove it from `key_files` instead
+- When a change affects what the doc says, update the doc in the same PR
+- When a change to a `key_files` entry leaves the doc accurate (a refactor, simplification, or comment change), do not edit the doc. Add a line to that commit's message: `Arch-Unaffected: <section> — <why the doc is still accurate>`. Use the section's frontmatter `section` value, e.g. `05.04`
+- Never waive or touch a doc without re-reading it against the changed file; the reviewer checks that each waiver's reason is true
 - Run `aif index architecture --check` as the last local step before pushing; the generated `index.json` is gitignored and never committed
 
 **Rationale:** A stored SHA was bumped by every branch on every doc, producing constant merge conflicts. Deriving staleness from history removes the shared state while keeping the check honest.
@@ -78,7 +78,7 @@ A doc is stale when any `key_files` entry changed in a commit after the doc's ow
 - **Malformed frontmatter:** Caught during review. A section missing a required field, or using a freeform `lifecycle` value, is a MEDIUM finding.
 - **Out-of-scope key_files entries:** Caught during review. A `key_files` entry that's a caller, test, or incidental config file is a LOW finding — remove it.
 - **Unconsidered growth:** Caught during review. A `key_files` list that grows past 5 entries with no evidence the split question was weighed (see "key_files Split Trigger — No Hard Cap") is a LOW finding — not "must split," but "must show the trade-off was considered."
-- **Touch-to-clear-check:** Caught during review. A doc edited only to clear the staleness check, without being re-read against the changed `key_files` entry, is a MEDIUM finding.
+- **Touch-to-clear-check:** Caught during review. A doc edited, or a waiver added, without re-reading the doc against the changed `key_files` entry — or a waiver whose reason is untrue — is a MEDIUM finding.
 
 ---
 

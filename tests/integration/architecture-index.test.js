@@ -112,6 +112,34 @@ describe('architecture index — real git integration', () => {
     assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), true);
   });
 
+  it('is not stale when the key_file commit carries an Arch-Unaffected waiver for the doc', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(
+      repoRoot,
+      'Simplify thing\n\nArch-Unaffected: 01 — pure simplification, behavior unchanged',
+    );
+    assert.equal(
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC),
+      false,
+    );
+  });
+
+  it('is still stale when a later key_file commit has no waiver', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(
+      repoRoot,
+      'Simplify thing\n\nArch-Unaffected: 01 — pure simplification, behavior unchanged',
+    );
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 3;\n');
+    commitAll(repoRoot, 'Change behavior');
+    assert.equal(
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC),
+      true,
+    );
+  });
+
   it('becomes fresh again once the doc is committed after the key_file change', () => {
     commitCodeThenDoc();
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');

@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T00:28:22.799Z",
+  "computed_at": "2026-10-23T15:46:53.633Z",
   "sources": {
     "agents/engineer.yaml": "sha256:3c0867127ce194e3f1550e3265016c717302be8727f4152f8aea21edf7b2f116",
     "agents/engineering-researcher.yaml": "sha256:5b603a450d5cb586a3bd30bb19262cfcb2c8cb4391fed66e9e79529e09293064",
@@ -11,7 +11,7 @@
     "steering/global/knowledge-consumption.md": "sha256:210719f48b79f18248ab8d9896c666b733edeb1a9f7a029924ee6f47d466606f",
     "steering/global/markdown-authoring.md": "sha256:e5c0f9f6e8a664dfbbc71d54717dbcf20a82f8484d59a5da696ffada2d7b4419",
     "steering/global/standards-loading.md": "sha256:3b4b2fb97be219a0238bbe12e5badd8d3cd65b574d693b945a659a67209b474f",
-    "steering/engineering/architecture-authoring.md": "sha256:eb4c044415c7770b2ccc89f5246a038f9958bfa72b2d9273bfe43de9cc6f5fdc",
+    "steering/engineering/architecture-authoring.md": "sha256:aa6a5aa3a8869aac655f142be2db2772f805fedda6778e22f2249732715556dd",
     "steering/engineering/core.md": "sha256:42a613f07191b7aef6d7f122ad9b44aae5e0c70ddd6da3b5abf0b3336f3b3c1c",
     "steering/engineering/document-types.md": "sha256:b1d85baebc6e8f8d9929c5fecd6308742506f26035391fb8c04932e7d10e176e",
     "steering/engineering/git-workflow.md": "sha256:eacfc5a27fd06571a584435cbdf740f58f0f47cf1715f4863fa3c5ce037b3ddd",
@@ -36,7 +36,7 @@
     "skills/server-authoring/reference/schema.yaml": "sha256:37b5c05e8c09cf2515d7e8f4557c448e561e14b2c86f3c1d8973549ee87e0553",
     "skills/bundle-authoring/SKILL.md": "sha256:c498c5eaf1af0a3448a2726cb46980692d245097db4d827417fa8a7f76f4d643",
     "skills/bundle-authoring/reference/schema.yaml": "sha256:36d4cd145f5f2846e51bfbc26e30f2daca6f88ae451e0d5f19f40d01b6250810",
-    "skills/code-review/SKILL.md": "sha256:e74e0876cdf0adae7f0990bb4caeb22f46fbfff84c51abe902f3cc19d314c982",
+    "skills/code-review/SKILL.md": "sha256:3bc0c9d3e3ece122f017d8e023a7d458e2409bab345e5a68fcc37e1414cce6f1",
     "skills/ai-component-review/SKILL.md": "sha256:6f322941caba170c4ab676851fe48af420e0f89a9512eb7cfb2befb200b9c038"
   }
 }
