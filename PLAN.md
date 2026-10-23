@@ -4,18 +4,19 @@ The framework is one `engineer` agent that takes a request from idea to a review
 
 ## Done
 
-- Lean core: `engineer`, `reviewer`, `engineering-researcher`; `oversight` setting and skill (resolved by a script in the skill)
-- Skills: `oversight`, `prd`, `feature-planning`, `standards`, `test-execution`, `pr-stewardship`, `code-review` with `ai-component-review` and `review-severity`, and `component-authoring` (in the `ai-engineering` bundle)
+- Lean core: `engineer`, `reviewer`, `engineering-researcher`; the `oversight` setting and skill; `engineer` set as the primary agent in this repo and the project template
+- Skills: `oversight`, `prd`, `feature-planning`, `standards`, `test-execution`, `pr-authoring`, `pr-stewardship`, `subagent-prompting`, `code-review` with `ai-component-review` and `review-severity`, and `component-authoring` (in the `ai-engineering` bundle)
 - One PR-based git workflow; about 2.5k words of always-on steering
 - arc42 staleness computed from git with `Arch-Unaffected` waivers; the generated index refreshed by git hooks and the session-start script, and scaffolded by `aif init`
 - Retired: orchestration, task DAGs, worktrees, ADRs, YouTrack, the multi-agent role pipeline (recoverable from the `legacy/process-v1` tag)
 
 ## Next, in order
 
-1. **Per-agent approval** — a `tool-gate` hook and scoped `subagent:<name>` grants so each agent's `approved_tools` means "runs without a human" on both harnesses (research: `docs/research/subagent-spawn-allowlist.md`)
-2. **Review split** — keep one `reviewer` agent type; split review into targeted skills that the dispatch brief selects
-3. **`subagent-prompting` skill** — how to write briefs for subagents, with size targets
-4. **Pre-pivot work** — decide what to finish, close, or delete among the open PRs, old branches, and unfinished features (PR watching, single tool-risk source)
+1. **LOW tracking and the review stopping rule** — a durable, conflict-free way to record LOW review findings so they can be fixed later, without a ledger branch. Stopping rule, from the old PR #110: the reviewer approves once nothing at MEDIUM or above remains, a re-review never re-raises a LOW, and a round is never spent on LOWs alone. Mechanism still to confirm: GitHub issues labelled `review-low`, deduplicated by file and rule (recommended), or one small file per finding
+2. **Per-agent approval** — a `tool-gate` hook and scoped `subagent:<name>` grants so each agent's `approved_tools` means "runs without a human" on both harnesses (research: `docs/research/subagent-spawn-allowlist.md`; hooks in user-scope agent frontmatter were verified, project-scope ones are skipped until the folder is trusted)
+3. **Clear the pre-pivot work** — delete the stale and throwaway branches with the `Cleanup branches` workflow, and decide whether to keep the AIF-012 findings as one short research note first
+4. **Waking local desktop sessions** — find a way for a local session to resume itself when its PR changes (cloud sessions already have `subscribe_pr_activity`). Known from the old spikes, to verify on desktop: a Stop hook can refuse to end a turn (capped at 8 loops), and `asyncRewake` on Stop wakes an idle session; `asyncRewake` on SessionStart and UserPromptSubmit does not
+5. **Review split** (last) — keep one `reviewer` agent type; split review into targeted skills that the dispatch brief selects
 
 ## Later
 

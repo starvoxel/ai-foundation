@@ -209,6 +209,10 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
    works (arguments with spaces arrive intact).
 5. `ai-git doctor` exits 0 and reports the token as resolved (never prints the value).
 
+#### Primary agent
+
+`"agent": "engineer"` in `.claude/settings.json` (set in this repo and the project template) makes the engineer the main-thread agent, so its tool set and spawn limits apply instead of the default agent's. The agent must already be installed when Claude Code launches. The SessionStart hook installs bundles after the main agent is resolved, so in a fresh cloud session the engineer is missing and the harness falls back to the default agent without an error. To get it from the first turn, also run `aif install -B engineering -H claude` at the end of the environment's Setup script, after the pinned package is installed.
+
 #### Cloud limits
 
 - **No GraphQL.** The session proxy blocks it, so `ai-git gh-pr-*`, `gh pr ...` and

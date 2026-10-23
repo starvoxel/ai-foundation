@@ -146,5 +146,6 @@ describe('integration: init command', () => {
     );
     const settings = JSON.parse(readFileSync(join(root, '.claude', 'settings.json'), 'utf8'));
     assert.match(settings.hooks.SessionStart[0].hooks[0].command, /scripts\/session-start\.sh/);
+    assert.equal(settings.agent, 'engineer');
   });
 });
