@@ -1,6 +1,6 @@
 ---
 name: 'test-execution'
-version: '0.4.1'
+version: '0.4.2'
 description: 'Writes and executes automated tests, producing a Test Results Report with pass/fail/blocked status.'
 ---
 
@@ -13,7 +13,7 @@ Produces a structured report showing pass/fail/blocked status per test case with
 
 ## Inputs
 
-- **Governing plan** — the Feature Plan's Acceptance Criteria and Error States sections (`skills/feature-planning/reference/template.md`), plus a Task-level plan's own test-case detail when the Task's complexity tier produced one
+- **Governing plan** — the Feature Plan's Acceptance Criteria and Error States sections (a plan's acceptance-criteria and error-state sections), plus a Task-level plan's own test-case detail when the Task's complexity tier produced one
 - **Source code** — approved implementation to test
 - **Language standards** — testing conventions from `standards/{stack}.md`
 - **Project standards** — test project structure from `projects/{name}/project-standards.md`
