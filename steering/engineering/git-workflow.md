@@ -1,10 +1,10 @@
 ---
 name: 'git-workflow'
-version: '1.0.0'
+version: '1.0.1'
 description: 'Git workflow for every repo — atomic incremental commits, ai-git usage, branch + PR landing, the required-CI gate, and when a plan needs a committed approval.'
 requires_skills:
   - 'pr-stewardship'
-  - 'plan-lifecycle'
+  - 'feature-planning'
 file_patterns: []
 ---
 
@@ -76,7 +76,7 @@ file_patterns: []
 
 ### Rule: Large Work Gets a Committed, Approved Plan First
 
-- Work too large to review in one pass needs a plan committed with `Status: Draft`, and committed again as `Approved` after the human explicitly confirms, before implementation begins — follow `skill/plan-lifecycle`
+- Work too large to review in one pass needs a plan committed with `Status: Draft`, and committed again as `Approved` after the human explicitly confirms, before implementation begins — follow `skill/feature-planning`
 - Small work needs no committed plan or approval commit; a summary at the end is enough
 
 **Rationale:** The approval commit makes "approved" checkable in `git log` for the work where a wrong turn is expensive; small work does not justify the ceremony.

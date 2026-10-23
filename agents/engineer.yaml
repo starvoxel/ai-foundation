@@ -1,6 +1,6 @@
 ---
 name: "engineer"
-version: "1.0.0"
+version: "1.0.1"
 domain: "engineering"
 description: "The main engineering agent — takes a request from idea to review-ready work (requirements, planning, implementation, tests, docs) in one session, stopping for the human only where oversight requires."
 
@@ -83,7 +83,7 @@ approved_tools:
 skills:
   - "skill/oversight"
   - "skill/test-execution"
-  - "skill/plan-lifecycle"
+  - "skill/feature-planning"
   - "skill/pr-stewardship"
   - "skill/review-severity"
   - "skill/agent-authoring"

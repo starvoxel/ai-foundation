@@ -91,17 +91,17 @@ what actually crosses the file's boundary).
 
 ## Important Interfaces
 
-| Export                                                  | Purpose                                                                                        |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| `resolveBundle(bundleName, repoRoot)`                   | The entry point above — returns a `ResolvedBundle`.                                            |
-| `parseRequiresSkills(content, label)`                   | Validated `requires_skills` list from markdown frontmatter.                                    |
-| `computeSkillClosure(seeds, getDeps)`                   | Transitive skill closure with injected lookup.                                                 |
-| `createSkillDepsReader(repoRoot)`                       | Filesystem-backed `getDeps` over `skills/*/SKILL.md`.                                          |
-| `readSteeringRequiredSkills(steeringPaths, repoRoot)`   | `requires_skills` across steering files.                                                       |
-| `parseSkillRef(ref)`                                    | `"skill/plan-lifecycle"` → `"plan-lifecycle"`; bare names pass through; empty string → `null`. |
-| `parseServerToolRef(tool)`                              | Parses an agent's `@server/tool`-format tool entry into its server name.                       |
-| `listStandards/Bundles/Servers/HookResources(repoRoot)` | Directory listings used by `aif list` — independent of bundle resolution itself.               |
-| `dedupe(arr)`                                           | Order-preserving de-duplication, shared by all four resolved lists.                            |
+| Export                                                  | Purpose                                                                                            |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `resolveBundle(bundleName, repoRoot)`                   | The entry point above — returns a `ResolvedBundle`.                                                |
+| `parseRequiresSkills(content, label)`                   | Validated `requires_skills` list from markdown frontmatter.                                        |
+| `computeSkillClosure(seeds, getDeps)`                   | Transitive skill closure with injected lookup.                                                     |
+| `createSkillDepsReader(repoRoot)`                       | Filesystem-backed `getDeps` over `skills/*/SKILL.md`.                                              |
+| `readSteeringRequiredSkills(steeringPaths, repoRoot)`   | `requires_skills` across steering files.                                                           |
+| `parseSkillRef(ref)`                                    | `"skill/feature-planning"` → `"feature-planning"`; bare names pass through; empty string → `null`. |
+| `parseServerToolRef(tool)`                              | Parses an agent's `@server/tool`-format tool entry into its server name.                           |
+| `listStandards/Bundles/Servers/HookResources(repoRoot)` | Directory listings used by `aif list` — independent of bundle resolution itself.                   |
+| `dedupe(arr)`                                           | Order-preserving de-duplication, shared by all four resolved lists.                                |
 
 ## Consumers
 

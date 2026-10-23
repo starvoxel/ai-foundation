@@ -1,10 +1,10 @@
 ---
 name: 'engineering-core'
-version: '1.0.2'
+version: '1.0.3'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 requires_skills:
   - 'oversight'
-  - 'plan-lifecycle'
+  - 'feature-planning'
 file_patterns: []
 ---
 
@@ -115,4 +115,4 @@ file_patterns: []
 
 ## Notes
 
-Git workflow: `steering/engineering/git-workflow.md`. Plan commit-gate procedure: `skill/plan-lifecycle`.
+Git workflow: `steering/engineering/git-workflow.md`. Plan commit-gate procedure: `skill/feature-planning`.

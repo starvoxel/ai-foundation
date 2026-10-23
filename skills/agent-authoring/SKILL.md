@@ -1,6 +1,6 @@
 ---
 name: 'agent-authoring'
-version: '0.6.1'
+version: '0.6.2'
 description: 'Creates a well-formed agent definition with proper tool selection and prompt design.'
 requires_skills:
   - 'skill-authoring'
@@ -100,7 +100,7 @@ on demand.
   every skill in `skills` — this is the right choice for an agent whose
   skill list is small and used on effectively every dispatch (e.g. one
   skill it always follows for its core deliverable).
-- Use a named subset (e.g. `preload_skills: ["skill/plan-lifecycle"]`) when the
+- Use a named subset (e.g. `preload_skills: ["skill/feature-planning"]`) when the
   agent's `skills` list mixes something used on every dispatch with others
   that are conditional or subsystem-specific — preload only the universal
   one(s), leave the rest for on-demand discovery.
