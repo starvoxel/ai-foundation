@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T00:13:09.992Z",
+  "computed_at": "2026-10-23T00:17:02.081Z",
   "sources": {
     "agents/engineering-researcher.yaml": "sha256:eb5b9500414d4c4ca1aa3e493a7fafbe4f0d146e7c848c8c472754262bec83e3",
     "agents/principal-engineer.yaml": "sha256:db53483735ca73703465c35994c35e72d93f621ddc48aaa18dff615676fee5ba",
@@ -11,7 +11,7 @@
     "steering/global/knowledge-consumption.md": "sha256:55bd1ba1a0b094c3c146e1a86dfb6898f7f77c125f6c78fa9a1d5a21395a88c8",
     "steering/global/markdown-authoring.md": "sha256:e5c0f9f6e8a664dfbbc71d54717dbcf20a82f8484d59a5da696ffada2d7b4419",
     "steering/global/standards-loading.md": "sha256:3b4b2fb97be219a0238bbe12e5badd8d3cd65b574d693b945a659a67209b474f",
-    "steering/engineering/architecture-authoring.md": "sha256:931796463700bc33319754ea5dc8651dae67c1e86415691f82234f77e8ab74e8",
+    "steering/engineering/architecture-authoring.md": "sha256:8239c00d97faa14ff7b18a8082cbc757405323b675a4a0999db10dbb421b1546",
     "steering/engineering/core.md": "sha256:48c833908055f745b19fc9610be056ea1bea39a19b78c3f5efc3b34907e94993",
     "steering/engineering/document-types.md": "sha256:b1d85baebc6e8f8d9929c5fecd6308742506f26035391fb8c04932e7d10e176e",
     "steering/engineering/git-workflow.md": "sha256:eacfc5a27fd06571a584435cbdf740f58f0f47cf1715f4863fa3c5ce037b3ddd",

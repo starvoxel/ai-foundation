@@ -2,7 +2,6 @@
 section: '00'
 title: 'Section title'
 lifecycle: draft # draft | published — completion, not currency
-last_verified: 0000000 # commit SHA the key_files claim was last checked against
 tags: []
 key_files:
   - path/to/file.js

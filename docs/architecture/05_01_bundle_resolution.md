@@ -2,7 +2,6 @@
 section: '05.01'
 title: 'Bundle resolution'
 lifecycle: published
-last_verified: 677f1fb
 tags: [building-blocks, resolver]
 key_files:
   - lib/resolver.js

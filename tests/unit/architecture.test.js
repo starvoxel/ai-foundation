@@ -2,7 +2,7 @@
  * Unit tests for arc42 architecture-section parsing and deterministic index
  * building (lib/architecture.js). Plan: AIF-013. All fixtures are synthetic in-memory
  * strings — no real disk or git I/O, per this repo's testability convention
- * (mirrors tests/unit/decisions.test.js).
+
  */
 
 import { describe, it } from 'node:test';
@@ -19,7 +19,6 @@ function wellFormedSection({
   section = '01',
   title = 'Introduction and Goals',
   lifecycle = 'published',
-  last_verified = 'abc1234',
   tags = ['overview'],
   key_files = ['README.md'],
   summaryLines = ['One-sentence summary of what this section covers.'],
@@ -31,7 +30,6 @@ function wellFormedSection({
 section: "${section}"
 title: "${title}"
 lifecycle: ${lifecycle}
-last_verified: ${last_verified}
 tags: ${tagsYaml}
 key_files:
 ${keyFilesYaml}
@@ -57,7 +55,6 @@ describe('parseArchitectureSection', () => {
       lifecycle: 'published',
       tags: ['overview'],
       key_files: ['README.md'],
-      last_verified: 'abc1234',
     });
   });
 
@@ -74,7 +71,6 @@ describe('parseArchitectureSection', () => {
 section: "01"
 title: "T"
 lifecycle: published
-last_verified: abc1234
 tags: []
 key_files: []
 ---
@@ -94,7 +90,6 @@ Not part of the summary.
 section: "01"
 title: "T"
 lifecycle: published
-last_verified: abc1234
 ---
 
 > Summary.
@@ -110,7 +105,7 @@ last_verified: abc1234
     assert.match(result.error, /missing YAML frontmatter/);
   });
 
-  for (const field of ['section', 'title', 'lifecycle', 'last_verified']) {
+  for (const field of ['section', 'title', 'lifecycle']) {
     it(`errors when "${field}" is missing`, () => {
       const lines = wellFormedSection().split('\n');
       const filtered = lines.filter(
@@ -153,7 +148,6 @@ describe('buildArchitectureIndex', () => {
       lifecycle: 'published',
       tags: [],
       key_files: ['b.js'],
-      last_verified: 'x',
     },
     {
       path: '01.md',
@@ -163,7 +157,6 @@ describe('buildArchitectureIndex', () => {
       lifecycle: 'published',
       tags: [],
       key_files: ['a.js'],
-      last_verified: 'x',
     },
   ];
 

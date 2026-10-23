@@ -2,7 +2,6 @@
 section: '05.02'
 title: 'Harness adapters'
 lifecycle: published
-last_verified: 8e22ec0
 tags: [building-blocks, harnesses]
 key_files:
   - lib/harnesses/base.js

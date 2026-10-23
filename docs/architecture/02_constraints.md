@@ -2,7 +2,6 @@
 section: '02'
 title: 'Constraints'
 lifecycle: published
-last_verified: 26ec215
 tags: [constraints]
 key_files:
   - package.json
