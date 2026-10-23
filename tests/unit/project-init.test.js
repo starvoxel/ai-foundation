@@ -177,8 +177,8 @@ describe('unit: project-init/buildAiConfig', () => {
     assert.equal(config.project_shortname, 'my-app');
   });
 
-  it('sets paths.worktrees using the resolved shortname', () => {
-    const config = JSON.parse(buildAiConfig({ projectName: 'my-app', projectShortname: 'myapp' }));
-    assert.equal(config.paths.worktrees, '../worktrees/myapp');
+  it('scaffolds the default oversight setting', () => {
+    const config = JSON.parse(buildAiConfig({ projectName: 'my-app' }));
+    assert.deepEqual(config.oversight, { default: 'by-size', enforced: false });
   });
 });

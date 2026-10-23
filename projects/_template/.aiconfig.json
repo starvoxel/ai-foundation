@@ -19,13 +19,12 @@
   "project_standards": "",
   "paths": {
     "plans": "plans",
-    "features": "plans/features",
     "knowledge": "knowledge",
     "architecture": "knowledge/architecture",
-    "research": "knowledge/research",
-    "worktrees": "../worktrees/{ProjectShortName}"
+    "research": "knowledge/research"
   },
-  "orchestration": {
-    "max_concurrent": 4
+  "oversight": {
+    "default": "by-size",
+    "enforced": false
   }
 }

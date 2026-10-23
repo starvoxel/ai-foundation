@@ -126,7 +126,7 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | Field                           | Type    | Required | Description                                                                                                                                                                  |
 | ------------------------------- | ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `project_name`                  | string  | Yes      | Project identifier used in file naming and human-readable metadata                                                                                                           |
-| `project_shortname`             | string  | No       | Short project identifier (max 5 characters) used in Feature IDs and worktree paths. Falls back to `project_name` if unset.                                                   |
+| `project_shortname`             | string  | No       | Short project identifier (max 5 characters) used in short identifiers. Falls back to `project_name` if unset.                                                                |
 | `repo_type`                     | string  | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                                                    |
 | `standards`                     | object  | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                                             |
 | `project_standards`             | string  | No       | Path to project-specific standards override                                                                                                                                  |
@@ -139,30 +139,29 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | `secrets.allow_insecure_dotenv` | boolean | No       | Explicit opt-in to a gitignored `.env` fallback when `secrets.run` is unset. Default `false` — for local testing only.                                                       |
 | `paths`                         | object  | No       | Artifact output directories (relative to repo root). Any value may reference another resolved field with `{key.path}` — see below.                                           |
 | `paths.plans`                   | string  | No       | Root for all plan artifacts. Default: `plans`                                                                                                                                |
-| `paths.features`                | string  | No       | Root for a Feature's folder — `{paths.features}/{FeatureID}/plan.md`, `tasks.json`, and `orchestration-state.json` all live together as siblings. Default: `plans/features`  |
 | `paths.knowledge`               | string  | No       | Knowledge directory. Default: `knowledge`                                                                                                                                    |
 | `paths.architecture`            | string  | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                                               |
-| `paths.research`                | string  | No       | Engineering Researcher's brief output (`.md` only). Default: `knowledge/research`                                                                                            |
+| `paths.research`                | string  | No       | The researcher agent's brief output (`.md` only). Default: `knowledge/research`                                                                                              |
 | `paths.product`                 | string  | No       | Reserved for a future product-doc agent. No default — omitted from generated configs until that agent exists; set it explicitly only if you're building that agent yourself. |
-| `paths.worktrees`               | string  | No       | Root directory for git worktrees used by parallel agents. Default: `../worktrees/{project_shortname}`                                                                        |
-| `orchestration`                 | object  | No       | Orchestration behaviour configuration                                                                                                                                        |
-| `orchestration.max_concurrent`  | number  | No       | Maximum parallel subagents the Engineering Manager may dispatch. Default: `4`                                                                                                |
+| `oversight`                     | object  | No       | How much human sign-off the engineer agent waits for (`skill/oversight`)                                                                                                     |
+| `oversight.default`             | string  | No       | `none`, `by-size`, or `always`. Default: `by-size`                                                                                                                           |
+| `oversight.enforced`            | boolean | No       | When `true`, a prompt may only raise the level, never lower it. Default: `false`. Resolve the effective level with `aif oversight [--request <level>]`                       |
 
 #### `{key.path}` references in path values
 
-Any string field — including a custom key not listed above, e.g. `paths.features`
+Any string field — including a custom key not listed above, e.g. `paths.reports`
 may reference another field's _resolved_ value with `{key.path}`:
 
 ```json
 {
   "paths": {
     "plans": "docs/plans",
-    "features": "{paths.plans}/features"
+    "reports": "{paths.plans}/reports"
   }
 }
 ```
 
-`paths.features` resolves to `docs/plans/features`. References resolve
+`paths.reports` resolves to `docs/plans/reports`. References resolve
 recursively (a reference may itself contain a reference) and may point at a
 field that falls back to its own default. A cycle — directly, or through a
 chain of references — is an error rather than infinite recursion.
@@ -235,12 +234,11 @@ If no config file exists, agents fall back to:
 - `project_shortname`: same as `project_name`
 - `standards`: none (agent must ask or search `standards/`)
 - `paths.plans`: `plans`
-- `paths.features`: `plans/features`
 - `paths.knowledge`: `knowledge`
 - `paths.architecture`: `knowledge/architecture`
 - `paths.research`: `knowledge/research`
 - `paths.product`: not set (reserved, no default)
-- `paths.worktrees`: `../worktrees/{project_shortname}`
+- `oversight.default`: `by-size`; `oversight.enforced`: `false`
 
 ---
 

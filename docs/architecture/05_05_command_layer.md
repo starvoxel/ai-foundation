@@ -14,6 +14,7 @@ key_files:
   - lib/commands/index.js
   - lib/commands/init.js
   - lib/commands/config.js
+  - lib/commands/oversight.js
 ---
 
 > One file per `aif <verb>` subcommand — what each one actually resolves, reads,
@@ -33,6 +34,7 @@ graph TD
   Index["index.js"]
   Init["init.js"]
   Config["config.js"]
+  Oversight["oversight.js"]
 
   Resolver["resolver.js (§5.01)"]
   SkillMentions["skill-mentions.js (§5.03)"]
@@ -40,6 +42,7 @@ graph TD
   SnapLib["snapshot/io.js + pure.js (§5.03)"]
   Architecture["architecture.js (§5.04)"]
   AiConfig["aiconfig.js (§5.03)"]
+  OversightLib["oversight.js (§5.03)"]
   ProjInit["project-init.js (§5.03)"]
   Claude["claude.js (§5.02)"]
   Kiro["kiro.js (§5.02)"]
@@ -53,6 +56,7 @@ graph TD
   Index --> Architecture & AiConfig
   Init --> ProjInit
   Config --> AiConfig
+  Oversight --> AiConfig & OversightLib
 ```
 
 `test.js` has no edge — it only shells out to this repo's own `node:test` runner
@@ -60,12 +64,12 @@ graph TD
 
 ## Motivation
 
-Ten files sharing one uniform shape (parse this command's own args, call straight
+Eleven files sharing one uniform shape (parse this command's own args, call straight
 into whichever Core library/Harness adapter does the real work, return) — genuinely
 one cohesive whitebox, not six unrelated responsibilities the way §5.03 is. The
 split from `05_building_blocks.md` isn't because any single command is complex
 enough to need its own diagram (none is); it's the same `key_files`-list-length
-reasoning §5.03 already gives for its own existence: ten files' individual
+reasoning §5.03 already gives for its own existence: eleven files' individual
 freshness needs somewhere to be tracked without bloating the Level-1 doc's own
 list past what keeps a rename or deletion there a meaningful signal.
 
@@ -82,7 +86,8 @@ list past what keeps a rename or deletion there a meaningful signal.
 | `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `runSnapshot(parsed, repoRoot)`                           |
 | `index.js`     | Generates the architecture index (`aif index architecture`) on demand, deterministically; `--check` validates the source docs without reading any stored index.                                                                                                                                                                                                                                                                                                                                                                                                                           | `runIndex(parsed, repoRoot)`, `resolveArchitecturePath()` |
 | `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `runInit(parsed, repoRoot)`, `promptForConfig()`          |
-| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runConfig(parsed, cwd)`                                  |
+| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `oversight.js` | Prints the effective oversight level (`aif oversight [--request <level>]`): the configured `oversight.default`, with a prompt-requested level applied unless `oversight.enforced` forbids lowering it.                                                                                                                                                                                                                                                                                                                                                                                    | `runOversight(parsed, cwd)`                               |     | `runConfig(parsed, cwd)` |
 
 ## Consumers
 

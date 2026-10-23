@@ -51,19 +51,6 @@ describe('unit: aiconfig', () => {
         assert.equal(resolveConfigValue(config, 'paths.research', FAKE_ROOT), 'archive/research');
       });
 
-      it('paths.features nests under the resolved paths.plans', () => {
-        const config = { paths: { plans: 'docs/plans' } };
-        assert.equal(
-          resolveConfigValue(config, 'paths.features', FAKE_ROOT),
-          'docs/plans/features',
-        );
-      });
-
-      it('an explicit paths.features overrides its nested default entirely', () => {
-        const config = { paths: { plans: 'docs/plans', features: 'roadmap/features' } };
-        assert.equal(resolveConfigValue(config, 'paths.features', FAKE_ROOT), 'roadmap/features');
-      });
-
       it('paths.architecture and paths.research nest under the resolved paths.knowledge', () => {
         const config = { paths: { knowledge: 'notes' } };
         assert.equal(
@@ -81,25 +68,17 @@ describe('unit: aiconfig', () => {
       it('project_name defaults to the project root directory name', () => {
         assert.equal(resolveConfigValue({}, 'project_name', FAKE_ROOT), basename(FAKE_ROOT));
       });
-
-      it('paths.worktrees defaults using the resolved project_shortname', () => {
-        const config = { project_shortname: 'wid' };
-        assert.equal(resolveConfigValue(config, 'paths.worktrees', FAKE_ROOT), '../worktrees/wid');
-      });
     });
 
     describe('{key.path} references in configured values', () => {
       it('substitutes a reference to another configured field', () => {
-        const config = { paths: { plans: 'docs/plans', features: '{paths.plans}/features' } };
-        assert.equal(
-          resolveConfigValue(config, 'paths.features', FAKE_ROOT),
-          'docs/plans/features',
-        );
+        const config = { paths: { plans: 'docs/plans', reports: '{paths.plans}/reports' } };
+        assert.equal(resolveConfigValue(config, 'paths.reports', FAKE_ROOT), 'docs/plans/reports');
       });
 
       it('substitutes a reference to another field default', () => {
-        const config = { paths: { features: '{paths.plans}/features' } };
-        assert.equal(resolveConfigValue(config, 'paths.features', FAKE_ROOT), 'plans/features');
+        const config = { paths: { reports: '{paths.plans}/reports' } };
+        assert.equal(resolveConfigValue(config, 'paths.reports', FAKE_ROOT), 'plans/reports');
       });
 
       it('resolves multiple references in one value', () => {
@@ -120,13 +99,13 @@ describe('unit: aiconfig', () => {
         const config = {
           paths: {
             plans: 'docs/plans',
-            features: '{paths.plans}/features',
-            spikes: '{paths.features}/spikes',
+            reports: '{paths.plans}/reports',
+            spikes: '{paths.reports}/spikes',
           },
         };
         assert.equal(
           resolveConfigValue(config, 'paths.spikes', FAKE_ROOT),
-          'docs/plans/features/spikes',
+          'docs/plans/reports/spikes',
         );
       });
 
@@ -148,8 +127,8 @@ describe('unit: aiconfig', () => {
       });
 
       it('propagates an unknown field referenced inside a placeholder', () => {
-        const config = { paths: { features: '{paths.not_a_real_field}' } };
-        assert.throws(() => resolveConfigValue(config, 'paths.features', FAKE_ROOT), /Unknown/);
+        const config = { paths: { reports: '{paths.not_a_real_field}' } };
+        assert.throws(() => resolveConfigValue(config, 'paths.reports', FAKE_ROOT), /Unknown/);
       });
     });
   });

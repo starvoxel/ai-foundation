@@ -12,11 +12,11 @@
     "features": "docs/plans/features",
     "architecture": "docs/architecture",
     "research": "docs/research",
-    "product": "docs/product",
-    "worktrees": "../worktrees/ai-foundation"
+    "product": "docs/product"
   },
-  "orchestration": {
-    "max_concurrent": 10
+  "oversight": {
+    "default": "by-size",
+    "enforced": false
   },
   "ai_identity": {
     "git_author_name": "Starvoxel AI Agent",
