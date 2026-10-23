@@ -1,6 +1,6 @@
 ---
 name: 'global-core'
-version: '0.2.0'
+version: '0.2.1'
 description: 'Core rules that apply to all agents in every session.'
 file_patterns: []
 ---
@@ -54,10 +54,10 @@ file_patterns: []
 ### Rule: Escalate When Approach Is Unclear
 
 - When multiple meaningfully different approaches exist and the right choice is not obvious, the agent must escalate rather than pick arbitrarily
-- Escalation targets: Architect agent (for technical decisions), human (for product/scope decisions)
+- Escalation targets: the human
 - The agent must provide enough context for the escalation target to make an informed decision
 
-**Rationale:** Arbitrary choices on complex decisions waste effort when the wrong path is chosen. Structured decision-making (via Architect or human input) produces better outcomes.
+**Rationale:** Arbitrary choices on complex decisions waste effort when the wrong path is chosen. Human input produces better outcomes.
 
 **Exceptions:** When the approaches are equivalent in outcome and the choice is genuinely arbitrary (e.g. naming conventions where no standard exists), the agent may choose and document the decision inline.
 

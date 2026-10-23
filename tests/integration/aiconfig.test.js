@@ -70,11 +70,11 @@ describe('integration: aiconfig', () => {
     it('reflects a configured override', () => {
       writeFileSync(
         join(projectRoot, '.aiconfig.json'),
-        JSON.stringify({ paths: { decisions: 'archive/decisions' } }),
+        JSON.stringify({ paths: { research: 'archive/research' } }),
       );
       assert.equal(
-        getConfigPath(projectRoot, 'paths.decisions'),
-        join(projectRoot, 'archive/decisions'),
+        getConfigPath(projectRoot, 'paths.research'),
+        join(projectRoot, 'archive/research'),
       );
     });
   });

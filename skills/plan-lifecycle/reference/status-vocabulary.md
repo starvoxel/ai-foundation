@@ -15,11 +15,10 @@ Single source of truth for the `Status` field values used by every human-approva
 
 ## Per-artifact-type extensions
 
-| Artifact Type | Allowed Statuses                                      | Notes                                                                                                                                                      |
-| ------------- | ----------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Feature Plan  | `Draft`, `Approved`, `Done`, `Deferred`               | No extension needed                                                                                                                                        |
-| Tier 3 plan   | `Draft`, `Approved`, `Done`, `Deferred`               | No extension needed                                                                                                                                        |
-| ADR           | `Draft`, `Approved`, `Done`, `Deferred`, `Superseded` | `Superseded`: a later decision replaced this one. This is a terminal outcome reached after the record was `Approved`, not a choice made at initial review. |
+| Artifact Type | Allowed Statuses                        | Notes               |
+| ------------- | --------------------------------------- | ------------------- |
+| Feature Plan  | `Draft`, `Approved`, `Done`, `Deferred` | No extension needed |
+| Tier 3 plan   | `Draft`, `Approved`, `Done`, `Deferred` | No extension needed |
 
 ## Transitions
 
@@ -28,7 +27,6 @@ Single source of truth for the `Status` field values used by every human-approva
 - `Draft` → `Deferred` (human postpones; commit the transition)
 - `Deferred` → `Draft` (revisited later) or `Deferred` → `Approved` (approved directly from a deferred state)
 - `Approved` → `Done` (described work completes)
-- `Approved` → `Superseded` (ADRs only, when a later decision replaces this one)
 
 ## Checking whether dependent work may proceed
 

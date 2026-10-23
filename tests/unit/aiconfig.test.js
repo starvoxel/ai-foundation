@@ -37,18 +37,18 @@ describe('unit: aiconfig', () => {
     });
 
     describe('derived defaults', () => {
-      it('paths.decisions defaults to "{resolved paths.knowledge}/decisions"', () => {
-        assert.equal(resolveConfigValue({}, 'paths.decisions', FAKE_ROOT), 'knowledge/decisions');
+      it('paths.research defaults to "{resolved paths.knowledge}/research"', () => {
+        assert.equal(resolveConfigValue({}, 'paths.research', FAKE_ROOT), 'knowledge/research');
       });
 
-      it('a configured paths.knowledge shifts the paths.decisions default with it', () => {
+      it('a configured paths.knowledge shifts the paths.research default with it', () => {
         const config = { paths: { knowledge: 'notes' } };
-        assert.equal(resolveConfigValue(config, 'paths.decisions', FAKE_ROOT), 'notes/decisions');
+        assert.equal(resolveConfigValue(config, 'paths.research', FAKE_ROOT), 'notes/research');
       });
 
-      it('an explicit paths.decisions overrides the derived default entirely', () => {
-        const config = { paths: { knowledge: 'notes', decisions: 'archive/decisions' } };
-        assert.equal(resolveConfigValue(config, 'paths.decisions', FAKE_ROOT), 'archive/decisions');
+      it('an explicit paths.research overrides the derived default entirely', () => {
+        const config = { paths: { knowledge: 'notes', research: 'archive/research' } };
+        assert.equal(resolveConfigValue(config, 'paths.research', FAKE_ROOT), 'archive/research');
       });
 
       it('paths.features nests under the resolved paths.plans', () => {
@@ -141,10 +141,10 @@ describe('unit: aiconfig', () => {
       });
 
       it('throws when a configured override creates a cycle through a derived default', () => {
-        // paths.decisions defaults to nesting under paths.knowledge; pointing
-        // paths.knowledge back at paths.decisions closes the loop.
-        const config = { paths: { knowledge: '{paths.decisions}' } };
-        assert.throws(() => resolveConfigValue(config, 'paths.decisions', FAKE_ROOT), /Circular/);
+        // paths.research defaults to nesting under paths.knowledge; pointing
+        // paths.knowledge back at paths.research closes the loop.
+        const config = { paths: { knowledge: '{paths.research}' } };
+        assert.throws(() => resolveConfigValue(config, 'paths.research', FAKE_ROOT), /Circular/);
       });
 
       it('propagates an unknown field referenced inside a placeholder', () => {

@@ -47,10 +47,9 @@ describe('validation: skill-deps — real repo', () => {
 });
 
 describe('validation: bundle skill closure — real repo', () => {
-  it('engineering bundle installs plan-lifecycle and adr-authoring', () => {
+  it('engineering bundle installs plan-lifecycle', () => {
     const skills = resolveBundle('engineering', ROOT).skills;
     assert.ok(skills.includes('plan-lifecycle'), 'plan-lifecycle missing');
-    assert.ok(skills.includes('adr-authoring'), 'adr-authoring missing');
   });
 
   it('generic-only bundle installs steering-authoring', () => {

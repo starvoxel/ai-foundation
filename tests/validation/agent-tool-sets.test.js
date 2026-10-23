@@ -37,21 +37,6 @@ const AGENTS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ag
 
 /** Reviewed snapshot of each agent's source grants (generic names, groups, @server/tool refs). */
 const AGENT_GRANTS = {
-  architect: {
-    tools: [
-      'read',
-      'write',
-      'grep',
-      'glob',
-      'subagent',
-      'plan',
-      'ask_user',
-      'task',
-      'skill',
-      'session_info',
-    ],
-    approved: ['read', 'grep', 'glob', 'plan', 'ask_user', 'task', 'skill', 'session_info'],
-  },
   'engineering-researcher': {
     tools: [
       'read',

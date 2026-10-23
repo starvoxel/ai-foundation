@@ -1,6 +1,6 @@
 ---
 name: 'engineering-core'
-version: '1.0.0'
+version: '1.0.1'
 description: 'Core rules that apply to all agents operating in the engineering domain.'
 requires_skills:
   - 'plan-lifecycle'
@@ -54,7 +54,7 @@ file_patterns: []
 
 ### Rule: Escalate Technical Approach Uncertainty
 
-- When a decision is not covered by existing standards, project standards, or an ADR — a new library, a significant architectural trade-off, or two meaningfully different approaches — ask the human, or route to Architect when available, before proceeding
+- When a decision is not covered by existing standards, project standards, or the architecture docs — a new library, a significant architectural trade-off, or two meaningfully different approaches — ask the human before proceeding
 - Do not make such decisions unilaterally, even when confident
 
 **Rationale:** Ad-hoc architectural decisions are rarely revisited and often become permanent.

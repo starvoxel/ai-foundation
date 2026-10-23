@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.3.3'
+version: '0.3.4'
 description: 'Instructs agents how to discover and load project knowledge before starting work.'
 file_patterns: []
 ---
@@ -30,10 +30,8 @@ If no `knowledge/index.json` exists, scan `knowledge/` directory listings to dis
 ### What to Load
 
 - **Never skip:** entries with `scope: "all"` and tags matching your current task
-- **ADRs are index-only by default:** an Approved ADR relevant to your work area must be identified from the index (title, status, tags, one-line description) before proceeding — never ignored — but its full body is loaded only once you determine it is actually relevant to what you're doing, not automatically for every relevant-looking entry
 - **Load if relevant:** entries scoped to your domain or agent name
 - **May skip:** entries scoped to other domains/agents with no tag overlap to your task
-- **Never reference:** an ADR that is not in the `Approved` status — these are not authoritative
 
 ### When Knowledge Conflicts with Standards
 
@@ -53,8 +51,7 @@ When a task extends or removes a building block an arc42 architecture doc alread
 
 ## Enforcement
 
-- **Skipped-knowledge violations:** Caught during review. Work that contradicts an available, relevant knowledge entry — especially a confirmed ADR — that should have been loaded is a MEDIUM finding.
-- **Stale-reference violations:** Caught during review. Citing an ADR not in `Approved` status as authoritative is a HIGH finding, the same severity class as citing an unapproved plan.
+- **Skipped-knowledge violations:** Caught during review. Work that contradicts an available, relevant knowledge entry — that should have been loaded is a MEDIUM finding.
 - **Silent-conflict violations:** Caught during review. Following knowledge over an active standard without raising the conflict as a finding is a MEDIUM finding — the standard should have won, and the conflict should have been surfaced either way.
 - **Doc-update gate violations:** Caught during Principal-Engineer review. A new file extending a described building block with no corresponding `key_files` update is a MEDIUM finding.
 
@@ -67,4 +64,4 @@ Agents produce worse output when they ignore available context. Without knowledg
 ## Exceptions
 
 - If no `knowledge/` directory exists, skip knowledge loading entirely.
-- If context budget is severely constrained, prioritize: ADRs > architecture > reference. Never drop ADRs.
+- If context budget is severely constrained, prioritize: architecture > reference.

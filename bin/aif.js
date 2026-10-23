@@ -119,7 +119,7 @@ Commands:
   validate    Check repo health (schema, refs, bundles, skill-deps)
   test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles, servers, and hook resources
-  index       Generate a decision or architecture index for a project
+  index       Generate an architecture index for a project
   init        Scaffold a new project directory
   config      Resolve a .aiconfig.json field, falling back to its default
 
@@ -157,12 +157,12 @@ Examples:
   aif snapshot --server git
   aif snapshot --bundle
   aif snapshot --bundle --check
-  aif index decisions
-  aif index decisions --check
+  aif index architecture
+  aif index architecture --check
   aif init --name my-app --language typescript --org acme
   aif init --interactive
-  aif config paths.decisions
-  aif config paths.decisions --abs
+  aif config paths.research
+  aif config paths.research --abs
 `.trim();
 
 function printHelp() {

@@ -20,7 +20,6 @@
   "paths": {
     "plans": "plans",
     "features": "plans/features",
-    "decisions": "knowledge/decisions",
     "knowledge": "knowledge",
     "architecture": "knowledge/architecture",
     "research": "knowledge/research",

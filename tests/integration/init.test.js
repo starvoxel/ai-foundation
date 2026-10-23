@@ -65,7 +65,7 @@ describe('integration: init command', () => {
 
   it('creates knowledge directory structure', async () => {
     await quiet(() => runInit({ args: { name: 'test' }, positional: [] }));
-    assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'decisions', '.gitkeep')));
+    assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'research', '.gitkeep')));
     assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'architecture', '.gitkeep')));
     assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'research', '.gitkeep')));
     assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'example.md')));

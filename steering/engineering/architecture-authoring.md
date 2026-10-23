@@ -1,6 +1,6 @@
 ---
 name: 'architecture-authoring'
-version: '0.2.1'
+version: '0.2.2'
 description: 'Defines the arc42 section frontmatter schema and the key_files scope/split rules, so any engineering-domain agent can author or maintain architecture docs consistently, in any project.'
 file_patterns: []
 ---
@@ -9,7 +9,7 @@ file_patterns: []
 
 All agents with `domain = "engineering"`, in any project. Loaded at session start, after `steering/global/core.md`.
 
-Architect starts a new arc42 section under `{paths.architecture}` when a decision's mechanism content warrants one; Software-Engineer maintains an existing section at implementation time. See `steering/engineering/document-types.md`'s "The four kinds" table for the full ownership split.
+The main engineering agent starts a new arc42 section under `{paths.architecture}` when new mechanism warrants one and keeps existing sections current at implementation time. See `steering/engineering/document-types.md`'s "The kinds" table.
 
 ---
 
