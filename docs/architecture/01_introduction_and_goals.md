@@ -6,7 +6,6 @@ tags: [overview]
 key_files:
   - README.md
   - AGENTS.md
-  - package.json
 ---
 
 > What ai-foundation is, who it's for, and the quality goals its design serves.
