@@ -1,9 +1,9 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T16:01:27.621Z",
+  "computed_at": "2026-10-23T16:32:35.979Z",
   "sources": {
-    "agents/engineer.yaml": "sha256:3259b9d57482b398723b9efc78c8cab1de484fba3ae7bbade233f479555c82ec",
+    "agents/engineer.yaml": "sha256:1f034810122dd58161b65fc53e992614ce62904389109b86a0dcaa0bff483353",
     "agents/engineering-researcher.yaml": "sha256:5b603a450d5cb586a3bd30bb19262cfcb2c8cb4391fed66e9e79529e09293064",
     "agents/reviewer.yaml": "sha256:d6b4b055ca211cae3f6ab8a38f591760bcb42b7ba71a8948469d888931fa6e15",
     "steering/global/concision.md": "sha256:b0d635b5e5b4541e3df19bdde178578129fe9fe2fa6b989ae6d9af72a614ee55",
@@ -23,17 +23,6 @@
     "skills/pr-stewardship/SKILL.md": "sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e",
     "skills/review-severity/SKILL.md": "sha256:800b1c45fcedee094908e89156b14b5458c0372320cb37975273e15b586c5b6f",
     "skills/review-severity/reference/template.md": "sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5",
-    "skills/agent-authoring/SKILL.md": "sha256:9f999f1fb423cb2b1d975e154e635b599794f5d4304d2b55835e13ee9eb264af",
-    "skills/agent-authoring/reference/schema.md": "sha256:55cdffcc7b539897537e4bed72edcd1aa6e621b6881d2291f291c84f40b452d7",
-    "skills/agent-authoring/reference/tools.yaml": "sha256:ad7cf3074f407097192629eab9dbdce027502f86aa3cc1f1f41c548bb0e392b8",
-    "skills/skill-authoring/SKILL.md": "sha256:2aae04ef66f11f3968681d354581937cce3bb0207fcd6cc5d810039f90faa4f3",
-    "skills/skill-authoring/reference/schema.md": "sha256:8c7927f0fe3539f757a6d5e6d4236cdf37fcdbce66ef928d8216be316e55e658",
-    "skills/steering-authoring/SKILL.md": "sha256:347b087d8cdf2d390018376b4fdcc28428b7b09a8e91ad928904ca0ac6f93b41",
-    "skills/steering-authoring/reference/schema.yaml": "sha256:75f070764e6870768e7900d7ad681fe2781befaf386042b0b680e8a3f90e49ad",
-    "skills/server-authoring/SKILL.md": "sha256:3922e5f8a3389809760ffbf704b9b2521e87860b2cccbcb659f04af3a0731aef",
-    "skills/server-authoring/reference/schema.yaml": "sha256:37b5c05e8c09cf2515d7e8f4557c448e561e14b2c86f3c1d8973549ee87e0553",
-    "skills/bundle-authoring/SKILL.md": "sha256:c498c5eaf1af0a3448a2726cb46980692d245097db4d827417fa8a7f76f4d643",
-    "skills/bundle-authoring/reference/schema.yaml": "sha256:36d4cd145f5f2846e51bfbc26e30f2daca6f88ae451e0d5f19f40d01b6250810",
     "skills/code-review/SKILL.md": "sha256:87d98847e97cd4542f182a3e2416456a5b685d6ffa1857092e9ec371e3e15d08",
     "skills/ai-component-review/SKILL.md": "sha256:6f322941caba170c4ab676851fe48af420e0f89a9512eb7cfb2befb200b9c038"
   }

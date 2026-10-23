@@ -63,7 +63,7 @@ ai-foundation/
 
 A named persona with a defined role, prompt, tools, and skills.
 
-**Lives in:** `agents/` | **Format:** `.yaml` | **Authoring:** `skill/agent-authoring`
+**Lives in:** `agents/` | **Format:** `.yaml` | **Authoring:** `skill/component-authoring`
 
 Fields: `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved_tools`, optional `skills`, optional `preload_skills`, optional `blocked_commands`
 
@@ -73,7 +73,7 @@ Fields: `name`, `version`, `domain`, `description`, `prompt`, `tools`, `approved
 
 A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
-**Lives in:** `skills/{name}/` | **Format:** `SKILL.md` + `reference/`, `assets/`, `scripts/` | **Authoring:** `skill/skill-authoring`
+**Lives in:** `skills/{name}/` | **Format:** `SKILL.md` + `reference/`, `assets/`, `scripts/` | **Authoring:** `skill/component-authoring`
 
 Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
@@ -83,7 +83,7 @@ Steps are headed `### Step N — Name` — numbered, since order is meaningful. 
 
 Always-on rules. Unconditional within scope.
 
-**Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/steering-authoring`
+**Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/component-authoring`
 
 Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), or `generic/` (catch-all for non-global, non-domain-specific content — loaded via a bundle's explicit `steering:` list, not domain-matched, e.g. `steering/generic/` for the `gmail` server). Agent-specific rules go in the agent's `prompt`.
 
@@ -98,7 +98,7 @@ Rules are headed `### Rule: Name` — unnumbered, since rules are independent an
 
 MCP tool provider definition.
 
-**Lives in:** `servers/{name}/` | **Format:** `.yaml` | **Authoring:** `skill/server-authoring`
+**Lives in:** `servers/{name}/` | **Format:** `.yaml` | **Authoring:** `skill/component-authoring`
 
 Fields: `name`, `version`, `protocol`, `transport`, `description`, `tools`
 
@@ -223,7 +223,7 @@ from a plain, already-exported environment variable.
   both supported harnesses (Claude Code, Kiro) natively expand `${VAR}`
   placeholders from their own process environment at connect time, so
   `aif install` never resolves or needs the secret at all. See
-  `skills/server-authoring/reference/schema.yaml`'s "headers and secrets"
+  `skills/component-authoring/reference/server-schema.yaml`'s "headers and secrets"
   section.
 
 ### Defaults (when `.aiconfig.json` is absent)

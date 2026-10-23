@@ -26,7 +26,7 @@ tool_definition:
 # self (default): we implement and run this server. index.js, logic.js,
 #   package.json, and the full tests/unit + tests/integration +
 #   tests/integration/*.mcp.test.js suite are all required (see
-#   `skill/server-authoring`: "Create folder structure").
+#   `skill/component-authoring`: server reference).
 #
 # vendor: a third party implements and runs this server (e.g. a product's
 #   own official remote MCP endpoint). Only {name}.yaml is required — there

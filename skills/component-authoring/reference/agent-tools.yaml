@@ -43,5 +43,5 @@ approval_guidance:
 # way Engineering Researcher holds `write`+`web_search`+`web_fetch` but
 # never `shell`, and its `write` is scoped to `.md` output under one
 # directory. Combining the tiers with no such documented isolation is an
-# authoring error, caught at `skill/agent-authoring`: "Step 8 — Self-validate"'s
+# authoring error, caught at `skill/component-authoring`: "Step 3 — Validate"'s
 # checklist.

@@ -52,8 +52,8 @@ describe('validation: bundle skill closure — real repo', () => {
     assert.ok(skills.includes('feature-planning'), 'feature-planning missing');
   });
 
-  it('generic-only bundle installs steering-authoring', () => {
+  it('generic-only bundle installs component-authoring', () => {
     const skills = resolveBundle('generic', ROOT).skills;
-    assert.ok(skills.includes('steering-authoring'), 'steering-authoring missing');
+    assert.ok(skills.includes('component-authoring'), 'component-authoring missing');
   });
 });

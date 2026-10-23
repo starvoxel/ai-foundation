@@ -14,7 +14,7 @@ servers/{name}/
 
 ## Adding a new server
 
-1. Load `skill/server-authoring` for the full procedure
+1. Load `skill/component-authoring` for the full procedure
 2. Or: create `servers/{name}/` with `{name}.yaml` and `{name}.test.js`
 3. Document every tool with name, description, inputs, and outputs
 

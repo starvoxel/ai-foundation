@@ -16,7 +16,7 @@ steering/
 
 ## Adding a new steering file
 
-1. Load `skill/steering-authoring` for the full procedure
+1. Load `skill/component-authoring` for the full procedure
 2. Or: create a `.md` file in the appropriate scope directory following AGENTS.md
 3. Every rule must have a rationale and an exceptions process
 

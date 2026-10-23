@@ -1,0 +1,5 @@
+name: "framework"
+version: "1.0.0"
+description: "Skills for authoring and changing the framework's own components (agents, skills, steering, servers, bundles). Install alongside engineering when working on ai-foundation itself."
+skills:
+  - "component-authoring"
