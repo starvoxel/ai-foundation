@@ -19,7 +19,7 @@ JSON manifests — that any AI coding harness can load. A project adopts it by r
 `aif install`, which copies and transforms the relevant components into that harness's
 native format (e.g. Claude Code's `.claude/agents/`, Kiro's `.kiro/steering/`).
 
-The default roster is deliberately small: one `engineer` agent that carries a request from idea to a reviewed PR, a `reviewer` agent that reviews in a fresh context so it is not biased by the author's reasoning, and an `engineering-researcher` that is the only agent with web access. How often the engineer stops for the human is the `oversight` setting (`none`, `by-size`, `always`) in `.aiconfig.json`.
+The default roster is deliberately small: one `engineer` agent that carries a request from idea to a reviewed PR, a `reviewer` agent that reviews in a fresh context so it is not biased by the author's reasoning, and an `engineering-researcher` that is the only agent with web access. How often the engineer stops for the human is the `oversight` setting (`none`, `by-size`, `always`) in `.aiconfig.json`. Skills for authoring the framework's own components ship in a separate `framework` bundle, so downstream projects install only the `engineering` bundle.
 
 The framework itself is also the first consumer of its own conventions: this
 repository's `.aiconfig.json`, `agents/`, `skills/`, and `docs/` follow the same
