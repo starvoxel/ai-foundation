@@ -46,6 +46,7 @@ ai-foundation/
 | `steering/global/**/*.md`    | Every session, always                                                                                    |
 | `steering/{domain}/**/*.md`  | Based on agent's `domain` field                                                                          |
 | `steering/generic/**/*.md`   | Whenever a bundle explicitly lists it in its `steering:` field — not domain-matched (see Steering below) |
+| `steering/{bundle}/**/*.md`  | Whenever that bundle lists it in its `steering:` field                                                   |
 | `agents/{name}.yaml`         | To execute an agent role                                                                                 |
 | `skills/{name}/SKILL.md`     | When the task requires that procedure                                                                    |
 | `standards/{name}.md`        | When working in that language/stack                                                                      |
@@ -77,7 +78,7 @@ A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
 Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
-Steps are headed `### Step N — Name` — numbered, since order is meaningful. A citation to one specific step, from any document, must name it, never cite the number alone — see `steering/generic/citation-rules.md`: "Cite, Don't Restate".
+Steps are headed `### Step N — Name` — numbered, since order is meaningful. A citation to one specific step, from any document, must name it, never cite the number alone — see `steering/ai-engineering/citation-rules.md`: "Cite, Don't Restate".
 
 ### Steering
 
@@ -85,7 +86,7 @@ Always-on rules. Unconditional within scope.
 
 **Lives in:** `steering/{scope}/` | **Format:** `.md` | **Authoring:** `skill/component-authoring`
 
-Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), or `generic/` (catch-all for non-global, non-domain-specific content — loaded via a bundle's explicit `steering:` list, not domain-matched, e.g. `steering/generic/` for the `gmail` server). Agent-specific rules go in the agent's `prompt`.
+Front-matter: `name`, `version`, `description`, optional `file_patterns` Scopes: `global/` (all agents, domain-matched), `{domain}/` (domain agents, domain-matched), `generic/` (catch-all for tool-specific content — loaded via a bundle's explicit `steering:` list, not domain-matched, e.g. the `gmail` server's rules), or `{bundle}/` (rules that belong to one bundle, loaded only when that bundle lists them, e.g. `steering/ai-engineering/`). Agent-specific rules go in the agent's `prompt`.
 
 Rules are headed `### Rule: Name` — unnumbered, since rules are independent and unordered and a number would only be a drift risk. Same citation requirement as Skill steps: name it, never a number.
 
@@ -123,29 +124,29 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 
 ### Fields
 
-| Field                           | Type    | Required | Description                                                                                                                                            |
-| ------------------------------- | ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `project_name`                  | string  | Yes      | Project identifier used in file naming and human-readable metadata                                                                                     |
-| `project_shortname`             | string  | No       | Short project identifier (max 5 characters) used in short identifiers. Falls back to `project_name` if unset.                                          |
-| `repo_type`                     | string  | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                              |
-| `standards`                     | object  | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                       |
-| `project_standards`             | string  | No       | Path to project-specific standards override                                                                                                            |
-| `ai_identity`                   | object  | No       | AI agent git identity for commits and push auth                                                                                                        |
-| `ai_identity.git_author_name`   | string  | No       | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars                                                                                           |
-| `ai_identity.git_author_email`  | string  | No       | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars                                                                                        |
-| `ai_identity.git_token_env`     | string  | No       | Name of env var holding the PAT for push/PR ops                                                                                                        |
-| `secrets`                       | object  | No       | Provider-agnostic secrets resolution for `ai-git` (see below)                                                                                          |
-| `secrets.run`                   | array   | No       | Command+args prefix for a secrets manager's own "run wrapper" (e.g. `["bws", "run", "--project-id", "${BWS_PROJECT_ID}", "--"]`)                       |
-| `secrets.allow_insecure_dotenv` | boolean | No       | Explicit opt-in to a gitignored `.env` fallback when `secrets.run` is unset. Default `false` — for local testing only.                                 |
-| `paths`                         | object  | No       | Artifact output directories (relative to repo root). Any value may reference another resolved field with `{key.path}` — see below.                     |
-| `paths.plans`                   | string  | No       | Root for all plan artifacts. Default: `plans`                                                                                                          |
-| `paths.knowledge`               | string  | No       | Knowledge directory. Default: `knowledge`                                                                                                              |
-| `paths.architecture`            | string  | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                         |
-| `paths.research`                | string  | No       | The researcher agent's brief output (`.md` only). Default: `knowledge/research`                                                                        |
-| `paths.product`                 | string  | No       | Product requirements docs written by `skill/prd`. Default: `knowledge/product`                                                                         |
-| `oversight`                     | object  | No       | How much human sign-off the engineer agent waits for (`skill/oversight`)                                                                               |
-| `oversight.default`             | string  | No       | `none`, `by-size`, or `always`. Default: `by-size`                                                                                                     |
-| `oversight.enforced`            | boolean | No       | When `true`, a prompt may only raise the level, never lower it. Default: `false`. Resolve the effective level with `aif oversight [--request <level>]` |
+| Field                           | Type    | Required | Description                                                                                                                                                 |
+| ------------------------------- | ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `project_name`                  | string  | Yes      | Project identifier used in file naming and human-readable metadata                                                                                          |
+| `project_shortname`             | string  | No       | Short project identifier (max 5 characters) used in short identifiers. Falls back to `project_name` if unset.                                               |
+| `repo_type`                     | string  | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                                   |
+| `standards`                     | object  | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                            |
+| `project_standards`             | string  | No       | Path to project-specific standards override                                                                                                                 |
+| `ai_identity`                   | object  | No       | AI agent git identity for commits and push auth                                                                                                             |
+| `ai_identity.git_author_name`   | string  | No       | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars                                                                                                |
+| `ai_identity.git_author_email`  | string  | No       | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars                                                                                             |
+| `ai_identity.git_token_env`     | string  | No       | Name of env var holding the PAT for push/PR ops                                                                                                             |
+| `secrets`                       | object  | No       | Provider-agnostic secrets resolution for `ai-git` (see below)                                                                                               |
+| `secrets.run`                   | array   | No       | Command+args prefix for a secrets manager's own "run wrapper" (e.g. `["bws", "run", "--project-id", "${BWS_PROJECT_ID}", "--"]`)                            |
+| `secrets.allow_insecure_dotenv` | boolean | No       | Explicit opt-in to a gitignored `.env` fallback when `secrets.run` is unset. Default `false` — for local testing only.                                      |
+| `paths`                         | object  | No       | Artifact output directories (relative to repo root). Any value may reference another resolved field with `{key.path}` — see below.                          |
+| `paths.plans`                   | string  | No       | Root for all plan artifacts. Default: `plans`                                                                                                               |
+| `paths.knowledge`               | string  | No       | Knowledge directory. Default: `knowledge`                                                                                                                   |
+| `paths.architecture`            | string  | No       | arc42 architecture sections, flat directory. Default: `knowledge/architecture`                                                                              |
+| `paths.research`                | string  | No       | The researcher agent's brief output (`.md` only). Default: `knowledge/research`                                                                             |
+| `paths.product`                 | string  | No       | Product requirements docs written by `skill/prd`. Default: `knowledge/product`                                                                              |
+| `oversight`                     | object  | No       | How much human sign-off the engineer agent waits for (`skill/oversight`)                                                                                    |
+| `oversight.default`             | string  | No       | `none`, `by-size`, or `always`. Default: `by-size`                                                                                                          |
+| `oversight.enforced`            | boolean | No       | When `true`, a prompt may only raise the level, never lower it. Default: `false`. Resolve the effective level with `skill/oversight`'s `scripts/resolve.js` |
 
 #### `{key.path}` references in path values
 

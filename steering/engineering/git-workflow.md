@@ -1,8 +1,9 @@
 ---
 name: 'git-workflow'
-version: '1.1.0'
+version: '1.1.1'
 description: 'Git workflow for every repo — atomic incremental commits, ai-git usage, branch + PR landing, the required-CI gate, and when a plan needs a committed approval.'
 requires_skills:
+  - 'pr-authoring'
   - 'pr-stewardship'
   - 'feature-planning'
 file_patterns: []
@@ -65,7 +66,7 @@ All agents, in every repository.
 
 ### Rule: An Agent That Opens a PR Drives It to Green
 
-- Follow `skill/pr-stewardship` until the PR is green and mergeable, or one specific blocker has been reported. Never leave a red or conflicted PR unattended
+- Write the PR per `skill/pr-authoring`, then follow `skill/pr-stewardship` until the PR is green and mergeable, or one specific blocker has been reported. Never leave a red or conflicted PR unattended
 
 **Rationale:** A red or conflicted PR is a stalled task.
 

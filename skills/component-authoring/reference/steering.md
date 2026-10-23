@@ -4,11 +4,12 @@ Steering files are always-on rules that apply unconditionally within a scope. Th
 
 ## Scope
 
-| Scope               | Directory            | Loaded                                                                                                        |
-| ------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------- |
-| All agents          | `steering/global/`   | Every session                                                                                                 |
-| Domain agents       | `steering/{domain}/` | When an agent's domain matches                                                                                |
-| Generic (catch-all) | `steering/generic/`  | Only when a bundle lists the file in its `steering:` field (for example the gmail server's required steering) |
+| Scope               | Directory            | Loaded                                                                                                                                |
+| ------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| All agents          | `steering/global/`   | Every session                                                                                                                         |
+| Domain agents       | `steering/{domain}/` | When an agent's domain matches                                                                                                        |
+| Generic (catch-all) | `steering/generic/`  | Only when a bundle lists the file in its `steering:` field (for example the gmail server's required steering)                         |
+| Bundle-specific     | `steering/{bundle}/` | Only when that bundle lists the file, for rules that belong to what the bundle is for (for example `ai-engineering`'s citation rules) |
 
 Agent-specific rules go in the agent's `prompt`, not here. Anything with ordered steps is a skill.
 

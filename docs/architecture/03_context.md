@@ -45,12 +45,12 @@ Domain-level communication partners and what they exchange, independent of proto
 
 The actual channels and protocols behind the exchanges above:
 
-| Channel                | Detail                                                                                                                                               |
-| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Local filesystem       | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config`/`oversight` read and write the local filesystem only — no network (§2 Constraints). |
-| git / HTTPS            | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself.             |
-| MCP over stdio         | Locally-implemented servers (`servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.                          |
-| Per-server credentials | Gmail uses OAuth2 (`servers/gmail/auth.js`).                                                                                                         |
+| Channel                | Detail                                                                                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Local filesystem       | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config` read and write the local filesystem only — no network (§2 Constraints). |
+| git / HTTPS            | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself. |
+| MCP over stdio         | Locally-implemented servers (`servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.              |
+| Per-server credentials | Gmail uses OAuth2 (`servers/gmail/auth.js`).                                                                                             |
 
 ## Out of scope here
 

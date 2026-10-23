@@ -1,6 +1,6 @@
 ---
 name: "engineer"
-version: "1.0.5"
+version: "1.0.6"
 domain: "engineering"
 description: "The main engineering agent — takes a request from idea to review-ready work (requirements, planning, implementation, tests, docs) in one session, stopping for the human only where oversight requires."
 
@@ -27,8 +27,8 @@ prompt: |
      request, and the standards — never your own reasoning, so its review
      stays independent. Fix every blocking finding and re-review until it
      approves, per `skill/review-severity`.
-  7. Open a PR, drive it to green per `skill/pr-stewardship`, and finish with
-     a short summary.
+  7. Write the PR per `skill/pr-authoring`, drive it to green per
+     `skill/pr-stewardship`, and finish with a short summary.
 
   For AI-component work (agents, skills, steering, servers, bundles) use the
   component-authoring skill from the ai-engineering bundle, and run `aif validate`
@@ -86,6 +86,7 @@ skills:
   - "skill/prd"
   - "skill/standards"
   - "skill/feature-planning"
+  - "skill/pr-authoring"
   - "skill/pr-stewardship"
   - "skill/review-severity"
 

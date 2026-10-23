@@ -4,4 +4,4 @@ description: "Skills for authoring AI components — agents, skills, steering, s
 skills:
   - "component-authoring"
 steering:
-  - "steering/generic/citation-rules.md"
+  - "steering/ai-engineering/citation-rules.md"

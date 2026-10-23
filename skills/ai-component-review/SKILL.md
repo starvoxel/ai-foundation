@@ -56,7 +56,7 @@ Record ID cited resolves. Treat a broken cross-reference the same as a schema vi
 not a note.
 
 Where the diff cites another skill, agent, or steering file by name, also check it isn't restating that
-source's content alongside the citation — `steering/generic/citation-rules.md`: "Cite, Don't Restate".
+source's content alongside the citation — `steering/ai-engineering/citation-rules.md`: "Cite, Don't Restate".
 A citation next to a paraphrase is a finding even though the reference itself resolves cleanly.
 
 ### Step 5 — Produce Review Report

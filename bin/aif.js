@@ -122,7 +122,6 @@ Commands:
   index       Generate an architecture index for a project
   init        Scaffold a new project directory
   config      Resolve a .aiconfig.json field, falling back to its default
-  oversight   Print the effective oversight level (none | by-size | always)
 
 Options:
   -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only); bundle to snapshot (snapshot: name optional, omit for all bundles)
@@ -164,8 +163,6 @@ Examples:
   aif init --interactive
   aif config paths.research
   aif config paths.research --abs
-  aif oversight
-  aif oversight --request none
 `.trim();
 
 function printHelp() {
@@ -188,7 +185,6 @@ import { runSnapshot } from '../lib/commands/snapshot.js';
 import { runIndex } from '../lib/commands/index.js';
 import { runInit } from '../lib/commands/init.js';
 import { runConfig } from '../lib/commands/config.js';
-import { runOversight } from '../lib/commands/oversight.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -232,8 +228,6 @@ export async function run(parsed) {
       return runInit(parsed, process.cwd());
     case 'config':
       return runConfig(parsed, process.cwd());
-    case 'oversight':
-      return runOversight(parsed, process.cwd());
     default:
       return 1;
   }

@@ -1,6 +1,6 @@
 /**
- * Unit tests for oversight level resolution (lib/oversight.js) and the
- * `aif oversight` command (lib/commands/oversight.js).
+ * Unit tests for the oversight skill's resolver script
+ * (skills/oversight/scripts/resolve.js).
  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
@@ -9,8 +9,15 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { resolveOversight, isOversightLevel, OVERSIGHT_LEVELS } from '../../lib/oversight.js';
-import { runOversight } from '../../lib/commands/oversight.js';
+import {
+  DEFAULT_ENFORCED,
+  DEFAULT_LEVEL,
+  OVERSIGHT_LEVELS,
+  isOversightLevel,
+  main,
+  resolveOversight,
+} from '../../skills/oversight/scripts/resolve.js';
+import { DEFAULTS } from '../../lib/aiconfig-defaults.js';
 
 describe('unit: resolveOversight', () => {
   it('lists the levels from lowest to highest', () => {
@@ -27,14 +34,10 @@ describe('unit: resolveOversight', () => {
   });
 
   it('lets a request lower or raise the level when not enforced', () => {
-    assert.equal(
-      resolveOversight({ configured: 'always', enforced: false, requested: 'none' }).level,
-      'none',
-    );
-    assert.equal(
-      resolveOversight({ configured: 'none', enforced: false, requested: 'always' }).level,
-      'always',
-    );
+    const lower = resolveOversight({ configured: 'always', enforced: false, requested: 'none' });
+    const raise = resolveOversight({ configured: 'none', enforced: false, requested: 'always' });
+    assert.equal(lower.level, 'none');
+    assert.equal(raise.level, 'always');
   });
 
   it('lets a request raise the level when enforced', () => {
@@ -49,7 +52,7 @@ describe('unit: resolveOversight', () => {
     assert.match(result.note, /enforced/);
   });
 
-  it('accepts a request equal to the enforced level', () => {
+  it('accepts a request equal to the enforced level without a note', () => {
     const result = resolveOversight({ configured: 'always', enforced: true, requested: 'always' });
     assert.equal(result.level, 'always');
     assert.equal(result.note, undefined);
@@ -67,18 +70,27 @@ describe('unit: resolveOversight', () => {
   });
 });
 
-describe('unit: oversight command', () => {
-  let projectRoot;
+describe('unit: oversight script defaults', () => {
+  it('match the documented defaults in lib/aiconfig-defaults.js', () => {
+    assert.equal(DEFAULT_LEVEL, DEFAULTS['oversight.default']);
+    assert.equal(DEFAULT_ENFORCED, DEFAULTS['oversight.enforced']);
+  });
+});
+
+describe('unit: oversight script main()', () => {
+  let dir;
 
   beforeEach(() => {
-    projectRoot = mkdtempSync(join(tmpdir(), 'oversight-test-'));
+    dir = mkdtempSync(join(tmpdir(), 'oversight-test-'));
   });
 
   afterEach(() => {
-    rmSync(projectRoot, { recursive: true, force: true });
+    rmSync(dir, { recursive: true, force: true });
   });
 
-  function run(args) {
+  function run(args, config) {
+    const configPath = join(dir, '.aiconfig.json');
+    if (config) writeFileSync(configPath, JSON.stringify(config));
     const origLog = console.log;
     const origError = console.error;
     const out = [];
@@ -86,7 +98,7 @@ describe('unit: oversight command', () => {
     console.log = (...a) => out.push(a.join(' '));
     console.error = (...a) => err.push(a.join(' '));
     try {
-      const code = runOversight({ args, positional: [] }, projectRoot);
+      const code = main([...args, '--config', configPath]);
       return { code, out, err };
     } finally {
       console.log = origLog;
@@ -95,28 +107,28 @@ describe('unit: oversight command', () => {
   }
 
   it('defaults to by-size with no .aiconfig.json', () => {
-    const { code, out } = run({});
+    const { code, out } = run([]);
     assert.equal(code, 0);
     assert.deepEqual(out, ['by-size']);
   });
 
   it('applies a request when not enforced', () => {
-    assert.deepEqual(run({ request: 'none' }).out, ['none']);
+    assert.deepEqual(run(['--request', 'none']).out, ['none']);
   });
 
   it('keeps the enforced level and notes the ignored request on stderr', () => {
-    writeFileSync(
-      join(projectRoot, '.aiconfig.json'),
-      JSON.stringify({ oversight: { default: 'always', enforced: true } }),
-    );
-    const { code, out, err } = run({ request: 'none' });
+    const { code, out, err } = run(['--request', 'none'], {
+      oversight: { default: 'always', enforced: true },
+    });
     assert.equal(code, 0);
     assert.deepEqual(out, ['always']);
     assert.match(err[0], /enforced/);
   });
 
-  it('fails on an invalid request or a bare --request', () => {
-    assert.equal(run({ request: 'x' }).code, 1);
-    assert.equal(run({ request: true }).code, 1);
+  it('fails on an invalid request, a bare --request, or invalid JSON', () => {
+    assert.equal(run(['--request', 'x']).code, 1);
+    assert.equal(run(['--request']).code, 1);
+    writeFileSync(join(dir, '.aiconfig.json'), '{ not json');
+    assert.equal(run([]).code, 1);
   });
 });

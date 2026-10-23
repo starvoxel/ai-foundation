@@ -8,7 +8,6 @@ key_files:
   - lib/snapshot/io.js
   - lib/snapshot/pure.js
   - lib/project-init.js
-  - lib/oversight.js
   - lib/ai-git.js
   - lib/doctor-probe.js
   - lib/secrets.js
@@ -55,7 +54,6 @@ the way §5.01's or §5.04's content does.
 | `constants.js` / `component-defs.js`                           | Shared constants (canonical tool names, including the platform-tool group names, source directories, CLI command list) and JSDoc-only `AgentDef`/`ServerDef`/`RequiresSkillsFrontmatter` type shapes — no runtime behavior, just a single owner for both.                                                                                                                                                                                                                                                                                                                               | `TOOLS`, `SOURCE_DIRS`, `COMMANDS`                                                                                                                                                     |
 | `aiconfig.js` / `aiconfig-resolve.js` / `aiconfig-defaults.js` | Resolves a `.aiconfig.json` field to its configured value or documented default, without ever writing a default back to disk. `aiconfig-defaults.js` owns the default table (some entries derive from another field's resolved value, e.g. `paths.research`, `paths.architecture` and `paths.product` nesting under `paths.knowledge`); `aiconfig-resolve.js` is the pure merge logic against a plain object; `aiconfig.js` is the I/O layer that reads `.aiconfig.json` off disk and also finds a project root by walking up for the file.                                             | `getConfigValue()`, `getConfigPath()`, `findProjectRoot()`, `resolveConfigValue()`                                                                                                     |
 | `file-utils.js`                                                | Generic file/hash/frontmatter helpers with no harness-specific behavior: YAML frontmatter parsing, recursive file collection, SHA-256 content hashing, writing to a target path, and line-oriented scanning that skips fenced code blocks.                                                                                                                                                                                                                                                                                                                                              | `parseFrontmatter()`, `collectFiles()`, `hashContent()`, `writeToTarget()`, `nonFencedLines()`                                                                                         |
-| `oversight.js`                                                 | Pure resolution of the effective oversight level (`none` < `by-size` < `always`): a prompt-requested level overrides the configured default unless `oversight.enforced` is true, in which case it can only raise it. Called by `lib/commands/oversight.js`.                                                                                                                                                                                                                                                                                                                             |
 | `skill-mentions.js`                                            | Pure (no I/O) classifier and checker for `skill/<name>` mentions in prose: each mention is a reference (an inline code span holding exactly `skill/<name>`), an example (longer code span, or followed immediately by `<!-- skill-ref: ignore -->`), or other; a skill's own name is skipped. Checking turns them into errors (reference to a missing or undeclared skill) and warnings (other), given the file's `requires_skills` closure. Used by `validate.js`'s `skill-deps` check (§5.05).                                                                                        | `classifySkillMentions()`, `checkSkillMentions()`, `requiresSkillsLines()`, `SKILL_REF_IGNORE_MARKER`                                                                                  |
 
 ## Consumers
@@ -70,7 +68,7 @@ actually needs the push/auth token, never for read-only operations like
 `commit`/`status`/`log` (§5 Entry points). When the token stays unresolved,
 `push`/`fetch` warn and proceed while `gh-*` commands exit with an error.
 `constants.js` is imported across nearly every module in `lib/` and
-`lib/commands/` (10 of 12 files); `component-defs.js` is much narrower — its
+`lib/commands/` (10 of 11 files); `component-defs.js` is much narrower — its
 JSDoc-only types are referenced (via `@param {import('./component-defs.js').X}`
 comments, never a runtime `import`) only by the three `lib/harnesses/*` files,
 not repo-wide. `file-utils.js` has the widest reach of any block in this

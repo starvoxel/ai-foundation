@@ -4,7 +4,7 @@ The framework is one `engineer` agent that takes a request from idea to a review
 
 ## Done
 
-- Lean core: `engineer`, `reviewer`, `engineering-researcher`; `oversight` setting, skill, and `aif oversight`
+- Lean core: `engineer`, `reviewer`, `engineering-researcher`; `oversight` setting and skill (resolved by a script in the skill)
 - Skills: `oversight`, `prd`, `feature-planning`, `standards`, `test-execution`, `pr-stewardship`, `code-review` with `ai-component-review` and `review-severity`, and `component-authoring` (in the `ai-engineering` bundle)
 - One PR-based git workflow; about 2.5k words of always-on steering
 - arc42 staleness computed from git with `Arch-Unaffected` waivers; the generated index refreshed by git hooks and the session-start script, and scaffolded by `aif init`

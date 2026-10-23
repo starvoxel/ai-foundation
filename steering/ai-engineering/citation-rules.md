@@ -1,6 +1,6 @@
 ---
 name: 'citation-rules'
-version: '1.0.0'
+version: '1.0.1'
 description: 'How agents, skills, and steering cite each other: cite instead of restating, and cite by name rather than by number. Loaded for projects that author AI components.'
 file_patterns: []
 ---

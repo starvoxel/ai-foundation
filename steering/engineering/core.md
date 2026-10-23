@@ -61,7 +61,7 @@ All agents with `domain = "engineering"`, loaded after `steering/global/core.md`
 
 **Rationale:** One owner per fact keeps documents true.
 
-**Exceptions:** A short illustrative quote. Authoring AI components has stricter citation rules (`steering/generic/citation-rules.md`).
+**Exceptions:** A short illustrative quote. Authoring AI components has stricter citation rules (`steering/ai-engineering/citation-rules.md`).
 
 ---
 
