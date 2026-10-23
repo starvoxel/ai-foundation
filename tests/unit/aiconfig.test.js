@@ -51,6 +51,12 @@ describe('unit: aiconfig', () => {
         assert.equal(resolveConfigValue(config, 'paths.research', FAKE_ROOT), 'archive/research');
       });
 
+      it('paths.product nests under the resolved paths.knowledge', () => {
+        assert.equal(resolveConfigValue({}, 'paths.product', FAKE_ROOT), 'knowledge/product');
+        const config = { paths: { knowledge: 'notes' } };
+        assert.equal(resolveConfigValue(config, 'paths.product', FAKE_ROOT), 'notes/product');
+      });
+
       it('paths.architecture and paths.research nest under the resolved paths.knowledge', () => {
         const config = { paths: { knowledge: 'notes' } };
         assert.equal(

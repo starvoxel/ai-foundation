@@ -1,6 +1,6 @@
 ---
 name: 'document-types'
-version: '0.4.3'
+version: '0.4.4'
 description: 'Routes any new non-code document to the one home its kind owns — supersedes the retired knowledge-authoring skill.'
 file_patterns: []
 ---
@@ -20,14 +20,11 @@ file_patterns: []
 Before writing a new non-code document, identify which of these it is. Each kind has exactly one home —
 never create a second file elsewhere that duplicates it.
 
-| Kind                                         | Answers                            | Mutability | Home                                                    | Owner                                                          |
-| -------------------------------------------- | ---------------------------------- | ---------- | ------------------------------------------------------- | -------------------------------------------------------------- |
-| **Architecture doc**                         | How the system currently works     | Living     | `{paths.architecture}/*`, as arc42 sections             | The main engineering agent maintains it at implementation time |
-| **Product doc** _(reserved — not built yet)_ | What a product area does, for whom | Living     | `{paths.product}/*`                                     | A future product agent                                         |
-| **Process & ownership**                      | How we work / who's accountable    | Living     | `steering/`, `standards/`, agent charters, Agent roster | The human, with the main engineering agent                     |
-
-**Product docs are a reserved slot, not current work** — nothing needs a PRD today. Do not create a
-`{paths.product}` directory or file speculatively; wait until a product agent exists to own it.
+| Kind                    | Answers                            | Mutability | Home                                                    | Owner                                                                 |
+| ----------------------- | ---------------------------------- | ---------- | ------------------------------------------------------- | --------------------------------------------------------------------- |
+| **Architecture doc**    | How the system currently works     | Living     | `{paths.architecture}/*`, as arc42 sections             | The main engineering agent maintains it at implementation time        |
+| **Product doc**         | What a product area does, for whom | Living     | `{paths.product}/*`                                     | The main engineering agent, via `skill/prd`<!-- skill-ref: ignore --> |
+| **Process & ownership** | How we work / who's accountable    | Living     | `steering/`, `standards/`, agent charters, Agent roster | The human, with the main engineering agent                            |
 
 **"Owner" is who directs and is accountable for the content, not who holds the pen.** Editing a skill/steering/agent file is AI-component authoring, in-domain for the implementing agent like any other task.
 
@@ -36,7 +33,7 @@ never create a second file elsewhere that duplicates it.
 `api` and `business-rule` are not document kinds — never assign either as a `type`. Both describe what a file
 is about, not why it exists or whether it changes, and content described that way already has a real home:
 code (a `key_files` entry — never restated in prose), the arc42 section that already covers that system or
-component, `standards/`, or the reserved `{paths.product}` slot. If you're tempted to create a knowledge file
+component, `standards/`, or the product doc home (`{paths.product}`). If you're tempted to create a knowledge file
 because the content "is an API" or "is a business rule," that impulse is wrong — find the home that already
 owns it. Never create a standalone file for either.
 
