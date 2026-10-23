@@ -1,6 +1,6 @@
 ---
 name: 'code-review'
-version: '0.5.6'
+version: '0.5.7'
 description: 'Reviews completed source code for completeness, security, standards, and correctness; classifies findings via the shared review-severity taxonomy.'
 requires_skills:
   - 'ai-component-review'
@@ -46,7 +46,7 @@ Check naming conventions, file headers, doc comments, async patterns, error hand
 ### Step 5 — Review Logic and Correctness
 
 Does the implementation match the described behaviour? Are edge cases handled?
-Are interfaces implemented as specified? Does the Test Results Report cover every test case the plan's Testing Plan defines, with none skipped unflagged?
+Are interfaces implemented as specified? Do the tests cover every acceptance criterion and error state, with none skipped unflagged?
 
 ### Step 6 — Produce Review Report
 
