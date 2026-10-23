@@ -4,7 +4,7 @@
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, existsSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync, rmSync, mkdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -74,7 +74,9 @@ describe('integration: init command', () => {
 
   it('creates plans directory structure', async () => {
     await quiet(() => runInit({ args: { name: 'test' }, positional: [] }));
-    assert.ok(existsSync(join(workDir, 'test', 'plans', 'features', '.gitkeep')));
+    assert.ok(existsSync(join(workDir, 'test', 'plans', '.gitkeep')));
+    assert.ok(!existsSync(join(workDir, 'test', 'plans', 'features')));
+    assert.ok(!existsSync(join(workDir, 'test', 'knowledge', 'decisions')));
   });
 
   it('creates project-standards.md with project name substituted', async () => {
@@ -128,5 +130,21 @@ describe('integration: init command', () => {
     );
     assert.equal(code, 1);
     assert.ok(output.some((l) => l.includes('Invalid project short name')));
+  });
+
+  it('scaffolds git hooks and a session-start hook that keep the architecture index fresh', async () => {
+    await quiet(() => runInit({ args: { name: 'hooked' }, positional: [] }));
+    const root = join(workDir, 'hooked');
+    for (const f of ['refresh-index', 'post-merge', 'post-checkout', 'post-rewrite']) {
+      const mode = statSync(join(root, '.githooks', f)).mode;
+      assert.ok(mode & 0o100, `.githooks/${f} must be executable`);
+    }
+    assert.ok(statSync(join(root, 'scripts', 'session-start.sh')).mode & 0o100);
+    assert.match(
+      readFileSync(join(root, '.gitignore'), 'utf8'),
+      /^knowledge\/architecture\/index\.json$/m,
+    );
+    const settings = JSON.parse(readFileSync(join(root, '.claude', 'settings.json'), 'utf8'));
+    assert.match(settings.hooks.SessionStart[0].hooks[0].command, /scripts\/session-start\.sh/);
   });
 });
