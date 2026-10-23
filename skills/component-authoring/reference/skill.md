@@ -16,7 +16,7 @@ skills/{name}/
 
 Frontmatter: `name` (kebab-case, matches the folder), `version` (semver), `description` (one sentence, and it must say when to use the skill, since that is what an agent sees before loading it). Optional `requires_skills` lists skills it depends on.
 
-Five body sections, in order: **Purpose**, **Inputs**, **Steps**, **Outputs**, **Edge Cases**. Steps are headed `### Step N — Name`; a citation from another document must name the step, never give the number alone (`steering/engineering/core.md`: "Cite, Don't Restate").
+Five body sections, in order: **Purpose**, **Inputs**, **Steps**, **Outputs**, **Edge Cases**. Steps are headed `### Step N — Name`; a citation from another document must name the step, never give the number alone (`steering/generic/citation-rules.md`: "Cite, Don't Restate").
 
 ## Rules
 

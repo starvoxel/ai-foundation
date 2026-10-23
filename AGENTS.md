@@ -77,7 +77,7 @@ A reusable, self-contained procedure. Defines inputs, steps, and outputs.
 
 Front-matter: `name`, `version`, `description` Body sections: Purpose, Inputs, Steps, Outputs, Edge Cases
 
-Steps are headed `### Step N — Name` — numbered, since order is meaningful. A citation to one specific step, from any document, must name it, never cite the number alone — see `steering/engineering/core.md`: "Cite, Don't Restate".
+Steps are headed `### Step N — Name` — numbered, since order is meaningful. A citation to one specific step, from any document, must name it, never cite the number alone — see `steering/generic/citation-rules.md`: "Cite, Don't Restate".
 
 ### Steering
 

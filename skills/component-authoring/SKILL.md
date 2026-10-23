@@ -1,6 +1,6 @@
 ---
 name: 'component-authoring'
-version: '1.0.0'
+version: '1.0.1'
 description: "Creates or changes an AI component — an agent, skill, steering file, server definition, or bundle — following that type's schema and checklist, and validates it with aif validate."
 ---
 
@@ -30,7 +30,7 @@ One procedure for authoring every component type this framework installs. It rou
 
 Follow the reference's structure and rules. Two rules hold for every type:
 
-- Cite, don't restate: when another skill, agent, or steering file owns a definition or procedure, point to it by name — `steering/engineering/core.md`: "Cite, Don't Restate"
+- Cite, don't restate: when another skill, agent, or steering file owns a definition or procedure, point to it by name — `steering/generic/citation-rules.md`: "Cite, Don't Restate"
 - Keep it short. Every sentence in a prompt, skill, or rule must change what the reader does; cut hedging, restated context, and examples that prevent no specific misunderstanding
 
 ### Step 3 — Validate
