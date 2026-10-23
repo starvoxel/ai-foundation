@@ -10,7 +10,7 @@
 # with `npm link --ignore-scripts`, installs the bundles named in AIF_BUNDLES,
 # and runs `ai-git doctor` to report (never fix) whether ai-git, gh, bws and the
 # token resolve. gh and bws come from the environment's Setup script (see
-# README, "Claude Code Cloud"). Every step warns on failure and the hook still exits 0.
+# README, "Claude Code Cloud"). It also enables the repo's .githooks and builds the arc42 index. Every step warns on failure and the hook still exits 0.
 set -euo pipefail
 
 [ "${CLAUDE_CODE_REMOTE:-}" = "true" ] || exit 0
@@ -29,6 +29,13 @@ npm ci --ignore-scripts --no-audit --no-fund \
 
 npm link --ignore-scripts \
   || echo "WARNING: npm link failed; ai-git and aif may not be on PATH" >&2
+
+# Hooks (and their index refresh) aren't active in a fresh clone: `npm ci` above skips
+# `prepare`, so point git at .githooks and build the gitignored arc42 index once now.
+git config core.hooksPath .githooks \
+  || echo "WARNING: could not set core.hooksPath" >&2
+node bin/aif.js index architecture \
+  || echo "WARNING: aif index architecture failed" >&2
 
 if [ -n "${AIF_BUNDLES:-}" ]; then
   node bin/aif.js install -B "$AIF_BUNDLES" -H claude \

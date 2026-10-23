@@ -12,6 +12,7 @@
     "ai-git": "./bin/ai-git.js"
   },
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks || true",
     "test": "node --test \"**/*.test.js\" --test-reporter spec",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

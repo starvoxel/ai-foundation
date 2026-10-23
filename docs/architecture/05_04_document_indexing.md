@@ -26,6 +26,8 @@ flowchart TD
 
 The index is generated on demand and is not committed (`docs/architecture/index.json` is gitignored): nothing generated lives on `main`, so parallel branches cannot conflict on it. Generation is deterministic (entries sorted by path, no timestamp, no per-entry staleness), and `--check` never reads a stored index.
 
+The index is kept fresh without anyone running it by hand: `.githooks/` (`post-merge`, `post-checkout`, `post-rewrite` → `refresh-index`) regenerate it after a pull, branch switch or rebase, never failing the git operation. `npm install` (`prepare`) points `core.hooksPath` at `.githooks`, and the cloud `scripts/session-start.sh` does the same and builds the index once, since a fresh clone has no hooks yet.
+
 ## Contained Building Blocks
 
 | Aspect                          | `architecture.js` (arc42 sections)                                                                                                                                                                                                |
