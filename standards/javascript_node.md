@@ -1,6 +1,6 @@
 ---
 name: javascript_node
-version: 1.0.2
+version: 1.0.3
 description: Node.js runtime conventions for JavaScript projects
 tags: [javascript, node]
 depends_on: [javascript_base]

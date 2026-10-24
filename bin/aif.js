@@ -117,7 +117,6 @@ Commands:
   status      Show what is currently installed
   list        List available bundles, agents, skills, or servers
   validate    Check repo health (schema, refs, bundles, skill-deps)
-  test        Run test suite (unit, integration, validation)
   snapshot    Compute source hashes for bundles, servers, and hook resources
   index       Generate an architecture index for a project
   init        Scaffold a new project directory
@@ -134,10 +133,7 @@ Options:
 
 Init Options:
   --name <name>         Project directory name
-  --language <lang>     Primary language (e.g. typescript, python, go)
-  --org <organization>  Organization name
-  --module-id <id>      Language-specific package/module identifier
-  --repo <url>          Git repository URL
+  --language <lang>     Primary language; seeds the standards tags (e.g. csharp, javascript)
   --standards <list>    Comma-separated standard tags (e.g. csharp,avalonia)
   --interactive         Force interactive prompts (flag values as defaults)
 
@@ -152,14 +148,13 @@ Examples:
   aif validate
   aif validate schema
   aif validate skill-deps
-  aif test unit
   aif snapshot
   aif snapshot --server git
   aif snapshot --bundle
   aif snapshot --bundle --check
   aif index architecture
   aif index architecture --check
-  aif init --name my-app --language typescript --org acme
+  aif init --name my-app --language csharp
   aif init --interactive
   aif config paths.research
   aif config paths.research --abs
@@ -180,7 +175,6 @@ import { runUninstall } from '../lib/commands/uninstall.js';
 import { runStatus } from '../lib/commands/status.js';
 import { runList } from '../lib/commands/list.js';
 import { runValidate } from '../lib/commands/validate.js';
-import { runTest } from '../lib/commands/test.js';
 import { runSnapshot } from '../lib/commands/snapshot.js';
 import { runIndex } from '../lib/commands/index.js';
 import { runInit } from '../lib/commands/init.js';
@@ -218,8 +212,6 @@ export async function run(parsed) {
       return runList(parsed, REPO_ROOT);
     case 'validate':
       return runValidate(parsed, REPO_ROOT);
-    case 'test':
-      return runTest(parsed, REPO_ROOT);
     case 'snapshot':
       return runSnapshot(parsed, REPO_ROOT);
     case 'index':

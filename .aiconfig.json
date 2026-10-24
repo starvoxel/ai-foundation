@@ -1,7 +1,6 @@
 {
   "project_name": "ai-foundation",
   "project_shortname": "AIF",
-  "repo_type": "framework",
   "standards": {
     "engineering": ["javascript", "node"],
     "all": []

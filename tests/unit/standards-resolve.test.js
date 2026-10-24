@@ -6,7 +6,15 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { parseStandard, resolveStandards } from '../../skills/standards/scripts/resolve.js';
+import { resolve } from 'node:path';
+
+import {
+  DEFAULT_PROJECT_STANDARDS,
+  parseStandard,
+  projectOverridePath,
+  resolveStandards,
+} from '../../skills/standards/scripts/resolve.js';
+import { DEFAULTS } from '../../lib/aiconfig-defaults.js';
 
 const std = (name, tags, dependsOn = []) => ({ name, tags, dependsOn });
 
@@ -69,5 +77,20 @@ describe('unit: resolveStandards', () => {
       () => resolveStandards([std('a', ['x'], ['b']), std('b', ['y'], ['a'])], ['x']),
       /cycle/i,
     );
+  });
+});
+
+describe('unit: project standards override', () => {
+  it('defaults to project-standards.md at the project root, as lib/aiconfig-defaults.js does', () => {
+    assert.equal(DEFAULT_PROJECT_STANDARDS, DEFAULTS.project_standards);
+    assert.equal(projectOverridePath({}), resolve('project-standards.md'));
+  });
+
+  it('uses the configured path when set', () => {
+    assert.equal(
+      projectOverridePath({ project_standards: 'docs/ours.md' }),
+      resolve('docs/ours.md'),
+    );
+    assert.equal(projectOverridePath({ project_standards: '' }), resolve('project-standards.md'));
   });
 });

@@ -1,6 +1,6 @@
 ---
 name: 'prd'
-version: '1.1.0'
+version: '1.1.1'
 description: 'Interviews the human about a product or feature idea — first the overall scope, then the details of each feature area — and writes a testable product requirements doc, ready to feed feature-planning or direct implementation.'
 ---
 
@@ -29,7 +29,7 @@ Take the confirmed areas one at a time, and for each ask batches of three to fiv
 
 ### Step 4 — Write the PRD
 
-Fill `reference/template.md` into `{paths.product}/{short-name}.md` (default `knowledge/product/`). Number every requirement, make it testable, and mark a priority. Put every unresolved item in Open questions with who decides. For a very large product, write the overall doc first and one doc per feature area beside it, linked from the overview.
+Fill `reference/template.md` into `{paths.product}/{short-name}.md`. Number every requirement, make it testable, and mark a priority. Put every unresolved item in Open questions with who decides. For a very large product, write the overall doc first and one doc per feature area beside it, linked from the overview.
 
 ### Step 5 — Review and hand off
 

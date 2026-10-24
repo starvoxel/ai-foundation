@@ -19,7 +19,7 @@ Question: {one precise question}
 Feeds: {the decision it informs}
 Known: {what is already settled, so it is not re-researched}
 Depth: {quick check | option survey | decision-grade}
-Write the brief to {path}; write early and refine. Cite a source per claim; mark unverified items.
+Write the brief to {path from `aif config paths.research --abs`}; write early and refine. Cite a source per claim; mark unverified items.
 Return the path and a five-line summary.
 ```
 

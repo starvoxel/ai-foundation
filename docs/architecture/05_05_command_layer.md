@@ -9,7 +9,6 @@ key_files:
   - lib/commands/status.js
   - lib/commands/list.js
   - lib/commands/validate.js
-  - lib/commands/test.js
   - lib/commands/snapshot.js
   - lib/commands/index.js
   - lib/commands/init.js
@@ -28,7 +27,6 @@ graph TD
   Status["status.js"]
   List["list.js"]
   Validate["validate.js"]
-  Test["test.js"]
   Snapshot["snapshot.js"]
   Index["index.js"]
   Init["init.js"]
@@ -56,9 +54,6 @@ graph TD
   Config --> AiConfig
 ```
 
-`test.js` has no edge — it only shells out to this repo's own `node:test` runner
-(`execSync`), no library dependency.
-
 ## Motivation
 
 Ten files sharing one uniform shape (parse this command's own args, call straight
@@ -66,7 +61,7 @@ into whichever Core library/Harness adapter does the real work, return) — genu
 one cohesive whitebox, not six unrelated responsibilities the way §5.03 is. The
 split from `05_building_blocks.md` isn't because any single command is complex
 enough to need its own diagram (none is); it's the same `key_files`-list-length
-reasoning §5.03 already gives for its own existence: ten files' individual
+reasoning §5.03 already gives for its own existence: nine files' individual
 freshness needs somewhere to be tracked without bloating the Level-1 doc's own
 list past what keeps a rename or deletion there a meaningful signal.
 
@@ -79,7 +74,6 @@ list past what keeps a rename or deletion there a meaningful signal.
 | `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runStatus(parsed, repoRoot)`                             |
 | `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `runList(parsed, repoRoot)`                               |
 | `validate.js`  | Schema (including agent `tools`/`approved_tools` names: a `TOOLS` name or `@server/tool` reference), cross-reference, and bundle-resolution integrity checks (`aif validate`), including that a bundle's steering files exist. `schema` also rejects a malformed `requires_skills` field. A fourth target, `skill-deps` (part of the default run), checks `requires_skills` entries exist and that `skill/<name>` mentions in skill and steering files are declared, using `resolver.js`'s closure and `skill-mentions.js` (§5.03); other mentions are warnings that do not fail the run. | `runValidate(parsed, repoRoot)`                           |
-| `test.js`      | Thin wrapper invoking this repo's own `node:test` suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `runTest(parsed, repoRoot)`                               |
 | `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `runSnapshot(parsed, repoRoot)`                           |
 | `index.js`     | Generates the architecture index (`aif index architecture`) on demand, deterministically; `--check` validates the source docs without reading any stored index.                                                                                                                                                                                                                                                                                                                                                                                                                           | `runIndex(parsed, repoRoot)`, `resolveArchitecturePath()` |
 | `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags. The template includes the git hooks and session-start script that keep the gitignored architecture index fresh; executable bits are preserved on copy.                                                                                                                                                                                                                                                                                                                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`          |

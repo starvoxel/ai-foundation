@@ -56,11 +56,12 @@ describe('integration: init command', () => {
     assert.ok(existsSync(join(workDir, 'test-project')));
   });
 
-  it('creates .aiconfig.json with correct name and repo_type', async () => {
+  it('creates .aiconfig.json with the project name and no retired fields', async () => {
     await quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
     const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
     assert.equal(config.project_name, 'my-app');
-    assert.equal(config.repo_type, 'project');
+    assert.equal(config.repo_type, undefined);
+    assert.equal(config.language, undefined);
   });
 
   it('creates knowledge directory structure', async () => {
@@ -79,11 +80,22 @@ describe('integration: init command', () => {
     assert.ok(!existsSync(join(workDir, 'test', 'knowledge', 'decisions')));
   });
 
-  it('creates project-standards.md with project name substituted', async () => {
+  it('seeds the standards tags from --language, and --standards wins', async () => {
+    await quiet(() => runInit({ args: { name: 'a', language: 'CSharp' }, positional: [] }));
+    const read = (n) => JSON.parse(readFileSync(join(workDir, n, '.aiconfig.json'), 'utf8'));
+    assert.deepEqual(read('a').standards.engineering, ['csharp']);
+    await quiet(() =>
+      runInit({
+        args: { name: 'b', language: 'csharp', standards: 'csharp,avalonia' },
+        positional: [],
+      }),
+    );
+    assert.deepEqual(read('b').standards.engineering, ['csharp', 'avalonia']);
+  });
+
+  it('does not scaffold project-standards.md (an optional override)', async () => {
     await quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
-    const content = readFileSync(join(workDir, 'my-app', 'project-standards.md'), 'utf8');
-    assert.ok(content.includes('my-app'));
-    assert.ok(!content.includes('{ProjectName}'));
+    assert.ok(!existsSync(join(workDir, 'my-app', 'project-standards.md')));
   });
 
   it('fails if directory already exists without --force', async () => {

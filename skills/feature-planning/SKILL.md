@@ -1,6 +1,6 @@
 ---
 name: 'feature-planning'
-version: '1.0.0'
+version: '1.0.1'
 description: 'Plans a large feature as a single reviewable document with milestones and acceptance criteria, then commits it as Draft and Approved so the human can sign off before implementation.'
 ---
 
@@ -17,7 +17,7 @@ Turns a request or PRD for large work into one plan the human can review in a si
 
 ### Step 1 — Draft the plan
 
-Write `{paths.plans}/{short-name}.md` (default `plans/`) from `reference/template.md` with `Status: Draft`. Keep it as short as the work allows: one plan, no task database. The milestones are the checkpoints `skill/oversight`<!-- skill-ref: ignore --> stops at, so size each to be reviewable on its own and give each its own acceptance criteria and how it will be verified. State security and logging requirements, and list open questions rather than guessing.
+Write `{paths.plans}/{short-name}.md` from `reference/template.md` with `Status: Draft`. Keep it as short as the work allows: one plan, no task database. The milestones are the checkpoints `skill/oversight`<!-- skill-ref: ignore --> stops at, so size each to be reviewable on its own and give each its own acceptance criteria and how it will be verified. State security and logging requirements, and list open questions rather than guessing.
 
 ### Step 2 — Commit and present
 
@@ -48,5 +48,4 @@ When the described work is merged, set `Status: Done` and commit. This is inform
 ## Edge Cases
 
 - **The human says "just do it" for large work** — still commit the Approved status first, then proceed
-- **No `paths.plans` configured** — use `plans/`
 - **The plan changes materially during implementation** — stop, revise the plan in a new commit, and get a fresh Approved commit before continuing

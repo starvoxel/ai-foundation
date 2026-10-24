@@ -89,6 +89,6 @@ Files use `{stack_name}.md` with underscores for multi-word names:
 
 ## What Doesn't Belong Here
 
-- Project-specific overrides (go in `projects/{name}/project-standards.md`)
+- Project-specific overrides (go in the project's own `project-standards.md`, or the path in `.aiconfig.json`'s `project_standards`; optional, listed last by `skill/standards`, and it wins over these where they disagree)
 - Universal rules not tied to a stack (go in `steering/`)
 - General knowledge or reference material (go in `knowledge/`)

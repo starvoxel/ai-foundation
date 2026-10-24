@@ -128,9 +128,8 @@ See `projects/_template/.aiconfig.json` for the schema and default values.
 | ------------------------------- | ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `project_name`                  | string  | Yes      | Project identifier used in file naming and human-readable metadata                                                                                          |
 | `project_shortname`             | string  | No       | Short project identifier (max 5 characters) used in short identifiers. Falls back to `project_name` if unset.                                               |
-| `repo_type`                     | string  | No       | Repository type: `project` (default) or `framework`. Determines which git workflow and conventions apply.                                                   |
 | `standards`                     | object  | No       | Map of domain → tags for tag-based standard matching. See below.                                                                                            |
-| `project_standards`             | string  | No       | Path to project-specific standards override                                                                                                                 |
+| `project_standards`             | string  | No       | Optional project override of the general standards, loaded last by `skill/standards`. Default: `project-standards.md`                                       |
 | `ai_identity`                   | object  | No       | AI agent git identity for commits and push auth                                                                                                             |
 | `ai_identity.git_author_name`   | string  | No       | Name used in GIT_AUTHOR_NAME and GIT_COMMITTER_NAME env vars                                                                                                |
 | `ai_identity.git_author_email`  | string  | No       | Email used in GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL env vars                                                                                             |
@@ -234,6 +233,7 @@ If no config file exists, agents fall back to:
 - `project_name`: inferred from repository directory name
 - `project_shortname`: same as `project_name`
 - `standards`: none (agent must ask or search `standards/`)
+- `project_standards`: `project-standards.md` (used only if the file exists)
 - `paths.plans`: `plans`
 - `paths.knowledge`: `knowledge`
 - `paths.architecture`: `knowledge/architecture`
@@ -246,9 +246,10 @@ If no config file exists, agents fall back to:
 ## Testing
 
 ```bash
-node --test "tests/unit/**/*.test.js"          # Fast, no I/O
-node --test "tests/integration/**/*.test.js"   # Filesystem tests
-node --test "tests/validation/**/*.test.js"    # Real repo checks
+npm test                   # Everything
+npm run test:unit          # Fast, no I/O
+npm run test:integration   # Filesystem tests
+npm run test:validation    # Real repo checks
 ```
 
 ---

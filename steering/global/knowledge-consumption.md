@@ -1,6 +1,6 @@
 ---
 name: 'knowledge-consumption'
-version: '0.4.0'
+version: '0.5.0'
 description: 'Instructs agents to load relevant project knowledge before starting work and to keep architecture docs current when a change touches a building block they describe.'
 file_patterns: []
 ---
@@ -22,6 +22,18 @@ All agents, all sessions, in projects that have a knowledge directory.
 **Rationale:** Ignoring available context produces rework and code that contradicts the architecture.
 
 **Exceptions:** No knowledge directory means nothing to load. Under tight context, load architecture before reference material.
+
+---
+
+### Rule: Resolve Configured Paths With `aif config`
+
+- Never work out a `{paths.*}` directory or other `.aiconfig.json` field yourself. Run `aif config <key>` from the project root, adding `--abs` for an absolute path: it returns the configured value or the documented default, with `{key.path}` references resolved
+- Do this wherever this repo's rules and skills write `{paths.plans}`, `{paths.product}`, `{paths.architecture}`, `{paths.research}` or `{paths.knowledge}`, and pass the resolved path to any subagent that needs it
+- If `aif` is not on PATH, read `.aiconfig.json` and fall back to the defaults in AGENTS.md, and say so
+
+**Rationale:** The defaults live in code (`lib/aiconfig-defaults.js`), so every agent gets the same answer instead of its own reading of the prose.
+
+**Exceptions:** None.
 
 ---
 

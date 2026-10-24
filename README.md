@@ -56,9 +56,8 @@ aif uninstall --bundle engineering --harness kiro
 aif status
 aif list bundles|agents|skills|servers
 
-# Validation and testing
+# Validation
 aif validate [schema|refs|bundles]
-aif test [unit|integration|validation]
 
 # Source freshness
 aif snapshot --check
@@ -119,7 +118,6 @@ Scaffold a new project with `aif init` or create the file manually. Key fields:
 {
   "project_name": "my-app",
   "project_shortname": "myapp",
-  "repo_type": "project",
   "ai_identity": {
     "git_author_name": "AI Agent",
     "git_author_email": "ai@example.com",
@@ -145,9 +143,10 @@ See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 ## Testing
 
 ```bash
-aif test unit          # Fast, no I/O
-aif test integration   # Filesystem tests
-aif test validation    # Real repo checks
+npm test               # Everything
+npm run test:unit          # Fast, no I/O
+npm run test:integration   # Filesystem tests
+npm run test:validation    # Real repo checks
 ```
 
 Requires Node.js 22+. Install dependencies: `npm install`.

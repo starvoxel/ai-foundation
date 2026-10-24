@@ -11,7 +11,9 @@
  * A standard matches when ALL of its `tags` are among the project's tags
  * (`standards.<domain>` plus `standards.all` in .aiconfig.json). Standards are
  * looked up in ./standards first, then ~/.claude/standards, then
- * ~/.kiro/standards; the first directory holding a name wins.
+ * ~/.kiro/standards; the first directory holding a name wins. The project's
+ * own override file (`project_standards`, default ./project-standards.md) is
+ * listed last when it exists; it need not.
  */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
@@ -122,6 +124,21 @@ function loadStandards(dirs) {
   return [...seen.values()];
 }
 
+/** Default location of the optional project override; mirrors lib/aiconfig-defaults.js (a test keeps them in sync). */
+export const DEFAULT_PROJECT_STANDARDS = 'project-standards.md';
+
+/**
+ * Where the project's own standards override lives (it need not exist).
+ * @param {{ project_standards?: unknown }} config
+ * @returns {string} Absolute path
+ */
+export function projectOverridePath(config) {
+  const configured = config.project_standards;
+  return resolve(
+    typeof configured === 'string' && configured ? configured : DEFAULT_PROJECT_STANDARDS,
+  );
+}
+
 /**
  * Entry point.
  * @param {string[]} argv
@@ -155,6 +172,8 @@ export function main(argv) {
     const names = resolveStandards(standards, tags);
     const byName = new Map(standards.map((s) => [s.name, s]));
     const result = names.map((n) => ({ name: n, path: byName.get(n).path }));
+    const override = projectOverridePath(config);
+    if (existsSync(override)) result.push({ name: 'project-standards', path: override });
     if (argv.includes('--json')) console.log(JSON.stringify(result, null, 2));
     else for (const r of result) console.log(r.path);
     return 0;
