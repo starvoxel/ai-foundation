@@ -4,6 +4,7 @@ import { join } from 'node:path';
 
 import {
   orphanedPaths,
+  splitOwnedPaths,
   manifestPath,
   parseManifest,
   serializeManifest,
@@ -284,6 +285,33 @@ describe('unit: manifest', () => {
 
     it('returns nothing for a first install', () => {
       assert.deepEqual(orphanedPaths(manifest, 'new_claude', [{ path: '/y' }]), []);
+    });
+  });
+
+  describe('splitOwnedPaths()', () => {
+    const entry = (...paths) => ({ files: paths.map((path) => ({ path })) });
+    const manifest = {
+      bundles: { a_claude: entry('/x/own', '/x/shared'), b_claude: entry('/x/shared') },
+      servers: {},
+      hooks: {},
+    };
+
+    it('separates exclusively owned paths from paths another bundle lists', () => {
+      assert.deepEqual(splitOwnedPaths(manifest, 'a_claude'), {
+        removable: ['/x/own'],
+        shared: ['/x/shared'],
+      });
+    });
+
+    it('treats a shared path as shared for every owner', () => {
+      assert.deepEqual(splitOwnedPaths(manifest, 'b_claude'), {
+        removable: [],
+        shared: ['/x/shared'],
+      });
+    });
+
+    it('returns empty lists for an unknown bundle', () => {
+      assert.deepEqual(splitOwnedPaths(manifest, 'nope_claude'), { removable: [], shared: [] });
     });
   });
 });
