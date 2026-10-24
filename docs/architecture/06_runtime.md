@@ -40,6 +40,11 @@ sequenceDiagram
   end
 ```
 
+A reinstall also releases what the bundle's previous install had and the new one does
+not: files no other bundle owns are deleted (emptied directories too), and servers and
+hooks it stopped using drop `bundleName` from `installedBy` exactly as `uninstall` does.
+An upgrade therefore leaves no retired agents, skills or rules behind.
+
 This is what makes uninstalling one bundle safe when a second bundle shares a server
 (via an agent's `@server/tool` reference) or the Claude Code `block-command` hook
 (via an agent's `blocked_commands`) — the shared resource is only physically removed
