@@ -23,8 +23,8 @@ ai-foundation/
 ├── standards/       Prescriptive coding/stack rules
 ├── servers/         MCP tool server definitions
 ├── bundles/         Install bundles (per-harness deployment)
-├── projects/        Per-project overrides and templates
-├── docs/            Plans and arc42 architecture docs
+├── projects/        Project template (scaffolded by `aif init`)
+├── docs/            arc42 architecture docs and research briefs
 ├── bin/             CLI entry point (aif)
 ├── lib/             CLI modules
 └── tests/           unit/, integration/, validation/

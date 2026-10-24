@@ -13,7 +13,6 @@
  * Git commands (identity injected):
  *   ai-git commit -m "message"
  *   ai-git push [remote] [branch]
- *   ai-git worktree add <path> -b <branch>
  *   ai-git <any git subcommand>
  *
  * GitHub commands (GH_TOKEN injected):
@@ -273,7 +272,6 @@ Usage:
 Git commands (identity + auth injected):
   ai-git commit -m "message"
   ai-git push [remote] [branch]
-  ai-git worktree add <path> -b <branch>
   ai-git tag <name>
   ai-git <any git subcommand>
 

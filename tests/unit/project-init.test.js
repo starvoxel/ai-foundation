@@ -8,7 +8,6 @@ import assert from 'node:assert/strict';
 import {
   validateProjectName,
   validateProjectShortname,
-  applyProjectName,
   applyProjectConfig,
   buildAiConfig,
 } from '../../lib/project-init.js';
@@ -110,35 +109,6 @@ describe('unit: project-init/validateProjectShortname', () => {
   it('rejects names starting with dot or underscore', () => {
     assert.equal(validateProjectShortname('.app').valid, false);
     assert.equal(validateProjectShortname('_app').valid, false);
-  });
-});
-
-// ── applyProjectName ─────────────────────────────────────────────────────────
-
-describe('unit: project-init/applyProjectName', () => {
-  it('replaces {ProjectName} with the given name', () => {
-    const result = applyProjectName('Project Name: {ProjectName}', 'cool-app');
-    assert.equal(result, 'Project Name: cool-app');
-  });
-
-  it('replaces my-project with the given name', () => {
-    const result = applyProjectName('"project_name": "my-project"', 'cool-app');
-    assert.equal(result, '"project_name": "cool-app"');
-  });
-
-  it('replaces all occurrences of both placeholders', () => {
-    const input = '{ProjectName} uses my-project as {ProjectName}';
-    const result = applyProjectName(input, 'foo');
-    assert.equal(result, 'foo uses foo as foo');
-  });
-
-  it('returns content unchanged if no placeholder present', () => {
-    const input = 'no placeholder here';
-    assert.equal(applyProjectName(input, 'test'), 'no placeholder here');
-  });
-
-  it('handles empty content', () => {
-    assert.equal(applyProjectName('', 'test'), '');
   });
 });
 

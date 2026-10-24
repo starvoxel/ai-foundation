@@ -30,8 +30,8 @@ ai-foundation/
 ├── standards/                       ← Prescriptive coding/stack rules
 ├── servers/                         ← MCP tool server definitions
 ├── bundles/                         ← Install bundles (per-harness deployment)
-├── projects/                        ← Per-project overrides
-├── docs/                            ← Plans and arc42 architecture docs
+├── projects/                        ← Project template (`aif init`)
+├── docs/                            ← arc42 architecture docs and research briefs
 ├── bin/                             ← CLI entry point (aif)
 ├── lib/                             ← CLI modules
 └── tests/                           ← unit/, integration/, validation/
@@ -220,7 +220,7 @@ from a plain, already-exported environment variable.
   production — every time it's actually used, `ai-git` prints a warning to
   stderr so it's never silent.
 - MCP server tokens (a server yaml's `headers` field, e.g.
-  `Authorization: "Bearer ${YOUTRACK_TOKEN}"`) don't need any of this —
+  `Authorization: "Bearer ${SERVER_TOKEN}"`) don't need any of this —
   both supported harnesses (Claude Code, Kiro) natively expand `${VAR}`
   placeholders from their own process environment at connect time, so
   `aif install` never resolves or needs the secret at all. See

@@ -188,7 +188,7 @@ import { parseSkillRef } from './resolver.js';
 
 describe('parseSkillRef', () => {
   it('strips the skill/ prefix', () => {
-    assert.equal(parseSkillRef('skill/plan-lifecycle'), 'plan-lifecycle');
+    assert.equal(parseSkillRef('skill/feature-planning'), 'feature-planning');
   });
 
   it('returns null for an empty string', () => {

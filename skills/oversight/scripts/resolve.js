@@ -27,7 +27,7 @@ export const DEFAULT_ENFORCED = false;
 
 /**
  * @param {unknown} value
- * @returns {boolean}
+ * @returns {value is string}
  */
 export function isOversightLevel(value) {
   return typeof value === 'string' && OVERSIGHT_LEVELS.includes(value);

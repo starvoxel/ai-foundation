@@ -77,7 +77,7 @@ export function severityOf(issue) {
  * Invert open finding issues into { path: [entry] }. An issue appears under
  * every file it lists. Pull requests (which the issues API also returns) and
  * issues without a `files:` line are skipped.
- * @param {Array<object>} issues - GitHub issue objects
+ * @param {Array<any>} issues - GitHub issue objects
  * @returns {Record<string, Array<{n:number,title:string,rule:string,severity:string,source:string,effort:string,files:string[]}>>}
  */
 export function buildMap(issues) {

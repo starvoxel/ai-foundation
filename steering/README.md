@@ -11,7 +11,8 @@ They are not procedures — they define constraints, not steps.
 steering/
 ├── global/               ← Applies to all agents, every session
 ├── engineering/          ← Applies to all engineering-domain agents
-└── generic/              ← Catch-all for non-global, non-domain-specific rules — loaded via a bundle's explicit `steering:` list (e.g. gmail-irreversible-action-approval.md)
+├── {bundle}/             ← Rules owned by one bundle, loaded only when it lists them (e.g. ai-engineering/)
+└── generic/              ← Catch-all for tool-specific rules — loaded via a bundle's explicit `steering:` list (e.g. gmail-irreversible-action-approval.md)
 ```
 
 ## Adding a new steering file
@@ -28,6 +29,8 @@ Most steering loads by domain-matching on an agent's `domain` field:
 2. `steering/{domain}/**/*.md` — loaded based on the agent's `domain` field
 
 New files added to these two directories are picked up automatically.
+
+`steering/{bundle}/` (e.g. `ai-engineering/`) holds rules owned by one bundle; like `generic/`, it loads only when that bundle's `bundle.yaml` lists the file.
 
 A third kind, `steering/generic/`, is the catch-all for rules that are neither global nor tied to a specific domain — it is **not** domain-matched, since no agent has a matching `domain` field. It loads only when a bundle's own `bundle.yaml` explicitly lists the file in its `steering:` array (e.g. tying a rule to installing a particular tool/server), rather than to any agent's domain. A new file here needs that explicit bundle entry — it is not picked up automatically.
 
