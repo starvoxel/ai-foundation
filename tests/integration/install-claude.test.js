@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { mkdtempSync } from 'node:fs';
@@ -265,5 +265,25 @@ describe('integration: install (claude-specific)', () => {
       settings.mcpServers['test-http-server'].headers.Authorization,
       'Bearer ${TEST_HTTP_SERVER_TOKEN}',
     );
+  });
+
+  it('removes what a previous install wrote that the bundle no longer ships', () => {
+    const args = { bundle: 'test-bundle', harness: 'claude' };
+    quiet(() => runInstall({ args, positional: [] }, repo));
+    const retiredAgent = join(TARGETS.agents, 'blocked-agent.md');
+    const retiredSkill = join(TARGETS.skills, 'test-skill');
+    assert.ok(existsSync(retiredAgent));
+    assert.ok(existsSync(retiredSkill));
+
+    rmSync(join(repo, 'agents', 'blocked-agent.yaml'));
+    rmSync(join(repo, 'skills', 'test-skill'), { recursive: true });
+    const agentYaml = join(repo, 'agents', 'test-agent.yaml');
+    writeFileSync(agentYaml, readFileSync(agentYaml, 'utf8').replace(/skills:[\s\S]*$/, ''));
+    quiet(() => runInstall({ args, positional: [] }, repo));
+
+    assert.equal(existsSync(retiredAgent), false);
+    assert.equal(existsSync(retiredSkill), false, 'the emptied skill directory is removed too');
+    assert.ok(existsSync(join(TARGETS.agents, 'test-agent.md')));
+    assert.ok(existsSync(TARGETS.skills), 'the skills root itself stays');
   });
 });
