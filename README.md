@@ -66,7 +66,7 @@ aif snapshot
 aif snapshot --bundle             # every bundle's snapshot (bare flag = all of that kind)
 aif snapshot --bundle engineering # one bundle's snapshot
 
-# Decision/architecture indexing
+# Architecture indexing
 aif index architecture          # generate docs/architecture/index.json
 aif index architecture --check  # verify the architecture index without writing
 
