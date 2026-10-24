@@ -35,6 +35,7 @@ Run each on the **desktop app and the CLI (TUI)**, on at least one POSIX system:
 | W3    | Do `ScheduleWakeup`, `CronCreate` and `/loop` fire while idle        |
 | W5    | Can a development channel push an event into an idle session         |
 | W6    | Who owns a background task a subagent started                        |
+| W7    | What a fresh cloud session provides (PATH, skill `scripts/`, MCP)    |
 | W8    | Which mechanisms survive laptop sleep and `--resume`                 |
 
 Record the Claude Code version, OS and shell with every result.

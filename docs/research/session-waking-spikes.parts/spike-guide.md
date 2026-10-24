@@ -77,7 +77,7 @@ Expected timing: 2-minute tick, 15 min including sleep.
 
 ### W5: can a development channel push an event into an idle session?
 
-**Gate:** only run this after a documentation check (dispatch the researcher, with the human's confirmation) says it looks viable. Otherwise record Unverified (not viable per docs) and stop. **Safety:** this uses `--dangerously-load-development-channels`, which bypasses a safety confirmation. Throwaway session, scratch directory, no real working tree, no real credentials. Do not adopt as a standard (plan Q6). Informs G1, G3; relates to P4.
+**Gate:** only run this after a documentation check (dispatch the researcher, with the human's confirmation) says it looks viable. Otherwise record Unverified (not viable per docs) and stop. **Safety:** this uses `--dangerously-load-development-channels`, which bypasses a safety confirmation. Throwaway session, scratch directory, no real working tree, no real credentials. Research preview only: do not adopt it as a standard.
 
 1. Record the exact flag syntax from `claude --help` or the channels docs ([channels-reference](https://code.claude.com/docs/en/channels-reference)). The flags are research-preview and may differ from what is written here; the docs win.
 2. Scratch directory `~/aif012-scratch/w5`. The stub channel server is a minimal stdio MCP server that emits one channel event after a delay. Build it from the channels-reference example; if the reference gives no minimal example, stop and record that (do not improvise a server).
@@ -118,13 +118,9 @@ Expected timing: 90 s per run.
 |     | main       | Monitor   |                                        |                  |                    |                |       |
 |     | subagent   | timer     |                                        |                  |                    |                |       |
 
-### W7: cloud subscription wake and cloud runtime inventory
+### W7: what does a fresh cloud session provide?
 
-Informs G1, G3, and open question 3 (does a skill's `scripts/` folder reach a cloud session). Two parts.
-
-**W7a: subscription wake end to end.** Retired: cloud sessions already wake through `subscribe_pr_activity`. Do W7b only.
-
-**W7b: runtime inventory in a fresh cloud session.**
+Cloud sessions already wake through `subscribe_pr_activity`, so this only inventories the runtime, including whether an installed skill's `scripts/` folder reaches the session.
 
 1. Attach the scratch repo (any repo you can attach; the AIF-test throwaway branch is fine). If you can install ai-foundation components into it, run `node bin/aif.js install -B engineering -H claude` from an ai-foundation checkout first and push the result; otherwise record "not installed" for step 3.
 2. Fresh cloud session. Ask it to run each and report the raw output: `echo $PATH`, `which node npm npx gh git ai-git aif python3`, `node --version`, `ls -la ~/.claude/skills 2>&1 | head`, `ls -la .claude/skills 2>&1 | head`.
@@ -153,25 +149,22 @@ Expected timing: 10 min. Also check any W3 mechanism you ran.
    - background command: `sleep 240; echo BG-DONE`
    - Monitor (if present): `sleep 240; echo MON-DONE`
    - timer: `ScheduleWakeup` in 4 minutes with prompt `say TIMER-FIRED`
-   - cloud only: a PR subscription and a `send_later` 4 minutes out (same session type as W7a)
 2. Put the machine to sleep for 6 minutes so all deadlines pass during sleep. Wake the machine. Do not touch the session for 3 minutes. Record which markers appeared on their own.
 3. Send `status?` and record what the session reports as finished, lost, or still running (`/tasks`).
 4. Resume test: exit the session, run `claude --resume` and choose it. Record which mechanisms are still listed or fire.
 5. Repeat steps 1 to 4 without sleep but closing and resuming only (to separate the two effects), with 4-minute markers again.
 
-| Env | Mechanism    | Fired during sleep? | Fired after wake (no input)? | Reported after my prompt? | Survived `--resume`? | Notes |
-| --- | ------------ | ------------------- | ---------------------------- | ------------------------- | -------------------- | ----- |
-|     | bg command   |                     |                              |                           |                      |       |
-|     | Monitor      |                     |                              |                           |                      |       |
-|     | timer        |                     |                              |                           |                      |       |
-|     | subscription |                     |                              |                           |                      |       |
-|     | `send_later` |                     |                              |                           |                      |       |
+| Env | Mechanism  | Fired during sleep? | Fired after wake (no input)? | Reported after my prompt? | Survived `--resume`? | Notes |
+| --- | ---------- | ------------------- | ---------------------------- | ------------------------- | -------------------- | ----- |
+|     | bg command |                     |                              |                           |                      |       |
+|     | Monitor    |                     |                              |                           |                      |       |
+|     | timer      |                     |                              |                           |                      |       |
 
 ## Cleanup
 
 1. Close and delete every throwaway PR and every `AIF-test/*` and `AIF-test-base` branch you created (`ai-git` for this repo; for another repo use whatever tool you normally use). The repo's branch-cleanup workflow also ages out `AIF-test/` branches, but do not rely on it.
 2. Delete `~/aif012-scratch` and any `.claude/agents/w6-sub.md` or other helper files.
-3. Cancel any remaining scheduled task (`/tasks`) and any cloud PR subscription.
+3. Cancel any remaining scheduled task (`/tasks`).
 
 ## Where results go
 
