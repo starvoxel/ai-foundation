@@ -91,6 +91,25 @@ Installs are copies (transformed per-harness), tracked by a manifest for clean u
 
 ---
 
+## Upgrading from v1
+
+The v1 process (tag `legacy/process-v1`) had `software-engineer`, `engineering-manager` and `principal-engineer` agents, task DAGs, worktrees and YouTrack. v2 replaces them with the three agents above.
+
+| v1                                                                                                 | v2                                                    |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `software-engineer`, `engineering-manager`                                                         | `engineer`                                            |
+| `principal-engineer`                                                                               | `reviewer`                                            |
+| `complexity-tiers`                                                                                 | `oversight` skill and `oversight` in `.aiconfig.json` |
+| `plan-lifecycle`, `task-orchestration`, `worktree-management`                                      | `feature-planning`                                    |
+| `agent-authoring`, `skill-authoring`, `steering-authoring`, `bundle-authoring`, `server-authoring` | `component-authoring` (`ai-engineering` bundle)       |
+| ADRs                                                                                               | arc42 sections only                                   |
+
+1. In this repo run `aif install --update`. A reinstall removes the agents, skills and rules the bundle no longer ships (and servers and hooks nothing else uses), so a managed install upgrades cleanly.
+2. Files from installs the manifest never tracked are left alone: delete retired entries by hand from `~/.claude/{agents,skills,rules}` (or `~/.kiro`).
+3. In each project, drop `paths.features`, `paths.decisions`, `paths.worktrees` and `orchestration` from `.aiconfig.json`, add `paths.product` and `oversight`, and copy `.githooks/`, `scripts/session-start.sh` and `.claude/settings.json` from `projects/_template/`. Plans become one `plans/{name}.md` each instead of `plans/features/{id}/`.
+
+---
+
 ## Project Setup
 
 Projects that use ai-foundation agents have a `.aiconfig.json` at the repo root.
