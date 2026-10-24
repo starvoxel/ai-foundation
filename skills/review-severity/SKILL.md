@@ -1,6 +1,6 @@
 ---
 name: 'review-severity'
-version: '0.2.4'
+version: '0.3.0'
 description: 'Shared severity taxonomy, blocking rule, and report template used by any domain-specific review skill.'
 ---
 
@@ -47,7 +47,8 @@ constraints on which bucket a finding falls into, not a different taxonomy.
 
 Any CRITICAL, HIGH, or MEDIUM finding blocks approval and must be fixed. Outcome is **APPROVED** only when
 zero CRITICAL/HIGH/MEDIUM findings remain; otherwise **NEEDS_CHANGES**. LOW findings never block and need not be
-fixed.
+fixed. A re-review never re-raises a LOW and a round is never spent on LOWs alone: the requester files each LOW
+with `skill/findings`<!-- skill-ref: ignore --> and the review ends.
 
 ### Step 3 — Write each finding to be actionable
 

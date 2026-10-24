@@ -1,9 +1,9 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-23T22:24:31.225Z",
+  "computed_at": "2026-10-24T11:56:18.442Z",
   "sources": {
-    "agents/engineer.yaml": "sha256:16a2e8ac8f6ef5b561352442366edc6d39eb36a868d651b6662775229fa9d532",
+    "agents/engineer.yaml": "sha256:d5e0fd99e9c3dbec3e67ae57d2208b4c72c45ad1ed12594de1b286f2877fe039",
     "agents/engineering-researcher.yaml": "sha256:f77f29e3b2d25f5223148a88e9472f3c9813113fc9f4107ddb4c8a77d20b434f",
     "agents/reviewer.yaml": "sha256:d6b4b055ca211cae3f6ab8a38f591760bcb42b7ba71a8948469d888931fa6e15",
     "steering/global/concision.md": "sha256:413f531a1d1f60ec5ac4ffee419297a675b1af4704df864fdbd43b67377f135a",
@@ -29,8 +29,10 @@
     "skills/subagent-prompting/SKILL.md": "sha256:99e31be24179d0d111e55374ac4305e3e94c7ee8af742c50585bc56cf5ef536f",
     "skills/subagent-prompting/reference/briefs.md": "sha256:99f0bc20287fb4186f9fadb17602c534daf676223a7717e23435bf709f9ff100",
     "skills/pr-stewardship/SKILL.md": "sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e",
-    "skills/review-severity/SKILL.md": "sha256:800b1c45fcedee094908e89156b14b5458c0372320cb37975273e15b586c5b6f",
+    "skills/review-severity/SKILL.md": "sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de",
     "skills/review-severity/reference/template.md": "sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5",
+    "skills/findings/SKILL.md": "sha256:8ce477b6869ebc0af4c7cb3e4e8018bffac8437e830ee8ac665b9629293444b2",
+    "skills/findings/scripts/findings.js": "sha256:54323049b0421fb468e7999095e4c85f09e3bd1f2e560615d79964cb362f491b",
     "skills/code-review/SKILL.md": "sha256:87d98847e97cd4542f182a3e2416456a5b685d6ffa1857092e9ec371e3e15d08",
     "skills/ai-component-review/SKILL.md": "sha256:f4a127551f210971ef66f0917fa4abe2a5ede2fc3aaf9b5cf1630843489fa953"
   }
