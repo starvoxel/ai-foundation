@@ -1,6 +1,6 @@
 ---
 name: 'oversight'
-version: '1.0.1'
+version: '1.0.2'
 description: 'Decides how much human sign-off a piece of work needs (none, by-size, or always) and what each level gates, so small work runs unattended and large work stops at a plan and milestones.'
 ---
 
@@ -17,7 +17,7 @@ Scales process to the work. Small, clear changes run start to finish with a summ
 
 ### Step 1 — Resolve the level
 
-Run `node scripts/resolve.js` from this skill's directory (the harness gives its path) with the project root as the working directory, adding `--request <level>` when the human's wording asks for one. It reads `oversight` from `.aiconfig.json` and prints the effective level. When it reports that a request was ignored because oversight is enforced, tell the human and continue at the enforced level. If it cannot run, use `by-size`.
+Run `node scripts/resolve.js` from this skill's directory (the harness gives its path) with the project root as the working directory, adding `--request <level>` when the human's wording asks for one. It reads `oversight` from `.aiconfig.json` and prints the effective level. When it reports that a request was ignored because oversight is enforced, tell the human and continue at the enforced level. If the script is missing or cannot start, use `by-size`. If it runs but fails (a malformed `.aiconfig.json` or an invalid value), stop and report the error: never fall back to a lower level than the project configured.
 
 ### Step 2 — Size the work (only for `by-size`)
 

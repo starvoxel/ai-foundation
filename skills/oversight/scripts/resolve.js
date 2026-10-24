@@ -44,6 +44,9 @@ export function resolveOversight({ configured, enforced, requested }) {
   if (!isOversightLevel(configured)) {
     throw new Error(`Invalid oversight.default "${configured}". Use one of: ${valid}`);
   }
+  if (enforced !== undefined && typeof enforced !== 'boolean') {
+    throw new Error(`Invalid oversight.enforced "${enforced}". Use true or false`);
+  }
   if (requested === undefined) return { level: configured, source: 'config' };
   if (!isOversightLevel(requested)) {
     throw new Error(`Invalid oversight level "${requested}". Use one of: ${valid}`);

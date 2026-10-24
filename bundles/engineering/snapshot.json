@@ -1,11 +1,11 @@
 {
   "bundle": "engineering",
   "version": "1.0.0",
-  "computed_at": "2026-10-24T14:26:28.101Z",
+  "computed_at": "2026-10-24T14:42:14.281Z",
   "sources": {
     "agents/engineer.yaml": "sha256:d5e0fd99e9c3dbec3e67ae57d2208b4c72c45ad1ed12594de1b286f2877fe039",
     "agents/engineering-researcher.yaml": "sha256:256ad5d9a42b829e06a5ea69c29d1cf1b866675962a44eebdf31dba753e69509",
-    "agents/reviewer.yaml": "sha256:d6b4b055ca211cae3f6ab8a38f591760bcb42b7ba71a8948469d888931fa6e15",
+    "agents/reviewer.yaml": "sha256:48fbfc07ddf49105bf2b946f12c9807dc7e2cbe80eadcb96f0ba0e92a7d10d3b",
     "steering/global/concision.md": "sha256:413f531a1d1f60ec5ac4ffee419297a675b1af4704df864fdbd43b67377f135a",
     "steering/global/core.md": "sha256:ff2c3dbd4a04e1a0db68b3785bccd404e8c377e3e932014117fe6b93d5f80302",
     "steering/global/knowledge-consumption.md": "sha256:21509323004190ff3d69b2d3f5e69466c33ccb330ec1177c2f51f00b6a48736e",
@@ -16,8 +16,8 @@
     "steering/engineering/core.md": "sha256:495a1a12248a8436be9638556c2a76fa00294d049260c3ab98bb26593365791f",
     "steering/engineering/document-types.md": "sha256:ae7b8438cd36163f3e36b5dc7b043cdb746eab6534d496be8b5686dbb630f01e",
     "steering/engineering/git-workflow.md": "sha256:c1c6d99276cbbc27b8c5d71e9bdfe66514e67e7ffefe468522496ff34f17774b",
-    "skills/oversight/SKILL.md": "sha256:3e3b9e73f44cd05d1b459b50de783baa24fc24ac6d21f14740cd9596227ee7e5",
-    "skills/oversight/scripts/resolve.js": "sha256:8be5fb06db503b1cb4aa77edb7e0082855b0543280dcd030cf17cce4174c32da",
+    "skills/oversight/SKILL.md": "sha256:add1d65df5075f66f278e85f3af852994cfc7a5754d90693b9e4f6af1324cfb4",
+    "skills/oversight/scripts/resolve.js": "sha256:63164bf00430508037977c79ff7ae901dc8230a57f6550b4388bd2b21562e154",
     "skills/test-execution/SKILL.md": "sha256:aa43c0d6df7752b9bbbd327c97d4de766f22dc565461ffdae29fd769e90e2a21",
     "skills/prd/SKILL.md": "sha256:9a61f7326a93c9e5e6dad1c4d7af80036f0e75975b05b9983f2a45d574fdcff1",
     "skills/prd/reference/template.md": "sha256:a667a61672248db86829c63d358265b77977508c6a3d52ddd6d1086a37658afe",
@@ -32,8 +32,8 @@
     "skills/review-severity/SKILL.md": "sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de",
     "skills/review-severity/reference/template.md": "sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5",
     "skills/findings/SKILL.md": "sha256:8ce477b6869ebc0af4c7cb3e4e8018bffac8437e830ee8ac665b9629293444b2",
-    "skills/findings/scripts/findings.js": "sha256:9301ad759eb954aa88d6b5787f96bc1fd5ee2c6f1b59ba067efbbb3b6188e50a",
+    "skills/findings/scripts/findings.js": "sha256:2aff68ebdc35df034e889c49afe8eae881eed87e93688a80ae7bfe88481ef8b3",
     "skills/code-review/SKILL.md": "sha256:87d98847e97cd4542f182a3e2416456a5b685d6ffa1857092e9ec371e3e15d08",
-    "skills/ai-component-review/SKILL.md": "sha256:f4a127551f210971ef66f0917fa4abe2a5ede2fc3aaf9b5cf1630843489fa953"
+    "skills/ai-component-review/SKILL.md": "sha256:66c5f91534f16572bd5c493c988d4a4eb0c777c764ee5bf01e72762b91ef5963"
   }
 }

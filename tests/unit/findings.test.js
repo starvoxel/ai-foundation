@@ -9,6 +9,7 @@ import {
   buildMap,
   formatLine,
   lookup,
+  parseRepoSlug,
   parseBody,
   planFiling,
   severityOf,
@@ -103,5 +104,14 @@ describe('unit: planFiling', () => {
   it('rejects an invalid severity or an incomplete finding', () => {
     assert.throws(() => planFiling(map, { ...base, severity: 'meh' }), /Invalid severity/);
     assert.throws(() => planFiling(map, { ...base, files: [] }), /needs/);
+  });
+});
+
+describe('unit: parseRepoSlug', () => {
+  it('reads https and ssh remotes, keeping dots in the name', () => {
+    assert.equal(parseRepoSlug('https://github.com/o/r\n'), 'o/r');
+    assert.equal(parseRepoSlug('https://github.com/o/my.repo.git'), 'o/my.repo');
+    assert.equal(parseRepoSlug('git@github.com:o/r.git'), 'o/r');
+    assert.equal(parseRepoSlug('https://example.com/o/r'), null);
   });
 });

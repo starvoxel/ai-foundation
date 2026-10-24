@@ -33,6 +33,13 @@ describe('unit: resolveOversight', () => {
     });
   });
 
+  it('rejects a non-boolean enforced instead of silently ignoring it', () => {
+    assert.throws(
+      () => resolveOversight({ configured: 'always', enforced: 'true', requested: 'none' }),
+      /Invalid oversight\.enforced/,
+    );
+  });
+
   it('lets a request lower or raise the level when not enforced', () => {
     const lower = resolveOversight({ configured: 'always', enforced: false, requested: 'none' });
     const raise = resolveOversight({ configured: 'none', enforced: false, requested: 'always' });

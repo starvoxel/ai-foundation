@@ -1,6 +1,6 @@
 ---
 name: 'ai-component-review'
-version: '0.3.6'
+version: '0.3.7'
 description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via the shared review-severity taxonomy.'
 requires_skills:
   - 'code-review'
@@ -51,8 +51,7 @@ specifically for:
 
 ### Step 4 — Review cross-references
 
-Every `skills`/`tools` entry an agent, bundle, or server definition names actually exists; every Decision
-Record ID cited resolves. Treat a broken cross-reference the same as a schema violation — it is a finding,
+Every `skills`/`tools` entry an agent, bundle, or server definition names actually exists. Treat a broken cross-reference the same as a schema violation — it is a finding,
 not a note.
 
 Where the diff cites another skill, agent, or steering file by name, also check it isn't restating that

@@ -172,13 +172,23 @@ function gh(args, input) {
   return r.stdout;
 }
 
+/**
+ * "owner/name" from a GitHub remote URL (https or ssh), dots in the name allowed.
+ * @param {string} url
+ * @returns {string|null}
+ */
+export function parseRepoSlug(url) {
+  const m = /github\.com[:/]([^/\s]+\/[^/\s]+?)(?:\.git)?\s*$/.exec(url.trim());
+  return m ? m[1] : null;
+}
+
 function repoSlug(argv) {
   const i = argv.indexOf('--repo');
   if (i !== -1) return argv[i + 1];
   const r = spawnSync('ai-git', ['remote', 'get-url', 'origin'], { encoding: 'utf8' });
-  const m = /github\.com[:/]([^/]+\/[^/.\s]+)/.exec(r.stdout ?? '');
-  if (!m) throw new Error('Cannot derive the repo; pass --repo owner/name');
-  return m[1];
+  const slug = parseRepoSlug(r.stdout ?? '');
+  if (!slug) throw new Error('Cannot derive the repo; pass --repo owner/name');
+  return slug;
 }
 
 function loadIssues(argv, repo) {
