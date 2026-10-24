@@ -1,6 +1,6 @@
 ---
 name: csharp_base
-version: 1.1.2
+version: 1.1.3
 description: Core C# coding standards for all .NET projects
 tags: [csharp]
 depends_on: []
@@ -487,7 +487,6 @@ Every `.cs` file must begin with a header comment:
 // {FileName}.cs
 //
 // Author: {AuthorName} - {YYYY-MM-DD}
-// Plan: {Plan ID}
 //
 // Copyright (c) {Company}. All rights reserved.
 // ------------------------------
@@ -497,8 +496,6 @@ Rules:
 
 - **Never omit the header.** Every `.cs` file gets one regardless of size or purpose.
 - `Author` is whoever created the file. If an AI agent creates it, use the configured AI identity name.
-- `Plan` is the Plan ID that caused this file to be created or meaningfully modified.
-- If a file is modified under a new plan, add the new Plan ID (do not remove the original).
 
 ---
 

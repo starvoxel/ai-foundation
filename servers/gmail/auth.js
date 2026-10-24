@@ -1,7 +1,7 @@
 /**
  * Gmail MCP server — OAuth2 token store and client construction.
  *
- * Split per steering/engineering/core.md Rule 6 (design for testability):
+ * Split per steering/engineering/core.md: "Design for Testability":
  * pure decision logic (token expiry, shape validation) is separated from the
  * I/O functions that touch the filesystem and the Google OAuth2 client.
  *

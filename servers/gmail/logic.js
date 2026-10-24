@@ -1,7 +1,7 @@
 /**
  * Gmail MCP server — tool implementations.
  *
- * Split per steering/engineering/core.md Rule 6 (design for testability):
+ * Split per steering/engineering/core.md: "Design for Testability":
  * pure functions (MIME building, base64url encoding, response shaping) take
  * data in and return data out with no side effects. I/O functions are thin
  * wrappers that call the injected Gmail API client and pass results through

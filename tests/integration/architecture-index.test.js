@@ -1,12 +1,10 @@
 /**
  * Integration tests for `aif index architecture` — real filesystem and git
- * operations, mirroring tests/integration/decisions-index.test.js's
- * structure. Unlike decisions, architecture staleness depends on real git
- * history (last_verified vs. key_files), so each test operates against a
+ * operations. Architecture staleness depends on real git
+ * history (a doc's last commit vs. its key_files), so each test operates against a
  * throwaway git repo in a temp directory.
  *
- * Plan: AIF-013 (on-demand, deterministic index; no stored-index diff).
- */
+ *  */
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
@@ -43,13 +41,12 @@ function commitAll(repoRoot, message) {
   return git(repoRoot, 'rev-parse', 'HEAD');
 }
 
-function sectionContent({ lastVerified, keyFiles = ['src/thing.js'] }) {
+function sectionContent({ keyFiles = ['src/thing.js'] } = {}) {
   const keyFilesYaml = keyFiles.map((f) => `  - ${f}`).join('\n');
   return `---
 section: "01"
 title: "T"
 lifecycle: published
-last_verified: ${lastVerified}
 tags: []
 key_files:
 ${keyFilesYaml}
@@ -83,94 +80,126 @@ describe('architecture index — real git integration', () => {
     assert.deepEqual(files, ['01_intro.md', 'sub/05_01_nested.md']);
   });
 
-  it('is not stale when key_files have not changed since last_verified', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');
-    const commitA = commitAll(repoRoot, 'add thing.js');
+  const DOC = 'docs/architecture/01_intro.md';
 
-    const record = { key_files: ['src/thing.js'], last_verified: commitA };
-    assert.equal(isStaleAgainstGit(record, repoRoot), false);
+  /** Commit src/thing.js, then the doc that lists it. */
+  function commitCodeThenDoc(keyFiles = ['src/thing.js']) {
+    mkdirSync(join(repoRoot, 'src'), { recursive: true });
+    for (const f of keyFiles) writeFileSync(join(repoRoot, f), 'export const x = 1;\n');
+    commitAll(repoRoot, 'add code');
+    mkdirSync(join(repoRoot, 'docs', 'architecture'), { recursive: true });
+    writeFileSync(join(repoRoot, DOC), sectionContent({ keyFiles }));
+    commitAll(repoRoot, 'add doc');
+  }
+
+  it('is not stale when key_files have not changed since the doc was last committed', () => {
+    commitCodeThenDoc();
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
   });
 
-  it('becomes stale once a key_files entry changes after last_verified', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');
-    const commitA = commitAll(repoRoot, 'add thing.js');
+  it('is not stale when the doc and its key_file change in the same commit', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    writeFileSync(join(repoRoot, DOC), sectionContent() + '\nUpdated.\n');
+    commitAll(repoRoot, 'change both');
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
+  });
 
+  it('becomes stale once a key_files entry changes after the doc was last committed', () => {
+    commitCodeThenDoc();
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
     commitAll(repoRoot, 'change thing.js');
-
-    const record = { key_files: ['src/thing.js'], last_verified: commitA };
-    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), true);
   });
 
-  it('treats an unresolvable last_verified SHA as stale, not as clean', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'x');
-    commitAll(repoRoot, 'add thing.js');
+  it('is not stale when the key_file commit carries an Arch-Unaffected waiver for the doc', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(
+      repoRoot,
+      'Simplify thing\n\nArch-Unaffected: 01 — pure simplification, behavior unchanged',
+    );
+    assert.equal(
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC),
+      false,
+    );
+  });
 
-    const record = { key_files: ['src/thing.js'], last_verified: 'deadbeef' };
-    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+  it('is still stale when a later key_file commit has no waiver', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(
+      repoRoot,
+      'Simplify thing\n\nArch-Unaffected: 01 — pure simplification, behavior unchanged',
+    );
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 3;\n');
+    commitAll(repoRoot, 'Change behavior');
+    assert.equal(
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC),
+      true,
+    );
+  });
+
+  it('becomes fresh again once the doc is committed after the key_file change', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(repoRoot, 'change thing.js');
+    writeFileSync(join(repoRoot, DOC), sectionContent() + '\nVerified.\n');
+    commitAll(repoRoot, 'update doc');
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
   });
 
   it('is stale if ANY of several key_files changed, not just the first', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'a.js'), 'a');
-    writeFileSync(join(repoRoot, 'src', 'b.js'), 'b');
-    const commitA = commitAll(repoRoot, 'add a.js and b.js');
-
+    commitCodeThenDoc(['src/a.js', 'src/b.js']);
     writeFileSync(join(repoRoot, 'src', 'b.js'), 'b2');
     commitAll(repoRoot, 'change b.js only');
-
-    const record = { key_files: ['src/a.js', 'src/b.js'], last_verified: commitA };
-    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+    const record = { key_files: ['src/a.js', 'src/b.js'] };
+    assert.equal(isStaleAgainstGit(record, repoRoot, DOC), true);
   });
 
-  it('is stale when a key_files entry does not exist on disk, even at current HEAD', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'x');
-    const commitA = commitAll(repoRoot, 'add thing.js');
-
-    // last_verified is HEAD itself -- no git-log range would ever flag this,
-    // but the file this record claims to track was never actually created.
-    const record = { key_files: ['src/missing.js'], last_verified: commitA };
-    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+  it('is stale when a key_files entry does not exist on disk', () => {
+    commitCodeThenDoc();
+    assert.equal(isStaleAgainstGit({ key_files: ['src/missing.js'] }, repoRoot, DOC), true);
   });
 
-  it('is stale when last_verified is bumped past a deletion, hiding it from git-log', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'x');
-    commitAll(repoRoot, 'add thing.js');
-
+  it('is stale when a key_file was deleted after the doc was committed', () => {
+    commitCodeThenDoc();
     git(repoRoot, 'rm', '-q', 'src/thing.js');
-    const commitAfterDelete = commitAll(repoRoot, 'delete thing.js');
+    commitAll(repoRoot, 'delete thing.js');
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), true);
+  });
 
-    // last_verified points at the deletion commit itself -- git log in
-    // (commitAfterDelete..HEAD) is empty, so only the existence check catches this.
-    const record = { key_files: ['src/thing.js'], last_verified: commitAfterDelete };
-    assert.equal(isStaleAgainstGit(record, repoRoot), true);
+  it('is not stale while the doc is uncommitted or has uncommitted edits', () => {
+    mkdirSync(join(repoRoot, 'src'), { recursive: true });
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');
+    commitAll(repoRoot, 'add code');
+    mkdirSync(join(repoRoot, 'docs', 'architecture'), { recursive: true });
+    writeFileSync(join(repoRoot, DOC), sectionContent());
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
+
+    commitAll(repoRoot, 'add doc');
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(repoRoot, 'change thing.js');
+    writeFileSync(join(repoRoot, DOC), sectionContent() + '\nWIP.\n');
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
   });
 
   it('buildArchitectureIndexForDir + findStaleDocs wire parsing and git staleness end to end', () => {
-    mkdirSync(join(repoRoot, 'src'), { recursive: true });
-    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');
-    const commitA = commitAll(repoRoot, 'add thing.js');
-
+    commitCodeThenDoc();
     const archDir = join(repoRoot, 'docs', 'architecture');
-    mkdirSync(archDir, { recursive: true });
-    writeFileSync(join(archDir, '01_intro.md'), sectionContent({ lastVerified: commitA }));
-    commitAll(repoRoot, 'add architecture doc');
 
     const index = buildArchitectureIndexForDir(archDir);
     assert.equal(index.entries.length, 1);
     assert.ok(!('stale' in index.entries[0]));
+    assert.ok(!('last_verified' in index.entries[0]));
     assert.deepEqual(index.reverse_index, { 'src/thing.js': ['01_intro.md'] });
-    assert.deepEqual(findStaleDocs(loadArchitectureRecords(archDir), repoRoot), []);
+    const stale = () => findStaleDocs(loadArchitectureRecords(archDir), repoRoot, archDir);
+    assert.deepEqual(stale(), []);
 
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
     commitAll(repoRoot, 'change thing.js');
 
-    assert.deepEqual(findStaleDocs(loadArchitectureRecords(archDir), repoRoot), ['01_intro.md']);
+    assert.deepEqual(stale(), ['01_intro.md']);
   });
 
   it('findBrokenLinks resolves a link relative to its own file, not the arch root', () => {
@@ -232,11 +261,11 @@ describe('aif index architecture — CLI wiring', () => {
     useDocsArchitecture();
     mkdirSync(join(repoRoot, 'src'), { recursive: true });
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 1;\n');
-    const commitA = commitAll(repoRoot, 'add thing.js and .aiconfig.json');
+    commitAll(repoRoot, 'add thing.js and .aiconfig.json');
 
     const archDir = join(repoRoot, 'docs', 'architecture');
     mkdirSync(archDir, { recursive: true });
-    writeFileSync(join(archDir, '01_intro.md'), sectionContent({ lastVerified: commitA }));
+    writeFileSync(join(archDir, '01_intro.md'), sectionContent());
     commitAll(repoRoot, 'add architecture doc');
 
     return { archDir };
@@ -274,7 +303,7 @@ describe('aif index architecture — CLI wiring', () => {
     assert.equal(exitCode, 0);
   });
 
-  it('--check fails when a key_files entry changed since last_verified', () => {
+  it('--check fails when a key_files entry changed since the doc was last committed', () => {
     setup();
     runIndex(parseArgs(['index', 'architecture']), repoRoot);
 
@@ -343,16 +372,13 @@ describe('aif index architecture — CLI wiring', () => {
     useDocsArchitecture();
     mkdirSync(join(repoRoot, 'src'), { recursive: true });
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'x');
-    const commitA = commitAll(repoRoot, 'add thing.js and .aiconfig.json');
+    commitAll(repoRoot, 'add thing.js and .aiconfig.json');
 
     const archDir = join(repoRoot, 'docs', 'architecture');
     mkdirSync(archDir, { recursive: true });
     writeFileSync(
       join(archDir, '01_intro.md'),
-      sectionContent({ lastVerified: commitA }).replace(
-        '> Summary.',
-        '> Summary.\n\n[gone](does_not_exist.md)',
-      ),
+      sectionContent().replace('> Summary.', '> Summary.\n\n[gone](does_not_exist.md)'),
     );
     commitAll(repoRoot, 'add architecture doc with a broken link');
 

@@ -300,9 +300,10 @@ export function createApi({ token, fetchImpl = fetch, base = 'https://api.github
     });
     const data = parseJson(await res.text());
     if (!res.ok) {
-      const err = new Error(`${method} ${path} -> ${res.status} ${data?.message ?? ''}`.trim());
-      err.status = res.status;
-      throw err;
+      throw Object.assign(
+        new Error(`${method} ${path} -> ${res.status} ${data?.message ?? ''}`.trim()),
+        { status: res.status },
+      );
     }
     return { data, headers: res.headers };
   }
@@ -597,13 +598,13 @@ export function renderSummary(rows, { mode, enforce }) {
     (a, b) => order.indexOf(a.category) - order.indexOf(b.category) || a.name.localeCompare(b.name),
   );
   const counts = order
-    .map((c) => [c, rows.filter((r) => r.category === c).length])
-    .filter(([, n]) => n > 0);
+    .map((c) => ({ c, n: rows.filter((r) => r.category === c).length }))
+    .filter(({ n }) => n > 0);
   const stale = sorted.filter((r) => r.stale);
   const lines = [
     `## Branch cleanup — ${mode}${enforce ? '' : ' (report only, nothing changed)'}`,
     '',
-    counts.map(([c, n]) => `**${c}** ${n}`).join(' · ') || 'No branches to report.',
+    counts.map(({ c, n }) => `**${c}** ${n}`).join(' · ') || 'No branches to report.',
     '',
   ];
   if (stale.length > 0) {

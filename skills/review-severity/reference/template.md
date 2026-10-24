@@ -6,7 +6,7 @@
 | ----------- | ------------------------------------------- |
 | Reviewed By | {Reviewer Agent}                            |
 | Date        | {YYYY-MM-DD HH:mm}                          |
-| Subject     | {Plan ID / ADR / diff reference}            |
+| Subject     | {plan / diff reference}                     |
 | Iteration   | {n — 1 for a first review}                  |
 | Outcome     | APPROVED / NEEDS_CHANGES                    |
 | Findings    | {n} CRITICAL, {n} HIGH, {n} MEDIUM, {n} LOW |

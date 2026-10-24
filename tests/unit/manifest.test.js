@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { join } from 'node:path';
 
 import {
+  orphanedPaths,
   manifestPath,
   parseManifest,
   serializeManifest,
@@ -262,6 +263,27 @@ describe('unit: manifest', () => {
       const original = ['a', 'b'];
       removeOwner(original, 'a');
       assert.deepEqual(original, ['a', 'b']);
+    });
+  });
+
+  describe('orphanedPaths()', () => {
+    const entry = (...paths) => ({ files: paths.map((path) => ({ path })) });
+    const manifest = {
+      bundles: { a_claude: entry('/x/old', '/x/kept', '/x/shared'), b_claude: entry('/x/shared') },
+      servers: {},
+      hooks: {},
+    };
+
+    it('lists previously installed paths the new install no longer writes', () => {
+      assert.deepEqual(orphanedPaths(manifest, 'a_claude', [{ path: '/x/kept' }]), ['/x/old']);
+    });
+
+    it('keeps a path another bundle still owns', () => {
+      assert.deepEqual(orphanedPaths(manifest, 'a_claude', []), ['/x/old', '/x/kept']);
+    });
+
+    it('returns nothing for a first install', () => {
+      assert.deepEqual(orphanedPaths(manifest, 'new_claude', [{ path: '/y' }]), []);
     });
   });
 });

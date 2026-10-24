@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { transformAgent, transformSteering, getSkillFiles } from '../../lib/harnesses/kiro.js';
+import { transformAgent, transformSteering } from '../../lib/harnesses/kiro.js';
 import { createTempRepo, destroyTempRepo } from '../helpers/fixture.js';
 import YAML from 'yaml';
 
@@ -52,11 +52,5 @@ describe('integration: kiro adapter', () => {
     assert.ok(result.includes('inclusion: always'));
     assert.ok(result.includes('# Core Rules'));
     assert.ok(!result.includes('file_patterns'));
-  });
-
-  it('gets skill files for a skill directory', () => {
-    const files = getSkillFiles('test-skill', repo);
-    assert.ok(files.length > 0);
-    assert.ok(files.some((f) => f.relDest.includes('SKILL.md')));
   });
 });

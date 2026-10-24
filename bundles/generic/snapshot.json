@@ -1,10 +1,18 @@
 {
   "bundle": "generic",
   "version": "0.1.0",
-  "computed_at": "2026-10-07T01:32:47.224Z",
+  "computed_at": "2026-10-23T22:10:26.677Z",
   "sources": {
-    "steering/generic/gmail-irreversible-action-approval.md": "sha256:d30d2bce85f9547833d21d9674f8d36d1018f30f73cbae1f6b41918cde6e7f45",
-    "skills/steering-authoring/reference/schema.yaml": "sha256:75f070764e6870768e7900d7ad681fe2781befaf386042b0b680e8a3f90e49ad",
-    "skills/steering-authoring/SKILL.md": "sha256:347b087d8cdf2d390018376b4fdcc28428b7b09a8e91ad928904ca0ac6f93b41"
+    "steering/generic/gmail-irreversible-action-approval.md": "sha256:ac636c08028f1e174e633fefd80776bdc3ffc06dc0004e3cb701cd04c4d95aee",
+    "skills/component-authoring/SKILL.md": "sha256:526b7593497ed542b941bab47ecb686c9a2f3eba268291c9764563064952b08f",
+    "skills/component-authoring/reference/agent-tools.yaml": "sha256:5645094bc88b121bde2efa4290563c38cbb66215e4977a7964b3a0ded9fe145a",
+    "skills/component-authoring/reference/agent.md": "sha256:707094efe0be7b42e6a525d9296684a5b4c2dfbd8df6ca537b7adbe5aaeca86e",
+    "skills/component-authoring/reference/bundle-schema.yaml": "sha256:36d4cd145f5f2846e51bfbc26e30f2daca6f88ae451e0d5f19f40d01b6250810",
+    "skills/component-authoring/reference/bundle.md": "sha256:7e1997de6357192e7fe796969b6a933ed57698ad059c120c3a9ac6f4ec1b5681",
+    "skills/component-authoring/reference/server-schema.yaml": "sha256:5b1a94058f9072ed01ab31bb19a54e8e2d7d04a0a2a9962e4e8cfa2ad854250c",
+    "skills/component-authoring/reference/server.md": "sha256:e6a109de718e84dc0f5d4e6c8ce2897f71dd3b7833bc0a093e0e353b913af4dc",
+    "skills/component-authoring/reference/skill.md": "sha256:e01577f384693f5b4cfa3b211cc74417d47f017407c0b85f02a06da671bb3613",
+    "skills/component-authoring/reference/steering-schema.yaml": "sha256:75f070764e6870768e7900d7ad681fe2781befaf386042b0b680e8a3f90e49ad",
+    "skills/component-authoring/reference/steering.md": "sha256:f94197559e61867871f64a4b92b8fd67d9dc5a57939b04d77c6098be31f86562"
   }
 }

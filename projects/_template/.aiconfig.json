@@ -1,8 +1,6 @@
 {
   "project_name": "{ProjectName}",
   "project_shortname": "{ProjectShortName}",
-  "repo_type": "project",
-  "language": "{Language}",
   "ai_identity": {
     "git_author_name": "{AI Agent Name}",
     "git_author_email": "{ai-agent@example.com}",
@@ -16,17 +14,16 @@
     "engineering": [],
     "all": []
   },
-  "project_standards": "",
+
   "paths": {
     "plans": "plans",
-    "features": "plans/features",
-    "decisions": "knowledge/decisions",
     "knowledge": "knowledge",
     "architecture": "knowledge/architecture",
     "research": "knowledge/research",
-    "worktrees": "../worktrees/{ProjectShortName}"
+    "product": "knowledge/product"
   },
-  "orchestration": {
-    "max_concurrent": 4
+  "oversight": {
+    "default": "by-size",
+    "enforced": false
   }
 }

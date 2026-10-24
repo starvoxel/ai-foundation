@@ -4,7 +4,7 @@
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, existsSync, readFileSync, rmSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, existsSync, readFileSync, rmSync, mkdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -56,16 +56,17 @@ describe('integration: init command', () => {
     assert.ok(existsSync(join(workDir, 'test-project')));
   });
 
-  it('creates .aiconfig.json with correct name and repo_type', async () => {
+  it('creates .aiconfig.json with the project name and no retired fields', async () => {
     await quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
     const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
     assert.equal(config.project_name, 'my-app');
-    assert.equal(config.repo_type, 'project');
+    assert.equal(config.repo_type, undefined);
+    assert.equal(config.language, undefined);
   });
 
   it('creates knowledge directory structure', async () => {
     await quiet(() => runInit({ args: { name: 'test' }, positional: [] }));
-    assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'decisions', '.gitkeep')));
+    assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'research', '.gitkeep')));
     assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'architecture', '.gitkeep')));
     assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'research', '.gitkeep')));
     assert.ok(existsSync(join(workDir, 'test', 'knowledge', 'example.md')));
@@ -74,14 +75,27 @@ describe('integration: init command', () => {
 
   it('creates plans directory structure', async () => {
     await quiet(() => runInit({ args: { name: 'test' }, positional: [] }));
-    assert.ok(existsSync(join(workDir, 'test', 'plans', 'features', '.gitkeep')));
+    assert.ok(existsSync(join(workDir, 'test', 'plans', '.gitkeep')));
+    assert.ok(!existsSync(join(workDir, 'test', 'plans', 'features')));
+    assert.ok(!existsSync(join(workDir, 'test', 'knowledge', 'decisions')));
   });
 
-  it('creates project-standards.md with project name substituted', async () => {
+  it('seeds the standards tags from --language, and --standards wins', async () => {
+    await quiet(() => runInit({ args: { name: 'a', language: 'CSharp' }, positional: [] }));
+    const read = (n) => JSON.parse(readFileSync(join(workDir, n, '.aiconfig.json'), 'utf8'));
+    assert.deepEqual(read('a').standards.engineering, ['csharp']);
+    await quiet(() =>
+      runInit({
+        args: { name: 'b', language: 'csharp', standards: 'csharp,avalonia' },
+        positional: [],
+      }),
+    );
+    assert.deepEqual(read('b').standards.engineering, ['csharp', 'avalonia']);
+  });
+
+  it('does not scaffold project-standards.md (an optional override)', async () => {
     await quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
-    const content = readFileSync(join(workDir, 'my-app', 'project-standards.md'), 'utf8');
-    assert.ok(content.includes('my-app'));
-    assert.ok(!content.includes('{ProjectName}'));
+    assert.ok(!existsSync(join(workDir, 'my-app', 'project-standards.md')));
   });
 
   it('fails if directory already exists without --force', async () => {
@@ -110,18 +124,16 @@ describe('integration: init command', () => {
     assert.ok(output.some((l) => l.includes('Invalid')));
   });
 
-  it('sets project_shortname and worktrees path when --shortname provided', async () => {
+  it('sets project_shortname when --shortname provided', async () => {
     await quiet(() => runInit({ args: { name: 'my-app', shortname: 'myapp' }, positional: [] }));
     const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
     assert.equal(config.project_shortname, 'myapp');
-    assert.equal(config.paths.worktrees, '../worktrees/myapp');
   });
 
   it('falls back project_shortname to project_name when --shortname omitted', async () => {
     await quiet(() => runInit({ args: { name: 'my-app' }, positional: [] }));
     const config = JSON.parse(readFileSync(join(workDir, 'my-app', '.aiconfig.json'), 'utf8'));
     assert.equal(config.project_shortname, 'my-app');
-    assert.equal(config.paths.worktrees, '../worktrees/my-app');
   });
 
   it('rejects a project short name over 5 characters', async () => {
@@ -130,5 +142,22 @@ describe('integration: init command', () => {
     );
     assert.equal(code, 1);
     assert.ok(output.some((l) => l.includes('Invalid project short name')));
+  });
+
+  it('scaffolds git hooks and a session-start hook that keep the architecture index fresh', async () => {
+    await quiet(() => runInit({ args: { name: 'hooked' }, positional: [] }));
+    const root = join(workDir, 'hooked');
+    for (const f of ['refresh-index', 'post-merge', 'post-checkout', 'post-rewrite']) {
+      const mode = statSync(join(root, '.githooks', f)).mode;
+      assert.ok(mode & 0o100, `.githooks/${f} must be executable`);
+    }
+    assert.ok(statSync(join(root, 'scripts', 'session-start.sh')).mode & 0o100);
+    assert.match(
+      readFileSync(join(root, '.gitignore'), 'utf8'),
+      /^knowledge\/architecture\/index\.json$/m,
+    );
+    const settings = JSON.parse(readFileSync(join(root, '.claude', 'settings.json'), 'utf8'));
+    assert.match(settings.hooks.SessionStart[0].hooks[0].command, /scripts\/session-start\.sh/);
+    assert.equal(settings.agent, 'engineer');
   });
 });

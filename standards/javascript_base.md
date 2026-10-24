@@ -1,6 +1,6 @@
 ---
 name: javascript_base
-version: 1.0.2
+version: 1.0.3
 description: Core JavaScript language conventions for all JS projects
 tags: [javascript]
 depends_on: []
@@ -276,7 +276,6 @@ Every `.js` file must begin with a header comment block:
 // {file-name}.js
 //
 // Author: {AuthorName} - {YYYY-MM-DD}
-// Plan: {Plan ID}
 //
 // Copyright (c) {Company}. All rights reserved.
 // ------------------------------
@@ -286,8 +285,6 @@ Rules:
 
 - **Never omit the header.** Every `.js` file gets one regardless of size or purpose.
 - `Author` is whoever created the file. If an AI agent creates it, use the configured AI identity name.
-- `Plan` is the Plan ID (or equivalent) that caused this file to be created or meaningfully modified.
-- If a file is modified under a new plan, add the new Plan ID (do not remove the original).
 - This mirrors the header block convention in `csharp_base`. It may be extracted into its own cross-language standard in the future if more languages adopt it.
 
 ---

@@ -2,7 +2,6 @@
 section: '05'
 title: 'Building Block View'
 lifecycle: published
-last_verified: 4cfdc38
 tags: [building-blocks, c4]
 key_files:
   - bin/aif.js
@@ -11,12 +10,8 @@ key_files:
   - lib/aiconfig.js
   - lib/harnesses/base.js
   - lib/file-utils.js
-  - servers/dag/dag.yaml
-  - servers/dag/index.js
-  - servers/dag/logic.js
   - servers/gmail/gmail.yaml
   - servers/gmail/auth.js
-  - servers/youtrack/youtrack.yaml
 ---
 
 > Level-1 whitebox of the `aif` CLI and the component directories it resolves,
@@ -60,7 +55,7 @@ node here — Command layer, Core libraries, and Harness adapters each have a mo
 detailed diagram at that level. Entry points and Component sources stay fully
 expanded since neither has one.
 
-MCP servers (`servers/dag`, `servers/gmail`, `servers/youtrack`) aren't shown as
+MCP servers (`servers/gmail`) aren't shown as
 graph nodes here — `resolver.js` only reads their `*.yaml` definitions to resolve
 which get installed; the actual MCP connection is a harness-runtime relationship
 (harness ↔ server process/endpoint), not a static code dependency. See the MCP
@@ -89,17 +84,17 @@ cut across that boundary and hide it.
 
 ### Command layer (`lib/commands/*`) — see §5.05
 
-| Block           | Responsibility                                                                                                                                                                       | Interface                                                                                  |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| All 10 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
+| Block          | Responsibility                                                                                                                                                                       | Interface                                                                                  |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| All 9 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
 
 ### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 
-| Block                              | Responsibility                                                                                                                                                                                                        | Interface                                                                             |
-| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `resolver.js`                      | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe + `requires_skills` skill closure. See §5.01.                                                                                 | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
-| `decisions.js` / `architecture.js` | Parse ADRs and arc42 sections respectively and build their deterministic, on-demand (gitignored) indexes. See §5.04.                                                                                                  | See §5.04.                                                                            |
-| Everything else                    | `manifest.js`, `snapshot/io.js`+`pure.js`, `project-init.js`, `ai-git.js`, `secrets.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js`, `file-utils.js` — see §5.03. | See §5.03.                                                                            |
+| Block             | Responsibility                                                                                                                                                                                                        | Interface                                                                             |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `resolver.js`     | Resolves a bundle's full component set: domain auto-discovery + explicit lists + dedupe + `requires_skills` skill closure. See §5.01.                                                                                 | `resolveBundle()`, `listStandards/Bundles/Servers/HookResources()`, `parseSkillRef()` |
+| `architecture.js` | Parses arc42 sections and builds their deterministic, on-demand (gitignored) index. See §5.04.                                                                                                                        | See §5.04.                                                                            |
+| Everything else   | `manifest.js`, `snapshot/io.js`+`pure.js`, `project-init.js`, `ai-git.js`, `secrets.js`, `constants.js`/`component-defs.js`, `aiconfig.js`+`aiconfig-resolve.js`+`aiconfig-defaults.js`, `file-utils.js` — see §5.03. | See §5.03.                                                                            |
 
 ### Harness adapters (`lib/harnesses/*`) — see §5.02
 
@@ -111,11 +106,9 @@ cut across that boundary and hide it.
 
 ### MCP servers (`servers/*`)
 
-| Block      | Responsibility                                                                                                                                      | Interface                                                                                     |
-| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `dag`      | Local Node MCP server (stdio): validates a `tasks.json` dependency graph and computes execution waves.                                              | Tools: `dag-validate`, `dag-compute-waves` (`servers/dag/index.js`, pure logic in `logic.js`) |
-| `gmail`    | Local Node MCP server (stdio): Gmail read/write operations via an OAuth2-authorized client built once at startup.                                   | Tools per `gmail.yaml`; `getAuthorizedClient()` (`servers/gmail/auth.js`)                     |
-| `youtrack` | Vendor-hosted — JetBrains' own remote MCP endpoint over HTTPS, bearer-token auth. No local server code at all, just a declarative `*.yaml` pointer. | Tools per `youtrack.yaml`, captured from a live `listTools()` call against the real server    |
+| Block   | Responsibility                                                                                                    | Interface                                                                 |
+| ------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `gmail` | Local Node MCP server (stdio): Gmail read/write operations via an OAuth2-authorized client built once at startup. | Tools per `gmail.yaml`; `getAuthorizedClient()` (`servers/gmail/auth.js`) |
 
 ### Component sources (declarative — resolved by `resolver.js`, transformed by a harness adapter)
 
@@ -135,13 +128,14 @@ cut across that boundary and hide it.
 - **§5.02 Harness adapters** (`05_02_harness_adapters.md`) — the shared adapter
   contract and where Claude Code and Kiro actually diverge.
 - **§5.03 Core libraries** (`05_03_core_libraries.md`) — the remaining
-  harness-agnostic support libraries `resolver.js` and the decisions/architecture
-  indexing pair aren't part of.
-- **§5.04 Document indexing** (`05_04_document_indexing.md`) — the shared
-  parse/build pipeline behind `aif index decisions|architecture`, and
-  exactly where the two formats diverge.
+  harness-agnostic support libraries `resolver.js` and the architecture
+  indexing library aren't part of.
+- **§5.04 Document indexing** (`05_04_document_indexing.md`) — the
+  parse/build pipeline behind `aif index architecture`.
 - **§5.05 Command layer** (`05_05_command_layer.md`) — the full per-command
-  responsibility/interface breakdown for all 10 `lib/commands/*.js` files.
+  responsibility/interface breakdown for all 9 `lib/commands/*.js` files.
+- **§5.06 Skill scripts** (`05_06_skill_scripts.md`) — the zero-dependency
+  scripts that ship inside skills (oversight, standards, findings).
 
 Entry points and MCP servers stay at this level — each block in those two groups
 is a single, thin, single-purpose module; a further whitebox wouldn't add

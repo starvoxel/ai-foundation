@@ -1,6 +1,6 @@
 ---
 name: javascript_node
-version: 1.0.2
+version: 1.0.3
 description: Node.js runtime conventions for JavaScript projects
 tags: [javascript, node]
 depends_on: [javascript_base]
@@ -188,7 +188,7 @@ import { parseSkillRef } from './resolver.js';
 
 describe('parseSkillRef', () => {
   it('strips the skill/ prefix', () => {
-    assert.equal(parseSkillRef('skill/plan-lifecycle'), 'plan-lifecycle');
+    assert.equal(parseSkillRef('skill/feature-planning'), 'feature-planning');
   });
 
   it('returns null for an empty string', () => {

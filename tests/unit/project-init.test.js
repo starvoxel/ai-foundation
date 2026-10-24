@@ -8,7 +8,6 @@ import assert from 'node:assert/strict';
 import {
   validateProjectName,
   validateProjectShortname,
-  applyProjectName,
   applyProjectConfig,
   buildAiConfig,
 } from '../../lib/project-init.js';
@@ -113,35 +112,6 @@ describe('unit: project-init/validateProjectShortname', () => {
   });
 });
 
-// ── applyProjectName ─────────────────────────────────────────────────────────
-
-describe('unit: project-init/applyProjectName', () => {
-  it('replaces {ProjectName} with the given name', () => {
-    const result = applyProjectName('Project Name: {ProjectName}', 'cool-app');
-    assert.equal(result, 'Project Name: cool-app');
-  });
-
-  it('replaces my-project with the given name', () => {
-    const result = applyProjectName('"project_name": "my-project"', 'cool-app');
-    assert.equal(result, '"project_name": "cool-app"');
-  });
-
-  it('replaces all occurrences of both placeholders', () => {
-    const input = '{ProjectName} uses my-project as {ProjectName}';
-    const result = applyProjectName(input, 'foo');
-    assert.equal(result, 'foo uses foo as foo');
-  });
-
-  it('returns content unchanged if no placeholder present', () => {
-    const input = 'no placeholder here';
-    assert.equal(applyProjectName(input, 'test'), 'no placeholder here');
-  });
-
-  it('handles empty content', () => {
-    assert.equal(applyProjectName('', 'test'), '');
-  });
-});
-
 // ── applyProjectConfig — {ProjectShortName} ──────────────────────────────────
 
 describe('unit: project-init/applyProjectConfig ProjectShortName substitution', () => {
@@ -177,8 +147,8 @@ describe('unit: project-init/buildAiConfig', () => {
     assert.equal(config.project_shortname, 'my-app');
   });
 
-  it('sets paths.worktrees using the resolved shortname', () => {
-    const config = JSON.parse(buildAiConfig({ projectName: 'my-app', projectShortname: 'myapp' }));
-    assert.equal(config.paths.worktrees, '../worktrees/myapp');
+  it('scaffolds the default oversight setting', () => {
+    const config = JSON.parse(buildAiConfig({ projectName: 'my-app' }));
+    assert.deepEqual(config.oversight, { default: 'by-size', enforced: false });
   });
 });

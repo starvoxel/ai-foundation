@@ -1,0 +1,7 @@
+name: "ai-engineering"
+version: "1.0.0"
+description: "Skills for authoring AI components — agents, skills, steering, servers, and bundles — in any project that builds them, including ai-foundation itself. Install alongside engineering."
+skills:
+  - "component-authoring"
+steering:
+  - "steering/ai-engineering/citation-rules.md"

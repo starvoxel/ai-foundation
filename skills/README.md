@@ -16,7 +16,7 @@ skills/{name}/
 
 ## Adding a new skill
 
-1. Load `skill/skill-authoring` for the full procedure
+1. Load `skill/component-authoring` for the full procedure
 2. Or: create `skills/{name}/SKILL.md` following the schema in AGENTS.md
 3. Run tests: `npm test`
 

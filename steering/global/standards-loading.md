@@ -1,100 +1,32 @@
 ---
 name: 'standards-loading'
-version: '0.4.0'
-description: 'Instructs agents how to resolve and load standards files for a project using tag-based matching.'
+version: '0.5.0'
+description: "Requires agents to load the project's matching standards before implementing, via the standards skill, and never to deviate without approval."
+requires_skills:
+  - 'standards'
 file_patterns: []
 ---
 
 ## Scope
 
-All agents, all sessions. Standards apply across every domain.
+All agents, all sessions.
 
 ---
 
 ## Rules
 
-### Standards Are Not Optional
+### Rule: Load Matching Standards Before Implementing
 
-- **Do not begin implementation without loading your project's standards.**
-- **Never deviate from a loaded standard without explicit human approval.** If a standard conflicts with the task requirements, raise it — do not silently ignore the standard.
-- **Never substitute your own conventions** when a standard defines the convention.
-  The standard exists precisely to prevent per-agent inconsistency.
-- **Never skip loading standards** because a task seems simple. Standards apply to all implementation work regardless of scope or complexity.
+- Before writing code, run `skill/standards` and read the standards it lists, in order. It matches the tags in `.aiconfig.json`, so do not pick standards by hand
+- Never deviate from a loaded standard, and never substitute your own conventions, without explicit human approval. If a standard conflicts with the task, raise it
+- This applies to every implementation, however simple the task seems
 
-Standards are acceptance criteria. Code that violates the active standards will not pass review regardless of other quality.
+**Rationale:** Standards are acceptance criteria; code that violates them fails review. Per-agent conventions are what they exist to prevent.
 
-### Standards Resolution — Tag Matching
-
-The project's `.aiconfig.json` declares tags (not filenames) in its `standards` field:
-
-```json
-{
-  "standards": {
-    "engineering": ["csharp", "avalonia"],
-    "product": ["ux-design"],
-    "all": []
-  }
-}
-```
-
-Each standards file declares its own tags in YAML front-matter:
-
-```yaml
----
-name: csharp_avalonia
-tags: [csharp, avalonia]
-depends_on: [csharp_base]
----
-```
-
-**Resolution procedure:**
-
-1. Read `.aiconfig.json` and collect the tags for your agent's `domain` plus `"all"`
-2. Scan available standards files and read their front-matter
-3. A standard matches if **ALL** of its `tags` are present in the collected project tags
-4. For each matched standard, resolve its `depends_on` chain — add dependencies even if they were not in the initial matched set
-5. Load in dependency order (dependencies first, then dependents)
-
-**Example:** Project tags `["csharp", "avalonia"]` with these standards:
-
-| Standard          | Tags                 | Depends on    | Loaded?             |
-| ----------------- | -------------------- | ------------- | ------------------- |
-| `csharp_base`     | `[csharp]`           | —             | ✓ (has `csharp`)    |
-| `csharp_avalonia` | `[csharp, avalonia]` | `csharp_base` | ✓ (has both)        |
-| `csharp_unity`    | `[csharp, unity]`    | `csharp_base` | ✗ (missing `unity`) |
-
-Load order: `csharp_base` → `csharp_avalonia`
-
-### File Location
-
-Standards are resolved from:
-
-1. Project-local: `./standards/{name}.md`
-2. Global install: `{{standards_path}}/{name}.md`
-
-The first match wins. Project-local standards override global ones.
-
-### Agent-Specific Standards
-
-Individual agents may reference additional standards by name in their prompts.
-These follow the same file location resolution (project-local first, then global)
-and their `depends_on` chains are also resolved.
+**Exceptions:** No `.aiconfig.json` or no `standards` field means none apply by default; still follow any standard the plan or your prompt names.
 
 ---
 
 ## Enforcement
 
-- **Skipped-standards violations:** Caught during review. Code that doesn't follow the active standards file(s) does not pass regardless of other quality — this is the "Standards are acceptance criteria" rule above, made checkable.
-- **Unapproved-deviation violations:** Caught during review. A deviation from a loaded standard without documented human approval is a MEDIUM finding.
-- **Resolution violations:** Caught during review. A standard loaded out of `depends_on` order, or a project-local override missed in favor of the global copy, is a LOW finding — the resolution procedure above is deterministic and checkable.
-
----
-
-## Rationale
-
-Tag-based resolution means projects declare _what they use_ (e.g. "csharp", "avalonia")
-rather than memorising exact standard filenames. Adding a new layered standard (e.g. `csharp_avalonia_reactiveui`) automatically loads for projects with matching tags — no `.aiconfig.json` changes needed. The ALL-of matching ensures standards only load when all their prerequisites are relevant to the project.
-
-## Exceptions
-
-- If no `.aiconfig.json` exists or it has no `standards` field, agents proceed without default standards but may still load standards referenced in their own prompts.
+Skipped standards or an unapproved deviation is caught in review (MEDIUM); the code is returned for correction.

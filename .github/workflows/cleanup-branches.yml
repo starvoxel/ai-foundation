@@ -6,7 +6,7 @@ name: Cleanup branches
 #
 # The rules (categories, thresholds, what is kept) live in
 # .github/scripts/cleanup-branches.mjs and are summarised in
-# steering/engineering/git-workflow-core.md: "Branches Age Out Unless
+# docs/architecture/02_constraints.md: "Branches Age Out Unless
 # Protected". Every run writes a report to the job summary, including the list
 # of Stale branches.
 #

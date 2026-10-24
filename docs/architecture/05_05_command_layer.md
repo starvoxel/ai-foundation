@@ -2,7 +2,6 @@
 section: '05.05'
 title: 'Command layer'
 lifecycle: published
-last_verified: e8dadca32560c33f8cd7633f18c9bae23acc6768
 tags: [building-blocks, commands]
 key_files:
   - lib/commands/install.js
@@ -10,7 +9,6 @@ key_files:
   - lib/commands/status.js
   - lib/commands/list.js
   - lib/commands/validate.js
-  - lib/commands/test.js
   - lib/commands/snapshot.js
   - lib/commands/index.js
   - lib/commands/init.js
@@ -29,7 +27,6 @@ graph TD
   Status["status.js"]
   List["list.js"]
   Validate["validate.js"]
-  Test["test.js"]
   Snapshot["snapshot.js"]
   Index["index.js"]
   Init["init.js"]
@@ -39,7 +36,6 @@ graph TD
   SkillMentions["skill-mentions.js (§5.03)"]
   Manifest["manifest.js (§5.03)"]
   SnapLib["snapshot/io.js + pure.js (§5.03)"]
-  Decisions["decisions.js (§5.04)"]
   Architecture["architecture.js (§5.04)"]
   AiConfig["aiconfig.js (§5.03)"]
   ProjInit["project-init.js (§5.03)"]
@@ -48,17 +44,15 @@ graph TD
 
   Install --> Resolver & Claude & Kiro & Manifest & SnapLib
   Uninstall --> Manifest & Claude & Kiro
+  Install --> Uninstall
   Status --> Manifest & SnapLib
   List --> Resolver
   Validate --> Resolver & SkillMentions
   Snapshot --> SnapLib
-  Index --> Decisions & Architecture & AiConfig
+  Index --> Architecture & AiConfig
   Init --> ProjInit
   Config --> AiConfig
 ```
-
-`test.js` has no edge — it only shells out to this repo's own `node:test` runner
-(`execSync`), no library dependency.
 
 ## Motivation
 
@@ -67,24 +61,23 @@ into whichever Core library/Harness adapter does the real work, return) — genu
 one cohesive whitebox, not six unrelated responsibilities the way §5.03 is. The
 split from `05_building_blocks.md` isn't because any single command is complex
 enough to need its own diagram (none is); it's the same `key_files`-list-length
-reasoning §5.03 already gives for its own existence: ten files' individual
+reasoning §5.03 already gives for its own existence: nine files' individual
 freshness needs somewhere to be tracked without bloating the Level-1 doc's own
 list past what keeps a rename or deletion there a meaningful signal.
 
 ## Contained Building Blocks
 
-| Block          | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Interface                                                                           |
-| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `install.js`   | Resolves a bundle via `resolver.js`, writes its components through the target harness adapter (an unknown agent tool name fails the install, exit 1), records the result in the manifest.                                                                                                                                                                                                                                                                                                                                                                                                 | `runInstall(parsed, repoRoot)`                                                      |
-| `uninstall.js` | Removes previously-installed files using the manifest's recorded file list; per-harness settings cleanup (e.g. MCP entries).                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runUninstall(parsed, repoRoot)`                                                    |
-| `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runStatus(parsed, repoRoot)`                                                       |
-| `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `runList(parsed, repoRoot)`                                                         |
-| `validate.js`  | Schema (including agent `tools`/`approved_tools` names: a `TOOLS` name or `@server/tool` reference), cross-reference, and bundle-resolution integrity checks (`aif validate`), including that a bundle's steering files exist. `schema` also rejects a malformed `requires_skills` field. A fourth target, `skill-deps` (part of the default run), checks `requires_skills` entries exist and that `skill/<name>` mentions in skill and steering files are declared, using `resolver.js`'s closure and `skill-mentions.js` (§5.03); other mentions are warnings that do not fail the run. | `runValidate(parsed, repoRoot)`                                                     |
-| `test.js`      | Thin wrapper invoking this repo's own `node:test` suite.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `runTest(parsed, repoRoot)`                                                         |
-| `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `runSnapshot(parsed, repoRoot)`                                                     |
-| `index.js`     | Generates the decisions and architecture indexes (`aif index decisions\|architecture`) on demand, deterministically; `--check` validates the source docs without reading any stored index.                                                                                                                                                                                                                                                                                                                                                                                                | `runIndex(parsed, repoRoot)`, `resolveDecisionsPath()`, `resolveArchitecturePath()` |
-| `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | `runInit(parsed, repoRoot)`, `promptForConfig()`                                    |
-| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runConfig(parsed, cwd)`                                                            |
+| Block          | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Interface                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `install.js`   | Resolves a bundle via `resolver.js`, writes its components through the target harness adapter (an unknown agent tool name fails the install, exit 1), records the result in the manifest. On reinstall it removes what the bundle's previous install wrote and the new one does not (retired agents, skills, rules; servers and hooks nothing else uses), so upgrades leave no leftovers.                                                                                                                                                                                                 | `runInstall(parsed, repoRoot)`                            |
+| `uninstall.js` | Removes previously-installed files using the manifest's recorded file list; per-harness settings cleanup (e.g. MCP entries).                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runUninstall(parsed, repoRoot)`                          |
+| `status.js`    | Reports what's installed vs. current source state (staleness) for a project.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | `runStatus(parsed, repoRoot)`                             |
+| `list.js`      | Lists available bundles/agents/skills/servers in this repo. No `standards` target.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | `runList(parsed, repoRoot)`                               |
+| `validate.js`  | Schema (including agent `tools`/`approved_tools` names: a `TOOLS` name or `@server/tool` reference), cross-reference, and bundle-resolution integrity checks (`aif validate`), including that a bundle's steering files exist. `schema` also rejects a malformed `requires_skills` field. A fourth target, `skill-deps` (part of the default run), checks `requires_skills` entries exist and that `skill/<name>` mentions in skill and steering files are declared, using `resolver.js`'s closure and `skill-mentions.js` (§5.03); other mentions are warnings that do not fail the run. | `runValidate(parsed, repoRoot)`                           |
+| `snapshot.js`  | Builds/reads per-bundle, per-server, and per-hook source-hash snapshots.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | `runSnapshot(parsed, repoRoot)`                           |
+| `index.js`     | Generates the architecture index (`aif index architecture`) on demand, deterministically; `--check` validates the source docs without reading any stored index.                                                                                                                                                                                                                                                                                                                                                                                                                           | `runIndex(parsed, repoRoot)`, `resolveArchitecturePath()` |
+| `init.js`      | Scaffolds a new project from `projects/_template/`, interactively or via flags. The template includes the git hooks and session-start script that keep the gitignored architecture index fresh; executable bits are preserved on copy.                                                                                                                                                                                                                                                                                                                                                    | `runInit(parsed, repoRoot)`, `promptForConfig()`          |
+| `config.js`    | Resolves a single `.aiconfig.json` field to its configured value or documented default (`aif config <key>`).                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 
 ## Consumers
 

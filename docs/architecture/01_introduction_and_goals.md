@@ -2,12 +2,8 @@
 section: '01'
 title: 'Introduction and Goals'
 lifecycle: published
-last_verified: 044e4bf
 tags: [overview]
-key_files:
-  - README.md
-  - AGENTS.md
-  - package.json
+key_files: []
 ---
 
 > What ai-foundation is, who it's for, and the quality goals its design serves.
@@ -21,6 +17,8 @@ JSON manifests — that any AI coding harness can load. A project adopts it by r
 `aif install`, which copies and transforms the relevant components into that harness's
 native format (e.g. Claude Code's `.claude/agents/`, Kiro's `.kiro/steering/`).
 
+The default roster is deliberately small: one `engineer` agent that carries a request from idea to a reviewed PR, a `reviewer` agent that reviews in a fresh context so it is not biased by the author's reasoning, and an `engineering-researcher` that is the only agent with web access. How often the engineer stops for the human is the `oversight` setting (`none`, `by-size`, `always`) in `.aiconfig.json`. Skills for authoring the framework's own components ship in a separate `ai-engineering` bundle, so downstream projects install only the `engineering` bundle. Product requirements are written by the `prd` skill to `paths.product`, and large work is planned by `feature-planning` before implementation.
+
 The framework itself is also the first consumer of its own conventions: this
 repository's `.aiconfig.json`, `agents/`, `skills/`, and `docs/` follow the same
 schemas a downstream project would, so changes here are validated by using them, not
@@ -29,8 +27,8 @@ just by describing them.
 ### Non-goals
 
 - Not an agent runtime — `aif` installs configuration; the harness executes it.
-- Not a project-tracking system — Feature/Task state lives in flat files an agent or
-  human edits directly, not a hosted service.
+- Not a project-tracking system — plans and architecture docs are plain files in the
+  repo that an agent or human edits directly, not a hosted service.
 - Not a model-provider abstraction — it doesn't wrap or proxy LLM APIs.
 - Not a build system or CI runner for the projects that adopt it.
 

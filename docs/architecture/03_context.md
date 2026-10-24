@@ -2,13 +2,10 @@
 section: '03'
 title: 'System Scope and Context'
 lifecycle: published
-last_verified: 4cfdc38
 tags: [context, c4]
 key_files:
   - bin/aif.js
-  - servers/dag/dag.yaml
   - servers/gmail/auth.js
-  - servers/youtrack/youtrack.yaml
 ---
 
 > Who and what ai-foundation talks to, at the C4 System Context (L1) level.
@@ -37,24 +34,23 @@ C4 support is inconsistent — so this uses a plain flowchart instead, same as �
 
 Domain-level communication partners and what they exchange, independent of protocol:
 
-| Partner                           | Domain-level exchange                                                                                                                                            |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Human developer / project adopter | Chooses a bundle and approves Feature Plans/ADRs; receives an installed rule set (agents, skills, steering, standards) tailored to that choice.                  |
-| AI harness                        | Receives the installed, harness-native component set and runs agents against it — a domain-level "consumer of the compiled output," not yet a specific protocol. |
-| Target project repo               | Supplies its own `.aiconfig.json` (bundle choice, paths, standards tags); receives the components `aif install` writes.                                          |
-| GitHub                            | A development-time partner for this repo's own source/PRs — not a runtime partner of the CLI.                                                                    |
+| Partner                           | Domain-level exchange                                                                                                                                                                                 |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human developer / project adopter | Chooses a bundle and approves plans for large work; receives an installed rule set (agents, skills, steering, standards) tailored to that choice.                                                     |
+| AI harness                        | Receives the installed, harness-native component set and runs agents against it — a domain-level "consumer of the compiled output," not yet a specific protocol.                                      |
+| Target project repo               | Supplies its own `.aiconfig.json` (bundle choice, paths, standards tags); receives the components `aif install` writes.                                                                               |
+| GitHub                            | A development-time partner for this repo's own source/PRs — not a runtime partner of the CLI. The one runtime use is `skill/findings`, which reads and writes issues through `ai-git gh-api` (§5.06). |
 
 ## Technical context
 
 The actual channels and protocols behind the exchanges above:
 
-| Channel                       | Detail                                                                                                                                                             |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Local filesystem              | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config` read and write the local filesystem only — no network (§2 Constraints).                           |
-| git / HTTPS                   | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself.                           |
-| MCP over stdio                | Locally-implemented servers (`servers/dag`, `servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.                         |
-| MCP over HTTP (vendor-hosted) | `servers/youtrack` is a declarative pointer to JetBrains' own hosted MCP endpoint (`hosted: vendor` in its YAML) — no local process; bearer-token auth over HTTPS. |
-| Per-server credentials        | Gmail uses OAuth2 (`servers/gmail/auth.js`); YouTrack a static bearer token from `${YOUTRACK_TOKEN}`.                                                              |
+| Channel                | Detail                                                                                                                                   |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Local filesystem       | `aif install`/`uninstall`/`validate`/`index`/`snapshot`/`config` read and write the local filesystem only — no network (§2 Constraints). |
+| git / HTTPS            | Source control and PRs, via whatever git client (or `ai-git`) a human or agent invokes directly — not a dependency the CLI opens itself. |
+| MCP over stdio         | Locally-implemented servers (`servers/gmail`) speak MCP over stdio, spawned by the harness's own MCP host at agent runtime.              |
+| Per-server credentials | Gmail uses OAuth2 (`servers/gmail/auth.js`).                                                                                             |
 
 ## Out of scope here
 

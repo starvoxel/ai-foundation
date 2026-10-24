@@ -49,7 +49,6 @@ function setUpRepo(secrets) {
     join(root, '.aiconfig.json'),
     JSON.stringify({
       project_name: 'test-project',
-      repo_type: 'framework',
       ai_identity: {
         git_author_name: 'Test Bot',
         git_author_email: 'bot@example.com',

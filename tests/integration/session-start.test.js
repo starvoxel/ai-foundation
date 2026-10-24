@@ -67,6 +67,7 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
     assert.deepEqual(calls(), [
       'npm ci --ignore-scripts --no-audit --no-fund',
       'npm link --ignore-scripts',
+      'node bin/aif.js index architecture',
       'ai-git doctor',
     ]);
   });
@@ -77,6 +78,7 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
     assert.deepEqual(calls(), [
       'npm ci --ignore-scripts --no-audit --no-fund',
       'npm link --ignore-scripts',
+      'node bin/aif.js index architecture',
       'node bin/aif.js install -B engineering,generic -H claude',
       'ai-git doctor',
     ]);
@@ -106,6 +108,7 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
     assert.deepEqual(calls(), [
       'npm ci --ignore-scripts --no-audit --no-fund',
       'npm link --ignore-scripts',
+      'node bin/aif.js index architecture',
       'node bin/aif.js install -B engineering -H claude',
       'ai-git doctor',
     ]);

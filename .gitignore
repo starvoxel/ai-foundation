@@ -32,4 +32,3 @@ local/
 
 # Generated on demand by `aif index <target>` (AIF-013) — never committed
 docs/architecture/index.json
-docs/decisions/index.json

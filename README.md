@@ -23,8 +23,8 @@ ai-foundation/
 ├── standards/       Prescriptive coding/stack rules
 ├── servers/         MCP tool server definitions
 ├── bundles/         Install bundles (per-harness deployment)
-├── projects/        Per-project overrides and templates
-├── docs/            Plans, ADRs, and arc42 architecture docs
+├── projects/        Project template (scaffolded by `aif init`)
+├── docs/            arc42 architecture docs and research briefs
 ├── bin/             CLI entry point (aif)
 ├── lib/             CLI modules
 └── tests/           unit/, integration/, validation/
@@ -36,13 +36,11 @@ For details on component types, field requirements, and loading rules, see [`AGE
 
 ## Agents
 
-| Agent                  | Role                                                                                                 |
-| ---------------------- | ---------------------------------------------------------------------------------------------------- |
-| architect              | Rare, contested, costly-to-reverse decisions — produces ADRs                                         |
-| engineering-manager    | Planning (Feature/Task decomposition) and orchestration across agents                                |
-| software-engineer      | Owns a Task end-to-end: design, implement, test, document — product code and AI-component work alike |
-| engineering-researcher | Web research — decision-ready briefs for Architect, Engineering Manager, or Software Engineer        |
-| principal-engineer     | Code review — enforces quality, security, and standards                                              |
+| Agent                  | Role                                                                                                                             |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| engineer               | The main agent: requirements, planning, implementation, tests, docs, and PR — stopping for the human per the `oversight` setting |
+| engineering-researcher | Web research — decision-ready briefs; the only agent with web access                                                             |
+| reviewer               | Independent fresh-context review of a diff — correctness, security, standards                                                    |
 
 ---
 
@@ -58,9 +56,8 @@ aif uninstall --bundle engineering --harness kiro
 aif status
 aif list bundles|agents|skills|servers
 
-# Validation and testing
+# Validation
 aif validate [schema|refs|bundles]
-aif test [unit|integration|validation]
 
 # Source freshness
 aif snapshot --check
@@ -68,19 +65,17 @@ aif snapshot
 aif snapshot --bundle             # every bundle's snapshot (bare flag = all of that kind)
 aif snapshot --bundle engineering # one bundle's snapshot
 
-# Decision/architecture indexing
-aif index decisions             # generate {paths.decisions}/index.json
-aif index decisions --check     # verify the decision index without writing
+# Architecture indexing
 aif index architecture          # generate docs/architecture/index.json
 aif index architecture --check  # verify the architecture index without writing
 
 # Project scaffolding
-aif init --name my-app --shortname myapp --language typescript --org acme
+aif init --name my-app --shortname myapp --language csharp
 aif init --interactive
 
 # Config field resolution
-aif config paths.decisions          # resolve a .aiconfig.json field, falling back to its default
-aif config paths.decisions --abs    # print an absolute path (for paths.* keys)
+aif config paths.research          # resolve a .aiconfig.json field, falling back to its default
+aif config paths.research --abs    # print an absolute path (for paths.* keys)
 ```
 
 ### Harness Support
@@ -95,6 +90,25 @@ Installs are copies (transformed per-harness), tracked by a manifest for clean u
 
 ---
 
+## Upgrading from v1
+
+The v1 process (tag `legacy/process-v1`) had `software-engineer`, `engineering-manager` and `principal-engineer` agents, task DAGs, worktrees and YouTrack. v2 replaces them with the three agents above.
+
+| v1                                                                                                 | v2                                                    |
+| -------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `software-engineer`, `engineering-manager`                                                         | `engineer`                                            |
+| `principal-engineer`                                                                               | `reviewer`                                            |
+| `complexity-tiers`                                                                                 | `oversight` skill and `oversight` in `.aiconfig.json` |
+| `plan-lifecycle`, `task-orchestration`, `worktree-management`                                      | `feature-planning`                                    |
+| `agent-authoring`, `skill-authoring`, `steering-authoring`, `bundle-authoring`, `server-authoring` | `component-authoring` (`ai-engineering` bundle)       |
+| ADRs                                                                                               | arc42 sections only                                   |
+
+1. In this repo run `aif install --update`. A reinstall removes the agents, skills and rules the bundle no longer ships (and servers and hooks nothing else uses), so a managed install upgrades cleanly.
+2. Files from installs the manifest never tracked are left alone: delete retired entries by hand from `~/.claude/{agents,skills,rules}` (or `~/.kiro`).
+3. In each project, drop `paths.features`, `paths.decisions`, `paths.worktrees` and `orchestration` from `.aiconfig.json`, add `paths.product` and `oversight`, and copy `.githooks/`, `scripts/session-start.sh` and `.claude/settings.json` from `projects/_template/`. Plans become one `plans/{name}.md` each instead of `plans/features/{id}/`.
+
+---
+
 ## Project Setup
 
 Projects that use ai-foundation agents have a `.aiconfig.json` at the repo root.
@@ -104,7 +118,6 @@ Scaffold a new project with `aif init` or create the file manually. Key fields:
 {
   "project_name": "my-app",
   "project_shortname": "myapp",
-  "repo_type": "project",
   "ai_identity": {
     "git_author_name": "AI Agent",
     "git_author_email": "ai@example.com",
@@ -120,8 +133,7 @@ Scaffold a new project with `aif init` or create the file manually. Key fields:
 The `ai_identity` field enables agents to commit and push under a separate identity, keeping AI-authored work clearly distinct in git history and PRs.
 The token is read from the named env var at runtime — never stored in the file.
 
-`project_shortname` (max 5 characters) is used in Feature IDs (e.g. `MYAPP-001`)
-and worktree paths, keeping them short even when `project_name` is long. It falls back to `project_name` if omitted.
+`project_shortname` (max 5 characters) is a short project identifier for names and IDs, so they stay short even when `project_name` is long. It falls back to `project_name` if omitted.
 
 See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 
@@ -130,9 +142,10 @@ See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 ## Testing
 
 ```bash
-aif test unit          # Fast, no I/O
-aif test integration   # Filesystem tests
-aif test validation    # Real repo checks
+npm test               # Everything
+npm run test:unit          # Fast, no I/O
+npm run test:integration   # Filesystem tests
+npm run test:validation    # Real repo checks
 ```
 
 Requires Node.js 22+. Install dependencies: `npm install`.
@@ -181,12 +194,12 @@ setup is not cached) before that tool is installed.
 
 Set these in the environment's **Environment variables**, never in the script:
 
-| Variable            | Value                                                                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.           |
-| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.               |
-| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                   |
-| `AIF_BUNDLES`       | Comma-separated bundles (e.g. `engineering,generic`) that the SessionStart hook installs with `aif install -H claude`; unset installs none. |
+| Variable            | Value                                                                                                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.                          |
+| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.                              |
+| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                                  |
+| `AIF_BUNDLES`       | Comma-separated bundles (e.g. `engineering,ai-engineering,generic`) that the SessionStart hook installs with `aif install -H claude`; unset installs none. |
 
 #### SessionStart hook
 
@@ -213,6 +226,10 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
    works (arguments with spaces arrive intact).
 5. `ai-git doctor` exits 0 and reports the token as resolved (never prints the value).
 
+#### Primary agent
+
+`"agent": "engineer"` in `.claude/settings.json` (set in this repo and the project template) makes the engineer the main-thread agent, so its tool set and spawn limits apply instead of the default agent's. The agent must already be installed when Claude Code launches. The SessionStart hook installs bundles after the main agent is resolved, so in a fresh cloud session the engineer is missing and the harness falls back to the default agent without an error. To get it from the first turn, also run `aif install -B engineering -H claude` at the end of the environment's Setup script, after the pinned package is installed.
+
 #### Cloud limits
 
 - **No GraphQL.** The session proxy blocks it, so `ai-git gh-pr-*`, `gh pr ...` and
@@ -231,6 +248,6 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
 
 ## Contributing
 
-This repo is framework only — no application code lives here. When adding or modifying components, use the corresponding authoring skill for the guided procedure and validation checklist. See `AGENTS.md` for the full specification.
+This repo is framework only — no application code lives here. When adding or modifying components, use `skill/component-authoring` (installed by the `ai-engineering` bundle) for the guided procedure and validation checklist. See `AGENTS.md` for the full specification.
 
-Work within this repo is recommended to be agent-authored using the authoring skills (`skill/agent-authoring`, `skill/skill-authoring`, etc.).
+Work within this repo is recommended to be agent-authored using that skill.

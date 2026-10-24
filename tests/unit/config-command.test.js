@@ -44,28 +44,28 @@ describe('unit: config command', () => {
 
   it('prints the resolved default value for an unset key', () => {
     const { code, out } = quiet(() =>
-      runConfig({ args: {}, positional: ['paths.decisions'] }, projectRoot),
+      runConfig({ args: {}, positional: ['paths.research'] }, projectRoot),
     );
     assert.equal(code, 0);
-    assert.equal(out[0], 'knowledge/decisions');
+    assert.equal(out[0], 'knowledge/research');
   });
 
   it('prints a configured value over the default', () => {
     writeFileSync(
       join(projectRoot, '.aiconfig.json'),
-      JSON.stringify({ paths: { decisions: 'archive/decisions' } }),
+      JSON.stringify({ paths: { research: 'archive/research' } }),
     );
     const { out } = quiet(() =>
-      runConfig({ args: {}, positional: ['paths.decisions'] }, projectRoot),
+      runConfig({ args: {}, positional: ['paths.research'] }, projectRoot),
     );
-    assert.equal(out[0], 'archive/decisions');
+    assert.equal(out[0], 'archive/research');
   });
 
   it('prints an absolute path with --abs', () => {
     const { out } = quiet(() =>
-      runConfig({ args: { abs: true }, positional: ['paths.decisions'] }, projectRoot),
+      runConfig({ args: { abs: true }, positional: ['paths.research'] }, projectRoot),
     );
-    assert.equal(out[0], join(projectRoot, 'knowledge/decisions'));
+    assert.equal(out[0], join(projectRoot, 'knowledge/research'));
   });
 
   it('returns 1 with a descriptive error for an unknown field', () => {

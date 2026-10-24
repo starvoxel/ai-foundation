@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Regenerate the gitignored arc42 index after the working tree changes.
+# Never blocks a git operation: any failure (e.g. dependencies not installed yet) is ignored.
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -f "$root/bin/aif.js" ] || exit 0
+(cd "$root" && node bin/aif.js index architecture >/dev/null 2>&1) || true
+exit 0

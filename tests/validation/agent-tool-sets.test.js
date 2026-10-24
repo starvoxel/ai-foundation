@@ -37,65 +37,6 @@ const AGENTS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'ag
 
 /** Reviewed snapshot of each agent's source grants (generic names, groups, @server/tool refs). */
 const AGENT_GRANTS = {
-  architect: {
-    tools: [
-      'read',
-      'write',
-      'grep',
-      'glob',
-      'subagent',
-      'plan',
-      'ask_user',
-      'task',
-      'skill',
-      'session_info',
-    ],
-    approved: ['read', 'grep', 'glob', 'plan', 'ask_user', 'task', 'skill', 'session_info'],
-  },
-  'engineering-manager': {
-    tools: [
-      'subagent',
-      'plan',
-      'ask_user',
-      'task',
-      'skill',
-      'session_info',
-      'pr_follow_through',
-      'repo_list',
-      'read',
-      'write',
-      'shell',
-      'grep',
-      'glob',
-      '@dag/dag-validate',
-      '@dag/dag-compute-waves',
-      '@youtrack/search_issues',
-      '@youtrack/get_issue',
-      '@youtrack/get_issue_fields_schema',
-      '@youtrack/update_issue',
-    ],
-    approved: [
-      'subagent',
-      'plan',
-      'ask_user',
-      'task',
-      'skill',
-      'session_info',
-      'pr_follow_through',
-      'repo_list',
-      'read',
-      'write',
-      'shell',
-      'grep',
-      'glob',
-      '@dag/dag-validate',
-      '@dag/dag-compute-waves',
-      '@youtrack/search_issues',
-      '@youtrack/get_issue',
-      '@youtrack/get_issue_fields_schema',
-      '@youtrack/update_issue',
-    ],
-  },
   'engineering-researcher': {
     tools: [
       'read',
@@ -120,11 +61,11 @@ const AGENT_GRANTS = {
       'session_info',
     ],
   },
-  'principal-engineer': {
-    tools: ['read', 'grep', 'glob', 'code', 'shell', 'task', 'skill', 'session_info'],
-    approved: ['read', 'grep', 'glob', 'code', 'shell', 'task', 'skill', 'session_info'],
+  reviewer: {
+    tools: ['read', 'grep', 'glob', 'code', 'shell', 'skill', 'session_info'],
+    approved: ['read', 'grep', 'glob', 'code', 'shell', 'skill', 'session_info'],
   },
-  'software-engineer': {
+  engineer: {
     tools: [
       'read',
       'write',
@@ -133,11 +74,27 @@ const AGENT_GRANTS = {
       'glob',
       'code',
       'subagent',
+      'plan',
+      'ask_user',
       'task',
       'skill',
       'session_info',
+      'pr_follow_through',
     ],
-    approved: ['read', 'write', 'shell', 'grep', 'glob', 'code', 'task', 'skill', 'session_info'],
+    approved: [
+      'read',
+      'write',
+      'shell',
+      'grep',
+      'glob',
+      'code',
+      'plan',
+      'ask_user',
+      'task',
+      'skill',
+      'session_info',
+      'pr_follow_through',
+    ],
   },
 };
 
@@ -168,13 +125,6 @@ const CLAUDE_NATIVE = {
     'ReadNotifications',
   ],
   repo_list: CCR('list_repos'),
-  // Claude's `@server/tool` rewrite, for the references agents hold today.
-  '@dag/dag-validate': ['mcp__dag__dag-validate'],
-  '@dag/dag-compute-waves': ['mcp__dag__dag-compute-waves'],
-  '@youtrack/search_issues': ['mcp__youtrack__search_issues'],
-  '@youtrack/get_issue': ['mcp__youtrack__get_issue'],
-  '@youtrack/get_issue_fields_schema': ['mcp__youtrack__get_issue_fields_schema'],
-  '@youtrack/update_issue': ['mcp__youtrack__update_issue'],
 };
 
 /** Names Kiro has no equivalent for; everything else resolves to itself. */
@@ -221,6 +171,20 @@ function expectKiro(names) {
 }
 
 const agentFiles = getAgentFiles(AGENTS_DIR);
+
+describe('web access', () => {
+  it('only engineering-researcher holds web tools, in tools or approved_tools', () => {
+    const holders = agentFiles
+      .filter((file) => {
+        const agent = parseYaml(join(AGENTS_DIR, file));
+        return [...(agent.tools ?? []), ...(agent.approved_tools ?? [])].some((t) =>
+          ['web_search', 'web_fetch'].includes(t),
+        );
+      })
+      .map((file) => file.replace(/\.yaml$/, ''));
+    assert.deepEqual(holders, ['engineering-researcher']);
+  });
+});
 
 describe('per-agent resolved tool sets', () => {
   it('has a reviewed grant snapshot for every agent, and none for a missing one', () => {

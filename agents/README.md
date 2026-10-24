@@ -6,7 +6,7 @@ Agent definitions live here as `.yaml` files. Each defines a named persona with 
 
 ## Adding a new agent
 
-1. Load `skill/agent-authoring` for the full procedure
+1. Load `skill/component-authoring` for the full procedure
 2. Or: create `{name}.yaml` following the schema in AGENTS.md
 3. Run tests: `npm test`
 

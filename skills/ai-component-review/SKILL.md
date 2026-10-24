@@ -1,6 +1,6 @@
 ---
 name: 'ai-component-review'
-version: '0.3.3'
+version: '0.3.7'
 description: 'Reviews an agent, skill, steering, server, or bundle definition against its AGENTS.md schema; classifies findings via the shared review-severity taxonomy.'
 requires_skills:
   - 'code-review'
@@ -11,7 +11,7 @@ requires_skills:
 
 Reviews a completed AI-component diff — an agent definition, skill, steering file, server definition, or
 bundle definition — against the schema AGENTS.md defines for that component type, this repo's own
-conventions, and (when the change implements one) its governing plan or ADR. Gets the same review as
+conventions, and (when the change implements one) its governing plan. Gets the same review as
 product code, just a different checklist: branch by artifact type the same way `skill/code-review` branches
 by language standard.
 
@@ -22,7 +22,7 @@ by language standard.
 - **Component diff** — the changed file(s) under `agents/`, `skills/`, `steering/`, `servers/`, or `bundles/`
 - **Governing schema** — AGENTS.md's entry for that component type
 - **Iteration** — the review round, 1 for a first review; on a re-review the reviewer's own prior Review Report is the baseline for Prior Findings
-- **Related plan, if any** — the Feature Plan (Task work decomposed from one), a Tier 3 plan (standalone work that rose to Tier 3), or an ADR the change implements — standalone Tier 1/2 work has no separate plan artifact by default
+- **Related plan, if any** — the plan the change implements (if it needed one) — small work has no separate plan artifact
 
 ---
 
@@ -51,12 +51,11 @@ specifically for:
 
 ### Step 4 — Review cross-references
 
-Every `skills`/`tools` entry an agent, bundle, or server definition names actually exists; every Decision
-Record ID cited resolves. Treat a broken cross-reference the same as a schema violation — it is a finding,
+Every `skills`/`tools` entry an agent, bundle, or server definition names actually exists. Treat a broken cross-reference the same as a schema violation — it is a finding,
 not a note.
 
 Where the diff cites another skill, agent, or steering file by name, also check it isn't restating that
-source's content alongside the citation — `steering/engineering/core.md`: "Cite, Don't Restate".
+source's content alongside the citation — `steering/ai-engineering/citation-rules.md`: "Cite, Don't Restate".
 A citation next to a paraphrase is a finding even though the reference itself resolves cleanly.
 
 ### Step 5 — Produce Review Report

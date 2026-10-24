@@ -1,9 +1,9 @@
 ---
 name: 'gmail-irreversible-action-approval'
-version: '0.2.1'
+version: '0.2.3'
 description: 'Requires explicit, per-action human approval before any Gmail tool call that sends an email or permanently deletes data.'
 requires_skills:
-  - 'steering-authoring'
+  - 'component-authoring'
 file_patterns: []
 ---
 
@@ -49,5 +49,5 @@ file_patterns: []
 ## Enforcement
 
 - **Missing or implied approval:** Any gated tool call made without an explicit approval question and an explicit affirmative answer in the same exchange is a security-severity finding (per `steering/global/core.md`: "Security Requirements Are Never Optional"), not a style or process finding. It blocks approval of the agent's work regardless of the outcome of the send/delete.
-- **Who catches it:** Principal-Engineer review, or direct human inspection of the conversation transcript.
-- **No waiver path:** Unlike most steering rules, this rule has no human-waiver exception (see "Every Irreversible Gmail Action Requires Its Own Explicit Approval"). If a human wants to change this rule's scope, that requires editing this steering file through the normal `skill/steering-authoring` process, not a one-off waiver in a plan or commit message.
+- **Who catches it:** Reviewer-agent review, or direct human inspection of the conversation transcript.
+- **No waiver path:** Unlike most steering rules, this rule has no human-waiver exception (see "Every Irreversible Gmail Action Requires Its Own Explicit Approval"). If a human wants to change this rule's scope, that requires editing this steering file through the normal `skill/component-authoring` process, not a one-off waiver in a plan or commit message.
