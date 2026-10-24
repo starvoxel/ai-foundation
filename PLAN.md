@@ -12,10 +12,10 @@ The framework is one `engineer` agent that takes a request from idea to a review
 
 ## Next, in order
 
-1. **LOW tracking and the review stopping rule** — a durable, conflict-free way to record LOW review findings so they can be fixed later, without a ledger branch. Stopping rule, from the old PR #110: the reviewer approves once nothing at MEDIUM or above remains, a re-review never re-raises a LOW, and a round is never spent on LOWs alone. Mechanism still to confirm: GitHub issues labelled `review-low`, deduplicated by file and rule (recommended), or one small file per finding
+1. **Findings** — done: non-blocking review and scan results are GitHub issues labelled `finding` (plus `severity:*` and `source:*`), filed and looked up per file with `skill/findings`; the reviewer approves once nothing at MEDIUM or above remains and a LOW never costs a round. Still to do: have scans file findings the same way, and sort lookups by severity and effort
 2. **Per-agent approval** — a `tool-gate` hook and scoped `subagent:<name>` grants so each agent's `approved_tools` means "runs without a human" on both harnesses (research: `docs/research/subagent-spawn-allowlist.md`; hooks in user-scope agent frontmatter were verified, project-scope ones are skipped until the folder is trusted)
-3. **Clear the pre-pivot work** — delete the stale and throwaway branches with the `Cleanup branches` workflow, and decide whether to keep the AIF-012 findings as one short research note first
-4. **Waking local desktop sessions** — find a way for a local session to resume itself when its PR changes (cloud sessions already have `subscribe_pr_activity`). Known from the old spikes, to verify on desktop: a Stop hook can refuse to end a turn (capped at 8 loops), and `asyncRewake` on Stop wakes an idle session; `asyncRewake` on SessionStart and UserPromptSubmit does not
+3. **Clear the pre-pivot work** — delete the stale and throwaway branches with the `Cleanup branches` workflow; the AIF-012 findings are kept in `docs/research/session-waking-spikes.md`, so the `AIF-012/*` branches can go once that merges
+4. **Waking local desktop sessions** — find a way for a local session to resume itself when its PR changes (cloud sessions already have `subscribe_pr_activity`). The spikes ran only on Windows, headless; first run the test matrix in `docs/research/session-waking-spikes.md` on the desktop app and the CLI, then decide whether Stop + `asyncRewake` is viable before any implementation
 5. **Review split** (last) — keep one `reviewer` agent type; split review into targeted skills that the dispatch brief selects
 
 ## Later
