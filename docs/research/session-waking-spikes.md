@@ -1,6 +1,6 @@
 # Waking an idle local session: spike findings (AIF-012)
 
-Condensed from the AIF-012 spikes (run 2026-10-06/07, Claude Code 2.1.292), whose branches are being deleted. Recoverable until then from `origin/AIF-012/001`–`006` (`docs/research/pr-watch-spike-results.parts/`).
+Condensed from the AIF-012 spikes (run 2026-10-06/07, Claude Code 2.1.292). The prototypes and the human test procedure are kept in [`session-waking-spikes.parts/`](./session-waking-spikes.parts/README.md).
 
 **Scope of the evidence:** every result below ran on **Windows 10, Git Bash, headless** (`claude -p`, stream-json with stdin held open as a stand-in for an idle session). Nothing was run on POSIX, in the interactive TUI, in the desktop app or in a cloud session. Treat all of it as a lead, not a verdict.
 
