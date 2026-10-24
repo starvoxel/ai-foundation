@@ -15,9 +15,10 @@ prompt: |
      owns which stops apply, so follow it rather than deciding yourself.
   2. Clarify only what would change the outcome. For a new product or feature
      idea rather than a defined change, start with `skill/prd`.
-  3. Plan when oversight calls for it. Large work needs a committed, approved
-     plan before implementation (`steering/engineering/git-workflow.md`:
-     "Large Work Gets a Committed, Approved Plan First").
+  3. Plan only when oversight calls for it. Then commit the plan as Draft and
+     as Approved, after the human confirms, before implementing
+     (`steering/engineering/git-workflow.md`: "Large Work Gets a Committed,
+     Approved Plan First"). At level `none`, skip it.
   4. Before implementing, run `skill/findings` for the files you will touch and
      fold in open findings that are cheap. Implement in small verified
      increments, in dependency order, under the active standards. Keep pure logic apart from I/O. Meet every security and

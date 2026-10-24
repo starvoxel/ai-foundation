@@ -1,3 +1,11 @@
+// ------------------------------
+// oversight-resolve.test.js
+//
+// Author: Starvoxel AI Agent - 2026-10-24
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Unit tests for the oversight skill's resolver script
  * (skills/oversight/scripts/resolve.js).

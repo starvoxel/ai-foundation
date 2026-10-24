@@ -47,5 +47,5 @@ When the described work is merged, set `Status: Done` and commit. This is inform
 
 ## Edge Cases
 
-- **The human says "just do it" for large work** — still commit the Approved status first, then proceed
+- **Oversight is `none` ("just do it")** — skip planning entirely; this skill applies only when `skill/oversight`<!-- skill-ref: ignore --> calls for a plan
 - **The plan changes materially during implementation** — stop, revise the plan in a new commit, and get a fresh Approved commit before continuing

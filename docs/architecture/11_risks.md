@@ -5,6 +5,8 @@ lifecycle: published
 tags: [risks]
 key_files:
   - lib/harnesses/kiro.js
+  - .claude/settings.json
+  - scripts/session-start.sh
 ---
 
 > Known gaps and reliability risks this project accepts rather than solves, and why.
@@ -28,6 +30,12 @@ agent must always see uses `file_patterns: []` (always load) regardless of harne
 
 ## Kiro: project-scope install and default agent are not built or verifiable
 
-Kiro currently installs only to the user's home directory (`~/.kiro/`), and nothing in the adapter sets a default or primary agent. A project-scope install (an install-CLI option that writes a harness's files into the project instead of the home directory) does not exist for any harness yet; it is a deferred follow-up Feature, not part of AIF-005 (docs/plans/features/AIF-005/plan.md), which selects a cloud session's primary agent through the environment Setup script for Claude Code only. It is unverified whether Kiro has a project-level install location beyond `.kiro/settings/` conventions or any native "default agent" mechanism, and we cannot run Kiro in this environment.
+Kiro currently installs only to the user's home directory (`~/.kiro/`), and nothing in the adapter sets a default or primary agent. A project-scope install (an install-CLI option that writes a harness's files into the project instead of the home directory) does not exist for any harness yet; it is a deferred follow-up. A cloud session's primary agent is selected by `agent` in `.claude/settings.json` for Claude Code only (README, "Primary agent"). It is unverified whether Kiro has a project-level install location beyond `.kiro/settings/` conventions or any native "default agent" mechanism, and we cannot run Kiro in this environment.
 
 **Impact on the Kiro adapter** (`lib/harnesses/kiro.js`): `kiro.js` keeps home-directory-only behavior until someone can verify its project paths and default-agent support against a real Kiro install. Kiro users cannot yet have a project-committed agent set or a cloud-style primary agent. This joins the `fileMatch` gap above and the tool-map entries with no confirmed Kiro equivalent (see §5.02) as known, accepted Kiro gaps rather than something the Claude path can prove out.
+
+## A missing primary agent falls back silently
+
+`agent: engineer` in `.claude/settings.json` only works if the agent is installed before Claude Code launches. The SessionStart hook (`scripts/session-start.sh`) installs bundles after the main agent is resolved, so in a fresh cloud session the engineer is missing and the harness falls back to the default agent without an error. The default agent keeps its own tool set, so the engineer's restrictions (no web tools, spawn limits) do not apply until a second session.
+
+**Mitigation:** run `aif install -B engineering -H claude` at the end of the environment's Setup script (README, "Primary agent"). Nothing detects the fallback; a session that does not behave like the engineer is the only signal.

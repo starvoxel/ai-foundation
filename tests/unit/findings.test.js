@@ -1,3 +1,11 @@
+// ------------------------------
+// findings.test.js
+//
+// Author: Starvoxel AI Agent - 2026-10-24
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Unit tests for the findings skill script (skills/findings/scripts/findings.js).
  */

@@ -1,3 +1,11 @@
+// ------------------------------
+// githooks.test.js
+//
+// Author: Starvoxel AI Agent - 2026-10-24
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Validation: the repo's .githooks refresh the gitignored arc42 index after
  * clone/pull/checkout and can never block a git operation.

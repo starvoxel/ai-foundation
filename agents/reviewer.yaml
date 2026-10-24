@@ -69,3 +69,7 @@ blocked_commands:
   - "tee *"
   - "npm install *"
   - "npm i *"
+  - "ai-git push *"
+  - "ai-git commit *"
+  - "ai-git add *"
+  - "ai-git gh-api * --method *"

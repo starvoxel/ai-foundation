@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+// ------------------------------
+// findings.js
+//
+// Author: Starvoxel AI Agent - 2026-10-24
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Findings: durable, conflict-free tracking of review and scan results that
  * are not worth blocking a PR. Each finding is a GitHub issue labelled
@@ -157,7 +165,11 @@ export function planFiling(map, f) {
   };
 }
 
-/** One compact line per finding. */
+/**
+ * One compact line per finding.
+ * @param {{n:number,severity:string,files:string[],rule:string,title:string,effort:string}} e
+ * @returns {string}
+ */
 export function formatLine(e) {
   const parts = [`#${e.n}`, e.severity || '-', e.files.join(','), e.rule || e.title];
   if (e.effort) parts.push(`(${e.effort})`);
@@ -166,6 +178,13 @@ export function formatLine(e) {
 
 // ---- I/O -----------------------------------------------------------------
 
+/**
+ * Run `ai-git gh-api` and return its stdout.
+ * @param {string[]} args
+ * @param {string} [input] - Optional stdin
+ * @returns {string}
+ * @throws {Error} When the call fails
+ */
 function gh(args, input) {
   const r = spawnSync('ai-git', ['gh-api', ...args], { encoding: 'utf8', input });
   if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'ai-git gh-api failed').trim());
@@ -182,6 +201,11 @@ export function parseRepoSlug(url) {
   return m ? m[1] : null;
 }
 
+/**
+ * The repo to query: --repo, else the origin remote.
+ * @param {string[]} argv
+ * @returns {string} "owner/name"
+ */
 function repoSlug(argv) {
   const i = argv.indexOf('--repo');
   if (i !== -1) return argv[i + 1];
@@ -191,6 +215,12 @@ function repoSlug(argv) {
   return slug;
 }
 
+/**
+ * Open finding issues, from --from-file or GitHub.
+ * @param {string[]} argv
+ * @param {string} repo
+ * @returns {Array<any>}
+ */
 function loadIssues(argv, repo) {
   const i = argv.indexOf('--from-file');
   if (i !== -1) return JSON.parse(readFileSync(argv[i + 1], 'utf8'));
@@ -202,6 +232,12 @@ function loadIssues(argv, repo) {
   return JSON.parse(out).flat();
 }
 
+/**
+ * Value of `--name <value>`, if given.
+ * @param {string[]} argv
+ * @param {string} name
+ * @returns {string|undefined}
+ */
 function flag(argv, name) {
   const i = argv.indexOf(`--${name}`);
   return i === -1 ? undefined : argv[i + 1];

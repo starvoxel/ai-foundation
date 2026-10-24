@@ -6,6 +6,7 @@ tags: [building-blocks, indexing, architecture]
 key_files:
   - lib/architecture.js
   - lib/arch-waivers.js
+  - .githooks/refresh-index
 ---
 
 > How `aif index architecture` turns a directory of arc42 Markdown files into a deterministic, on-demand `index.json`, and how `--check` validates the same sources.

@@ -134,6 +134,8 @@ cut across that boundary and hide it.
   parse/build pipeline behind `aif index architecture`.
 - **§5.05 Command layer** (`05_05_command_layer.md`) — the full per-command
   responsibility/interface breakdown for all 9 `lib/commands/*.js` files.
+- **§5.06 Skill scripts** (`05_06_skill_scripts.md`) — the zero-dependency
+  scripts that ship inside skills (oversight, standards, findings).
 
 Entry points and MCP servers stay at this level — each block in those two groups
 is a single, thin, single-purpose module; a further whitebox wouldn't add

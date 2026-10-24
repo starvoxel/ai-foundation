@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+// ------------------------------
+// resolve.js
+//
+// Author: Starvoxel AI Agent - 2026-10-24
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Resolves which standards files apply to a project: tag matching plus
  * depends_on closure, printed in load order (dependencies first).

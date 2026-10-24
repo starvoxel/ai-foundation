@@ -5,10 +5,8 @@ on:
   # A bare push only triggers one on main and on `push-check/**` branches.
   # Pushing to any other feature branch with no open PR does NOT trigger CI —
   # avoids paying for runs on WIP commits nobody's reviewing yet. `main`'s
-  # required status checks reject a commit that hasn't passed CI, so the
-  # PR-less way to land one is: push it to a `push-check/**` branch, wait for
-  # green, then fast-forward `main` to that exact commit (see
-  # steering/engineering/git-workflow.md).
+  # required status checks reject a commit that hasn't passed CI, so a
+  # `push-check/**` branch is the way to get a commit its CI run without a PR.
   push:
     branches:
       - main

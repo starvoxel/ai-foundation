@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+// ------------------------------
+// resolve.js
+//
+// Author: Starvoxel AI Agent - 2026-10-24
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Resolves the effective oversight level: how much human sign-off the engineer
  * agent waits for. Levels, lowest to highest: none | by-size | always.

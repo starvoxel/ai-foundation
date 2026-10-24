@@ -34,12 +34,12 @@ C4 support is inconsistent — so this uses a plain flowchart instead, same as �
 
 Domain-level communication partners and what they exchange, independent of protocol:
 
-| Partner                           | Domain-level exchange                                                                                                                                            |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Human developer / project adopter | Chooses a bundle and approves plans for large work; receives an installed rule set (agents, skills, steering, standards) tailored to that choice.                |
-| AI harness                        | Receives the installed, harness-native component set and runs agents against it — a domain-level "consumer of the compiled output," not yet a specific protocol. |
-| Target project repo               | Supplies its own `.aiconfig.json` (bundle choice, paths, standards tags); receives the components `aif install` writes.                                          |
-| GitHub                            | A development-time partner for this repo's own source/PRs — not a runtime partner of the CLI.                                                                    |
+| Partner                           | Domain-level exchange                                                                                                                                                                                 |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Human developer / project adopter | Chooses a bundle and approves plans for large work; receives an installed rule set (agents, skills, steering, standards) tailored to that choice.                                                     |
+| AI harness                        | Receives the installed, harness-native component set and runs agents against it — a domain-level "consumer of the compiled output," not yet a specific protocol.                                      |
+| Target project repo               | Supplies its own `.aiconfig.json` (bundle choice, paths, standards tags); receives the components `aif install` writes.                                                                               |
+| GitHub                            | A development-time partner for this repo's own source/PRs — not a runtime partner of the CLI. The one runtime use is `skill/findings`, which reads and writes issues through `ai-git gh-api` (§5.06). |
 
 ## Technical context
 

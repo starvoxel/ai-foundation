@@ -81,10 +81,10 @@ All agents, in every repository.
 
 **Rationale:** The approval commit makes "approved" checkable in `git log` where a wrong turn is expensive.
 
-**Exceptions:** None for large work.
+**Exceptions:** Oversight level `none` (`skill/oversight`<!-- skill-ref: ignore -->): the human has chosen to skip the plan and every checkpoint; the independent review still runs.
 
 ---
 
 ## Enforcement
 
-Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Large work without a committed `Approved` plan stops until the approval commit exists.
+Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.

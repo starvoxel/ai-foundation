@@ -20,7 +20,7 @@ Produces a structured report that either approves the code or returns it with ac
 - **Iteration** — the review round, 1 for a first review; on a re-review the reviewer's own prior Review Report is the baseline for Prior Findings
 - **Request and plan** — what was supposed to be built (acceptance criteria, security, logging): the approved plan for large work, otherwise the human's request and any outline agreed for it
 - **Language standards** — from `standards/{stack}.md`
-- **Project standards** — from `projects/{name}/project-standards.md`
+- **Project standards** — the project's `project-standards.md`, if present (listed last by `skill/standards`<!-- skill-ref: ignore -->)
 
 ---
 
@@ -33,7 +33,7 @@ Verify every component the request or plan calls for exists. Missing components 
 ### Step 2 — Review Change Scope
 
 - If the diff's author is Engineering Researcher, confirm every touched path stays within that agent's own documented write scope (`agents/engineering-researcher.yaml`'s Hard rules). A path outside that scope is a HIGH finding, the same severity class as `skill/ai-component-review`'s `tools`/`approved_tools`/`blocked_commands` rule.
-- If the diff adds a file under a directory an arc42 section already describes, confirm that section's building-block table and `key_files` were updated to include it, per `steering/global/knowledge-consumption.md`'s Doc-Update Acceptance Gate. A missing update is a MEDIUM finding. For each `Arch-Unaffected` waiver in the range, confirm its reason is true; an untrue waiver is a MEDIUM finding.
+- If the diff adds a file under a directory an arc42 section already describes, confirm that section's building-block table and `key_files` were updated to include it, per `steering/global/knowledge-consumption.md`: "Keep Architecture Docs Current". A missing update is a MEDIUM finding. For each `Arch-Unaffected` waiver in the range, confirm its reason is true; an untrue waiver is a MEDIUM finding.
 
 ### Step 3 — Review Security and Logging
 
