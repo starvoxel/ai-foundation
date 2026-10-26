@@ -1,6 +1,6 @@
 ---
 name: 'standards'
-version: '1.1.0'
+version: '1.2.0'
 description: 'Finds the coding standards that apply to the current project by tag matching and dependency order, so they can be read before any implementation.'
 ---
 
