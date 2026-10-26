@@ -16,12 +16,15 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import {
   copyFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readFileSync,
   rmSync,
+  unlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
@@ -159,6 +162,32 @@ describe('integration: project-scope stdio launcher', () => {
     );
     const { code } = await startEntry((child) => child.kill('SIGTERM'));
     assert.equal(code, 3);
+  });
+
+  it('waits for a held lock, then reuses the install the holder finished', async () => {
+    const lock = join(serverDir, LOCK_FILE);
+    writeFileSync(lock, 'other-process');
+    const pending = startEntry();
+    await new Promise((r) => setTimeout(r, 700));
+    // The "other process" finishes its install and releases the lock.
+    mkdirSync(join(serverDir, 'node_modules'), { recursive: true });
+    const hash = createHash('sha256')
+      .update(readFileSync(join(serverDir, 'package.json')))
+      .digest('hex');
+    writeFileSync(join(serverDir, 'node_modules', STAMP_FILE), `${hash}\n`);
+    unlinkSync(lock);
+    const result = await pending;
+    assert.equal(result.code, 0, result.stderr);
+    assert.ok(!result.stderr.includes('installing dependencies'), 'no second install');
+  });
+
+  it('releases its own lock after taking over a stale one', () => {
+    const lock = join(serverDir, LOCK_FILE);
+    writeFileSync(lock, 'stale-holder');
+    const old = new Date(Date.now() - 10 * 60 * 1000);
+    utimesSync(lock, old, old);
+    assert.equal(runEntry().status, 0);
+    assert.ok(!existsSync(lock), 'own lock released after taking over the stale one');
   });
 
   it('runs one install for concurrent first starts', async () => {
