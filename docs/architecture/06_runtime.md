@@ -2,7 +2,7 @@
 section: '06'
 title: 'Runtime View'
 lifecycle: published
-tags: [runtime, manifest, snapshot]
+tags: [runtime, manifest, snapshot, scope]
 key_files:
   - lib/manifest.js
   - lib/commands/install.js
@@ -61,6 +61,16 @@ returns `'block-command'` when an agent's `blocked_commands` is non-empty; `kiro
 has no detector, since it embeds `blocked_commands` directly into each agent's own
 JSON and needs no shared external asset.
 
+## Install scope
+
+A global install (the default) writes under the home directory and records it in `.installs.yaml` at the ai-foundation root, with absolute paths. A project install (`--scope project`) writes under `<project>/.claude/` or `.kiro/` and records it in that directory's own `.installs.yaml`, with project-relative paths, so the files and the manifest are committed together. The repo's `.gitignore` ignores `.installs.yaml` except those two.
+
+Committing the install is what lets a session's primary agent exist before Claude Code starts: the SessionStart hook runs only after the agent is resolved, so an agent it installs applies from the next session.
+
+The two scopes keep separate manifests and never share a file. SessionStart's global install passes `--skip-project`, so a bundle the project carries is not also installed globally; that matters because Claude Code ranks a personal skill above a project skill of the same name (research brief `docs/research/project-scope-harness-locations.md`).
+
+Drift: `aif install --scope project --check` reinstalls the recorded bundles into a temporary project and compares the files with the committed ones. It never fails; CI reports drift as a warning.
+
 ## Freshness detection
 
 Each bundle, server, and hook resource has its own snapshot of source-file hashes,
@@ -68,8 +78,8 @@ computed independently — a bundle's snapshot covers only bundle-owned sources,
 a shared server/hook's files, so a source change to one shared server doesn't appear
 to invalidate every bundle that happens to reference it.
 
-`isCurrent(bundleName, harness, repoRoot)` (used by `aif status` and to decide
-whether `aif install` is a no-op) checks two things: the bundle's own snapshot
+`isCurrent(bundleName, ctx)` (used by `aif status` and to decide
+whether `aif install` is a no-op; project scope never treats a bundle as current) checks two things: the bundle's own snapshot
 freshness, and — for every server/hook the bundle depends on — whether that
 resource's manifest-recorded hashes still match a freshly computed snapshot of its
 own files. Either being stale marks the bundle not-current. `aif status` reports a
