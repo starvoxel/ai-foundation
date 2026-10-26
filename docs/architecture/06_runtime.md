@@ -65,7 +65,7 @@ JSON and needs no shared external asset.
 
 A global install (the default) writes under the home directory and records it in `.installs.yaml` at the ai-foundation root, with absolute paths. A project install (`--scope project`) writes under `<project>/.claude/` or `.kiro/` and records it in that directory's own `.installs.yaml`, with project-relative paths, so the files and the manifest are committed together. The repo's `.gitignore` ignores `.installs.yaml` except those two.
 
-Committing the install is what lets a session's primary agent exist before Claude Code starts: the SessionStart hook runs only after the agent is resolved, so an agent it installs applies from the next session.
+Committing the install is what lets a session's primary agent exist before Claude Code starts: the SessionStart hook runs only after the agent is resolved, so an agent it installs applies from the next session. Verified locally with headless Claude Code 2.1.310: a committed project agent named by `agent` in the project's `.claude/settings.json` ran as primary on the first turn and outranked a user agent of the same name.
 
 The two scopes keep separate manifests and never share a file. SessionStart's global install passes `--skip-project`, so a bundle the project carries is not also installed globally; that matters because Claude Code ranks a personal skill above a project skill of the same name (research brief `docs/research/project-scope-harness-locations.md`).
 
