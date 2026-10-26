@@ -130,6 +130,11 @@ jobs:
       - name: "Check: architecture index (key_files staleness + relative links)"
         run: node bin/aif.js index architecture --check
 
+      - name: "Check: project install drift (warning only)"
+        # Reports where the committed .claude/ differs from what this commit's
+        # aif would install. Always exits 0; drift shows as a warning annotation.
+        run: node bin/aif.js install --scope project --check
+
       - name: "Check: version bump"
         # A push to main only ever moves forward one accepted state at a
         # time, so that case diffs against its own previous tip
