@@ -72,7 +72,7 @@ Each adapter's `TARGETS` default to the home directory (global scope). `enterSco
 
 - `{{standards_path}}` in steering becomes `.claude/standards` or `.kiro/standards`, not an absolute path.
 - Claude's hook command uses bare `node` and `${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.claude/scripts/block-command/cli.js` (`PROJECT_HOOK_SCRIPT`). Claude Code's docs do not say `CLAUDE_PROJECT_DIR` is set for agent-frontmatter hooks, hence the git fallback. A shell without `node` on its PATH cannot run the hook.
-- Stdio MCP servers are skipped with a warning: their npm dependencies and absolute entry point cannot be committed. HTTP servers go into `<project>/.mcp.json` (Claude) or `.kiro/settings/mcp.json` (Kiro).
+- Stdio MCP servers are skipped with a warning: their npm dependencies and absolute entry point cannot be committed. The installer returns `null`, so the server is not recorded and aif never uninstalls or checks a same-named server the project adds itself. HTTP servers go into `<project>/.mcp.json` (Claude) or `.kiro/settings/mcp.json` (Kiro).
 
 The project locations each harness reads, and how they rank against the user copies, are in `docs/research/project-scope-harness-locations.md`. Kiro's are reported, not verified (§11).
 

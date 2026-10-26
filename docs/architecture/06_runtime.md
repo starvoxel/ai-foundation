@@ -40,6 +40,8 @@ sequenceDiagram
   end
 ```
 
+Only servers an adapter actually installed are recorded; one it skips (unsupported protocol, or stdio at project scope) gets no entry.
+
 A reinstall also releases what the bundle's previous install had and the new one does
 not: files no other bundle owns are deleted (emptied directories too), and servers and
 hooks it stopped using drop `bundleName` from `installedBy` exactly as `uninstall` does.

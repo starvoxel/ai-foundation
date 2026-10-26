@@ -242,6 +242,30 @@ describe('integration: install --scope project', () => {
     }
   });
 
+  it('leaves a skipped stdio server unowned: not recorded, checked or uninstalled', () => {
+    install({ bundle: 'with-local', harness: 'claude' });
+    const manifest = YAML.parse(readFileSync(join(project, '.claude', '.installs.yaml'), 'utf8'));
+    assert.deepEqual(manifest.servers, {});
+    assert.deepEqual(manifest.bundles['with-local_claude'].servers, []);
+
+    // The project adds its own server of the same name.
+    const mcpPath = join(project, '.mcp.json');
+    writeFileSync(mcpPath, JSON.stringify({ mcpServers: { local: { command: 'mine' } } }));
+    mkdirSync(join(project, '.claude', 'servers', 'local'), { recursive: true });
+
+    const check = install({ check: true });
+    assert.ok(check.output.includes('project install is current'), check.output);
+    capture(() =>
+      runUninstall(
+        { args: { bundle: 'with-local', harness: 'claude', scope: 'project' }, positional: [] },
+        repo,
+        project,
+      ),
+    );
+    assert.equal(JSON.parse(readFileSync(mcpPath, 'utf8')).mcpServers.local.command, 'mine');
+    assert.ok(existsSync(join(project, '.claude', 'servers', 'local')));
+  });
+
   it('--check compares only aif-owned entries in .mcp.json', () => {
     install({ bundle: 'with-web', harness: 'claude' });
     const mcpPath = join(project, '.mcp.json');
