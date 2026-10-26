@@ -72,7 +72,9 @@ Each adapter's `TARGETS` default to the home directory (global scope). `enterSco
 
 - `{{standards_path}}` in steering becomes `.claude/standards` or `.kiro/standards`, not an absolute path.
 - Claude's hook command uses bare `node` and `${CLAUDE_PROJECT_DIR:-$(git rev-parse --show-toplevel)}/.claude/scripts/block-command/cli.js` (`PROJECT_HOOK_SCRIPT`). Claude Code's docs do not say `CLAUDE_PROJECT_DIR` is set for agent-frontmatter hooks, hence the git fallback. A shell without `node` on its PATH cannot run the hook.
-- Stdio MCP servers are skipped with a warning: their npm dependencies and absolute entry point cannot be committed. The installer returns `null`, so the server is not recorded and aif never uninstalls or checks a same-named server the project adds itself. HTTP servers go into `<project>/.mcp.json` (Claude) or `.kiro/settings/mcp.json` (Kiro).
+- Stdio MCP servers (Claude): the server's runtime files are committed without `node_modules`, plus `mcp-launch/aif-launch.mjs` and a `.gitignore` for `node_modules/`. The `.mcp.json` entry (`projectStdioEntry()`) runs `node -e`, which finds the launcher through `CLAUDE_PROJECT_DIR` (set in the server's environment; Claude Code does not expand it in `.mcp.json` args), falling back to the working directory. On start the launcher runs `npm install --omit=dev --ignore-scripts` unless a stamp in `node_modules` matches the current `package.json`, then runs `index.js` as a child sharing its stdio. Dependencies are not installed by SessionStart, because Claude Code starts project MCP servers alongside that hook, not after it (local test, Claude Code 2.1.310).
+- Stdio MCP servers (Kiro) are skipped with a warning, since how Kiro resolves a workspace server's path is unverified. The installer returns `null`, so the server is not recorded and aif never uninstalls or checks a same-named server the project adds itself.
+- HTTP servers go into `<project>/.mcp.json` (Claude) or `.kiro/settings/mcp.json` (Kiro).
 
 The project locations each harness reads, and how they rank against the user copies, are in `docs/research/project-scope-harness-locations.md`. Kiro's are reported, not verified (§11).
 
