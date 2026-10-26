@@ -45,7 +45,7 @@ Only servers an adapter actually installed are recorded; one it skips (unsupport
 A reinstall also releases what the bundle's previous install had and the new one does
 not: files no other bundle owns are deleted (emptied directories too), and servers and
 hooks it stopped using drop `bundleName` from `installedBy` exactly as `uninstall` does.
-An upgrade therefore leaves no retired agents, skills or rules behind. A file that cannot be removed is reported and skipped, so one failure does not stop the install or leave the manifest out of date.
+An upgrade therefore leaves no retired agents, skills or rules behind. A file that cannot be removed is reported and skipped, so one failure does not stop the install. The new entry no longer lists it, so no later install retries it: remove it by hand.
 
 Bundle-owned files that two bundles install to the same path (every bundle installs all standards, and bundles can share a skill or rule) have no `installedBy` list. `uninstall` instead deletes only the paths no other bundle's manifest entry lists (`splitOwnedPaths()`), so the last owner to go removes them.
 
