@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { manifestLocation, parseScope, ScopeError } from '../../lib/scope.js';
 import { fromStoredPath, mapManifestPaths, toStoredPath } from '../../lib/manifest.js';
 import { splitProjectInstalled } from '../../lib/commands/install.js';
-import { diffInstall } from '../../lib/commands/install-check.js';
+import { diffInstall, diffMcpServers } from '../../lib/commands/install-check.js';
 import { isDefaultBundle } from '../../lib/resolver.js';
 
 describe('parseScope', () => {
@@ -135,5 +135,32 @@ describe('isDefaultBundle', () => {
     assert.equal(isDefaultBundle({ name: 'e', default: 'true' }), false);
     assert.equal(isDefaultBundle({ name: 'e' }), false);
     assert.equal(isDefaultBundle(null), false);
+  });
+});
+
+describe('diffMcpServers', () => {
+  const web = { type: 'http', url: 'https://a' };
+
+  it('ignores key order and entries the project added', () => {
+    const committed = { web: { url: 'https://a', type: 'http' }, mine: { url: 'x' } };
+    assert.deepEqual(diffMcpServers({ web }, committed, ['web'], '.mcp.json'), {
+      changed: [],
+      missing: [],
+      retired: [],
+    });
+  });
+
+  it('reports changed, missing and retired aif entries', () => {
+    const fresh = { web: { ...web, url: 'https://b' }, added: web };
+    const committed = { web, old: web, mine: web };
+    assert.deepEqual(diffMcpServers(fresh, committed, ['web', 'old'], 'f'), {
+      changed: ['f#web'],
+      missing: ['f#added'],
+      retired: ['f#old'],
+    });
+  });
+
+  it('handles empty settings', () => {
+    assert.deepEqual(diffMcpServers({}, {}, [], 'f'), { changed: [], missing: [], retired: [] });
   });
 });

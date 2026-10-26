@@ -69,7 +69,7 @@ Committing the install is what lets a session's primary agent exist before Claud
 
 The two scopes keep separate manifests and never share a file. SessionStart's global install passes `--skip-project`, so a bundle the project carries is not also installed globally; that matters because Claude Code ranks a personal skill above a project skill of the same name (research brief `docs/research/project-scope-harness-locations.md`).
 
-Drift: `aif install --scope project --check` reinstalls the recorded bundles into a temporary project and compares the files with the committed ones. It never fails; CI reports drift as a warning.
+Drift: `aif install --scope project --check` reinstalls the recorded bundles into a temporary project and compares the files with the committed ones; in MCP settings files, only aif's own server entries count. It never fails; CI reports drift as a warning.
 
 ## Freshness detection
 

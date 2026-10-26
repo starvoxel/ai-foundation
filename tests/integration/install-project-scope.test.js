@@ -7,7 +7,16 @@
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { appendFileSync, existsSync, mkdtempSync, readFileSync, rmSync, unlinkSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { homedir, tmpdir } from 'node:os';
 import YAML from 'yaml';
@@ -60,8 +69,26 @@ describe('integration: install --scope project', () => {
       ],
       skills: ['test-skill'],
       steering: { global: ['core.md'], eng: ['rules.md'] },
-      bundles: [{ name: 'eng', version: '1.0.0', description: 'Test bundle.', domain: 'eng' }],
+      servers: ['local'],
+      bundles: [
+        { name: 'eng', version: '1.0.0', description: 'Test bundle.', domain: 'eng' },
+        { name: 'with-local', version: '1.0.0', description: 'Stdio server.', servers: ['local'] },
+        { name: 'with-web', version: '1.0.0', description: 'HTTP server.', servers: ['web'] },
+      ],
     });
+    mkdirSync(join(repo, 'servers', 'web'), { recursive: true });
+    writeFileSync(
+      join(repo, 'servers', 'web', 'web.yaml'),
+      YAML.stringify({
+        name: 'web',
+        version: '0.1.0',
+        protocol: 'mcp',
+        transport: 'http',
+        url: 'https://example.test/mcp',
+        description: 'web server',
+        tools: [],
+      }),
+    );
     project = mkdtempSync(join(tmpdir(), 'aif-project-'));
     claudeBefore = { ...CLAUDE_TARGETS };
     kiroBefore = { ...KIRO_TARGETS };
@@ -203,5 +230,63 @@ describe('integration: install --scope project', () => {
     const manifest = readFileSync(join(project, '.kiro', '.installs.yaml'), 'utf8');
     assert.ok(!manifest.includes(project));
     assert.deepEqual({ ...KIRO_TARGETS }, kiroBefore, 'targets restored after install');
+  });
+
+  it('skips stdio servers at project scope with a warning, for both harnesses', () => {
+    for (const harness of ['claude', 'kiro']) {
+      const { code, output } = install({ bundle: 'with-local', harness });
+      assert.equal(code, 0);
+      assert.ok(output.includes('server: local skipped'), output);
+      const dir = harness === 'claude' ? '.claude' : '.kiro';
+      assert.ok(!existsSync(join(project, dir, 'servers')), `no ${dir}/servers`);
+    }
+  });
+
+  it('--check compares only aif-owned entries in .mcp.json', () => {
+    install({ bundle: 'with-web', harness: 'claude' });
+    const mcpPath = join(project, '.mcp.json');
+    const settings = JSON.parse(readFileSync(mcpPath, 'utf8'));
+    assert.equal(settings.mcpServers.web.url, 'https://example.test/mcp');
+
+    settings.mcpServers.mine = { type: 'http', url: 'https://mine.test' };
+    writeFileSync(mcpPath, JSON.stringify(settings, null, 4));
+    const clean = install({ check: true });
+    assert.ok(clean.output.includes('project install is current'), clean.output);
+
+    settings.mcpServers.web.url = 'https://stale.test/mcp';
+    writeFileSync(mcpPath, JSON.stringify(settings));
+    const drift = install({ check: true });
+    assert.ok(drift.output.includes('changed: .mcp.json#web'), drift.output);
+    assert.ok(!drift.output.includes('#mine'), drift.output);
+  });
+
+  it('--check ignores entries a project adds to Kiro mcp.json', () => {
+    install({ bundle: 'with-web', harness: 'kiro' });
+    const mcpPath = join(project, '.kiro', 'settings', 'mcp.json');
+    const settings = JSON.parse(readFileSync(mcpPath, 'utf8'));
+    settings.mcpServers.mine = { url: 'https://mine.test' };
+    writeFileSync(mcpPath, JSON.stringify(settings));
+    const { output } = install({ check: true });
+    assert.ok(output.includes('kiro (with-web): project install is current'), output);
+  });
+
+  it('refuses --skip-project with --scope project', () => {
+    const { code } = install({ bundle: 'eng', harness: 'claude', 'skip-project': true });
+    assert.equal(code, 1);
+  });
+
+  it('rejects an unknown scope in uninstall and status', () => {
+    const args = { bundle: 'eng', harness: 'claude', scope: 'user' };
+    assert.equal(capture(() => runUninstall({ args, positional: [] }, repo, project)).code, 1);
+    assert.equal(
+      capture(() => runStatus({ args: { scope: 'user' }, positional: [] }, repo, project)).code,
+      1,
+    );
+  });
+
+  it('restores targets after a failing install', () => {
+    const { code } = install({ bundle: 'no-such-bundle', harness: 'claude' });
+    assert.equal(code, 1);
+    assert.deepEqual({ ...CLAUDE_TARGETS }, claudeBefore);
   });
 });
