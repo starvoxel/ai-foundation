@@ -24,7 +24,11 @@ import YAML from 'yaml';
 import { runInstall } from '../../lib/commands/install.js';
 import { runUninstall } from '../../lib/commands/uninstall.js';
 import { runStatus } from '../../lib/commands/status.js';
-import { TARGETS as CLAUDE_TARGETS, PROJECT_HOOK_SCRIPT } from '../../lib/harnesses/claude.js';
+import {
+  TARGETS as CLAUDE_TARGETS,
+  PROJECT_HOOK_SCRIPT,
+  projectStdioEntry,
+} from '../../lib/harnesses/claude.js';
 import { TARGETS as KIRO_TARGETS } from '../../lib/harnesses/kiro.js';
 import { createTempRepo, destroyTempRepo } from '../helpers/fixture.js';
 
@@ -232,29 +236,23 @@ describe('integration: install --scope project', () => {
     assert.deepEqual({ ...KIRO_TARGETS }, kiroBefore, 'targets restored after install');
   });
 
-  it('skips stdio servers at project scope with a warning, for both harnesses', () => {
-    for (const harness of ['claude', 'kiro']) {
-      const { code, output } = install({ bundle: 'with-local', harness });
-      assert.equal(code, 0);
-      assert.ok(output.includes('server: local skipped'), output);
-      const dir = harness === 'claude' ? '.claude' : '.kiro';
-      assert.ok(!existsSync(join(project, dir, 'servers')), `no ${dir}/servers`);
-    }
-  });
+  it('installs a Claude stdio server with its launcher and a portable .mcp.json entry', () => {
+    const { code, output } = install({ bundle: 'with-local', harness: 'claude' });
+    assert.equal(code, 0, output);
+    const dir = join(project, '.claude', 'servers', 'local');
+    assert.ok(existsSync(join(dir, 'local.yaml')));
+    assert.ok(existsSync(join(dir, 'aif-launch.mjs')));
+    assert.equal(readFileSync(join(dir, '.gitignore'), 'utf8'), 'node_modules/\n');
+    assert.ok(!existsSync(join(dir, 'node_modules')), 'dependencies are not installed by aif');
 
-  it('leaves a skipped stdio server unowned: not recorded, checked or uninstalled', () => {
-    install({ bundle: 'with-local', harness: 'claude' });
+    const mcp = readFileSync(join(project, '.mcp.json'), 'utf8');
+    assert.deepEqual(JSON.parse(mcp).mcpServers.local, projectStdioEntry('local'));
+    assert.ok(!mcp.includes(project) && !mcp.includes(homedir()), 'no machine path');
+
     const manifest = YAML.parse(readFileSync(join(project, '.claude', '.installs.yaml'), 'utf8'));
-    assert.deepEqual(manifest.servers, {});
-    assert.deepEqual(manifest.bundles['with-local_claude'].servers, []);
+    assert.ok(manifest.servers.local_claude.files.some((f) => f.path.endsWith('aif-launch.mjs')));
+    assert.ok(install({ check: true }).output.includes('project install is current'));
 
-    // The project adds its own server of the same name.
-    const mcpPath = join(project, '.mcp.json');
-    writeFileSync(mcpPath, JSON.stringify({ mcpServers: { local: { command: 'mine' } } }));
-    mkdirSync(join(project, '.claude', 'servers', 'local'), { recursive: true });
-
-    const check = install({ check: true });
-    assert.ok(check.output.includes('project install is current'), check.output);
     capture(() =>
       runUninstall(
         { args: { bundle: 'with-local', harness: 'claude', scope: 'project' }, positional: [] },
@@ -262,8 +260,38 @@ describe('integration: install --scope project', () => {
         project,
       ),
     );
+    assert.ok(!existsSync(dir));
+    assert.equal(
+      JSON.parse(readFileSync(join(project, '.mcp.json'), 'utf8')).mcpServers.local,
+      undefined,
+    );
+  });
+
+  it('leaves a Kiro stdio server skipped and unowned: not recorded, checked or uninstalled', () => {
+    const { code, output } = install({ bundle: 'with-local', harness: 'kiro' });
+    assert.equal(code, 0);
+    assert.ok(output.includes('server: local skipped'), output);
+    const manifest = YAML.parse(readFileSync(join(project, '.kiro', '.installs.yaml'), 'utf8'));
+    assert.deepEqual(manifest.servers, {});
+    assert.deepEqual(manifest.bundles['with-local_kiro'].servers, []);
+
+    // The project adds its own server of the same name.
+    const mcpPath = join(project, '.kiro', 'settings', 'mcp.json');
+    mkdirSync(join(project, '.kiro', 'settings'), { recursive: true });
+    writeFileSync(mcpPath, JSON.stringify({ mcpServers: { local: { command: 'mine' } } }));
+    mkdirSync(join(project, '.kiro', 'servers', 'local'), { recursive: true });
+
+    const check = install({ check: true });
+    assert.ok(check.output.includes('project install is current'), check.output);
+    capture(() =>
+      runUninstall(
+        { args: { bundle: 'with-local', harness: 'kiro', scope: 'project' }, positional: [] },
+        repo,
+        project,
+      ),
+    );
     assert.equal(JSON.parse(readFileSync(mcpPath, 'utf8')).mcpServers.local.command, 'mine');
-    assert.ok(existsSync(join(project, '.claude', 'servers', 'local')));
+    assert.ok(existsSync(join(project, '.kiro', 'servers', 'local')));
   });
 
   it('--check compares only aif-owned entries in .mcp.json', () => {
