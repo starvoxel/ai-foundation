@@ -1,3 +1,11 @@
+// ------------------------------
+// install-project-scope.test.js
+//
+// Author: Starvoxel AI Agent - 2026-10-26
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 /**
  * Integration tests for `aif install --scope project`: files land in the
  * project, are free of machine-specific paths, the manifest is committed with
@@ -242,7 +250,10 @@ describe('integration: install --scope project', () => {
     const dir = join(project, '.claude', 'servers', 'local');
     assert.ok(existsSync(join(dir, 'local.yaml')));
     assert.ok(existsSync(join(dir, 'aif-launch.mjs')));
-    assert.equal(readFileSync(join(dir, '.gitignore'), 'utf8'), 'node_modules/\n');
+    assert.equal(
+      readFileSync(join(dir, '.gitignore'), 'utf8'),
+      'node_modules/\n.aif-install.lock\n',
+    );
     assert.ok(!existsSync(join(dir, 'node_modules')), 'dependencies are not installed by aif');
 
     const mcp = readFileSync(join(project, '.mcp.json'), 'utf8');

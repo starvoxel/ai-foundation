@@ -1,3 +1,11 @@
+// ------------------------------
+// scope.test.js
+//
+// Author: Starvoxel AI Agent - 2026-10-26
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
