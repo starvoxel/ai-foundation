@@ -10,7 +10,7 @@ git config core.hooksPath .githooks || echo "WARNING: could not set core.hooksPa
 if command -v aif >/dev/null 2>&1; then
   aif index architecture || echo "WARNING: aif index architecture failed" >&2
   if [ "${CLAUDE_CODE_REMOTE:-}" = "true" ] && [ -n "${AIF_BUNDLES:-}" ]; then
-    aif install -B "$AIF_BUNDLES" -H claude || echo "WARNING: aif install failed for $AIF_BUNDLES" >&2
+    aif install -B "$AIF_BUNDLES" -H claude --skip-project || echo "WARNING: aif install failed for $AIF_BUNDLES" >&2
   fi
 else
   echo "WARNING: aif is not on PATH; skipping index and bundle install" >&2
