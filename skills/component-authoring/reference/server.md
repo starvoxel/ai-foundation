@@ -37,4 +37,4 @@ servers/{name}/
 - [ ] Every tool has `name`, `description`, `inputs`, `outputs`; no literal secrets in `headers`
 - [ ] Self-hosted: `logic.js` has no protocol imports, `index.js` is thin, the three test files exist
 - [ ] Vendor-hosted: only the YAML exists and `url` is a literal
-- [ ] `aif validate` and `aif snapshot` pass
+- [ ] `aif validate` passes
