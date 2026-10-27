@@ -19,7 +19,7 @@ import { COMMANDS, HARNESSES } from '../lib/constants.js';
  *
  * -h is reserved for --help alone, per near-universal CLI convention.
  * bundle/harness are aliased uppercase instead of lowercase: they combine
- * on the same commands (install, snapshot), and harness had to be
+ * on the same command (install), and harness had to be
  * uppercase to avoid colliding with -h, so bundle follows it rather than
  * mixing case within one command line.
  */
@@ -117,18 +117,15 @@ Commands:
   status      Show what is currently installed
   list        List available bundles, agents, skills, or servers
   validate    Check repo health (schema, refs, bundles, skill-deps)
-  snapshot    Compute source hashes for bundles, servers, and hook resources
   index       Generate an architecture index for a project
   init        Scaffold a new project directory
   config      Resolve a .aiconfig.json field, falling back to its default
 
 Options:
-  -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only); bundle to snapshot (snapshot: name optional, omit for all bundles)
-  --server [name]       Server to snapshot (snapshot command; omit name for all servers)
-  --hook [name]         Hook resource to snapshot (snapshot command; omit name for all hooks)
+  -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
   --update              Update all installed bundles that are stale
-  --check               Verify snapshots without writing (snapshot command)
+  --check               Verify without writing (index command)
   -h, --help            Show this help message
 
 Init Options:
@@ -148,10 +145,6 @@ Examples:
   aif validate
   aif validate schema
   aif validate skill-deps
-  aif snapshot
-  aif snapshot --server git
-  aif snapshot --bundle
-  aif snapshot --bundle --check
   aif index architecture
   aif index architecture --check
   aif init --name my-app --language csharp
@@ -175,7 +168,6 @@ import { runUninstall } from '../lib/commands/uninstall.js';
 import { runStatus } from '../lib/commands/status.js';
 import { runList } from '../lib/commands/list.js';
 import { runValidate } from '../lib/commands/validate.js';
-import { runSnapshot } from '../lib/commands/snapshot.js';
 import { runIndex } from '../lib/commands/index.js';
 import { runInit } from '../lib/commands/init.js';
 import { runConfig } from '../lib/commands/config.js';
@@ -212,8 +204,6 @@ export async function run(parsed) {
       return runList(parsed, REPO_ROOT);
     case 'validate':
       return runValidate(parsed, REPO_ROOT);
-    case 'snapshot':
-      return runSnapshot(parsed, REPO_ROOT);
     case 'index':
       return runIndex(parsed, process.cwd());
     case 'init':

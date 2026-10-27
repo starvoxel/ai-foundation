@@ -1,18 +1,12 @@
 /**
- * Unit tests for the pure snapshot subsystem logic (lib/snapshot/pure.js).
- * I/O behavior (lib/snapshot/io.js) and CLI orchestration
- * (lib/commands/snapshot.js) are covered by integration tests.
+ * Unit tests for the pure source-freshness logic (lib/snapshot/pure.js).
+ * I/O behavior (lib/snapshot/io.js) is covered by integration tests.
  */
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import {
-  diffSnapshot,
-  isRuntimeFile,
-  isFreshnessCurrent,
-  resolveExplicitTargets,
-} from '../../lib/snapshot/pure.js';
+import { diffSnapshot, isRuntimeFile, isFreshnessCurrent } from '../../lib/snapshot/pure.js';
 
 // ── isRuntimeFile ────────────────────────────────────────────────────────────
 
@@ -30,63 +24,7 @@ describe('unit: snapshot/isRuntimeFile', () => {
     assert.equal(isRuntimeFile('index.js'), true);
     assert.equal(isRuntimeFile('lib/logic.js'), true);
   });
-
-  it("excludes the resource's own snapshot.json to avoid self-reference", () => {
-    assert.equal(isRuntimeFile('snapshot.json'), false);
-  });
 });
-
-// ── resolveExplicitTargets ───────────────────────────────────────────────────
-
-describe('unit: snapshot/resolveExplicitTargets', () => {
-  const kinds = ['bundle', 'server', 'hook'];
-
-  it('returns an empty target list when no kind args are present', () => {
-    const result = resolveExplicitTargets({}, kinds);
-    assert.deepEqual(result, { ok: true, targets: [] });
-  });
-
-  it('resolves a single explicit target', () => {
-    const result = resolveExplicitTargets({ bundle: 'engineering' }, kinds);
-    assert.deepEqual(result, { ok: true, targets: [{ kind: 'bundle', name: 'engineering' }] });
-  });
-
-  it('resolves multiple explicit targets of different kinds', () => {
-    const result = resolveExplicitTargets({ bundle: 'engineering', server: 'git' }, kinds);
-    assert.equal(result.ok, true);
-    assert.deepEqual(result.targets, [
-      { kind: 'bundle', name: 'engineering' },
-      { kind: 'server', name: 'git' },
-    ]);
-  });
-
-  it('ignores args for kinds not in the recognized list', () => {
-    const result = resolveExplicitTargets({ bundle: 'engineering', unknown: 'x' }, kinds);
-    assert.deepEqual(result.targets, [{ kind: 'bundle', name: 'engineering' }]);
-  });
-
-  it('resolves a bare flag (no value) to a wildcard target for that kind', () => {
-    const result = resolveExplicitTargets({ bundle: true }, kinds);
-    assert.deepEqual(result, { ok: true, targets: [{ kind: 'bundle', name: null }] });
-  });
-
-  it('resolves a wildcard target alongside an explicit target of a different kind', () => {
-    const result = resolveExplicitTargets({ bundle: true, server: 'git' }, kinds);
-    assert.equal(result.ok, true);
-    assert.deepEqual(result.targets, [
-      { kind: 'bundle', name: null },
-      { kind: 'server', name: 'git' },
-    ]);
-  });
-
-  it('returns an error for an empty string value', () => {
-    const result = resolveExplicitTargets({ server: '' }, kinds);
-    assert.equal(result.ok, false);
-    assert.match(result.error, /--server/);
-  });
-});
-
-// ── diffSnapshot ─────────────────────────────────────────────────────────────
 
 describe('unit: snapshot/diffSnapshot', () => {
   it('reports stale when no existing snapshot', () => {

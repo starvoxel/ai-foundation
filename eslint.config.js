@@ -4,7 +4,7 @@ import prettierConfig from 'eslint-config-prettier';
 
 export default [
   {
-    ignores: ['node_modules/**', '**/node_modules/**', 'bundles/**/snapshot.json'],
+    ignores: ['node_modules/**', '**/node_modules/**'],
   },
   js.configs.recommended,
   {
