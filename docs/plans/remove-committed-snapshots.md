@@ -1,10 +1,10 @@
 # Plan: Remove committed snapshots
 
-| Field       | Value      |
-| ----------- | ---------- |
-| Status      | Draft      |
-| Approved by | Pending    |
-| Created     | 2026-10-27 |
+| Field       | Value                             |
+| ----------- | --------------------------------- |
+| Status      | Approved                          |
+| Approved by | jeremysmellie@gmail.com (in chat) |
+| Created     | 2026-10-27                        |
 
 ## Goal
 
@@ -50,7 +50,7 @@ Stop committing `snapshot.json` files, which are generated state that conflicts 
 - Security: no new input surface. Hashing reads only files already under the repo's resource directories; keep the existing path handling in `collectFiles`.
 - Logging: no new logging. `aif status` must name the resource and the reason when a hash cannot be computed, rather than reporting it as current.
 
-## Open questions
+## Decisions
 
-- Removing `aif snapshot` is a breaking CLI change: remove outright (this plan), or keep it for one release as a deprecated no-op that prints a notice? Human decides.
-- Keep `lib/snapshot/` and `diffSnapshot` as names although no snapshot file exists, or rename to something like `lib/freshness/`? This plan keeps them to limit the diff; a rename could follow separately. Human decides.
+- `aif snapshot` is removed outright, with no deprecation period (human, in chat).
+- `lib/snapshot/` and `diffSnapshot` keep their names for this change; any rename is a separate follow-up (the human asked only for what is needed).
