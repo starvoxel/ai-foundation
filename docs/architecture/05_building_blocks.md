@@ -86,7 +86,7 @@ cut across that boundary and hide it.
 
 | Block          | Responsibility                                                                                                                                                                       | Interface                                                                                  |
 | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| All 9 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
+| All 8 commands | One file per `aif <verb>` subcommand — thin orchestrators that parse their own args and call straight into Core libraries/Harness adapters. See §5.05 for the per-command breakdown. | `run{Verb}(parsed, repoRoot)` (`config.js` takes `cwd` instead) — one per file. See §5.05. |
 
 ### Core libraries (`lib/*.js`) — see §5.01/§5.03/§5.04
 

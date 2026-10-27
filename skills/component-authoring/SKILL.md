@@ -1,6 +1,6 @@
 ---
 name: 'component-authoring'
-version: '1.0.4'
+version: '1.0.5'
 description: "Creates or changes an AI component — an agent, skill, steering file, server definition, or bundle — following that type's schema and checklist, and validates it with aif validate."
 ---
 
