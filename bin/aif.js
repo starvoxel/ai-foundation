@@ -124,8 +124,11 @@ Commands:
 Options:
   -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
+  --scope <scope>       global (default, home directory) or project (this project, to commit)
   --update              Update all installed bundles that are stale
-  --check               Verify without writing (index command)
+  --check               Verify without writing (index command); with install --scope project,
+                        report drift in the committed install
+  --skip-project        install --scope global: skip bundles this project installs at project scope
   -h, --help            Show this help message
 
 Init Options:
@@ -133,12 +136,15 @@ Init Options:
   --language <lang>     Primary language; seeds the standards tags (e.g. csharp, javascript)
   --standards <list>    Comma-separated standard tags (e.g. csharp,avalonia)
   --interactive         Force interactive prompts (flag values as defaults)
+  --with-default-bundles  Also install the default bundles at project scope (Claude Code)
 
 Examples:
   aif install --bundle engineering --harness kiro
   aif install -B engineering -H kiro
   aif install --bundle engineering,product --harness kiro
   aif install --update
+  aif install --scope project -B engineering -H claude
+  aif install --scope project --check
   aif uninstall --bundle engineering --harness kiro
   aif status
   aif list bundles
@@ -195,11 +201,11 @@ export async function run(parsed) {
 
   switch (parsed.command) {
     case 'install':
-      return runInstall(parsed, REPO_ROOT);
+      return runInstall(parsed, REPO_ROOT, process.cwd());
     case 'uninstall':
-      return runUninstall(parsed, REPO_ROOT);
+      return runUninstall(parsed, REPO_ROOT, process.cwd());
     case 'status':
-      return runStatus(parsed, REPO_ROOT);
+      return runStatus(parsed, REPO_ROOT, process.cwd());
     case 'list':
       return runList(parsed, REPO_ROOT);
     case 'validate':

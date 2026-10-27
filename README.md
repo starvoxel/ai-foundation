@@ -54,6 +54,12 @@ aif install --bundle engineering --harness kiro
 aif install --update
 aif uninstall --bundle engineering --harness kiro
 aif status
+
+# Project scope: install into this project's .claude/ (or .kiro/), to commit
+aif install --scope project -B engineering -H claude
+aif install --scope project --update
+aif install --scope project --check   # report drift in the committed install; never fails
+aif status --scope project
 aif list bundles|agents|skills|servers
 
 # Validation
@@ -65,6 +71,7 @@ aif index architecture --check  # verify the architecture index without writing
 
 # Project scaffolding
 aif init --name my-app --shortname myapp --language csharp
+aif init --name my-app --with-default-bundles   # also install the default bundles at project scope
 aif init --interactive
 
 # Config field resolution
@@ -81,6 +88,15 @@ aif config paths.research --abs    # print an absolute path (for paths.* keys)
 | Copilot     | Planned   |
 
 Installs are copies (transformed per-harness), tracked by a manifest for clean uninstall and update detection. The manifest records a hash of each installed source, so `aif status` and `aif install --update` can tell what changed and reinstall only that.
+
+#### Install scope
+
+| Scope              | Writes to                                                                      | Manifest                                                     |
+| ------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `global` (default) | `~/.claude/`, `~/.claude.json`; `~/.kiro/`                                     | `.installs.yaml` in the ai-foundation root, absolute paths   |
+| `project`          | `<project>/.claude/`, `<project>/.mcp.json`; `<project>/.kiro/` (from the cwd) | `.claude/.installs.yaml` or `.kiro/.installs.yaml`, relative |
+
+Commit a project-scope install. It is how a project's agents exist before a session starts, so `"agent"` in `.claude/settings.json` takes effect from the first turn, including in a fresh cloud session. Project scope always reinstalls (the output is committed, so adapter changes must reach it), and writes no machine-specific path. A stdio MCP server is committed without `node_modules` and installs its own dependencies on first start (`npm install --omit=dev --ignore-scripts`, so that start needs network and must finish within Claude Code's 30-second connect timeout, or the server is unavailable for that session); Kiro skips stdio servers. The committed `block-command` hook runs bare `node`, so `node` must be on the hook shell's PATH. Bundles with `default: true` in `bundle.yaml` (today `engineering`) are what `aif init --with-default-bundles` installs. CI runs `--check` as a warning-only step. Kiro's project locations are unverified (arc42 §11). Where each harness reads project files: `docs/research/project-scope-harness-locations.md`.
 
 ---
 
@@ -188,12 +204,12 @@ setup is not cached) before that tool is installed.
 
 Set these in the environment's **Environment variables**, never in the script:
 
-| Variable            | Value                                                                                                                                                      |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.                          |
-| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.                              |
-| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                                  |
-| `AIF_BUNDLES`       | Comma-separated bundles (e.g. `engineering,ai-engineering,generic`) that the SessionStart hook installs with `aif install -H claude`; unset installs none. |
+| Variable            | Value                                                                                                                                                                                                                  |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.                                                                                      |
+| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.                                                                                          |
+| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                                                                                              |
+| `AIF_BUNDLES`       | Extra comma-separated bundles (e.g. `ai-engineering,generic`) that the SessionStart hook installs globally with `aif install -H claude --skip-project`, skipping any the project already commits; unset installs none. |
 
 #### SessionStart hook
 
@@ -202,7 +218,7 @@ sessions only (`CLAUDE_CODE_REMOTE=true`) it runs, in order:
 
 1. `npm ci --ignore-scripts`: this repo's lockfile-pinned dependencies, dev included so a session can run the full CI locally; `aif` needs the production ones (`npm link` alone does not install them). Fails on lockfile drift. A project's own scaffolded SessionStart hook should install production dependencies only (`--omit=dev`).
 2. `npm link --ignore-scripts`: puts `ai-git` and `aif` on PATH.
-3. `aif install -B $AIF_BUNDLES -H claude`, only if `AIF_BUNDLES` is set.
+3. `aif install -B $AIF_BUNDLES -H claude --skip-project`, only if `AIF_BUNDLES` is set. These apply from the next session; a bundle needed from the first turn is committed at project scope instead.
 4. `ai-git doctor`: report only.
 
 Step 1 is the hook's only network step; `gh`, `bws` and
@@ -222,7 +238,7 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
 
 #### Primary agent
 
-`"agent": "engineer"` in `.claude/settings.json` (set in this repo and the project template) makes the engineer the main-thread agent, so its tool set and spawn limits apply instead of the default agent's. The agent must already be installed when Claude Code launches. The SessionStart hook installs bundles after the main agent is resolved, so in a fresh cloud session the engineer is missing and the harness falls back to the default agent without an error. To get it from the first turn, also run `aif install -B engineering -H claude` at the end of the environment's Setup script, after the pinned package is installed.
+`"agent": "engineer"` in `.claude/settings.json` (set in this repo and the project template) makes the engineer the main-thread agent, so its tool set and spawn limits apply instead of the default agent's. The agent must already be installed when Claude Code launches, and the SessionStart hook runs after the agent is resolved. So the agent is committed: this repo carries its `engineering` bundle at project scope in `.claude/`, and a new project gets the same with `aif init --with-default-bundles`. Neither the Setup script nor its cache is involved, so updating the agent is a commit (`aif install --scope project --update`), never a Setup-script edit. If the agent file is missing, the harness falls back to the default agent without an error (arc42 §11).
 
 #### Cloud limits
 
