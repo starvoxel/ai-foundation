@@ -163,7 +163,7 @@ live in `lib/file-utils.js` instead, since they carry no harness-specific
 behavior: `claude.js` and `kiro.js` both import them from there directly (for
 their own `transformSteering()` and skill/server file installation), and so do
 `lib/architecture.js` (`parseFrontmatter()`, to parse
-arc42 YAML frontmatter) and `lib/snapshot/io.js` (`collectFiles()`/
-`hashContent()`, to build source-hash snapshots). None of the latter three
+arc42 YAML frontmatter) and `lib/source-hashes/io.js` (`collectFiles()`/
+`hashContent()`, to compute source hashes). None of the latter three
 touch `TARGETS`/`TOOL_MAP`/`transformAgent`/`transformSteering` or anything else
 harness-specific.

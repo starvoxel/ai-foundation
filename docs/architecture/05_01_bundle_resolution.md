@@ -105,12 +105,12 @@ what actually crosses the file's boundary).
 
 ## Consumers
 
-| Export                                  | Callers                                       | Why                                                                                                                                                                                    |
-| --------------------------------------- | --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `resolveBundle()`                       | `install.js`, `validate.js`, `snapshot/io.js` | The actual install; `validate.js`'s bundle-resolution integrity checks; knowing what a bundle's own snapshot should cover (the closure-expanded `skills` list feeds snapshot hashing). |
-| `listBundles()`                         | The same three, plus `list.js`                | Directory listing shared by every command that enumerates bundles.                                                                                                                     |
-| `listStandards()`                       | `install.js`                                  | Only the install path needs the full standards directory listing.                                                                                                                      |
-| `listServers()` / `listHookResources()` | `snapshot/io.js`                              | Both listings feed snapshot building; `list.js`'s own `servers` output is a separate, local implementation with the same name, not this module's `listServers()`.                      |
+| Export                                  | Callers                                            | Why                                                                                                                                                                                       |
+| --------------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `resolveBundle()`                       | `install.js`, `validate.js`, `source-hashes/io.js` | The actual install; `validate.js`'s bundle-resolution integrity checks; knowing what a bundle's own source hashes should cover (the closure-expanded `skills` list feeds source hashing). |
+| `listBundles()`                         | The same three, plus `list.js`                     | Directory listing shared by every command that enumerates bundles.                                                                                                                        |
+| `listStandards()`                       | `install.js`                                       | Only the install path needs the full standards directory listing.                                                                                                                         |
+| `listServers()` / `listHookResources()` | `source-hashes/io.js`                              | Both listings feed source hashing; `list.js`'s own `servers` output is a separate, local implementation with the same name, not this module's `listServers()`.                            |
 
 Neither harness adapter (`claude.js`/`kiro.js`) calls into `resolver.js` directly —
 they receive an already-resolved component list from `install.js` and only handle
