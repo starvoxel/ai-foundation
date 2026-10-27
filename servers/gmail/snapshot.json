@@ -1,13 +1,13 @@
 {
   "server": "gmail",
-  "computed_at": "2026-10-23T18:44:50.711Z",
+  "computed_at": "2026-10-27T22:26:32.285Z",
   "sources": {
     "servers/gmail/README.md": "sha256:a4e7a5601bb313808c2181a5f351dbea44d7b14b9cd30cc937abd92f82501761",
     "servers/gmail/auth.js": "sha256:f41e9379d6ef8ba2546c3e4b10afed5f20d8cc8bd46ed85298ca69f0a3891a2c",
     "servers/gmail/gmail.yaml": "sha256:bebc2ee5fd576cf24b75ab62aa1aab1673efd1c033ea7cf1d2d1b15ceefb2797",
     "servers/gmail/index.js": "sha256:5b6488dfdf3edcef51ae7e1da3cee37b0969cc2131dc5de5ffc70aea8dd5aa17",
     "servers/gmail/logic.js": "sha256:63fb8b8706b19bb11564c6cacdf514404ac6bc6b0d165fa1ebc93820e064888c",
-    "servers/gmail/package.json": "sha256:bd1676a9c4b77143a913e1826a17ee958dc56117576be170b31697e87b4316fb",
+    "servers/gmail/package.json": "sha256:7e7ca994496b2f9850f51344bb047b038f9f142a89ce821fb713c894e58f616e",
     "servers/gmail/scripts/authorize.js": "sha256:dc5a8b662bfb9c79861b63036a3af0c3f4a1b264915759ddf867736283057099"
   }
 }

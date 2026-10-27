@@ -1,6 +1,6 @@
 ---
 name: javascript_node
-version: 1.0.3
+version: 1.0.4
 description: Node.js runtime conventions for JavaScript projects
 tags: [javascript, node]
 depends_on: [javascript_base]
@@ -18,7 +18,7 @@ This file assumes `javascript_base` is already loaded (per `depends_on`). Langua
 
 | Layer           | Convention                                         |
 | --------------- | -------------------------------------------------- |
-| Runtime         | Node.js 22+ (LTS)                                  |
+| Runtime         | Node.js 22.23.4+ (LTS)                             |
 | Module system   | ES Modules — `"type": "module"` in `package.json`  |
 | Package manager | npm, unless a project standard specifies otherwise |
 | Testing         | Node's built-in `node:test` + `node:assert/strict` |
