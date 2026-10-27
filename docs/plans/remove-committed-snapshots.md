@@ -2,7 +2,7 @@
 
 | Field       | Value                             |
 | ----------- | --------------------------------- |
-| Status      | Draft                             |
+| Status      | Approved                          |
 | Approved by | jeremysmellie@gmail.com (in chat) |
 | Created     | 2026-10-27                        |
 
