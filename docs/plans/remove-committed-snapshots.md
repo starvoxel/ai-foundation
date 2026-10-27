@@ -2,7 +2,7 @@
 
 | Field       | Value                             |
 | ----------- | --------------------------------- |
-| Status      | Approved                          |
+| Status      | Draft                             |
 | Approved by | jeremysmellie@gmail.com (in chat) |
 | Created     | 2026-10-27                        |
 
@@ -22,7 +22,7 @@ Stop committing `snapshot.json` files, which are generated state that conflicts 
 - `install.js` and `status.js` call a single `computeSourceHashes(kind, name, repoRoot)` instead of reading a file. The `sourceHashes` stored in `.installs.yaml` keep the same `path → sha256` shape, so existing installs stay valid and are not reinstalled by this change.
 - Behaviour change in `aif status`: with no committed snapshot there is no "No snapshot found" state; a resource that cannot be hashed is reported as an error instead.
 - `aif snapshot` is removed. `COMMANDS` and the help text lose it; running it gives the CLI's normal unknown-command error.
-- Module and directory names (`lib/snapshot/`, `diffSnapshot`) stay for this change to keep the diff reviewable; see open questions.
+- Rename to match the new flow, since no snapshot exists any more: `lib/snapshot/` becomes `lib/source-hashes/`; `diffSnapshot` becomes `diffSourceHashes`; `computeSourceSnapshot` becomes `computeResourceHashes` and returns the plain `path → sha256` record instead of a `{ sources }` wrapper, so `isFreshnessCurrent` and `diffSourceHashes` take records too; `tests/unit/snapshot.test.js` becomes `tests/unit/source-hashes.test.js`. No behaviour change.
 - Architecture docs affected: 06 (Freshness detection), 05.03, 05.05, 05.01, 05.02 and 03. Each is re-read against the change; sections whose key_files change get edited, not waived.
 
 ## Milestones
@@ -39,7 +39,13 @@ Stop committing `snapshot.json` files, which are generated state that conflicts 
 - Acceptance criteria: no file or config references `snapshot.json` or `aif snapshot`; CI has no snapshot step; `aif install`/`status` work on a clean checkout; `npm run lint`, `typecheck`, `format:check` and `validate` pass.
 - Verified by: `grep` for the removed names; the full CI command list run locally.
 
-### 3. Docs, skills, versions
+### 3a. Rename to the source-hashes flow
+
+- Does: the renames listed under Approach, with every import, JSDoc type and comment updated.
+- Acceptance criteria: no `snapshot` identifier, path or comment remains outside the plan and `docs/research`; behaviour unchanged.
+- Verified by: `grep -ri snapshot` outside the allowed places; `npm test`, lint, typecheck.
+
+### 3b. Docs, skills, versions
 
 - Does: update README (commands list, "Snapshots detect source staleness" line), the authoring skills' checklists (`component-authoring/SKILL.md`, `reference/bundle.md`, `reference/server.md` drop "`aif snapshot` passes"), and the arc42 sections listed above including their `key_files`; bump the versions the version-bump check demands for the changed skills and bundles, and the package version for the removed command.
 - Acceptance criteria: `aif index architecture --check` passes with no unexplained waivers; `aif validate` passes; the version-bump check passes against `main`.
@@ -53,4 +59,5 @@ Stop committing `snapshot.json` files, which are generated state that conflicts 
 ## Decisions
 
 - `aif snapshot` is removed outright, with no deprecation period (human, in chat).
-- `lib/snapshot/` and `diffSnapshot` keep their names for this change; any rename is a separate follow-up (the human asked only for what is needed).
+- Revised after approval: the human asked for the rename in this change (milestone 3a), so it is no longer a follow-up.
+- CI: the snapshot freshness step is removed (done in milestone 2); nothing replaces it because nothing is committed that could go stale.
