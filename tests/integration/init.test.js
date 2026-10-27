@@ -50,6 +50,24 @@ describe('integration: init command', () => {
     assert.equal(code, 1);
   });
 
+  it('installs nothing at project scope without --with-default-bundles', async () => {
+    await quiet(() => runInit({ args: { name: 'plain' }, positional: [] }));
+    assert.ok(!existsSync(join(workDir, 'plain', '.claude', '.installs.yaml')));
+    assert.ok(!existsSync(join(workDir, 'plain', '.claude', 'agents')));
+  });
+
+  it('installs the default bundles at project scope with --with-default-bundles', async () => {
+    const { code, output } = await quiet(() =>
+      runInit({ args: { name: 'with-defaults', 'with-default-bundles': true }, positional: [] }),
+    );
+    assert.equal(code, 0, output.join('\n'));
+    const claude = join(workDir, 'with-defaults', '.claude');
+    assert.ok(existsSync(join(claude, 'agents', 'engineer.md')));
+    const manifest = readFileSync(join(claude, '.installs.yaml'), 'utf8');
+    assert.ok(manifest.includes('engineering_claude'));
+    assert.ok(!manifest.includes('ai-engineering_claude'), 'non-default bundle not installed');
+  });
+
   it('creates the project directory', async () => {
     const { code } = await quiet(() => runInit({ args: { name: 'test-project' }, positional: [] }));
     assert.equal(code, 0);

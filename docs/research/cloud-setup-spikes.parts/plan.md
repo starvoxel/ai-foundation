@@ -1,0 +1,176 @@
+# Feature Plan: Cloud Session Primary Agent Selection
+
+## 1. Metadata
+
+| Field               | Value                                                              |
+| ------------------- | ------------------------------------------------------------------ |
+| Feature ID          | AIF-005                                                            |
+| Project             | ai-foundation                                                      |
+| Status              | Draft                                                              |
+| Author (Agent)      | Engineering Manager (drafted in a Claude Code session)             |
+| Reviewed By         | Pending                                                            |
+| Created             | 2026-09-29 00:00                                                   |
+| Last Updated        | 2026-09-30 03:30                                                   |
+| Standards           | javascript_base, javascript_node                                   |
+| Total Tasks         | Not yet decomposed                                                 |
+| Product Requirement | None                                                               |
+| ADRs                | None yet — see Section 8, item 7 (Setup-script route may need one) |
+
+---
+
+## 2. Goal
+
+A Claude Code cloud session can start as a chosen ai-foundation agent, such as the Engineering-Manager, from its first turn, with the agent selected by the cloud environment. It works for ai-foundation's own sessions and for repos that consume the framework, which need the framework loaded before their code is checked out. Today the `SessionStart` hook installs bundles after the main-thread agent is already resolved, so an installed agent can be dispatched to but never be the primary agent.
+
+Spike evidence is in [`spike-main-thread-agent.md`](./spike-main-thread-agent.md) (moved here from `docs/plans/features/AIF-005/`).
+
+> Requirement traceability: N/A
+
+---
+
+## 3. Quick Summary
+
+**Open Items:** 0 open (0 High / 0 Medium / 0 Low) — see Section 8
+
+---
+
+## 4. Scope
+
+### In Scope
+
+- A documented, repeatable environment Setup-script recipe that fetches a pinned ai-foundation from GitHub, installs the chosen bundles for the Claude harness, relies on AIF-008 for `ai-git`, `gh` and `bws` being on the `PATH` (the steering requires `ai-git` and the installed `block-command` hook blocks raw `git`; until AIF-008 lands, the recipe links `aif` and `ai-git` into `/usr/local/bin` itself), and merges the primary `agent` into the user's `~/.claude/settings.json` without clobbering other settings.
+- Making the real Engineering-Manager viable as a primary agent: the MCP tool-name defect is fixed on `main`; skill loading for a main-thread agent is documented (Section 8, item 3).
+- Verifying the result in a real cloud session, including the recipe's time and network behavior, the manager's tools, and a readable setup log.
+- README cloud-setup guidance for the agent-selection part of the recipe, added on top of the "Claude Code Cloud" section that AIF-008 owns, and any arc42 sections touched by code changes.
+
+### Out of Scope
+
+- Project-scope install (`aif install --scope project`, generating a committed `.claude/`) and the harness-agnostic scope option in the adapter contract: deferred by the human as a follow-up Feature (Section 8, item 8). Spike Tests 1 and 3 show committed project files work.
+- Kiro implementation of project scope and default agent: deferred, recorded as a Kiro gap in `docs/architecture/11_risks.md`.
+- Publishing `aif` to npm: not needed, the public GitHub repo is the source.
+- Choosing different primary agents per repo within one environment.
+- Fixing the `youtrack` MCP proxy 403 seen in cloud sessions.
+- The `block-command` hook only blocking commands that start with a blocked pattern (item 18, tracked separately as AIF-007).
+- The `engineering` bundle not installing `skill/plan-lifecycle` and `adr-authoring` (item 19, tracked separately as AIF-006).
+- Install freshness ignoring adapter code (item 15): cloud environments refresh by incrementing the script's revision variable or changing the pinned ref.
+- Whether `TaskOutput` is a real Claude Code tool (item 16): investigated separately and fixed on `main` if it is not.
+- Orchestration and review process findings from Test E (item 21): invented timestamps, undefined Task statuses, reviewer overrides, reviewers without a shell.
+
+---
+
+## 5. Feature Description
+
+### User-Facing Behaviour
+
+An environment owner saves a short Setup script once, naming the pinned ai-foundation ref, the bundles to install, the primary agent, and a revision number. Every new cloud session in that environment starts as that agent from turn 1, with its persona, tools, and installed rules. To use a different primary agent, use a different environment. To pick up a new ai-foundation version, change the pinned ref in the script. To force a rebuild without changing the ref, increment the revision variable. Either edit rebuilds the cached environment, because any change to the script does.
+
+### Data Flow
+
+The environment Setup script runs before Claude Code launches and before the repo is cloned, as root, and its result is cached. It fetches ai-foundation with `npm install github:starvoxel/ai-foundation#<ref>`, runs `aif install -B <bundles> -H claude` to write agents, rules, skills, standards, servers and the hook script under `~/.claude/`, links `aif` and `ai-git` into `/usr/local/bin` (interim, until AIF-008's `aif install` provides them), verifies the named agent file exists, and merges `{"agent": "<name>"}` into `~/.claude/settings.json`. When a session starts, Claude Code reads the user settings and runs the named agent as the main thread. Any repo `SessionStart` hook, such as this repo's `aif install`, runs afterward and only refreshes files for later sessions.
+
+### Business Rules
+
+- The script always exits 0, because a non-zero exit fails session start, but it must never silently leave a half-provisioned agent: it sets `agent` only after confirming the agent file was installed.
+- The settings merge preserves every existing key, especially permission and deny rules.
+- The script logs what it did and what it skipped to a file a session can read, including the ref and the revision it ran with.
+- The ref stays pinned for safety (the script runs as root), while cache-busting is a separate revision variable: incrementing it forces a rebuild without changing the ref, and any edit to the script rebuilds the environment, so the variable makes that intent explicit and visible in the log.
+- The ai-foundation ref is pinned to a tag or commit SHA; a shared environment never tracks an unpinned branch.
+- No secrets go in the script, since anyone who can use the environment can read it.
+- One environment provides one primary agent.
+- The script is idempotent and has no external side effects, because on the first start after an edit the environment build and the first session appear to run it concurrently.
+
+### Error States
+
+| Scenario                                    | Expected Behaviour                                                                       |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| GitHub or npm unreachable at Setup time     | Log the failure, skip install and the `agent` setting; session runs as the default agent |
+| Named agent not in the installed bundle     | Do not set `agent`; log which agent was missing                                          |
+| `~/.claude/settings.json` is not valid JSON | Leave it untouched, skip the merge, log the parse error                                  |
+| Script runs longer than about five minutes  | Environment is not cached, so every session pays the setup cost                          |
+
+---
+
+## 6. Architecture Overview
+
+### New Components
+
+| Component                 | Type          | Responsibility                                                                                     |
+| ------------------------- | ------------- | -------------------------------------------------------------------------------------------------- |
+| Cloud Setup-script recipe | Documentation | Fetch a pinned `aif`, install bundles, verify and set the primary agent, in a form an owner pastes |
+
+### Modified Components
+
+| Component                   | Change                                                                                                                            |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Claude adapter tool mapping | Map `@server/tool` to `mcp__server__tool`, with unit tests (done on `main`, item 1)                                               |
+| README cloud section        | Add the agent-selection recipe to the section AIF-008 rewrites (AIF-008 owns that section and the `ai-git`, `gh` and `bws` lines) |
+
+### Component Relationships
+
+Builds on §5.02 (Claude adapter) and §6 (install runtime). `resolver.js` and the install pipeline are unchanged. The repo's `SessionStart` hook (`scripts/session-start.sh`) stays as a refresh path.
+
+### Integration Points
+
+- The cloud environment's Setup script field and its caching behavior.
+- The public GitHub repository and the npm registry, fetched at Setup time.
+- `~/.claude/settings.json` and `~/.claude/agents/` as read by Claude Code at session start.
+- AIF-008 (`ai-git` cloud readiness), a hard prerequisite: it puts `ai-git` on the `PATH` through `aif install`, supplies the `gh` and `bws` Setup-script lines and the session-start verification, and owns the README "Claude Code Cloud" section that this recipe is added to.
+- AIF-007 (shell-aware `block-command` hook) and AIF-006 (skill dependencies, so `skill/plan-lifecycle` and `adr-authoring` are installed), soft dependencies: the recipe works without them, and the README recipe lists their absence as recommended-for-real-use limitations until they land.
+
+---
+
+## 7. Security Considerations
+
+- The Setup script runs as root: pin the ref, and note that installing from GitHub runs npm lifecycle scripts, so an unpinned ref lets upstream changes run as root.
+- Environment variables and the script are readable by anyone who uses the environment: keep tokens out, and leave `bws` secrets handling to `secrets.run`.
+- The settings merge must never drop permission or deny rules.
+- Verifying the agent file exists before setting `agent` avoids an unintended fallback to a broader default.
+
+---
+
+## 8. Risks & Open Questions
+
+| #   | Risk / Question                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Type     | Impact | Source | Raised By | Resolved |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ------ | ------ | --------- | -------- |
+| 1   | Resolved: the `@server/tool` defect is fixed on `main` (`f167784`, arc42 §5.02 in `95156a2`). `mapAgentTools()` now rewrites `@server/tool` to `mcp__server__tool` (characters outside `[A-Za-z0-9_-]` become `_`), covered by unit tests; the generated manager frontmatter now carries `mcp__dag__dag-validate` and the other MCP tool names. Not yet seen granted in a cloud session (covered by item 5).                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Question | H      | Spike  | Agent     | Yes      |
+| 2   | Resolved as moot by the human: each agent gets its own environment, and each agent definition owns its own `tools` list, so no single primary-agent tool variant needs deciding.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Question | M      | Spike  | Human     | Yes      |
+| 3   | Accepted by the human: a canary test (local, headless) showed a skill named in an agent's `skills:` frontmatter reaches a subagent's context (it returned the canary token) but not a main-thread agent (`NONE`), so the manager as primary does not get `task-orchestration` and `worktree-management` preloaded. Those skills are still installed and the manager loads them on demand with the Skill tool, so this is not a blocker. Note it in the recipe docs.                                                                                                                                                                                                                                                                                                                                                                                                                | Risk     | M      | Spike  | Human     | Yes      |
+| 4   | Resolved by the human, with a design requirement: the recipe verifies the agent file exists before setting `agent` and writes a log file (`/root/.claude/aif-setup.log`) that a session can read. Confirmed in cloud stage D2: a misspelled agent name left the default agent running, the log said the agent was not set, and no `settings.json` was written.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Question | M      | Spike  | Human     | Yes      |
+| 5   | Resolved by cloud stage C: the real Engineering-Manager, as primary in a real cloud session, loaded `feature-planning` through the Skill tool, drafted and committed a plan as Draft, waited, then committed the approval as its own commit, and treated a one-file feature as a single Task. Not exercised: multi-Task decomposition with both `dag` tools, dispatch, and worktrees (optional rerun, item 20). Permission prompts were not reported.                                                                                                                                                                                                                                                                                                                                                                                                                              | Risk     | M      | Spike  | Human     | Yes      |
+| 6   | Resolved by cloud tests B, A2 and D1 (Trusted network level): the Setup stage fetched the public repo anonymously in 15s with `aif install` taking 3s (19s total), a second session confirmed the environment was cached, a checksum-verified `bws` release binary installed in under a second versus about 3m53s for `cargo install` (decision: use the binary, cargo as fallback only), and bumping the pinned ref rebuilt the environment from a clean image and installed the new ref. The install manifest `.installs.yaml` lands inside `node_modules/ai-foundation/`.                                                                                                                                                                                                                                                                                                       | Risk     | L      | Spike  | Human     | Yes      |
+| 7   | Accepted by the human: no ADR for provisioning through the environment Setup script. The decision and evidence are recorded inline (this plan, the spike doc, README recipe); reopen as an ADR only if the follow-up project-scope Feature revives the fork.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Question | L      | Arch   | Agent     | Yes      |
+| 8   | Resolved by the human: project-scope install (`aif install --scope project`, committed `.claude/`) is a follow-up Feature, not part of this one. Spike Tests 1 and 3 show it is feasible.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Question | L      | Design | Human     | Yes      |
+| 9   | Resolved by design: one environment provides one primary agent, chosen per environment, so the untested project-level `agent` override is not needed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Risk     | L      | Docs   | Human     | Yes      |
+| 10  | Resolved by spike: a custom agent can be the main thread via `agent` in settings or `--agent`, and it can dispatch installed agents as subagents. An agent installed by a `SessionStart` hook is not applied on that run, so the hook cannot provision the primary agent.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Question | H      | Arch   | Agent     | Yes      |
+| 11  | Resolved by cloud tests: the environment Setup script alone provisions the primary agent (user-level `~/.claude/settings.json` plus `~/.claude/agents/`), and that combines with committed project files.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Question | H      | Arch   | Human     | Yes      |
+| 12  | Resolved by the human: how `aif` is obtained. The repo is public, so the Setup script fetches it with `npm install github:starvoxel/ai-foundation#<ref>`; no npm publish is needed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Question | M      | Design | Human     | Yes      |
+| 13  | Resolved, revised per review: editing the Setup script (or allowed hosts) rebuilds the cached environment, so any edit busts the cache. Cache-busting is decoupled from the pinned ref with a revision variable in the script (for example `AIF_SETUP_REV`) that the human increments to force a rebuild without changing the ref; the ref stays pinned for safety because the script runs as root. Bumping the ref was verified in cloud stage D1; a revision-only bump is verified by test D3 in the spike doc.                                                                                                                                                                                                                                                                                                                                                                  | Risk     | M      | Docs   | Human     | Yes      |
+| 14  | Resolved by the human: the cloud environment sets the primary agent at build time; `aif` needs no `--primary` option for cloud. Kiro is deferred and recorded as a Kiro gap in `docs/architecture/11_risks.md`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Question | M      | Design | Human     | Yes      |
+| 15  | Out of scope for this Feature, per the human: install freshness snapshots hash component sources only, not adapter code, so after an adapter fix `aif install` still reports a bundle "already current" and the installed files keep the old transform (observed after the tool-name fix). Cloud environments are unaffected because a fresh VM installs from scratch, and a pinned-ref change (the D1 mechanism, item 6) is how a cloud environment refreshes. Note the constraint: only a human can edit the environment's Setup script, so a refresh always needs a human to bump the ref.                                                                                                                                                                                                                                                                                      | Risk     | L      | Spike  | Human     | Yes      |
+| 16  | Removed from this plan, per the human, and fixed on `main` (`5065036`, arc42 re-verified in `c04bbdb`): a background investigation confirmed `TaskOutput` is deprecated in Claude Code's docs (use `Read` on the task's output file) and removed from the installed CLI (2.1.285), which silently ignores it; the Claude adapter's `task` tool map no longer lists it.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Risk     | L      | Spike  | Human     | Yes      |
+| 17  | Resolved: cloud stage C found `ai-git` was not on the `PATH`, so the manager could not commit. The recipe now links `aif` and `ai-git` into `/usr/local/bin`, and the rerun confirmed `ai-git` works in the session. Still to settle for the recipe: pushing needs a token or the GitHub proxy (a raw `git push` worked through the proxy), and `bws` for `ai-git`'s `secrets.run` is not installed yet.                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Risk     | M      | Spike  | Human     | Yes      |
+| 18  | Out of scope for this Feature, per the human: the installed `block-command` hook matches a `blocked_commands` pattern only at the start of the command, so `cd /repo && git commit`, `(git push)` and `/usr/bin/git status` are allowed. In cloud stage C the manager's raw `git` commits went through under `Claude <noreply@anthropic.com>` instead of the AI identity, contrary to the steering. Affects every agent with `blocked_commands`. Tracked separately (investigation planned as AIF-007); AIF-005 does not address it.                                                                                                                                                                                                                                                                                                                                               | Risk     | M      | Spike  | Agent     | Yes      |
+| 19  | Out of scope for this Feature, per the human: the `engineering` bundle does not install `skill/plan-lifecycle` (or `adr-authoring`) because no agent lists them in `skills:`, yet the steering and `skill/feature-planning` tell agents to follow `skill/plan-lifecycle`; the manager reported it missing in cloud, and local installs are affected too. Tracked separately (optional skill-dependency frontmatter field, planned as AIF-006); AIF-005 does not address it.                                                                                                                                                                                                                                                                                                                                                                                                        | Risk     | M      | Spike  | Agent     | Yes      |
+| 20  | Test E, resolved: the real manager, as primary in a cloud session (permission mode Default or Accept edits), drafted and committed a plan, waited, committed the approval, decomposed it into a valid `tasks.json` (both dag MCP tools were called, per the human's screenshot of the Claude client showing "Used dag: dag-validate" and "Used dag: dag-compute-waves"; waves `[001, 002]` then `[003]`), created two worktrees and branches with `ai-git`, and dispatched two subagents that each committed a Task. All pushed commits are authored by the AI identity. Verified against the pushed commits and by re-running the dag logic on the committed `tasks.json`. The first attempt had stopped on permission-classifier errors ("no verdict") in Auto mode. Process findings from the run are outside this Feature (item 21).                                           | Question | L      | Spike  | Human     | Yes      |
+| 21  | Out of scope for this Feature: process findings from Test E, to be tracked separately. (a) The manager invented timestamps in the plan and state file instead of reading a clock. (b) It used the status `Approved` for Tasks, which the orchestration skill does not define (`Done` needs a PR), and marked a Task Approved although its reviewer's verdict was Needs changes, resting on its own verification. (c) It wrote `wave_started` to the state file before committing it. (d) Principal-Engineer reviewers have no shell, so they flagged checks as unverified and the manager ran them itself. (e) Three raw read-only `git` commands ran despite the ai-git-only instruction (the hook gap tracked separately). (f) `skill/plan-lifecycle` was again missing (tracked separately). (g) Worktree setup skipped dependency install without a warning in the state file. | Risk     | L      | Spike  | Agent     | Yes      |
+| 22  | Resolved by the human: AIF-008 (`ai-git` cloud readiness) is a hard prerequisite, and AIF-006 (skill dependencies) and AIF-007 (shell-aware `block-command`) are soft dependencies. Consequences recorded in this plan: AIF-008 lands first and owns the README "Claude Code Cloud" section and the `ai-git`, `gh` and `bws` Setup-script parts; this recipe is added on top of it and replaces its own interim `ln -sf` of `aif` and `ai-git` once AIF-008 provides them; the README recipe lists AIF-006 and AIF-007 as recommended-for-real-use limitations until they land. The ownership split follows from the sequencing and was not stated separately, so it stands unless the human objects.                                                                                                                                                                              | Question | M      | Arch   | Human     | Yes      |
+
+---
+
+## 9. Task Decomposition
+
+Sequencing: AIF-008 lands first (hard prerequisite, and owner of the README "Claude Code Cloud" section and the `ai-git`, `gh` and `bws` parts); AIF-006 and AIF-007 may land before or after (soft). Not yet decomposed — produced after this plan is Approved (`skill/feature-planning`: "Step 5 — Decompose into Tasks").
+
+---
+
+## 10. Acceptance Criteria
+
+- [ ] All Tasks complete and signed off
+- [ ] Feature works end-to-end as described in Section 5
+- [ ] A new cloud session in an environment provisioned by the documented recipe starts as the configured agent from turn 1, verified in a real cloud session
+- [ ] The manager as primary can call `dag-validate` and `dag-compute-waves` in a real cloud session
+- [ ] The recipe is documented in the README with a pinned ref, a revision variable for cache-busting (verified by bumping only the revision and seeing the environment rebuild), and a measured run time under five minutes
+- [ ] AIF-008 has landed (hard prerequisite), and the README recipe replaces the interim `ln -sf` of `aif` and `ai-git` with what AIF-008 provides; AIF-006 and AIF-007 are listed as recommended-for-real-use limitations until they land
+- [ ] Existing tests pass; any adapter change is covered by unit tests
+- [ ] Affected arc42 sections and `key_files` updated
+- [ ] No HIGH or CRITICAL findings open in any Task review
