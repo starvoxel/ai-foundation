@@ -148,7 +148,7 @@ npm run test:integration   # Filesystem tests
 npm run test:validation    # Real repo checks
 ```
 
-Requires Node.js 22+. Install dependencies: `npm install`.
+Requires Node.js 22.23.4+ (earlier 22.x releases have known security vulnerabilities). Install dependencies: `npm install`.
 
 ### Claude Code Cloud
 
