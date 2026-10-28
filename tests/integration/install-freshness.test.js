@@ -8,11 +8,11 @@ import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 
 import { runInstall } from '../../lib/commands/install.js';
-import { runSnapshot } from '../../lib/commands/snapshot.js';
-import { readManifest } from '../../lib/manifest.js';
+import { runStatus } from '../../lib/commands/status.js';
+import { readManifest, writeManifest } from '../../lib/manifest.js';
 import { TARGETS } from '../../lib/harnesses/kiro.js';
 import { createTempRepo, destroyTempRepo } from '../helpers/fixture.js';
 
@@ -67,8 +67,6 @@ describe('integration: install freshness', () => {
   }
 
   it('skips install when bundle is already current', () => {
-    // Generate snapshot, then install
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
     quiet(() =>
       runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
     );
@@ -81,18 +79,7 @@ describe('integration: install freshness', () => {
     assert.ok(output.some((line) => line.includes('already current')));
   });
 
-  it('installs when no snapshot exists (no freshness data)', () => {
-    // Install without snapshot — should proceed
-    const { code, output } = quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
-    );
-    assert.equal(code, 0);
-    assert.ok(output.some((line) => line.includes('Installed')));
-  });
-
-  it('reinstalls when source changes after snapshot update', () => {
-    // Generate snapshot, install
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
+  it('reinstalls when a source changes after install', () => {
     quiet(() =>
       runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
     );
@@ -101,9 +88,6 @@ describe('integration: install freshness', () => {
     const agentPath = join(repo, 'agents', 'test-agent.yaml');
     const content = readFileSync(agentPath, 'utf8');
     writeFileSync(agentPath, content + '\n# modified', 'utf8');
-
-    // Regenerate snapshot (simulates running aif snapshot after edit)
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
 
     // Now install should proceed (source hashes differ)
     const { code, output } = quiet(() =>
@@ -114,8 +98,6 @@ describe('integration: install freshness', () => {
   });
 
   it('--update skips current bundles', () => {
-    // Generate snapshot, install
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
     quiet(() =>
       runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
     );
@@ -130,17 +112,14 @@ describe('integration: install freshness', () => {
   });
 
   it('--update reinstalls stale bundles', () => {
-    // Generate snapshot, install
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
     quiet(() =>
       runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
     );
 
-    // Modify source and regenerate snapshot
+    // Modify a source file
     const agentPath = join(repo, 'agents', 'test-agent.yaml');
     const content = readFileSync(agentPath, 'utf8');
     writeFileSync(agentPath, content + '\n# modified', 'utf8');
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
 
     // Update should reinstall
     const { code, output } = quiet(() =>
@@ -159,8 +138,7 @@ describe('integration: install freshness', () => {
     assert.ok(output.some((line) => line.includes('Nothing installed')));
   });
 
-  it('stores sourceHashes in manifest when snapshot exists', () => {
-    quiet(() => runSnapshot({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
+  it('stores sourceHashes in the manifest on install', () => {
     quiet(() =>
       runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
     );
@@ -172,13 +150,40 @@ describe('integration: install freshness', () => {
     assert.ok(Object.values(entry.sourceHashes).every((h) => h.startsWith('sha256:')));
   });
 
-  it('does not store sourceHashes when no snapshot exists', () => {
+  it('--update reinstalls a bundle that was recorded without source hashes', () => {
     quiet(() =>
       runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
     );
-
     const manifest = readManifest(repo);
-    const entry = manifest.bundles['test-bundle_kiro'];
-    assert.equal(entry.sourceHashes, undefined);
+    delete manifest.bundles['test-bundle_kiro'].sourceHashes;
+    writeManifest(repo, manifest);
+
+    const { code, output } = quiet(() =>
+      runInstall({ args: { update: true }, positional: [] }, repo),
+    );
+    assert.equal(code, 0);
+    assert.ok(output.some((line) => line.includes('1 updated, 0 current')));
+  });
+
+  it('status reports a changed source and flags the bundle', () => {
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
+    const agentPath = join(repo, 'agents', 'test-agent.yaml');
+    writeFileSync(agentPath, readFileSync(agentPath, 'utf8') + '\n# modified', 'utf8');
+
+    const { output } = quiet(() => runStatus({ args: {}, positional: [] }, repo));
+    assert.ok(output.some((line) => line.includes('Source freshness: 1 changed')));
+    assert.ok(output.some((line) => line.includes('aif install --update')));
+  });
+
+  it('status reports an error, not "current", when a bundle cannot be resolved', () => {
+    quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+    );
+    rmSync(join(repo, 'bundles', 'test-bundle'), { recursive: true, force: true });
+
+    const { output } = quiet(() => runStatus({ args: {}, positional: [] }, repo));
+    assert.ok(output.some((line) => line.includes('Source freshness: cannot check')));
   });
 });

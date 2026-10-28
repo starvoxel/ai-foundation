@@ -2,12 +2,12 @@
 section: '06'
 title: 'Runtime View'
 lifecycle: published
-tags: [runtime, manifest, snapshot, scope]
+tags: [runtime, manifest, freshness, scope]
 key_files:
   - lib/manifest.js
   - lib/commands/install.js
   - lib/commands/uninstall.js
-  - lib/commands/snapshot.js
+  - lib/source-hashes/io.js
 ---
 
 > How installing and uninstalling a bundle actually behaves at runtime, where that
@@ -75,15 +75,18 @@ Drift: `aif install --scope project --check` reinstalls the recorded bundles int
 
 ## Freshness detection
 
-Each bundle, server, and hook resource has its own snapshot of source-file hashes,
-computed independently — a bundle's snapshot covers only bundle-owned sources, never
+Each bundle, server, and hook resource has its own set of source-file hashes,
+computed independently — a bundle's hashes cover only bundle-owned sources, never
 a shared server/hook's files, so a source change to one shared server doesn't appear
-to invalidate every bundle that happens to reference it.
+to invalidate every bundle that happens to reference it. Nothing is stored in the
+repo: `install` records the hashes in the manifest, and `install`/`status` recompute
+them from the sources whenever they need to compare, so parallel branches have no
+generated file to conflict on.
 
 `isCurrent(bundleName, ctx)` (used by `aif status` and to decide
-whether `aif install` is a no-op; project scope never treats a bundle as current) checks two things: the bundle's own snapshot
+whether `aif install` is a no-op; project scope never treats a bundle as current) checks two things: the bundle's own source hashes
 freshness, and — for every server/hook the bundle depends on — whether that
-resource's manifest-recorded hashes still match a freshly computed snapshot of its
+resource's manifest-recorded hashes still match freshly computed hashes of its
 own files. Either being stale marks the bundle not-current. `aif status` reports a
 shared resource's staleness once, rather than duplicating the signal once per
 referencing bundle.

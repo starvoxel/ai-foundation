@@ -1,6 +1,6 @@
 ---
 name: 'component-authoring'
-version: '1.0.4'
+version: '1.0.5'
 description: "Creates or changes an AI component — an agent, skill, steering file, server definition, or bundle — following that type's schema and checklist, and validates it with aif validate."
 ---
 
@@ -35,7 +35,7 @@ Follow the reference's structure and rules. Two rules hold for every type:
 
 ### Step 3 — Validate
 
-Run `aif validate` (schema, cross-references, bundle resolution) and `aif snapshot` if a bundle, server, or hook source changed. Do not hand-check what the tooling checks. Then go through the type's checklist in its reference and bump the component's `version`.
+Run `aif validate` (schema, cross-references, bundle resolution). Do not hand-check what the tooling checks. Then go through the type's checklist in its reference and bump the component's `version`.
 
 ## Outputs
 

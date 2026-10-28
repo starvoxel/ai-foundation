@@ -5,8 +5,8 @@ lifecycle: published
 tags: [building-blocks, core-libraries]
 key_files:
   - lib/manifest.js
-  - lib/snapshot/io.js
-  - lib/snapshot/pure.js
+  - lib/source-hashes/io.js
+  - lib/source-hashes/pure.js
   - lib/project-init.js
   - lib/ai-git.js
   - lib/doctor-probe.js
@@ -23,7 +23,7 @@ key_files:
 
 > `lib/*.js`'s harness-agnostic support libraries, excluding `resolver.js`
 > (§5.01), `lib/harnesses/*` (§5.02), and the architecture indexing
-> library (§5.04) — manifest tracking, snapshot diffing, project scaffolding, and
+> library (§5.04) — manifest tracking, source-hash diffing, project scaffolding, and
 > shared constants that every command reuses.
 
 ## Motivation
@@ -49,7 +49,7 @@ the way §5.01's or §5.04's content does.
 | -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `manifest.js`                                                  | Tracks every file `aif install` writes, per bundle/server/hook, in `.installs.yaml` — what `uninstall` reads to know what to remove, and what a reinstall compares against to find leftovers (`orphanedPaths`) and what uninstall consults to keep files another bundle still owns (`splitOwnedPaths`). Paths are absolute in memory; a project-scope manifest stores them relative to the project with forward slashes, so the committed file is the same on every machine.                                                                                                            | `readManifest(dir, base?)`/`writeManifest(dir, data, base?)`, `mapManifestPaths()`, `toStoredPath()`/`fromStoredPath()`, `get/set/removeSectionEntry()`, `orphanedPaths()`, `splitOwnedPaths()` |
 | `scope.js`                                                     | Install scope (`global` or `project`): parses `--scope` and says where each scope's manifest lives and whether its paths are stored relative (`manifestLocation`). Pure.                                                                                                                                                                                                                                                                                                                                                                                                                | `parseScope()`, `manifestLocation()`, `SCOPES`, `PROJECT_HARNESS_DIRS`                                                                                                                          |
-| `snapshot/io.js` + `snapshot/pure.js`                          | Builds and diffs source-file-hash snapshots per bundle/server/hook to detect drift between installed output and current source.                                                                                                                                                                                                                                                                                                                                                                                                                                                         | `buildSnapshot()`, `diffSnapshot()`, `isFreshnessCurrent()`                                                                                                                                     |
+| `source-hashes/io.js` + `source-hashes/pure.js`                | Computes source-file hashes per bundle/server/hook on demand and diffs them against the hashes recorded at install, to detect drift between installed output and current source.                                                                                                                                                                                                                                                                                                                                                                                                        | `computeResourceHashes()`, `diffSourceHashes()`, `isFreshnessCurrent()`                                                                                                                         |
 | `project-init.js`                                              | Validates project name/shortname, generates `.aiconfig.json` content (a `--language` value seeds the standards tags unless explicit tags are given), applies the project-name placeholders to template files.                                                                                                                                                                                                                                                                                                                                                                           | `buildAiConfig()`, `applyProjectConfig()`                                                                                                                                                       |
 | `ai-git.js`                                                    | Pure logic behind the `ai-git` CLI: identity resolution, env injection, gh-command detection, auth-arg construction, and the pure `ai-git doctor` report (its wrapper token probe is the argv-safe, transport-independent `doctor-probe.js`).                                                                                                                                                                                                                                                                                                                                           | `getIdentity()`, `buildGitEnv()`, `buildGhEnv()`, `buildDoctorReport()`                                                                                                                         |
 | `secrets.js`                                                   | Pure logic behind provider-agnostic secrets resolution for `ai-git`: reads `secrets.run`/`secrets.allow_insecure_dotenv` out of a parsed `.aiconfig.json`, resolves `${VAR}` placeholders, parses `.env`-format text, builds a re-exec-through-wrapper invocation with a fixed argv, encodes/decodes the original arguments as JSON for transport in `AIF_REEXEC_ARGS` (with a size guard; wrappers shell-join argv, so user arguments never travel in it), and describes the unresolved-token failure policy. Never resolves a secret value itself — that's the wrapper command's job. | `getSecretsConfig()`, `resolvePlaceholders()`, `parseDotenv()`, `buildWrapperInvocation()`, `isAlreadyWrapped()`, `encodeReexecArgs()`, `decodeReexecArgs()`, `describeTokenFailure()`          |
@@ -61,7 +61,7 @@ the way §5.01's or §5.04's content does.
 ## Consumers
 
 `lib/commands/*` is the primary caller of each library above — `install.js`/
-`uninstall.js` use `manifest.js`; `snapshot.js` uses `snapshot/io.js`; `init.js`
+`uninstall.js` use `manifest.js`; `install.js`/`status.js` use `source-hashes/io.js`; `init.js`
 uses `project-init.js`; `index.js` uses `aiconfig.js` for path resolution (see
 §5.04 for `architecture.js` itself); `config.js` uses
 `aiconfig.js` directly. `bin/ai-git.js` is the sole caller of both `ai-git.js`
@@ -74,5 +74,5 @@ actually needs the push/auth token, never for read-only operations like
 JSDoc-only types are referenced (via `@param {import('./component-defs.js').X}`
 comments, never a runtime `import`) only by the three `lib/harnesses/*` files,
 not repo-wide. `file-utils.js` has the widest reach of any block in this
-table: `lib/harnesses/base.js`/`claude.js`/`kiro.js` (§5.02), `snapshot/io.js`
+table: `lib/harnesses/base.js`/`claude.js`/`kiro.js` (§5.02), `source-hashes/io.js`
 (this table), `lib/architecture.js` (§5.04), and `lib/commands/validate.js`'s citation checker and frontmatter reading (§5.05) all import from it directly — `nonFencedLines()` specifically is shared by `architecture.js`'s relative-link extractor and `validate.js`'s citation checker, the one piece of logic those two otherwise-unrelated checks would each have hand-rolled separately.

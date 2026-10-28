@@ -65,12 +65,6 @@ aif list bundles|agents|skills|servers
 # Validation
 aif validate [schema|refs|bundles]
 
-# Source freshness
-aif snapshot --check
-aif snapshot
-aif snapshot --bundle             # every bundle's snapshot (bare flag = all of that kind)
-aif snapshot --bundle engineering # one bundle's snapshot
-
 # Architecture indexing
 aif index architecture          # generate docs/architecture/index.json
 aif index architecture --check  # verify the architecture index without writing
@@ -93,7 +87,7 @@ aif config paths.research --abs    # print an absolute path (for paths.* keys)
 | Claude Code | Supported |
 | Copilot     | Planned   |
 
-Installs are copies (transformed per-harness), tracked by a manifest for clean uninstall and update detection. Snapshots detect source staleness so `aif install --update` only reinstalls what changed.
+Installs are copies (transformed per-harness), tracked by a manifest for clean uninstall and update detection. The manifest records a hash of each installed source, so `aif status` and `aif install --update` can tell what changed and reinstall only that.
 
 #### Install scope
 
