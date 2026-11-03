@@ -266,7 +266,7 @@ function repoSlug(argv) {
   try {
     url = runAiGit(['remote', 'get-url', 'origin']);
   } catch (err) {
-    throw new Error(`Cannot derive the repo (${err.message}); pass --repo owner/name`);
+    throw new Error(`Cannot derive the repo (${err.message}); pass --repo owner/name`, { cause: err });
   }
   const slug = parseRepoSlug(url);
   if (!slug) throw new Error('Cannot derive the repo; pass --repo owner/name');

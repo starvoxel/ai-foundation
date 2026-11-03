@@ -12,7 +12,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { delimiter, join } from 'node:path';
+import { delimiter } from 'node:path';
 
 import {
   buildMap,
