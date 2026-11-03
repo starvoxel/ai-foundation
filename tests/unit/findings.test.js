@@ -12,6 +12,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { delimiter, join } from 'node:path';
 
 import {
   buildMap,
@@ -20,6 +21,8 @@ import {
   parseRepoSlug,
   parseBody,
   planFiling,
+  resolveAiGit,
+  runAiGit,
   severityOf,
   staleKeys,
 } from '../../skills/findings/scripts/findings.js';
@@ -121,5 +124,64 @@ describe('unit: parseRepoSlug', () => {
     assert.equal(parseRepoSlug('https://github.com/o/my.repo.git'), 'o/my.repo');
     assert.equal(parseRepoSlug('git@github.com:o/r.git'), 'o/r');
     assert.equal(parseRepoSlug('https://example.com/o/r'), null);
+  });
+});
+
+describe('unit: findings ai-git spawning', () => {
+  const shimText = String.raw`"%_prog%"  "%dp0%\node_modules\ai-foundation\bin\ai-git.js" %*`;
+  const winEnv = (over = {}) => ({
+    platform: 'win32',
+    pathEnv: ['/other', '/npm'].join(delimiter),
+    execPath: '/node',
+    exists: (p) => p.endsWith('ai-git.cmd') || p.endsWith('ai-git.js'),
+    readText: () => shimText,
+    ...over,
+  });
+
+  it('runs ai-git by name off Windows', () => {
+    assert.deepEqual(resolveAiGit(['x'], { platform: 'linux' }), {
+      command: 'ai-git',
+      args: ['x'],
+    });
+  });
+
+  it('runs the npm shim target with node on Windows, args verbatim, no shell', () => {
+    const args = ['gh-api', '-f', 'title=a "b" & c\nd'];
+    const r = resolveAiGit(args, winEnv());
+    assert.equal(r.command, '/node');
+    assert.deepEqual(r.args.slice(1), args);
+    assert.match(r.args[0], /node_modules.ai-foundation.bin.ai-git\.js$/);
+  });
+
+  it('falls back to the bare name when no shim is found', () => {
+    assert.deepEqual(resolveAiGit(['x'], winEnv({ exists: () => false })), {
+      command: 'ai-git',
+      args: ['x'],
+    });
+  });
+
+  it('includes the spawn error cause and exit status on failure', () => {
+    const spawn = () => ({ status: null, error: new Error('spawnSync ai-git ENOENT') });
+    assert.throws(
+      () => runAiGit(['gh-api', 'x'], { spawn }),
+      /ai-git gh-api failed: spawnSync ai-git ENOENT; exit status null/,
+    );
+  });
+
+  it('reports stderr on a non-zero exit', () => {
+    const spawn = () => ({ status: 1, stderr: 'boom\n', stdout: '' });
+    assert.throws(() => runAiGit(['remote'], { spawn }), /exit status 1: boom$/);
+  });
+
+  it('returns stdout on success, forwards stdin, and uses no shell', () => {
+    let seen;
+    const spawn = (command, args, opts) => {
+      seen = opts;
+      return { status: 0, stdout: 'ok' };
+    };
+    const resolveCmd = (args) => ({ command: 'c', args });
+    assert.equal(runAiGit(['gh-api'], { input: 'in', spawn, resolveCmd }), 'ok');
+    assert.equal(seen.input, 'in');
+    assert.equal(seen.shell, undefined);
   });
 });
