@@ -32,7 +32,7 @@
     "skills/review-severity/SKILL.md": "sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de",
     "skills/review-severity/reference/template.md": "sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5",
     "skills/findings/SKILL.md": "sha256:8ce477b6869ebc0af4c7cb3e4e8018bffac8437e830ee8ac665b9629293444b2",
-    "skills/findings/scripts/findings.js": "sha256:c9c4e980b929709676ed6fb23929abdbf94f9c95dcdbb1665281ec23e094f584",
+    "skills/findings/scripts/findings.js": "sha256:ca4ebf8831d7920b0411a13de4de15e8212bf6cbaecfa62eb1218f4361564d53",
     "skills/code-review/SKILL.md": "sha256:95c98530ed5e5e7984f0a3bfd334e73bbd9e7423a27f48649d1da074e95d67c5",
     "skills/ai-component-review/SKILL.md": "sha256:66c5f91534f16572bd5c493c988d4a4eb0c777c764ee5bf01e72762b91ef5963"
   }
