@@ -149,6 +149,44 @@ describe('architecture index — real git integration', () => {
     assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
   });
 
+  it('is not stale when a branch merges base twice and the doc update arrives in the second merge', () => {
+    commitCodeThenDoc();
+    const base = git(repoRoot, 'rev-parse', '--abbrev-ref', 'HEAD');
+    git(repoRoot, 'checkout', '-q', '-b', 'feature');
+    writeFileSync(join(repoRoot, 'unrelated.txt'), 'x');
+    commitAll(repoRoot, 'unrelated work on feature');
+
+    git(repoRoot, 'checkout', '-q', base);
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    writeFileSync(join(repoRoot, DOC), sectionContent() + '\nUpdated.\n');
+    commitAll(repoRoot, 'change both on base');
+    git(repoRoot, 'checkout', '-q', 'feature');
+    git(repoRoot, 'merge', '-q', '--no-ff', '-m', 'Merge base into feature', base);
+
+    git(repoRoot, 'checkout', '-q', base);
+    writeFileSync(join(repoRoot, DOC), sectionContent() + '\nUpdated again.\n');
+    commitAll(repoRoot, 'edit doc on base');
+    git(repoRoot, 'checkout', '-q', 'feature');
+    git(repoRoot, 'merge', '-q', '--no-ff', '-m', 'Merge base into feature again', base);
+
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), false);
+  });
+
+  it('is still stale when a key_file change on a merged branch was never seen by the doc', () => {
+    commitCodeThenDoc();
+    const base = git(repoRoot, 'rev-parse', '--abbrev-ref', 'HEAD');
+    git(repoRoot, 'checkout', '-q', '-b', 'feature');
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    commitAll(repoRoot, 'change thing.js on feature');
+
+    git(repoRoot, 'checkout', '-q', base);
+    writeFileSync(join(repoRoot, DOC), sectionContent() + '\nEdited without feature.\n');
+    commitAll(repoRoot, 'edit doc on base');
+
+    git(repoRoot, 'merge', '-q', '--no-ff', '-m', 'Merge feature', 'feature');
+    assert.equal(isStaleAgainstGit({ key_files: ['src/thing.js'] }, repoRoot, DOC), true);
+  });
+
   it('is stale if ANY of several key_files changed, not just the first', () => {
     commitCodeThenDoc(['src/a.js', 'src/b.js']);
     writeFileSync(join(repoRoot, 'src', 'b.js'), 'b2');
