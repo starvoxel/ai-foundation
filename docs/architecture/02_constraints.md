@@ -5,7 +5,6 @@ lifecycle: published
 tags: [constraints]
 key_files:
   - package.json
-  - package-lock.json
   - tsconfig.json
   - lib/harnesses/base.js
   - lib/resolver.js
@@ -40,7 +39,7 @@ key_files:
 
 | Convention                                 | Detail                                                                                                                                                                                    |
 | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `node:test` over a third-party test runner | Jest/Vitest/Mocha appear nowhere in `package-lock.json` — the built-in `node:test` runner is used throughout `tests/`. A tooling choice, not an externally-imposed constraint.            |
+| `node:test` over a third-party test runner | Jest/Vitest/Mocha appear nowhere in `package.json` — the built-in `node:test` runner is used throughout `tests/`. A tooling choice, not an externally-imposed constraint.                 |
 | Commit messages                            | Imperative mood, under 70 characters (`steering/engineering/git-workflow.md`: "Commit Small, Verified Increments").                                                                       |
 | Branch naming                              | Free-form but descriptive (`steering/engineering/git-workflow.md`: "Land Work Through a Branch and PR"). A `push-check/{short-description}` branch gets a commit its CI run without a PR. |
 | Artifact file naming                       | The directory identifies the kind of file: plans are `{paths.plans}/{short-name}.md`, product docs `{paths.product}/{short-name}.md` (`steering/engineering/document-types.md`).          |
