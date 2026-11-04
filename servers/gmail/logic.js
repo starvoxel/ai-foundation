@@ -84,7 +84,7 @@ export function buildReplySubject(originalSubject = '') {
 /**
  * Find a header value by name (case-insensitive) from a Gmail payload's
  * headers array.
- * @param {import('googleapis').gmail_v1.Schema$MessagePartHeader[]} headers
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$MessagePartHeader[]} headers
  * @param {string} name
  * @returns {string}
  */
@@ -96,7 +96,7 @@ export function getHeader(headers = [], name) {
 /**
  * Recursively walk a Gmail message payload to extract plain-text body,
  * HTML body, and attachment metadata.
- * @param {import('googleapis').gmail_v1.Schema$MessagePart} payload - Gmail API message.payload
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$MessagePart} payload - Gmail API message.payload
  * @returns {{ body_text: string, body_html: string, attachments: { attachment_id: string, filename: string, mime_type: string, size: number }[] }}
  */
 export function extractBodyAndAttachments(payload) {
@@ -189,7 +189,7 @@ export function buildFilterAction({ add_label_ids, remove_label_ids, forward } =
 
 /**
  * Shape a Gmail API `criteria` object back to the tool's snake_case output.
- * @param {import('googleapis').gmail_v1.Schema$FilterCriteria} [criteria]
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$FilterCriteria} [criteria]
  * @returns {object}
  */
 export function shapeFilterCriteriaOut(criteria = {}) {
@@ -208,7 +208,7 @@ export function shapeFilterCriteriaOut(criteria = {}) {
 
 /**
  * Shape a Gmail API `action` object back to the tool's snake_case output.
- * @param {import('googleapis').gmail_v1.Schema$FilterAction} [action]
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$FilterAction} [action]
  * @returns {object}
  */
 export function shapeFilterActionOut(action = {}) {
@@ -221,7 +221,7 @@ export function shapeFilterActionOut(action = {}) {
 
 /**
  * Shape a full Gmail API filter resource into the tool's documented output.
- * @param {import('googleapis').gmail_v1.Schema$Filter} filter
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$Filter} filter
  * @returns {{ id: string, criteria: object, action: object }}
  */
 export function shapeFilter(filter) {
@@ -331,7 +331,7 @@ export function isRateLimitError(err) {
 
 /**
  * Shape a full Gmail message resource into the tool's documented output.
- * @param {import('googleapis').gmail_v1.Schema$Message} msg - Gmail API messages.get response (format=full)
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$Message} msg - Gmail API messages.get response (format=full)
  * @returns {object}
  */
 export function shapeFullMessage(msg) {
@@ -355,7 +355,7 @@ export function shapeFullMessage(msg) {
 
 /**
  * Shape a message list-item into the tool's documented summary output.
- * @param {import('googleapis').gmail_v1.Schema$Message} msg
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$Message} msg
  * @returns {{ id: string, thread_id: string, snippet: string }}
  */
 export function shapeMessageSummary(msg) {
@@ -364,7 +364,7 @@ export function shapeMessageSummary(msg) {
 
 /**
  * Shape a draft resource into the tool's documented output.
- * @param {import('googleapis').gmail_v1.Schema$Draft} draft - Gmail API drafts.get response
+ * @param {import('@googleapis/gmail').gmail_v1.Schema$Draft} draft - Gmail API drafts.get response
  * @returns {object}
  */
 export function shapeFullDraft(draft) {
@@ -384,7 +384,7 @@ export function shapeFullDraft(draft) {
 
 /**
  * Tool: gmail-list-messages
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ query?: string, label_ids?: string[], max_results?: number, page_token?: string }} params
  */
 export async function listMessages(
@@ -406,7 +406,7 @@ export async function listMessages(
 
 /**
  * Tool: gmail-get-message
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, format?: 'full'|'metadata' }} params
  */
 export async function getMessage(gmail, { message_id, format = 'full' }) {
@@ -416,7 +416,7 @@ export async function getMessage(gmail, { message_id, format = 'full' }) {
 
 /**
  * Tool: gmail-get-attachment
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, attachment_id: string }} params
  */
 export async function getAttachment(gmail, { message_id, attachment_id }) {
@@ -444,7 +444,7 @@ export async function getAttachment(gmail, { message_id, attachment_id }) {
 
 /**
  * Tool: gmail-list-labels
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  */
 export async function listLabels(gmail) {
   const { data } = await gmail.users.labels.list({ userId: 'me' });
@@ -455,7 +455,7 @@ export async function listLabels(gmail) {
 
 /**
  * Tool: gmail-list-drafts
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ max_results?: number, page_token?: string }} params
  */
 export async function listDrafts(gmail, { max_results = 25, page_token } = {}) {
@@ -476,7 +476,7 @@ export async function listDrafts(gmail, { max_results = 25, page_token } = {}) {
 
 /**
  * Tool: gmail-get-draft
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ draft_id: string }} params
  */
 export async function getDraft(gmail, { draft_id }) {
@@ -486,7 +486,7 @@ export async function getDraft(gmail, { draft_id }) {
 
 /**
  * Tool: gmail-modify-labels (reversible)
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, add_label_ids?: string[], remove_label_ids?: string[] }} params
  */
 export async function modifyLabels(
@@ -503,7 +503,7 @@ export async function modifyLabels(
 
 /**
  * Tool: gmail-trash-message (reversible — Trash, not permanent delete)
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_id: string }} params
  */
 export async function trashMessage(gmail, { message_id }) {
@@ -513,7 +513,7 @@ export async function trashMessage(gmail, { message_id }) {
 
 /**
  * Tool: gmail-create-draft (additive, not a send)
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ to: string[], subject: string, body: string, cc?: string[], bcc?: string[] }} params
  */
 export async function createDraft(gmail, params) {
@@ -527,7 +527,7 @@ export async function createDraft(gmail, params) {
 
 /**
  * Tool: gmail-create-label (additive, reversible via gated gmail-delete-label)
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ name: string }} params
  */
 export async function createLabel(gmail, { name }) {
@@ -539,7 +539,7 @@ export async function createLabel(gmail, { name }) {
  * Tool: gmail-send-message — IRREVERSIBLE. Callers (index.js) must not invoke
  * this without the human approval required by
  * steering/generic/gmail-irreversible-action-approval.md.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ to: string[], subject: string, body: string, cc?: string[], bcc?: string[] }} params
  */
 export async function sendMessage(gmail, params) {
@@ -550,7 +550,7 @@ export async function sendMessage(gmail, params) {
 
 /**
  * Tool: gmail-send-draft — IRREVERSIBLE. Steering-gated, see sendMessage.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ draft_id: string }} params
  */
 export async function sendDraft(gmail, { draft_id }) {
@@ -560,7 +560,7 @@ export async function sendDraft(gmail, { draft_id }) {
 
 /**
  * Tool: gmail-reply-message — IRREVERSIBLE. Steering-gated, see sendMessage.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_id: string, body: string, reply_all?: boolean }} params
  */
 export async function replyMessage(gmail, { message_id, body, reply_all = false }) {
@@ -604,7 +604,7 @@ export async function replyMessage(gmail, { message_id, body, reply_all = false 
 /**
  * Tool: gmail-delete-message — IRREVERSIBLE (permanent, bypasses Trash).
  * Steering-gated, see sendMessage.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_id: string }} params
  */
 export async function deleteMessage(gmail, { message_id }) {
@@ -614,7 +614,7 @@ export async function deleteMessage(gmail, { message_id }) {
 
 /**
  * Tool: gmail-delete-draft — IRREVERSIBLE (permanent). Steering-gated, see sendMessage.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ draft_id: string }} params
  */
 export async function deleteDraft(gmail, { draft_id }) {
@@ -625,7 +625,7 @@ export async function deleteDraft(gmail, { draft_id }) {
 /**
  * Tool: gmail-delete-label — IRREVERSIBLE (permanent, removes label from
  * every message it's applied to). Steering-gated, see sendMessage.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ label_id: string }} params
  */
 export async function deleteLabel(gmail, { label_id }) {
@@ -638,7 +638,7 @@ export async function deleteLabel(gmail, { label_id }) {
 
 /**
  * Tool: gmail-list-filters (read-only)
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  */
 export async function listFilters(gmail) {
   const { data } = await gmail.users.settings.filters.list({ userId: 'me' });
@@ -648,7 +648,7 @@ export async function listFilters(gmail) {
 /**
  * Tool: gmail-create-filter (additive, reversible via gmail-delete-filter).
  * Only affects future mail — see gmail-batch-modify-labels for backfilling.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {Parameters<typeof buildFilterCriteria>[0] & Parameters<typeof buildFilterAction>[0]} params
  */
 export async function createFilter(gmail, params = {}) {
@@ -663,7 +663,7 @@ export async function createFilter(gmail, params = {}) {
 /**
  * Tool: gmail-delete-filter (removes the rule only; not gated — see
  * gmail.yaml description for rationale).
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ filter_id: string }} params
  */
 export async function deleteFilter(gmail, { filter_id }) {
@@ -674,7 +674,7 @@ export async function deleteFilter(gmail, { filter_id }) {
 /**
  * Tool: gmail-batch-modify-labels (reversible — add/remove labels across
  * many messages). Chunks internally at the API's 1000-id-per-call limit.
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ message_ids: string[], add_label_ids?: string[], remove_label_ids?: string[] }} params
  */
 export async function batchModifyLabels(
@@ -707,7 +707,7 @@ const SENDER_REPORT_MAX_SCAN = 5000;
 /**
  * Fetch From/Subject metadata for one message, retrying with exponential
  * backoff on rate-limit responses (429, or 403 rate-limit reasons).
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {string} messageId
  * @param {{ retries?: number, baseDelayMs?: number }} [opts]
  * @returns {Promise<{ from: string, subject: string }>}
@@ -745,7 +745,7 @@ async function getMessageMetadataForReport(
  * From/Subject metadata only — never message bodies — using
  * capped-concurrency requests rather than the Gmail API's raw HTTP batch
  * endpoint (see plan for rationale).
- * @param {import('googleapis').gmail_v1.Gmail} gmail
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail} gmail
  * @param {{ query?: string, max_senders?: number }} params
  */
 export async function senderReport(gmail, { query = '', max_senders = 50 } = {}) {

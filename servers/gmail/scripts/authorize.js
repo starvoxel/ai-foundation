@@ -21,7 +21,7 @@
 
 import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
-import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 import { GMAIL_SCOPES, resolveTokenPath, saveTokenFile } from '../auth.js';
 
@@ -35,7 +35,7 @@ const REDIRECT_URI = `http://127.0.0.1:${LOOPBACK_PORT}/oauth2callback`;
  */
 export function runAuthorizeFlow({ clientId, clientSecret }) {
   return new Promise((resolve, reject) => {
-    const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, REDIRECT_URI);
+    const oauth2Client = new OAuth2Client(clientId, clientSecret, REDIRECT_URI);
     const authUrl = oauth2Client.generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent', // forces a refresh_token to be issued even on repeat authorizations
