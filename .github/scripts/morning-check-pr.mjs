@@ -50,21 +50,23 @@ export function planPr({ branch, openPrs, findings }) {
 }
 
 /**
- * PR description for a fix. Pure.
+ * PR description for a fix, kept short: a bot PR is not a feature branch, so it
+ * has the template's Summary and Testing notes and nothing else. Pure.
  *
- * @param {Check} check
- * @param {string[]} findings
+ * @param {{check: Check, findings: string[], changed: string[]}} input
+ *   `changed` lists the files the fix changed.
  * @returns {string}
  */
-export function renderPrBody(check, findings) {
+export function renderPrBody({ check, findings, changed }) {
+  const fix = /** @type {import('./morning-check.mjs').PrFix} */ (check.prFix);
   return [
-    `The morning check found ${findings.length} item(s) for **${check.title}**:`,
+    '## Summary',
     '',
-    ...findings.map((f) => `- \`${f}\``),
+    `${fix.summary} Regenerated with \`${fix.fixCommand}\` (${changed.length} file(s) changed).`,
     '',
-    `This PR is the fix: ${check.fix}`,
+    '## Testing notes',
     '',
-    'Opened by `.github/workflows/morning-check.yml`. A later run closes it as superseded if the fix changes, or because the check passes without it.',
+    `\`${fix.verifyCommand}\` reported ${findings.length} drifted file(s) before and none after.`,
   ].join('\n');
 }
 
@@ -184,6 +186,8 @@ export async function publishFix({
     if (!git(repoRoot, ['status', '--porcelain'])) {
       throw new Error(`${check.id}: the fix changed nothing`);
     }
+    const changed = git(repoRoot, ['diff', '--cached', '--name-only']).split('\n').filter(Boolean);
+    const title = check.prFix.prTitle(findings);
 
     const branch = branchFor(check.id, git(repoRoot, ['write-tree']));
     const plan = planPr({
@@ -208,15 +212,16 @@ export async function publishFix({
       if (process.env.GITHUB_ACTIONS === 'true') console.log(`::add-mask::${basicAuth(token)}`);
 
       git(repoRoot, ['checkout', '-q', '-b', branch]);
-      git(repoRoot, ['commit', '-q', '-m', check.prFix.commitMessage], env);
+      const message = `${title}\n\nGenerated with \`${check.prFix.fixCommand}\`.`;
+      git(repoRoot, ['commit', '-q', '-m', message], env);
       git(repoRoot, ['push', '-q', remoteUrl, `HEAD:refs/heads/${branch}`], env);
       const base = (await botApi.request('GET', `/repos/${repo}`)).data.default_branch;
       created = (
         await botApi.request('POST', `/repos/${repo}/pulls`, {
-          title: check.prFix.prTitle,
+          title,
           head: branch,
           base,
-          body: renderPrBody(check, findings),
+          body: renderPrBody({ check, findings, changed }),
         })
       ).data;
     }

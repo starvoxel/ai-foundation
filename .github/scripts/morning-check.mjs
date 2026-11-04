@@ -70,8 +70,10 @@ export const FORCE_WEEKDAY = 1;
  *
  * @typedef {object} PrFix
  * @property {(repoRoot: string) => void} apply  Edits the working tree to clear the findings.
- * @property {string} commitMessage
- * @property {string} prTitle
+ * @property {(findings: string[]) => string} prTitle  Imperative, under 70 characters, and specific to what was found.
+ * @property {string} summary  One sentence on why the PR exists, for its Summary.
+ * @property {string} fixCommand  The command `apply` runs, shown in the PR and the commit message.
+ * @property {string} verifyCommand  The command that reports the findings, to show before and after.
  *
  * @typedef {object} Issue
  * @property {number} number
@@ -124,6 +126,45 @@ function runInstallDrift(repoRoot) {
 }
 
 /**
+ * The components named by `changed:`, `missing:` or `retired:` install findings,
+ * from paths like `.claude/rules/engineering-git-workflow.md` or
+ * `.claude/skills/oversight/SKILL.md`. The manifest is left out: it changes with
+ * every one of them, so it says nothing about what drifted. Pure.
+ *
+ * @param {string[]} findings
+ * @returns {string[]} Unique names in first-seen order.
+ */
+export function installComponentNames(findings) {
+  const names = [];
+  for (const finding of findings) {
+    const path = finding.replace(/^\w+: /, '');
+    const m = path.match(/^\.claude\/[^/]+\/([^/]+)(\/|$)/);
+    if (!m) continue;
+    const name = m[1].replace(/\.[^.]+$/, '');
+    if (!names.includes(name)) names.push(name);
+  }
+  return names;
+}
+
+/** The longest PR title the repo's PR standards allow. */
+export const MAX_TITLE = 70;
+
+/**
+ * PR title for an install refresh, naming what drifted, or how many components
+ * when the names would not fit. Pure.
+ *
+ * @param {string[]} findings
+ * @returns {string}
+ */
+export function installDriftTitle(findings) {
+  const names = installComponentNames(findings);
+  if (names.length === 0) return 'Refresh the committed install manifest';
+  const named = `Refresh the committed install of ${names.join(' and ')}`;
+  if (names.length <= 2 && named.length <= MAX_TITLE) return named;
+  return `Refresh the committed install of ${names.length} components`;
+}
+
+/**
  * Refreshes the committed install in place; the check then passes.
  *
  * @param {string} repoRoot
@@ -158,8 +199,10 @@ export const CHECKS = [
     report: 'pr',
     prFix: {
       apply: refreshInstall,
-      commitMessage: 'Refresh committed project-scope engineering install',
-      prTitle: 'Refresh committed project-scope engineering install',
+      prTitle: installDriftTitle,
+      summary: 'The committed `.claude/` install no longer matches its sources.',
+      fixCommand: 'aif install --scope project --update',
+      verifyCommand: 'aif install --scope project --check',
     },
   },
 ];

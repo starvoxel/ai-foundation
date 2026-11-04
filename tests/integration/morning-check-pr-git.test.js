@@ -45,8 +45,10 @@ describe('publishFix — real git', () => {
       },
       prFix: {
         apply: (repoRoot) => writeFileSync(join(repoRoot, 'generated.txt'), 'fixed'),
-        commitMessage: 'Refresh the demo',
-        prTitle: 'Refresh the demo',
+        prTitle: () => 'Refresh the demo',
+        summary: 'The demo file is out of date.',
+        fixCommand: 'demo --fix',
+        verifyCommand: 'demo --check',
       },
       ...overrides,
     };
@@ -117,7 +119,15 @@ describe('publishFix — real git', () => {
     assert.equal(pull.body.head, botBranch);
     assert.equal(pull.body.base, 'main');
     assert.equal(pull.body.title, 'Refresh the demo');
-    assert.ok(pull.body.body.includes('changed: generated.txt'));
+    assert.match(
+      pull.body.body,
+      /^## Summary\n\nThe demo file is out of date\. Regenerated with `demo --fix`/,
+    );
+    assert.ok(pull.body.body.includes('reported 1 drifted file(s) before and none after'));
+    const subject = git(root, '--git-dir', remote, 'log', '-1', '--format=%s', botBranch);
+    assert.equal(subject, 'Refresh the demo');
+    const bodyText = git(root, '--git-dir', remote, 'log', '-1', '--format=%b', botBranch);
+    assert.match(bodyText, /Generated with `demo --fix`\./);
 
     // The commit carries the bot's identity and the fix, and nothing else.
     const author = git(root, '--git-dir', remote, 'log', '-1', '--format=%an <%ae>', botBranch);
@@ -163,7 +173,13 @@ describe('publishFix — real git', () => {
 
   it('throws, pushes nothing and restores the tree when the fix leaves findings', async () => {
     const check = makeCheck({
-      prFix: { apply: () => {}, commitMessage: 'm', prTitle: 't' },
+      prFix: {
+        apply: () => {},
+        prTitle: () => 't',
+        summary: 's',
+        fixCommand: 'f',
+        verifyCommand: 'v',
+      },
     });
     const api = makeApi();
     await assert.rejects(() => publish(api, { check }), /left 1 finding/);

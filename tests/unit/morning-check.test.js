@@ -16,9 +16,12 @@ const SCRIPT = pathToFileURL(
 const {
   CHECKS,
   LABEL,
+  MAX_TITLE,
   checksTouched,
   decideGuard,
   findExisting,
+  installComponentNames,
+  installDriftTitle,
   isForcedDay,
   markerFor,
   parseDriftOutput,
@@ -333,7 +336,13 @@ describe('runChecks', () => {
 });
 
 describe('reportMode', () => {
-  const prFix = { apply: () => {}, commitMessage: 'm', prTitle: 't' };
+  const prFix = {
+    apply: () => {},
+    prTitle: () => 't',
+    summary: 's',
+    fixCommand: 'f',
+    verifyCommand: 'v',
+  };
 
   it('is pr only when the check asks for it, has a fix, and a bot exists', () => {
     assert.equal(reportMode(fakeCheck({ report: 'pr', prFix }), true), 'pr');
@@ -348,7 +357,13 @@ describe('reportMode', () => {
 });
 
 describe('runChecks with a pr check', () => {
-  const prFix = { apply: () => {}, commitMessage: 'm', prTitle: 't' };
+  const prFix = {
+    apply: () => {},
+    prTitle: () => 't',
+    summary: 's',
+    fixCommand: 'f',
+    verifyCommand: 'v',
+  };
   const env = {
     REPO: 'o/r',
     GH_TOKEN: 't',
@@ -430,5 +445,75 @@ describe('runChecks with a pr check', () => {
     });
     assert.equal(failed, 1);
     assert.deepEqual(api.calls, []);
+  });
+});
+
+describe('installComponentNames', () => {
+  it('names rules, standards and agents by file stem, and skills by directory', () => {
+    assert.deepEqual(
+      installComponentNames([
+        'changed: .claude/rules/engineering-git-workflow.md',
+        'changed: .claude/standards/javascript_node.md',
+        'missing: .claude/agents/engineer.md',
+        'changed: .claude/skills/oversight/SKILL.md',
+      ]),
+      ['engineering-git-workflow', 'javascript_node', 'engineer', 'oversight'],
+    );
+  });
+
+  it('leaves out the manifest and repeats, and ignores paths outside .claude', () => {
+    assert.deepEqual(
+      installComponentNames([
+        'changed: .claude/.installs.yaml',
+        'changed: .claude/skills/oversight/SKILL.md',
+        'changed: .claude/skills/oversight/reference/x.md',
+        'changed: README.md',
+      ]),
+      ['oversight'],
+    );
+  });
+
+  it('is empty when only the manifest changed', () => {
+    assert.deepEqual(installComponentNames(['changed: .claude/.installs.yaml']), []);
+  });
+});
+
+describe('installDriftTitle', () => {
+  it('names one or two drifted components', () => {
+    assert.equal(
+      installDriftTitle([
+        'changed: .claude/.installs.yaml',
+        'changed: .claude/rules/engineering-git-workflow.md',
+      ]),
+      'Refresh the committed install of engineering-git-workflow',
+    );
+    assert.equal(
+      installDriftTitle(['changed: .claude/rules/a.md', 'changed: .claude/rules/b.md']),
+      'Refresh the committed install of a and b',
+    );
+  });
+
+  it('counts the components when there are more than two', () => {
+    const findings = ['a', 'b', 'c'].map((n) => `changed: .claude/rules/${n}.md`);
+    assert.equal(installDriftTitle(findings), 'Refresh the committed install of 3 components');
+  });
+
+  it('counts the components when two names would be too long', () => {
+    const long = 'x'.repeat(40);
+    const findings = [`changed: .claude/rules/${long}.md`, `changed: .claude/rules/${long}y.md`];
+    assert.equal(installDriftTitle(findings), 'Refresh the committed install of 2 components');
+  });
+
+  it('falls back to the manifest when nothing else is named', () => {
+    assert.equal(
+      installDriftTitle(['changed: .claude/.installs.yaml']),
+      'Refresh the committed install manifest',
+    );
+  });
+
+  it('is imperative and within the title limit', () => {
+    const t = installDriftTitle(['changed: .claude/rules/engineering-git-workflow.md']);
+    assert.match(t, /^Refresh /);
+    assert.ok(t.length <= MAX_TITLE);
   });
 });
