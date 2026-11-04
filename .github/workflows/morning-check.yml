@@ -4,7 +4,8 @@ name: Morning check
 # file every AI-component PR regenerates (the project install manifest) would
 # make those PRs conflict, so they are raised here instead. A check with a
 # mechanical fix (install drift) gets a PR from the bot account; any other check
-# gets one labelled issue that opens on a finding and closes when it clears.
+# gets one issue that opens on a finding and closes when it clears. Both carry
+# the `morning-check` label.
 #
 # The bot's token lives in Bitwarden Secrets Manager. Two things are configured
 # in the repo's Actions settings, neither in this file: the secret
