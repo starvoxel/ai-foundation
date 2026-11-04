@@ -122,7 +122,11 @@ The v1 process (tag `legacy/process-v1`) had `software-engineer`, `engineering-m
 ## Project Setup
 
 Projects that use ai-foundation agents have a `.aiconfig.json` at the repo root.
-Scaffold a new project with `aif init` or create the file manually. Key fields:
+Scaffold a new project with `aif init` or create the file manually.
+
+`aif init` copies all of `projects/_template/`: `.aiconfig.json`, `plans/` and `knowledge/` skeletons, the git hooks and session-start script that keep the architecture index fresh, `.claude/settings.json` (engineer agent, session-start hook, commit/PR/session-URL attribution off), a neutral `.gitignore` (OS, editor, scratch and secrets entries), and the scheduled branch-cleanup workflow and script under `.github/` (protects only `docs`; reads the short code from `.aiconfig.json`). It refuses an existing directory; `--force` overwrites the template's files in it.
+
+Key `.aiconfig.json` fields:
 
 ```json
 {
