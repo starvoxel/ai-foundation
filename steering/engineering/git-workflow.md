@@ -99,4 +99,4 @@ All agents, in every repository.
 
 ## Enforcement
 
-Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. A warning seen and not raised in the session is MEDIUM. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
+Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Raising warnings in the session is not checkable at PR review, since reviewers cannot see the session; it relies on the human in the session noticing an omission. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
