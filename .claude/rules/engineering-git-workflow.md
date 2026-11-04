@@ -64,6 +64,18 @@ All agents, in every repository.
 
 ---
 
+### Rule: Raise Warnings to the Human in the Session
+
+- Any warning from CI, tooling, or a check that you see while working, blocking or not, is stated to the human in the session conversation: what it is, and whether you acted on it or why you did not. One line each is enough
+- Say it in the turn you see it. A note in a PR description or commit message may repeat it, never replaces it
+- A warning already raised this session is not repeated until it changes
+
+**Rationale:** A non-blocking warning is the early signal, and a PR description is too easily missed. Install drift went unnoticed twice because it only printed an annotation.
+
+**Exceptions:** None.
+
+---
+
 ### Rule: Large Work Gets a Committed, Approved Plan First
 
 - Work too large to review in one pass needs a plan committed as `Draft`, then committed as `Approved` after the human explicitly confirms, before implementation begins — follow `skill/feature-planning`
@@ -77,4 +89,4 @@ All agents, in every repository.
 
 ## Enforcement
 
-Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
+Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Raising warnings in the session is not checkable at PR review, since reviewers cannot see the session; it relies on the human in the session noticing an omission. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.

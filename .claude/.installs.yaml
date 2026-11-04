@@ -35,7 +35,7 @@ bundles:
       - path: .claude/rules/engineering-document-types.md
         hash: sha256:baa7b77c12787592e975d446cbd2a0e4e4c8269f65222e0a85c2ce1e2d9daa18
       - path: .claude/rules/engineering-git-workflow.md
-        hash: sha256:534f88fbd695ffa365f3676c71f67c3959d76115b914c603bc30923370d95370
+        hash: sha256:f33669759b4674ed101455767444eaf1debba3c6f146a86bcb42d09a098efe06
       - path: .claude/skills/oversight/SKILL.md
         hash: sha256:f00c66fc150b81d7be35ad0d9a1aad2af3b9a59a3a3bac08887184441fd122af
       - path: .claude/skills/oversight/scripts/resolve.js
@@ -90,7 +90,7 @@ bundles:
       steering/engineering/architecture-docs.md: sha256:8741e7e33c66be1a24274e6933037a69851fe09f71883455b1a3bfe09e914823
       steering/engineering/core.md: sha256:495a1a12248a8436be9638556c2a76fa00294d049260c3ab98bb26593365791f
       steering/engineering/document-types.md: sha256:ae7b8438cd36163f3e36b5dc7b043cdb746eab6534d496be8b5686dbb630f01e
-      steering/engineering/git-workflow.md: sha256:72019ba7fa0120f9347dbb431f5d96de68723cd1eebc246f4478978be515fd9d
+      steering/engineering/git-workflow.md: sha256:8458a583cd7c09f4afebb6cd0d7dba28dd6b23e368538f130b0c56b4f8d03f4b
       skills/oversight/SKILL.md: sha256:f00c66fc150b81d7be35ad0d9a1aad2af3b9a59a3a3bac08887184441fd122af
       skills/oversight/scripts/resolve.js: sha256:8d7cdc8fb52032ae51e662202a9e3dd036851d2cc9ad23395c745016cfff4169
       skills/test-execution/SKILL.md: sha256:aa43c0d6df7752b9bbbd327c97d4de766f22dc565461ffdae29fd769e90e2a21
