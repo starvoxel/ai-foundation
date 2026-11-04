@@ -9,7 +9,7 @@ bundles:
       - path: .claude/standards/javascript_base.md
         hash: sha256:6444f0429b8d9c5f4b1eae79aacde6f74ef1bf752f147267e3f2cf46d5c7a699
       - path: .claude/standards/javascript_node.md
-        hash: sha256:5a428fe01087d6ecce5a39dbccacba4304e884e9e18745ee2b8e2b5515713830
+        hash: sha256:9f434037ea7037207cbf34dd5d82cbaefbdb2db9c9984a4c7200436b969ce15d
       - path: .claude/agents/engineer.md
         hash: sha256:0b8ca427d815020586fe6e19e281d23001bfbfc0a01ceeac41b4aa27e74e96f3
       - path: .claude/agents/engineering-researcher.md
@@ -27,7 +27,7 @@ bundles:
       - path: .claude/rules/global-standards-loading.md
         hash: sha256:49863b995747621bfc7e6f1aff77691cba14b2c6cfebbc000605e2b0a2461b8e
       - path: .claude/rules/engineering-architecture-authoring.md
-        hash: sha256:af9bdd7439355ab0af7098c3a7739ffab73a32c6d9c762eaa47db88d9affd3e3
+        hash: sha256:e639cf4c24d3ca43d8982f89018c481e498185dc07a0f91a6a1edd309815ef84
       - path: .claude/rules/engineering-architecture-docs.md
         hash: sha256:181ad562fd49989c0c4f66614f017ca5e9a707cc51475402337f29729d48ab4e
       - path: .claude/rules/engineering-core.md
@@ -86,7 +86,7 @@ bundles:
       steering/global/knowledge-consumption.md: sha256:21509323004190ff3d69b2d3f5e69466c33ccb330ec1177c2f51f00b6a48736e
       steering/global/markdown-authoring.md: sha256:fe0403df523a60a3c42ef5fc97b849146c8d78f6ae2d0f42e3de61e052fb26c5
       steering/global/standards-loading.md: sha256:87b303074424e7da45e1384709806a3f8fb72619f76f4f170c2d26d4791ab802
-      steering/engineering/architecture-authoring.md: sha256:c7f2ce6fdfe9abe9985ea7ac880a7455b2cc3cb9d9789f8b0782ff37e16e38df
+      steering/engineering/architecture-authoring.md: sha256:c0a464f387ab2dc110a99ad72d74dad44c7ebfd556aa7221739e3605b6a9c862
       steering/engineering/architecture-docs.md: sha256:8741e7e33c66be1a24274e6933037a69851fe09f71883455b1a3bfe09e914823
       steering/engineering/core.md: sha256:495a1a12248a8436be9638556c2a76fa00294d049260c3ab98bb26593365791f
       steering/engineering/document-types.md: sha256:ae7b8438cd36163f3e36b5dc7b043cdb746eab6534d496be8b5686dbb630f01e
