@@ -1,7 +1,7 @@
 {
   "bundle": "engineering",
-  "version": "1.0.0",
-  "computed_at": "2026-10-24T16:32:36.424Z",
+  "version": "1.1.0",
+  "computed_at": "2026-10-26T00:28:46.233Z",
   "sources": {
     "agents/engineer.yaml": "sha256:f5cb97802a73a6659151a2cade7c2fe65d857655e3296a7812df280f452976be",
     "agents/engineering-researcher.yaml": "sha256:256ad5d9a42b829e06a5ea69c29d1cf1b866675962a44eebdf31dba753e69509",
@@ -21,8 +21,8 @@
     "skills/test-execution/SKILL.md": "sha256:aa43c0d6df7752b9bbbd327c97d4de766f22dc565461ffdae29fd769e90e2a21",
     "skills/prd/SKILL.md": "sha256:9a61f7326a93c9e5e6dad1c4d7af80036f0e75975b05b9983f2a45d574fdcff1",
     "skills/prd/reference/template.md": "sha256:a667a61672248db86829c63d358265b77977508c6a3d52ddd6d1086a37658afe",
-    "skills/standards/SKILL.md": "sha256:3ac906ec2d26dc9d60086b8ace3c159163bc166dafcc8fc473a83e2b39314ea7",
-    "skills/standards/scripts/resolve.js": "sha256:c40eb266075fc18ac395a7f2d46d56589c16a84c93af954ca55e49e2e245e410",
+    "skills/standards/SKILL.md": "sha256:a8e6fb4d3a6c42f2fe9e4b83b47e3fab0d77ae0c53821ceebeea7950de5f7901",
+    "skills/standards/scripts/resolve.js": "sha256:fa077b474fdcddf49ac685528aedc7f0c8c81bf14f142798ea924939d811639a",
     "skills/feature-planning/SKILL.md": "sha256:0f82e8cfd26124f06a33bc3e18f9672b66844cc1f3b97c7e25e08881c2fb9bfa",
     "skills/feature-planning/reference/template.md": "sha256:d91c475b8a2ac745ddc4da27d3fd1d451320204667758fc539afd538688d012d",
     "skills/pr-authoring/SKILL.md": "sha256:a22b70aee9ffbe68ce556ced343077650c3ece9bae8ad84c1e43a2683b7a3e2b",

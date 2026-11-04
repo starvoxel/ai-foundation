@@ -79,7 +79,7 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
       'npm ci --ignore-scripts --no-audit --no-fund',
       'npm link --ignore-scripts',
       'node bin/aif.js index architecture',
-      'node bin/aif.js install -B engineering,generic -H claude',
+      'node bin/aif.js install -B engineering,generic -H claude --skip-project',
       'ai-git doctor',
     ]);
   });
@@ -109,7 +109,7 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
       'npm ci --ignore-scripts --no-audit --no-fund',
       'npm link --ignore-scripts',
       'node bin/aif.js index architecture',
-      'node bin/aif.js install -B engineering -H claude',
+      'node bin/aif.js install -B engineering -H claude --skip-project',
       'ai-git doctor',
     ]);
   });

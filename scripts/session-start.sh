@@ -38,7 +38,7 @@ node bin/aif.js index architecture \
   || echo "WARNING: aif index architecture failed" >&2
 
 if [ -n "${AIF_BUNDLES:-}" ]; then
-  node bin/aif.js install -B "$AIF_BUNDLES" -H claude \
+  node bin/aif.js install -B "$AIF_BUNDLES" -H claude --skip-project \
     || echo "WARNING: aif install failed for AIF_BUNDLES=$AIF_BUNDLES" >&2
 fi
 

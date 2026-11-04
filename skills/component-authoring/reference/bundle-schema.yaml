@@ -10,6 +10,7 @@ fields:
   skills: "Optional. Explicit skill folder names to include"
   steering: "Optional. Explicit steering paths (relative to repo root)"
   servers: "Optional. Explicit server folder names to include"
+  default: "Optional boolean. true = installed by `aif init --with-default-bundles`"
 
 # Resolution rules:
 #   - domain + explicit lists: discovery runs first, explicit appended, deduped

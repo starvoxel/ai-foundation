@@ -18,7 +18,8 @@
  *
  * A standard matches when ALL of its `tags` are among the project's tags
  * (`standards.<domain>` plus `standards.all` in .aiconfig.json). Standards are
- * looked up in ./standards first, then ~/.claude/standards, then
+ * looked up in ./standards first, then the project-scope installs
+ * ./.claude/standards and ./.kiro/standards, then ~/.claude/standards and
  * ~/.kiro/standards; the first directory holding a name wins. The project's
  * own override file (`project_standards`, default ./project-standards.md) is
  * listed last when it exists; it need not.
@@ -174,6 +175,8 @@ export function main(argv) {
   try {
     const standards = loadStandards([
       resolve('standards'),
+      resolve('.claude', 'standards'),
+      resolve('.kiro', 'standards'),
       join(homedir(), '.claude', 'standards'),
       join(homedir(), '.kiro', 'standards'),
     ]);

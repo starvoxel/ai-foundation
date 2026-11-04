@@ -24,6 +24,9 @@ local/
 
 # Generated install manifest
 .installs.yaml
+# ...except a project-scope install's, which is committed with it
+!.claude/.installs.yaml
+!.kiro/.installs.yaml
 
 # secrets.allow_insecure_dotenv fallback — never commit real secrets here
 .env
