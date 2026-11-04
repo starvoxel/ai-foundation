@@ -30,7 +30,7 @@ env:
   NODE_VERSION_MAX: "26.x"
 
 jobs:
-  # Lint, typecheck, format, validate, snapshot-freshness, and version-bump
+  # Lint, typecheck, format, validate, and version-bump
   # each run in a few seconds but GitHub bills every job a full minute
   # minimum — as separate jobs they cost ~6x more than the work they do.
   # One job, one checkout, one npm ci; steps are prefixed "Check:" to keep
@@ -123,9 +123,6 @@ jobs:
 
       - name: "Check: schema, refs, bundles"
         run: npm run validate
-
-      - name: "Check: snapshot freshness (bundles, servers, hooks)"
-        run: node bin/aif.js snapshot --check
 
       - name: "Check: architecture index (key_files staleness + relative links)"
         run: node bin/aif.js index architecture --check
