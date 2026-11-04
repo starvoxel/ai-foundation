@@ -1,5 +1,6 @@
 {
   "agent": "engineer",
+  "attribution": { "commit": "", "pr": "", "sessionUrl": false },
   "hooks": {
     "SessionStart": [
       {
