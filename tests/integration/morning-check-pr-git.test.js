@@ -118,14 +118,14 @@ describe('publishFix — real git', () => {
     const pull = api.calls.find((c) => c.path === '/repos/o/r/pulls');
     assert.equal(pull.body.head, botBranch);
     assert.equal(pull.body.base, 'main');
-    assert.equal(pull.body.title, 'Refresh the demo');
+    assert.equal(pull.body.title, '[CI] Refresh the demo');
     assert.match(
       pull.body.body,
       /^## Summary\n\nThe demo file is out of date\. Regenerated with `demo --fix`/,
     );
     assert.ok(pull.body.body.includes('reported 1 drifted file(s) before and none after'));
     const subject = git(root, '--git-dir', remote, 'log', '-1', '--format=%s', botBranch);
-    assert.equal(subject, 'Refresh the demo');
+    assert.equal(subject, '[CI] Refresh the demo');
     const bodyText = git(root, '--git-dir', remote, 'log', '-1', '--format=%b', botBranch);
     assert.match(bodyText, /Generated with `demo --fix`\./);
 

@@ -22,6 +22,9 @@ import { execFileSync } from 'node:child_process';
  * @typedef {{action: 'none'|'create'|'close', supersede: PrRef[]}} PrPlan
  */
 
+/** Marks a PR title as opened by the workflow; the check's own title follows it. */
+export const CI_TITLE_PREFIX = '[CI] ';
+
 /** @param {string} checkId */
 export const branchPrefix = (checkId) => `bot/${checkId}-`;
 
@@ -187,7 +190,7 @@ export async function publishFix({
       throw new Error(`${check.id}: the fix changed nothing`);
     }
     const changed = git(repoRoot, ['diff', '--cached', '--name-only']).split('\n').filter(Boolean);
-    const title = check.prFix.prTitle(findings);
+    const title = `${CI_TITLE_PREFIX}${check.prFix.prTitle(findings)}`;
 
     const branch = branchFor(check.id, git(repoRoot, ['write-tree']));
     const plan = planPr({

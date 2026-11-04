@@ -50,7 +50,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createApi } from './cleanup-branches.mjs';
-import { closeBotPrs, listBotPrs, publishFix } from './morning-check-pr.mjs';
+import { CI_TITLE_PREFIX, closeBotPrs, listBotPrs, publishFix } from './morning-check-pr.mjs';
 
 export const LABEL = 'morning-check';
 /** Longer than the daily gap, so one slow or skipped run does not hide a change. */
@@ -149,6 +149,9 @@ export function installComponentNames(findings) {
 /** The longest PR title the repo's PR standards allow. */
 export const MAX_TITLE = 70;
 
+/** What is left of MAX_TITLE once the workflow's prefix is added to a title. */
+const TITLE_ROOM = MAX_TITLE - CI_TITLE_PREFIX.length;
+
 /**
  * PR title for an install refresh, naming what drifted, or how many components
  * when the names would not fit. Pure.
@@ -160,7 +163,7 @@ export function installDriftTitle(findings) {
   const names = installComponentNames(findings);
   if (names.length === 0) return 'Refresh the committed install manifest';
   const named = `Refresh the committed install of ${names.join(' and ')}`;
-  if (names.length <= 2 && named.length <= MAX_TITLE) return named;
+  if (names.length <= 2 && named.length <= TITLE_ROOM) return named;
   return `Refresh the committed install of ${names.length} components`;
 }
 

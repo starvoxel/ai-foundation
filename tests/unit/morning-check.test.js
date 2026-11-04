@@ -10,6 +10,9 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+const PR_SCRIPT = pathToFileURL(
+  resolve(import.meta.dirname, '../../.github/scripts/morning-check-pr.mjs'),
+).href;
 const SCRIPT = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/morning-check.mjs'),
 ).href;
@@ -31,6 +34,7 @@ const {
   renderSummary,
   runChecks,
 } = await import(SCRIPT);
+const { CI_TITLE_PREFIX } = await import(PR_SCRIPT);
 
 /** @returns {import('../../.github/scripts/morning-check.mjs').Check} */
 function fakeCheck(overrides = {}) {
@@ -511,9 +515,20 @@ describe('installDriftTitle', () => {
     );
   });
 
-  it('is imperative and within the title limit', () => {
+  it('is imperative and leaves room for the CI prefix within the title limit', () => {
     const t = installDriftTitle(['changed: .claude/rules/engineering-git-workflow.md']);
     assert.match(t, /^Refresh /);
-    assert.ok(t.length <= MAX_TITLE);
+    assert.ok(`${CI_TITLE_PREFIX}${t}`.length <= MAX_TITLE);
+  });
+
+  it('falls back to a count when two names fit only without the prefix', () => {
+    // 'Refresh the committed install of ' is 33 chars, so two 15-char names make 68: it fits 70 but not once '[CI] ' is added.
+    const a = 'a'.repeat(15);
+    const b = 'b'.repeat(15);
+    const t = installDriftTitle([
+      `changed: .claude/rules/${a}.md`,
+      `changed: .claude/rules/${b}.md`,
+    ]);
+    assert.equal(t, 'Refresh the committed install of 2 components');
   });
 });
