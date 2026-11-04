@@ -24,6 +24,7 @@ const {
   parseDriftOutput,
   planIssue,
   renderBody,
+  reportMode,
   renderSummary,
   runChecks,
 } = await import(SCRIPT);
@@ -44,11 +45,11 @@ function fakeCheck(overrides = {}) {
  * In-memory stand-in for the GitHub client: serves the given open issues and
  * records every write.
  */
-function fakeApi(openIssues = [], { labelExists = false } = {}) {
+function fakeApi(openItems = [], { labelExists = false } = {}) {
   const calls = [];
   return {
     calls,
-    paginate: async () => openIssues,
+    paginate: async () => openItems,
     request: async (method, path, body) => {
       calls.push({ method, path, body });
       if (path.endsWith('/labels') && labelExists) {
@@ -125,30 +126,30 @@ describe('decideGuard', () => {
   const checks = [fakeCheck()];
 
   it('runs when forced, whatever changed', () => {
-    const d = decideGuard({ force: true, openIssues: 0, changedFiles: [], checks });
+    const d = decideGuard({ force: true, openItems: 0, changedFiles: [], checks });
     assert.deepEqual(d, { run: true, reason: 'forced' });
   });
 
   it('runs to re-check when an issue is open', () => {
-    const d = decideGuard({ force: false, openIssues: 1, changedFiles: [], checks });
+    const d = decideGuard({ force: false, openItems: 1, changedFiles: [], checks });
     assert.equal(d.run, true);
-    assert.match(d.reason, /open issue/);
+    assert.match(d.reason, /open item/);
   });
 
   it('runs when the window start is unknown', () => {
-    const d = decideGuard({ force: false, openIssues: 0, changedFiles: null, checks });
+    const d = decideGuard({ force: false, openItems: 0, changedFiles: null, checks });
     assert.equal(d.run, true);
     assert.match(d.reason, /cannot tell/);
   });
 
   it('runs when a watched path changed, naming the check', () => {
-    const d = decideGuard({ force: false, openIssues: 0, changedFiles: ['src/x.js'], checks });
+    const d = decideGuard({ force: false, openItems: 0, changedFiles: ['src/x.js'], checks });
     assert.equal(d.run, true);
     assert.match(d.reason, /demo/);
   });
 
   it('skips when nothing watched changed', () => {
-    const d = decideGuard({ force: false, openIssues: 0, changedFiles: ['docs/a.md'], checks });
+    const d = decideGuard({ force: false, openItems: 0, changedFiles: ['docs/a.md'], checks });
     assert.equal(d.run, false);
     assert.match(d.reason, /nothing watched changed/);
   });
@@ -217,7 +218,12 @@ describe('renderSummary', () => {
   it('lists each check with its result and issue action, escaping pipes', () => {
     const md = renderSummary([
       { check: fakeCheck(), findings: ['a'], error: null, action: 'create' },
-      { check: fakeCheck({ id: 'b' }), findings: null, error: 'x | y', action: 'none' },
+      {
+        check: fakeCheck({ id: 'b' }),
+        findings: null,
+        error: 'could not verify: x | y',
+        action: 'none',
+      },
     ]);
     assert.match(md, /\| demo \| 1 finding\(s\) \| create \|/);
     assert.match(md, /\| b \| could not verify: x \\\| y \| none \|/);
@@ -323,5 +329,106 @@ describe('runChecks', () => {
     });
     assert.equal(failed, 0);
     assert.ok(lines.some((l) => l.includes('Dry run: create issue')));
+  });
+});
+
+describe('reportMode', () => {
+  const prFix = { apply: () => {}, commitMessage: 'm', prTitle: 't' };
+
+  it('is pr only when the check asks for it, has a fix, and a bot exists', () => {
+    assert.equal(reportMode(fakeCheck({ report: 'pr', prFix }), true), 'pr');
+  });
+
+  it('falls back to an issue without a bot, without a fix, or by default', () => {
+    assert.equal(reportMode(fakeCheck({ report: 'pr', prFix }), false), 'issue');
+    assert.equal(reportMode(fakeCheck({ report: 'pr' }), true), 'issue');
+    assert.equal(reportMode(fakeCheck({ prFix }), true), 'issue');
+    assert.equal(reportMode(fakeCheck({ report: 'issue', prFix }), true), 'issue');
+  });
+});
+
+describe('runChecks with a pr check', () => {
+  const prFix = { apply: () => {}, commitMessage: 'm', prTitle: 't' };
+  const env = {
+    REPO: 'o/r',
+    GH_TOKEN: 't',
+    BOT_TOKEN: 'bot-secret',
+    RUN_URL: 'https://example.test/r',
+  };
+  const prCheck = (findings) => fakeCheck({ report: 'pr', prFix, run: () => findings });
+
+  it('publishes the fix as the bot and writes no issue', async () => {
+    const api = fakeApi();
+    const botApi = fakeApi();
+    const seen = [];
+    const { failed } = await runChecks({
+      env,
+      repoRoot: '/repo',
+      checks: [prCheck(['changed: a'])],
+      api,
+      botApi,
+      publish: async (input) => {
+        seen.push(input);
+        return 'created #5';
+      },
+      log: quiet,
+    });
+    assert.equal(failed, 0);
+    assert.deepEqual(api.calls, []);
+    assert.equal(seen.length, 1);
+    assert.deepEqual(seen[0].findings, ['changed: a']);
+    assert.equal(seen[0].token, 'bot-secret');
+    assert.equal(seen[0].repo, 'o/r');
+    assert.equal(seen[0].repoRoot, '/repo');
+    assert.equal(seen[0].runUrl, 'https://example.test/r');
+  });
+
+  it('reports as an issue, and says so, when there is no bot token', async () => {
+    const api = fakeApi();
+    const lines = [];
+    let published = false;
+    await runChecks({
+      env: { REPO: 'o/r', GH_TOKEN: 't' },
+      repoRoot: '.',
+      checks: [prCheck(['changed: a'])],
+      api,
+      botApi: null,
+      publish: async () => {
+        published = true;
+        return 'x';
+      },
+      log: (l) => lines.push(l),
+    });
+    assert.equal(published, false);
+    assert.equal(api.calls.at(-1).path, '/repos/o/r/issues');
+    assert.ok(lines.some((l) => l.includes('no bot token')));
+  });
+
+  it('closes the open bot PR and the fallback issue once the check is clean', async () => {
+    const check = prCheck([]);
+    const api = fakeApi([{ number: 7, body: renderBody(check, ['changed: a']) }]);
+    const botApi = fakeApi([{ number: 9, head: { ref: 'bot/demo-abc' } }]);
+    await runChecks({ env, repoRoot: '.', checks: [check], api, botApi, log: quiet });
+    assert.ok(api.calls.some((c) => c.path === '/repos/o/r/issues/7'));
+    assert.ok(
+      botApi.calls.some((c) => c.path === '/repos/o/r/pulls/9' && c.body.state === 'closed'),
+    );
+  });
+
+  it('records a failed publish as an error and writes no issue', async () => {
+    const api = fakeApi();
+    const { failed } = await runChecks({
+      env,
+      repoRoot: '.',
+      checks: [prCheck(['changed: a'])],
+      api,
+      botApi: fakeApi(),
+      publish: async () => {
+        throw new Error('push rejected');
+      },
+      log: quiet,
+    });
+    assert.equal(failed, 1);
+    assert.deepEqual(api.calls, []);
   });
 });

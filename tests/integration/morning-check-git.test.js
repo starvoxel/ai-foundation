@@ -123,7 +123,7 @@ describe('morning check — real git', () => {
       const api = { paginate: async () => [{ number: 7, body: 'x' }], request: async () => ({}) };
       const d = await runGuard({ env: { REPO: 'o/r' }, repoRoot, now: notMonday, api, log: quiet });
       assert.equal(d.run, true);
-      assert.match(d.reason, /open issue/);
+      assert.match(d.reason, /open item/);
     });
   });
 });

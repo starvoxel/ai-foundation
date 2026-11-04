@@ -5,9 +5,17 @@
  *
  * Each check looks for something that needs a human and is not worth blocking
  * a PR over, because a blocking check would make every PR that touches the same
- * shared file conflict. A check that finds something opens one labelled GitHub
- * issue, updates it only when the findings change, and closes it once the
- * findings are gone. Nothing is stored in the repo.
+ * shared file conflict. Each check chooses how it reports (`report`):
+ *
+ *   issue  One labelled GitHub issue, updated only when the findings change and
+ *          closed once they are gone. The default.
+ *   pr     The check has a mechanical fix (`prFix`), so the bot account opens a
+ *          PR with it instead (morning-check-pr.mjs). At most one is open per
+ *          check; a changed fix supersedes the old PR, and a clean check closes
+ *          it. Without a bot token, a `pr` check reports as an issue, so a
+ *          finding is never lost.
+ *
+ * Nothing is stored in the repo.
  *
  * Two modes, so the cheap decision costs no `npm ci`:
  *
@@ -15,15 +23,19 @@
  *          Runs when forced (manual dispatch, or Monday as a weekly backstop),
  *          when a check already has an open issue to re-check, or when `main`
  *          changed a path some check watches within the last WINDOW_HOURS.
- *   run    Runs every check, then opens, updates or closes its issue.
+ *   run    Runs every check, then opens, updates or closes its issue or PR.
  *
  * To add a check, append an entry to CHECKS: its watched paths, a one-line fix,
  * and a function returning the findings. An empty list means clean, and a check
- * that cannot verify must throw, never return clean.
+ * that cannot verify must throw, never return clean. Add `report: 'pr'` and a
+ * `prFix` only when the fix is mechanical and safe to propose unreviewed.
  *
  * Environment:
  *   GH_TOKEN / GITHUB_TOKEN  token (needs issues: write); without one, or with
  *                            DRY_RUN=true, the plan is only printed
+ *   BOT_TOKEN                the bot account's token (contents and pull requests
+ *                            write), for `pr` checks; without it they fall back
+ *                            to an issue
  *   REPO                     owner/name
  *   FORCE                    "true" to run regardless of what changed
  *   DRY_RUN                  "true" to print the plan and change nothing
@@ -38,6 +50,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createApi } from './cleanup-branches.mjs';
+import { closeBotPrs, listBotPrs, publishFix } from './morning-check-pr.mjs';
 
 export const LABEL = 'morning-check';
 /** Longer than the daily gap, so one slow or skipped run does not hide a change. */
@@ -52,6 +65,13 @@ export const FORCE_WEEKDAY = 1;
  * @property {string[]} paths  Repo path prefixes whose change can introduce a finding.
  * @property {string} fix  One line telling the human what to do about a finding.
  * @property {(repoRoot: string) => string[]} run  The findings; empty means clean. Throws when it cannot verify.
+ * @property {'issue'|'pr'} [report]  How findings are raised; `issue` when unset.
+ * @property {PrFix} [prFix]  Required for `report: 'pr'`.
+ *
+ * @typedef {object} PrFix
+ * @property {(repoRoot: string) => void} apply  Edits the working tree to clear the findings.
+ * @property {string} commitMessage
+ * @property {string} prTitle
  *
  * @typedef {object} Issue
  * @property {number} number
@@ -103,6 +123,18 @@ function runInstallDrift(repoRoot) {
   return parseDriftOutput(res.stdout);
 }
 
+/**
+ * Refreshes the committed install in place; the check then passes.
+ *
+ * @param {string} repoRoot
+ */
+function refreshInstall(repoRoot) {
+  execFileSync(process.execPath, ['bin/aif.js', 'install', '--scope', 'project', '--update'], {
+    cwd: repoRoot,
+    stdio: ['ignore', 'ignore', 'inherit'],
+  });
+}
+
 /** @type {Check[]} */
 export const CHECKS = [
   {
@@ -123,6 +155,12 @@ export const CHECKS = [
     ],
     fix: 'Run `aif install --scope project --update` and commit the result in its own PR. Feature PRs should not refresh it: `.claude/.installs.yaml` is one shared file, so doing it per PR makes them conflict.',
     run: runInstallDrift,
+    report: 'pr',
+    prFix: {
+      apply: refreshInstall,
+      commitMessage: 'Refresh committed project-scope engineering install',
+      prTitle: 'Refresh committed project-scope engineering install',
+    },
   },
 ];
 
@@ -140,13 +178,14 @@ export function checksTouched(changedFiles, checks) {
 /**
  * Decides whether the expensive part needs to run. Pure.
  *
- * @param {{force: boolean, openIssues: number, changedFiles: string[]|null, checks: Check[]}} input
+ * @param {{force: boolean, openItems: number, changedFiles: string[]|null, checks: Check[]}} input
+ *   `openItems` counts open issues and bot PRs, each of which the next run may close.
  *   `changedFiles` is null when the window start is unknown (a young or shallow history).
  * @returns {{run: boolean, reason: string}}
  */
-export function decideGuard({ force, openIssues, changedFiles, checks }) {
+export function decideGuard({ force, openItems, changedFiles, checks }) {
   if (force) return { run: true, reason: 'forced' };
-  if (openIssues > 0) return { run: true, reason: `${openIssues} open issue(s) to re-check` };
+  if (openItems > 0) return { run: true, reason: `${openItems} open item(s) to re-check` };
   if (changedFiles === null) return { run: true, reason: 'cannot tell what changed' };
   const touched = checksTouched(changedFiles, checks);
   if (touched.length > 0) {
@@ -216,13 +255,13 @@ export function findExisting(openIssues, id) {
  */
 export function renderSummary(results) {
   const rows = results.map(({ check, findings, error, action }) => {
-    const status = error ? `could not verify: ${error}` : `${findings?.length ?? 0} finding(s)`;
+    const status = error ?? `${findings?.length ?? 0} finding(s)`;
     return `| ${check.id} | ${status.replace(/\|/g, '\\|')} | ${action} |`;
   });
   return [
     '## Morning check',
     '',
-    '| Check | Result | Issue |',
+    '| Check | Result | Report |',
     '| --- | --- | --- |',
     ...rows,
     '',
@@ -260,6 +299,23 @@ async function listOpenIssues(api, repo) {
   );
   // The issues endpoint also lists pull requests.
   return issues.filter((i) => !i.pull_request);
+}
+
+/**
+ * Open issues plus open bot PRs: everything a later run may need to close.
+ *
+ * @param {ApiClient} api
+ * @param {string} repo
+ * @returns {Promise<number>}
+ */
+async function countOpenItems(api, repo) {
+  const issues = await listOpenIssues(api, repo);
+  const prCounts = await Promise.all(
+    CHECKS.filter((c) => c.report === 'pr').map(
+      async (c) => (await listBotPrs(api, repo, c.id)).length,
+    ),
+  );
+  return issues.length + prCounts.reduce((a, b) => a + b, 0);
 }
 
 /**
@@ -330,10 +386,11 @@ export const isForcedDay = (now) => now.getUTCDay() === FORCE_WEEKDAY;
  */
 export async function runGuard({ env, repoRoot, now = new Date(), api, log = console.log }) {
   const client = api === undefined ? clientFromEnv(env) : api;
-  const openIssues = client ? (await listOpenIssues(client, env.REPO ?? '')).length : 0;
+  const repo = env.REPO ?? '';
+  const openItems = client ? await countOpenItems(client, repo) : 0;
   const decision = decideGuard({
     force: env.FORCE === 'true' || isForcedDay(now),
-    openIssues,
+    openItems,
     changedFiles: changedFilesSince(repoRoot, WINDOW_HOURS),
     checks: CHECKS,
   });
@@ -343,11 +400,38 @@ export async function runGuard({ env, repoRoot, now = new Date(), api, log = con
 }
 
 /**
- * Run mode: every check, then its issue. A check that throws is recorded and
- * fails the run at the end, after the other checks have been reported.
+ * Whether a check reports through a bot PR on this run: it must ask for one,
+ * have a fix, and a bot client must exist. Anything else reports as an issue,
+ * so a finding is never lost. Pure.
  *
- * @param {{env: NodeJS.ProcessEnv, repoRoot: string, checks?: Check[], api?: ApiClient|null, log?: (line: string) => void}} input
- *   `api` replaces the client built from the environment; null forces a dry run.
+ * @param {Check} check
+ * @param {boolean} hasBot
+ * @returns {'issue'|'pr'}
+ */
+export function reportMode(check, hasBot) {
+  return check.report === 'pr' && check.prFix && hasBot ? 'pr' : 'issue';
+}
+
+/** @param {Check} check */
+const wantsPr = (check) => check.report === 'pr' && Boolean(check.prFix);
+
+/**
+ * The bot account's client, or null without a bot token or in a dry run.
+ *
+ * @param {NodeJS.ProcessEnv} env
+ * @returns {ApiClient|null}
+ */
+function botClientFromEnv(env) {
+  if (!env.BOT_TOKEN || !env.REPO || env.DRY_RUN === 'true') return null;
+  return createApi({ token: env.BOT_TOKEN });
+}
+
+/**
+ * Run mode: every check, then its issue or PR. A check that throws is recorded
+ * and fails the run at the end, after the other checks have been reported.
+ *
+ * @param {{env: NodeJS.ProcessEnv, repoRoot: string, checks?: Check[], api?: ApiClient|null, botApi?: ApiClient|null, publish?: typeof publishFix, log?: (line: string) => void}} input
+ *   `api` and `botApi` replace the clients built from the environment; null forces a dry run.
  * @returns {Promise<{failed: number}>}
  */
 export async function runChecks({
@@ -355,10 +439,13 @@ export async function runChecks({
   repoRoot,
   checks = CHECKS,
   api: injected,
+  botApi: injectedBot,
+  publish = publishFix,
   log = console.log,
 }) {
   const repo = env.REPO ?? '';
   const api = injected === undefined ? clientFromEnv(env) : injected;
+  const botApi = injectedBot === undefined ? botClientFromEnv(env) : injectedBot;
   const openIssues = api ? await listOpenIssues(api, repo) : [];
 
   const results = [];
@@ -370,20 +457,45 @@ export async function runChecks({
     try {
       findings = check.run(repoRoot);
     } catch (err) {
-      error = /** @type {Error} */ (err).message;
+      error = `could not verify: ${/** @type {Error} */ (err).message}`;
     }
+    const mode = reportMode(check, Boolean(botApi));
+    const dryPr = !botApi && env.DRY_RUN === 'true' && Boolean(env.BOT_TOKEN) && wantsPr(check);
     if (findings) {
-      const existing = findExisting(openIssues, check.id);
-      const plan = planIssue({ check, findings, existing });
-      action = plan.action;
-      if (api) await applyPlan(api, repo, plan, existing, env.RUN_URL ?? '');
-      else log(`Dry run: ${plan.action} issue "${plan.title}"`);
+      try {
+        if (dryPr && findings.length > 0) {
+          action = 'PR (dry run)';
+          log(`Dry run: would open a PR for ${check.id} as the bot`);
+        } else if (mode === 'pr' && findings.length > 0 && botApi) {
+          action = `PR ${await publish({
+            check,
+            findings,
+            repoRoot,
+            repo,
+            botApi,
+            token: env.BOT_TOKEN ?? '',
+            runUrl: env.RUN_URL ?? '',
+          })}`;
+        } else {
+          const existing = findExisting(openIssues, check.id);
+          const plan = planIssue({ check, findings, existing });
+          action = `issue ${plan.action}`;
+          if (api) await applyPlan(api, repo, plan, existing, env.RUN_URL ?? '');
+          else log(`Dry run: ${plan.action} issue "${plan.title}"`);
+          if (mode === 'pr' && botApi) {
+            const closed = await closeBotPrs({ check, repo, botApi, runUrl: env.RUN_URL ?? '' });
+            if (closed > 0) action += `, PR closed ${closed}`;
+          }
+        }
+      } catch (err) {
+        // The check itself ran; acting on it failed. Fail the run visibly.
+        error = `could not report: ${/** @type {Error} */ (err).message}`;
+      }
     }
-    log(
-      error
-        ? `${check.id}: could not verify: ${error}`
-        : `${check.id}: ${findings?.length} finding(s), issue ${action}`,
-    );
+    if (wantsPr(check) && mode === 'issue' && !dryPr && findings?.length) {
+      log(`${check.id}: no bot token, reporting as an issue instead of a PR`);
+    }
+    log(error ? `${check.id}: ${error}` : `${check.id}: ${findings?.length} finding(s), ${action}`);
     results.push({ check, findings, error, action });
   }
   if (env.GITHUB_STEP_SUMMARY) appendFileSync(env.GITHUB_STEP_SUMMARY, renderSummary(results));
