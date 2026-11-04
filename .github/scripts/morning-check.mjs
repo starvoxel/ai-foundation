@@ -7,7 +7,7 @@
  * a PR over, because a blocking check would make every PR that touches the same
  * shared file conflict. Each check chooses how it reports (`report`):
  *
- *   issue  One labelled GitHub issue, updated only when the findings change and
+ *   issue  One GitHub issue, updated only when the findings change and
  *          closed once they are gone. The default.
  *   pr     The check has a mechanical fix (`prFix`), so the bot account opens a
  *          PR with it instead (morning-check-pr.mjs). At most one is open per
@@ -15,7 +15,8 @@
  *          it. Without a bot token, a `pr` check reports as an issue, so a
  *          finding is never lost.
  *
- * Nothing is stored in the repo.
+ * Every issue and PR it opens carries the `morning-check` label. Nothing is
+ * stored in the repo.
  *
  * Two modes, so the cheap decision costs no `npm ci`:
  *
@@ -50,9 +51,17 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createApi } from './cleanup-branches.mjs';
-import { CI_TITLE_PREFIX, closeBotPrs, listBotPrs, publishFix } from './morning-check-pr.mjs';
+import {
+  CI_TITLE_PREFIX,
+  LABEL,
+  closeBotPrs,
+  ensureLabel,
+  listBotPrs,
+  publishFix,
+} from './morning-check-pr.mjs';
 
-export const LABEL = 'morning-check';
+export { LABEL };
+
 /** Longer than the daily gap, so one slow or skipped run does not hide a change. */
 export const WINDOW_HOURS = 26;
 /** 0 = Sunday. A forced weekly run catches anything the change guard missed. */
@@ -375,16 +384,7 @@ async function countOpenItems(api, repo) {
  */
 async function applyPlan(api, repo, plan, existing, runUrl) {
   if (plan.action === 'create') {
-    try {
-      await api.request('POST', `/repos/${repo}/labels`, {
-        name: LABEL,
-        color: 'fbca04',
-        description: 'Raised by the scheduled morning check',
-      });
-    } catch (err) {
-      // 422: the label already exists.
-      if (/** @type {any} */ (err).status !== 422) throw err;
-    }
+    await ensureLabel(api, repo);
     await api.request('POST', `/repos/${repo}/issues`, {
       title: plan.title,
       body: plan.body,

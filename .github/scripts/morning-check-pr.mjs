@@ -18,9 +18,12 @@ import { execFileSync } from 'node:child_process';
 /**
  * @typedef {import('./morning-check.mjs').Check} Check
  * @typedef {import('./morning-check.mjs').ApiClient} ApiClient
- * @typedef {{number: number, head: {ref: string}}} PrRef
+ * @typedef {{number: number, head: {ref: string}, labels?: {name: string}[]}} PrRef
  * @typedef {{action: 'none'|'create'|'close', supersede: PrRef[]}} PrPlan
  */
+
+/** The label on every issue and PR the morning check opens. */
+export const LABEL = 'morning-check';
 
 /** Marks a PR title as opened by the workflow; the check's own title follows it. */
 export const CI_TITLE_PREFIX = '[CI] ';
@@ -99,6 +102,37 @@ export function gitAuthEnv(token) {
 }
 
 /**
+ * Creates the label if it is missing, so it can be put on an issue or PR.
+ *
+ * @param {ApiClient} api
+ * @param {string} repo
+ */
+export async function ensureLabel(api, repo) {
+  try {
+    await api.request('POST', `/repos/${repo}/labels`, {
+      name: LABEL,
+      color: 'fbca04',
+      description: 'Raised by the scheduled morning check',
+    });
+  } catch (err) {
+    // 422: the label already exists.
+    if (/** @type {any} */ (err).status !== 422) throw err;
+  }
+}
+
+/**
+ * Puts the label on an open PR.
+ *
+ * @param {ApiClient} api
+ * @param {string} repo
+ * @param {number} number
+ */
+async function labelPr(api, repo, number) {
+  await ensureLabel(api, repo);
+  await api.request('POST', `/repos/${repo}/issues/${number}/labels`, { labels: [LABEL] });
+}
+
+/**
  * @param {string} cwd
  * @param {string[]} args
  * @param {NodeJS.ProcessEnv} [env]
@@ -159,7 +193,7 @@ export async function closeBotPrs({ check, repo, botApi, runUrl = '' }) {
  * nothing. The working tree is put back as it was.
  *
  * @param {{check: Check, findings: string[], repoRoot: string, repo: string, botApi: ApiClient, token: string, remoteUrl?: string, runUrl?: string}} input
- * @returns {Promise<string>} What was done: `none`, `created #n` or `closed n superseded`.
+ * @returns {Promise<string>} What was done: `none`, `created #n`, `labelled #n` or `closed n superseded`.
  */
 export async function publishFix({
   check,
@@ -193,11 +227,8 @@ export async function publishFix({
     const title = `${CI_TITLE_PREFIX}${check.prFix.prTitle(findings)}`;
 
     const branch = branchFor(check.id, git(repoRoot, ['write-tree']));
-    const plan = planPr({
-      branch,
-      openPrs: await listBotPrs(botApi, repo, check.id),
-      findings,
-    });
+    const openPrs = await listBotPrs(botApi, repo, check.id);
+    const plan = planPr({ branch, openPrs, findings });
 
     let created = null;
     if (plan.action === 'create') {
@@ -218,6 +249,7 @@ export async function publishFix({
       const message = `${title}\n\nGenerated with \`${check.prFix.fixCommand}\`.`;
       git(repoRoot, ['commit', '-q', '-m', message], env);
       git(repoRoot, ['push', '-q', remoteUrl, `HEAD:refs/heads/${branch}`], env);
+      await ensureLabel(botApi, repo);
       const base = (await botApi.request('GET', `/repos/${repo}`)).data.default_branch;
       created = (
         await botApi.request('POST', `/repos/${repo}/pulls`, {
@@ -227,7 +259,13 @@ export async function publishFix({
           body: renderPrBody({ check, findings, changed }),
         })
       ).data;
+      await labelPr(botApi, repo, created.number);
     }
+
+    // A PR opened before it was labelled, or without the label, gets it now.
+    const current = openPrs.find((pr) => pr.head.ref === branch);
+    const relabel = current && !(current.labels ?? []).some((l) => l.name === LABEL);
+    if (current && relabel) await labelPr(botApi, repo, current.number);
 
     for (const pr of plan.supersede) {
       await closePr(
@@ -238,6 +276,7 @@ export async function publishFix({
       );
     }
     if (created) return `created #${created.number}`;
+    if (current && relabel) return `labelled #${current.number}`;
     return plan.supersede.length > 0 ? `closed ${plan.supersede.length} superseded` : 'none';
   } finally {
     git(repoRoot, ['checkout', '-q', '-f', startRef]);

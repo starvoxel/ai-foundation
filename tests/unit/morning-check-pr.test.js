@@ -16,7 +16,9 @@ const {
   basicAuth,
   branchFor,
   branchPrefix,
+  LABEL,
   closeBotPrs,
+  ensureLabel,
   gitAuthEnv,
   listBotPrs,
   planPr,
@@ -180,5 +182,33 @@ describe('listBotPrs / closeBotPrs', () => {
     const api = fakeApi([]);
     assert.equal(await closeBotPrs({ check: { id: 'demo' }, repo: 'o/r', botApi: api }), 0);
     assert.deepEqual(api.calls, []);
+  });
+});
+
+describe('ensureLabel', () => {
+  it('creates the morning-check label', async () => {
+    const api = fakeApi();
+    await ensureLabel(api, 'o/r');
+    assert.equal(api.calls[0].path, '/repos/o/r/labels');
+    assert.equal(api.calls[0].body.name, LABEL);
+    assert.equal(LABEL, 'morning-check');
+  });
+
+  it('carries on when the label already exists (422)', async () => {
+    const api = {
+      request: async () => {
+        throw Object.assign(new Error('Validation Failed'), { status: 422 });
+      },
+    };
+    await assert.doesNotReject(() => ensureLabel(api, 'o/r'));
+  });
+
+  it('rethrows any other failure', async () => {
+    const api = {
+      request: async () => {
+        throw Object.assign(new Error('Forbidden'), { status: 403 });
+      },
+    };
+    await assert.rejects(() => ensureLabel(api, 'o/r'), /Forbidden/);
   });
 });
