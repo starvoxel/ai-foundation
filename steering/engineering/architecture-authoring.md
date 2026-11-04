@@ -1,6 +1,6 @@
 ---
 name: 'architecture-authoring'
-version: '0.5.0'
+version: '0.5.1'
 description: 'Defines how arc42 documentation stays current: staleness is computed from git, and a change that leaves a doc accurate is waived in its commit message.'
 file_patterns: []
 ---
@@ -15,7 +15,7 @@ All agents with `domain = "engineering"`, in any project. The schema and `key_fi
 
 ### Rule: Staleness Is Computed From Git, Not Stored
 
-A doc is stale when a `key_files` entry changed in a commit after the doc's own last commit (or no longer exists), unless that commit waives it. Nothing is recorded in the doc, so parallel branches never conflict on a verification stamp.
+A doc is stale when a `key_files` entry changed in a non-merge commit that no commit editing the doc has in its history (or no longer exists), unless that commit waives it. Merge commits never count, so merging main into a branch cannot make a doc stale by itself. Nothing is recorded in the doc, so parallel branches never conflict on a verification stamp.
 
 - When a change affects what the doc says, update the doc in the same PR
 - When a change to a `key_files` entry leaves the doc accurate (a refactor, simplification, or comment change), do not edit the doc. Add a line to that commit's message: `Arch-Unaffected: <section> — <why the doc is still accurate>`, using the section's frontmatter `section` value, e.g. `05.04`
