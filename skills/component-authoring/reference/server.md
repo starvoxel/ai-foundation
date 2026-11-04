@@ -26,7 +26,7 @@ servers/{name}/
 
 - Every tool documents `name` (agents reference it as `@server/tool_name`), `description` (when to use it), every input with type and description (optional ones marked `[optional]`), and `outputs`. Self-hosted tool names are kebab-case
 - `index.js` stays a thin wrapper: import from `logic.js`, register each tool with the SDK, connect the transport
-- `package.json`: `private`, `"type": "module"`, `engines.node >=22.0.0`, only runtime dependencies. Pin `@modelcontextprotocol/sdk`; zod comes with it
+- `package.json`: `private`, `"type": "module"`, `engines.node >=22.23.4`, only runtime dependencies. Pin `@modelcontextprotocol/sdk`; zod comes with it
 - MCP servers use `@modelcontextprotocol/sdk`: `McpServer` with `registerTool(name, { description, inputSchema }, handler)` and `StdioServerTransport`, with errors logged to stderr
 - Tests use `node:test` with `describe('unit: …')`, `describe('integration: …')`, `describe('mcp: …')`. MCP tests connect a `Client` to the server over `InMemoryTransport.createLinkedPair()` and must cover tool listing, a valid invocation, and error handling. Tool listing and connection tests are never skipped; tests needing unavailable infrastructure are skipped with a stated reason
 - A definition-only server is acceptable while planning (`version: "0.x.y"`); implementation is required before it can be installed
