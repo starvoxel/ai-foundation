@@ -45,8 +45,10 @@ describe('publishFix — real git', () => {
       },
       prFix: {
         apply: (repoRoot) => writeFileSync(join(repoRoot, 'generated.txt'), 'fixed'),
-        commitMessage: 'Refresh the demo',
-        prTitle: 'Refresh the demo',
+        prTitle: () => 'Refresh the demo',
+        summary: 'The demo file is out of date.',
+        fixCommand: 'demo --fix',
+        verifyCommand: 'demo --check',
       },
       ...overrides,
     };
@@ -113,11 +115,28 @@ describe('publishFix — real git', () => {
     const botBranch = branches.find((b) => b.startsWith('bot/demo-'));
     assert.ok(botBranch, `expected a bot/demo-* branch, got ${branches}`);
 
+    // The label exists before the PR does, and is put on the PR afterwards.
+    const order = api.calls.map((c) => `${c.method} ${c.path}`);
+    const at = (entry) => order.indexOf(entry);
+    assert.ok(at('POST /repos/o/r/labels') >= 0);
+    assert.ok(at('POST /repos/o/r/labels') < at('POST /repos/o/r/pulls'));
+    assert.ok(at('POST /repos/o/r/pulls') < at('POST /repos/o/r/issues/5/labels'));
+    const labelCall = api.calls.find((c) => c.path === '/repos/o/r/issues/5/labels');
+    assert.deepEqual(labelCall.body, { labels: ['morning-check'] });
+
     const pull = api.calls.find((c) => c.path === '/repos/o/r/pulls');
     assert.equal(pull.body.head, botBranch);
     assert.equal(pull.body.base, 'main');
-    assert.equal(pull.body.title, 'Refresh the demo');
-    assert.ok(pull.body.body.includes('changed: generated.txt'));
+    assert.equal(pull.body.title, '[CI] Refresh the demo');
+    assert.match(
+      pull.body.body,
+      /^## Summary\n\nThe demo file is out of date\. Regenerated with `demo --fix`/,
+    );
+    assert.ok(pull.body.body.includes('reported 1 drifted file(s) before and none after'));
+    const subject = git(root, '--git-dir', remote, 'log', '-1', '--format=%s', botBranch);
+    assert.equal(subject, '[CI] Refresh the demo');
+    const bodyText = git(root, '--git-dir', remote, 'log', '-1', '--format=%b', botBranch);
+    assert.match(bodyText, /Generated with `demo --fix`\./);
 
     // The commit carries the bot's identity and the fix, and nothing else.
     const author = git(root, '--git-dir', remote, 'log', '-1', '--format=%an <%ae>', botBranch);
@@ -138,9 +157,22 @@ describe('publishFix — real git', () => {
     await publish(first);
     const botBranch = remoteBranches().find((b) => b.startsWith('bot/demo-'));
 
-    const second = makeApi([{ number: 5, head: { ref: botBranch } }]);
+    const second = makeApi([
+      { number: 5, head: { ref: botBranch }, labels: [{ name: 'morning-check' }] },
+    ]);
     assert.equal(await publish(second), 'none');
     assert.equal(second.calls.filter((c) => c.method !== 'GET').length, 0);
+    assert.equal(remoteBranches().filter((b) => b.startsWith('bot/demo-')).length, 1);
+  });
+
+  it('labels an open PR for the same result that is missing the label', async () => {
+    await publish(makeApi());
+    const botBranch = remoteBranches().find((b) => b.startsWith('bot/demo-'));
+
+    const api = makeApi([{ number: 5, head: { ref: botBranch }, labels: [] }]);
+    assert.equal(await publish(api), 'labelled #5');
+    const writes = api.calls.filter((c) => c.method !== 'GET').map((c) => c.path);
+    assert.deepEqual(writes, ['/repos/o/r/labels', '/repos/o/r/issues/5/labels']);
     assert.equal(remoteBranches().filter((b) => b.startsWith('bot/demo-')).length, 1);
   });
 
@@ -163,7 +195,13 @@ describe('publishFix — real git', () => {
 
   it('throws, pushes nothing and restores the tree when the fix leaves findings', async () => {
     const check = makeCheck({
-      prFix: { apply: () => {}, commitMessage: 'm', prTitle: 't' },
+      prFix: {
+        apply: () => {},
+        prTitle: () => 't',
+        summary: 's',
+        fixCommand: 'f',
+        verifyCommand: 'v',
+      },
     });
     const api = makeApi();
     await assert.rejects(() => publish(api, { check }), /left 1 finding/);

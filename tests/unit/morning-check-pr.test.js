@@ -16,7 +16,9 @@ const {
   basicAuth,
   branchFor,
   branchPrefix,
+  LABEL,
   closeBotPrs,
+  ensureLabel,
   gitAuthEnv,
   listBotPrs,
   planPr,
@@ -95,14 +97,40 @@ describe('planPr', () => {
 });
 
 describe('renderPrBody', () => {
-  it('lists the findings and the fix', () => {
-    const body = renderPrBody({ id: 'demo', title: 'Demo drifted', fix: 'Run the demo fix.' }, [
-      'changed: a',
-      'missing: b',
-    ]);
-    assert.ok(body.includes('**Demo drifted**'));
-    assert.ok(body.includes('`changed: a`') && body.includes('`missing: b`'));
-    assert.ok(body.includes('Run the demo fix.'));
+  const check = {
+    id: 'demo',
+    title: 'Demo drifted',
+    fix: 'Run the demo fix.',
+    prFix: {
+      apply: () => {},
+      prTitle: () => 'Refresh the demo',
+      summary: 'The demo is out of date.',
+      fixCommand: 'demo --fix',
+      verifyCommand: 'demo --check',
+    },
+  };
+  const body = renderPrBody({ check, findings: ['changed: a', 'missing: b'], changed: ['a', 'b'] });
+
+  it('is just Summary and Testing notes', () => {
+    assert.deepEqual(body.match(/^## .+$/gm), ['## Summary', '## Testing notes']);
+  });
+
+  it('says why, what was run and how many files changed', () => {
+    assert.match(
+      body,
+      /^## Summary\n\nThe demo is out of date\. Regenerated with `demo --fix` \(2 file\(s\) changed\)\./,
+    );
+  });
+
+  it('gives the check command with its before and after result', () => {
+    assert.ok(body.includes('`demo --check` reported 2 drifted file(s) before and none after.'));
+  });
+
+  it('is short, with no checklist, disclosure or instructions to a reader', () => {
+    assert.ok(body.split('\n').length <= 8);
+    assert.ok(body.length < 300);
+    assert.ok(!body.includes('[ ]') && !body.includes('AI disclosure'));
+    assert.ok(!body.includes('Run the demo fix.') && !body.includes('item(s)'));
   });
 });
 
@@ -154,5 +182,33 @@ describe('listBotPrs / closeBotPrs', () => {
     const api = fakeApi([]);
     assert.equal(await closeBotPrs({ check: { id: 'demo' }, repo: 'o/r', botApi: api }), 0);
     assert.deepEqual(api.calls, []);
+  });
+});
+
+describe('ensureLabel', () => {
+  it('creates the morning-check label', async () => {
+    const api = fakeApi();
+    await ensureLabel(api, 'o/r');
+    assert.equal(api.calls[0].path, '/repos/o/r/labels');
+    assert.equal(api.calls[0].body.name, LABEL);
+    assert.equal(LABEL, 'morning-check');
+  });
+
+  it('carries on when the label already exists (422)', async () => {
+    const api = {
+      request: async () => {
+        throw Object.assign(new Error('Validation Failed'), { status: 422 });
+      },
+    };
+    await assert.doesNotReject(() => ensureLabel(api, 'o/r'));
+  });
+
+  it('rethrows any other failure', async () => {
+    const api = {
+      request: async () => {
+        throw Object.assign(new Error('Forbidden'), { status: 403 });
+      },
+    };
+    await assert.rejects(() => ensureLabel(api, 'o/r'), /Forbidden/);
   });
 });

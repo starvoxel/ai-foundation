@@ -125,6 +125,27 @@ describe('architecture index — real git integration', () => {
     );
   });
 
+  it('is not stale when the only key_file commit is by a bot account', () => {
+    commitCodeThenDoc();
+    writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+    git(repoRoot, 'add', '-A');
+    git(
+      repoRoot,
+      '-c',
+      'user.name=dependabot[bot]',
+      '-c',
+      'user.email=49699333+dependabot[bot]@users.noreply.github.com',
+      'commit',
+      '-q',
+      '-m',
+      'Bump dep',
+    );
+    assert.equal(
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC),
+      false,
+    );
+  });
+
   it('is still stale when a later key_file commit has no waiver', () => {
     commitCodeThenDoc();
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
