@@ -1,5 +1,5 @@
 ---
-name: csharp_avalonia_fluent
+name: csharp_avalonia_fluentavalonia
 version: 1.0.0
 description: FluentAvalonia conventions layered on csharp_avalonia
 tags: [csharp, avalonia, fluentavalonia]

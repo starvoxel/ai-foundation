@@ -14,7 +14,7 @@ depends_on: [csharp_base]
 
 | Layer        | Library / Version                                    |
 | ------------ | ---------------------------------------------------- |
-| UI Framework | Avalonia 12.x                                        |
+| UI Framework | Avalonia                                             |
 | Theme        | Named by the project's design standard (see Theming) |
 | Bindings     | Compiled bindings (default in Avalonia 12)           |
 | Testing (UI) | Avalonia.Headless.XUnit                              |
