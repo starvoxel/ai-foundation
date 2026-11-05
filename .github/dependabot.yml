@@ -1,9 +1,10 @@
 # Dependabot version updates. Security updates are configured in the repo's
 # Code security settings; the groups below only shape version-update PRs.
 #
-# Only the `*-patch` groups are eligible for auto-merge, see
-# .github/workflows/dependabot-auto-merge.yml. Everything else (runtime
-# dependencies, minor and major updates) arrives as its own PR for a human.
+# The patch groups only batch PRs. Auto-merge eligibility is decided by
+# .github/scripts/dependabot-auto-merge.mjs, not by group, so an ungrouped patch
+# update (a security update, say) of a dev dependency or an Action qualifies too.
+# Runtime dependencies, minor and major updates arrive as their own PR for a human.
 #
 # `cooldown` holds a new release back for a week before it is proposed, so a
 # compromised release is usually caught first. Security updates ignore it.

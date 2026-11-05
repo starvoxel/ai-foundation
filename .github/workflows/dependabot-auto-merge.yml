@@ -15,6 +15,9 @@ name: Dependabot auto-merge
 #    PR cannot change the rule that approves it.
 #  - Metadata reaches the script through an environment variable, not inline
 #    `${{ }}`, so it cannot inject into the shell.
+#  - Residual risk: a person with write access who pushes to a Dependabot branch
+#    after auto-merge was enabled keeps it enabled; only the required checks
+#    gate that commit. Disable auto-merge on the PR if you push to one.
 on:
   pull_request:
     types: [opened, synchronize, reopened]
