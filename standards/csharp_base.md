@@ -685,6 +685,6 @@ Every public method must have:
 ### Test Organisation
 
 - One test class per production class
-- Test class name: `{ProductionClassName}Tests`
+- Test class names follow "Test Naming Convention"
 - Use `[Theory]` with `[InlineData]` or `[MemberData]` for parameterized cases
 - Keep test methods focused — one assertion per logical concept (multiple `Assert` calls are fine if they verify one thing)
