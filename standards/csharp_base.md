@@ -1,6 +1,6 @@
 ---
 name: csharp_base
-version: 1.1.3
+version: 1.2.0
 description: Core C# coding standards for all .NET projects
 tags: [csharp]
 depends_on: []
@@ -56,18 +56,26 @@ See `aif init` for the project template. If no `.editorconfig` exists, the agent
 
 ## Naming Conventions
 
-| Construct       | Convention                   | Example             |
-| --------------- | ---------------------------- | ------------------- |
-| Classes         | PascalCase                   | `DataParser`        |
-| Interfaces      | PascalCase with `I` prefix   | `IDataParser`       |
-| Methods         | PascalCase                   | `ParseFile()`       |
-| Async methods   | PascalCase + `Async` suffix  | `ParseFileAsync()`  |
-| Properties      | PascalCase                   | `FileName`          |
-| Private fields  | `_camelCase`                 | `_dataParser`       |
-| Local variables | camelCase                    | `parsedResult`      |
-| Constants       | PascalCase                   | `MaxRetryCount`     |
-| Enums           | PascalCase (type and values) | `FileFormat.Csv`    |
-| Namespaces      | `{Project}.{Layer}`          | `CNS.Core.Services` |
+| Construct               | Convention                   | Example                 |
+| ----------------------- | ---------------------------- | ----------------------- |
+| Classes                 | PascalCase                   | `DataParser`            |
+| Interfaces              | PascalCase with `I` prefix   | `IDataParser`           |
+| Methods                 | PascalCase                   | `ParseFile()`           |
+| Async methods           | PascalCase + `Async` suffix  | `ParseFileAsync()`      |
+| Properties              | PascalCase                   | `FileName`              |
+| Private instance fields | `_camelCase`                 | `_dataParser`           |
+| Private static readonly | PascalCase, like constants   | `DefaultOptions`        |
+| Local variables         | camelCase                    | `parsedResult`          |
+| Constants               | PascalCase                   | `MaxRetryCount`         |
+| Enums                   | PascalCase (type and values) | `FileFormat.Csv`        |
+| Namespaces              | `{Project}.{Layer}`          | `Cns.Core.Services`     |
+| Acronyms                | See Acronyms below           | `UIState`, `JsonParser` |
+
+### Acronyms
+
+- Follow Microsoft's .NET naming guideline. Two-letter acronyms are all capitals (`UI`, `IO`, `IP`), except at the start of a camelCase identifier (`uiState`). Acronyms of three or more letters are PascalCase (`Cli`, `Csv`, `Json`, `Http`, `Xml`). Abbreviations are words, not acronyms (`Id`, `Ok`)
+- Names from the framework or third-party libraries keep their own spelling
+- Analyzers cannot enforce this; code review does
 
 ---
 
@@ -644,8 +652,14 @@ Framework: `xUnit`
 ### Test Naming Convention
 
 ```
-{MethodName}_{Scenario}_{ExpectedResult}
+{Subject}_{Condition}_{ExpectedResult}
 ```
+
+- **Subject:** the member under test (`Parse`, `Show`), or for architecture tests the artefact checked (`ReferencedAssemblies`, `SourceFiles`)
+- **Condition:** the input, state or scope as a noun phrase (`EmptyInput`, `FileNotFound`, `CoreAssembly`); `DefaultState` when there is none
+- **ExpectedResult:** a present-tense verb phrase (`ReturnsEmptyResult`, `ThrowsFileNotFoundException`, `ExcludeUIFrameworks`)
+- **Test classes:** `{ClassUnderTest}Tests`, or `{Rule}Tests` for architecture tests
+- Enforce the three-part shape with an architecture test that scans test sources
 
 Examples:
 
