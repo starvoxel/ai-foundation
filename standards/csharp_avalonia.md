@@ -16,7 +16,7 @@ depends_on: [csharp_base]
 | ------------ | ---------------------------------------------------- |
 | UI Framework | Avalonia                                             |
 | Theme        | Named by the project's design standard (see Theming) |
-| Bindings     | Compiled bindings (default in Avalonia 12)           |
+| Bindings     | Compiled bindings (default since Avalonia 12)        |
 | Testing (UI) | Avalonia.Headless.XUnit                              |
 
 ---
@@ -148,7 +148,7 @@ Rules:
 ## Theming
 
 - The base theme is named by the project's design standard; without one, use `Avalonia.Themes.Fluent`
-- Load exactly one base theme. Never combine two Fluent-family themes (`Avalonia.Themes.Fluent`, `FluentAvaloniaTheme`, Avalonia 12.2's `Avalonia.Themes.Fluent2`); they override each other's resources
+- Load exactly one base theme. Never combine two Fluent-family themes (`Avalonia.Themes.Fluent`, `FluentAvaloniaTheme`, `Avalonia.Themes.Fluent2`, added in Avalonia 12.2); they override each other's resources
 - Custom styles go in `Assets/Styles/` as separate AXAML resource dictionaries
 - Never set colours inline; reference theme resource keys through `DynamicResource` so light and dark variants follow
 - Prefer the WinUI token keys shared by Avalonia's Fluent themes and FluentAvalonia (`TextFillColor*`, `*FillColor*`, `*StrokeColor*`, `ControlCornerRadius`, `OverlayCornerRadius`) over theme-specific keys, so a theme change does not touch views
@@ -163,4 +163,4 @@ Rules:
 - **Cross-platform paths:** Always use `Path.Combine`, never hardcoded separators
 - **File dialogs:** Use Avalonia `StorageProvider` API (Avalonia 11+), not legacy `OpenFileDialog`
 - **ViewLocator:** use an explicit type-to-factory registration, not the template's reflection-based locator, which is not trim-safe
-- **Diagnostics:** `Avalonia.Diagnostics` is gone in Avalonia 12. Reference any replacement (paid Dev Tools or a community fork) in Debug builds only
+- **Diagnostics:** `Avalonia.Diagnostics` was removed in Avalonia 12. Reference any replacement (paid Dev Tools or a community fork) in Debug builds only

@@ -40,4 +40,4 @@ Loaded only by projects tagged `fluentavalonia`. Where it conflicts with `csharp
 ## Tables
 
 - `Avalonia.Controls.DataGrid` is deprecated upstream (bug fixes only) and is a FluentAvalonia dependency. Use it where sorting or editing is needed; prefer side-panel editing over in-cell editors (in-cell popups lose focus, DataGrid #248)
-- Avalonia's built-in `TableView` (12.1+) suits small read-only tables; it has no column sorting
+- Avalonia's built-in `TableView` (added in Avalonia 12.1) suits small read-only tables; it has no column sorting
