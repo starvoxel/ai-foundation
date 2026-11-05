@@ -13,7 +13,7 @@ import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { resolveBundle } from '../../lib/resolver.js';
-import { computeBundleSourceHashes } from '../../lib/snapshot/io.js';
+import { computeBundleSourceHashes } from '../../lib/source-hashes/io.js';
 import { createTempRepo, destroyTempRepo } from '../helpers/fixture.js';
 
 /** Overwrite a skill's SKILL.md with a requires_skills frontmatter. */

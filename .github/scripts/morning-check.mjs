@@ -1,0 +1,570 @@
+#!/usr/bin/env node
+
+/**
+ * Morning check, run by .github/workflows/morning-check.yml.
+ *
+ * Each check looks for something that needs a human and is not worth blocking
+ * a PR over, because a blocking check would make every PR that touches the same
+ * shared file conflict. Each check chooses how it reports (`report`):
+ *
+ *   issue  One GitHub issue, updated only when the findings change and
+ *          closed once they are gone. The default.
+ *   pr     The check has a mechanical fix (`prFix`), so the bot account opens a
+ *          PR with it instead (morning-check-pr.mjs). At most one is open per
+ *          check; a changed fix supersedes the old PR, and a clean check closes
+ *          it. Without a bot token, a `pr` check reports as an issue, so a
+ *          finding is never lost.
+ *
+ * Every issue and PR it opens carries the `morning-check` label. Nothing is
+ * stored in the repo.
+ *
+ * Two modes, so the cheap decision costs no `npm ci`:
+ *
+ *   guard  Needs only Node and git. Writes `run=true|false` to GITHUB_OUTPUT.
+ *          Runs when forced (manual dispatch, or Monday as a weekly backstop),
+ *          when a check already has an open issue to re-check, or when `main`
+ *          changed a path some check watches within the last WINDOW_HOURS.
+ *   run    Runs every check, then opens, updates or closes its issue or PR.
+ *
+ * To add a check, append an entry to CHECKS: its watched paths, a one-line fix,
+ * and a function returning the findings. An empty list means clean, and a check
+ * that cannot verify must throw, never return clean. Add `report: 'pr'` and a
+ * `prFix` only when the fix is mechanical and safe to propose unreviewed.
+ *
+ * Environment:
+ *   GH_TOKEN / GITHUB_TOKEN  token (needs issues: write); without one, or with
+ *                            DRY_RUN=true, the plan is only printed
+ *   BOT_TOKEN                the bot account's token (contents and pull requests
+ *                            write), for `pr` checks; without it they fall back
+ *                            to an issue
+ *   REPO                     owner/name
+ *   FORCE                    "true" to run regardless of what changed
+ *   DRY_RUN                  "true" to print the plan and change nothing
+ *   RUN_URL                  link to this run, added to the closing comment
+ *   GITHUB_OUTPUT            file the guard result is appended to
+ *   GITHUB_STEP_SUMMARY      file the Markdown report is appended to
+ */
+
+import { execFileSync, spawnSync } from 'node:child_process';
+import { appendFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
+
+import { createApi } from './cleanup-branches.mjs';
+import {
+  CI_TITLE_PREFIX,
+  LABEL,
+  closeBotPrs,
+  ensureLabel,
+  listBotPrs,
+  publishFix,
+} from './morning-check-pr.mjs';
+
+export { LABEL };
+
+/** Longer than the daily gap, so one slow or skipped run does not hide a change. */
+export const WINDOW_HOURS = 26;
+/** 0 = Sunday. A forced weekly run catches anything the change guard missed. */
+export const FORCE_WEEKDAY = 1;
+
+/**
+ * @typedef {object} Check
+ * @property {string} id  Stable key; it is also the marker that ties an issue to its check.
+ * @property {string} title
+ * @property {string[]} paths  Repo path prefixes whose change can introduce a finding.
+ * @property {string} fix  One line telling the human what to do about a finding.
+ * @property {(repoRoot: string) => string[]} run  The findings; empty means clean. Throws when it cannot verify.
+ * @property {'issue'|'pr'} [report]  How findings are raised; `issue` when unset.
+ * @property {PrFix} [prFix]  Required for `report: 'pr'`.
+ *
+ * @typedef {object} PrFix
+ * @property {(repoRoot: string) => void} apply  Edits the working tree to clear the findings.
+ * @property {(findings: string[]) => string} prTitle  Imperative, under 70 characters, and specific to what was found.
+ * @property {string} summary  One sentence on why the PR exists, for its Summary.
+ * @property {string} fixCommand  The command `apply` runs, shown in the PR and the commit message.
+ * @property {string} verifyCommand  The command that reports the findings, to show before and after.
+ *
+ * @typedef {object} Issue
+ * @property {number} number
+ * @property {string} body
+ *
+ * @typedef {{action: 'none'|'create'|'update'|'close', title: string, body: string}} IssuePlan
+ * @typedef {ReturnType<typeof createApi>} ApiClient
+ */
+
+/**
+ * Reads the drift lines out of `aif install --scope project --check`. The
+ * check always exits 0 and only prints, so the text is the interface. Output it
+ * does not recognise is an error: "could not read it" must not look like
+ * "nothing drifted".
+ *
+ * @param {string} stdout
+ * @returns {string[]} Lines like `changed: .claude/agents/engineer.md`; empty when current.
+ * @throws {Error} When the output is neither a clean nor a drift report.
+ */
+export function parseDriftOutput(stdout) {
+  const findings = [...stdout.matchAll(/^\s+((?:changed|missing|retired): \S.*)$/gm)].map((m) =>
+    m[1].trim(),
+  );
+  if (findings.length > 0) return findings;
+  if (/project install is current|No project-scope install found/.test(stdout)) return [];
+  throw new Error(`Unrecognised install check output: ${stdout.trim().slice(0, 200)}`);
+}
+
+/**
+ * Runs the committed-install drift check (the same command CI runs as a
+ * warning). A bundle that fails to reinstall means the comparison is
+ * incomplete, so that throws instead of reporting a partial result.
+ *
+ * @param {string} repoRoot
+ * @returns {string[]}
+ */
+function runInstallDrift(repoRoot) {
+  const res = spawnSync(
+    process.execPath,
+    ['bin/aif.js', 'install', '--scope', 'project', '--check'],
+    { cwd: repoRoot, encoding: 'utf8' },
+  );
+  if (res.status !== 0) {
+    throw new Error(`install check exited ${res.status}: ${res.stderr.trim().slice(0, 200)}`);
+  }
+  if (/failed to reinstall/.test(res.stderr)) {
+    throw new Error(`install check could not reinstall every bundle: ${res.stderr.trim()}`);
+  }
+  return parseDriftOutput(res.stdout);
+}
+
+/**
+ * The components named by `changed:`, `missing:` or `retired:` install findings,
+ * from paths like `.claude/rules/engineering-git-workflow.md` or
+ * `.claude/skills/oversight/SKILL.md`. The manifest is left out: it changes with
+ * every one of them, so it says nothing about what drifted. Pure.
+ *
+ * @param {string[]} findings
+ * @returns {string[]} Unique names in first-seen order.
+ */
+export function installComponentNames(findings) {
+  const names = [];
+  for (const finding of findings) {
+    const path = finding.replace(/^\w+: /, '');
+    const m = path.match(/^\.claude\/[^/]+\/([^/]+)(\/|$)/);
+    if (!m) continue;
+    const name = m[1].replace(/\.[^.]+$/, '');
+    if (!names.includes(name)) names.push(name);
+  }
+  return names;
+}
+
+/** The longest PR title the repo's PR standards allow. */
+export const MAX_TITLE = 70;
+
+/** What is left of MAX_TITLE once the workflow's prefix is added to a title. */
+const TITLE_ROOM = MAX_TITLE - CI_TITLE_PREFIX.length;
+
+/**
+ * PR title for an install refresh, naming what drifted, or how many components
+ * when the names would not fit. Pure.
+ *
+ * @param {string[]} findings
+ * @returns {string}
+ */
+export function installDriftTitle(findings) {
+  const names = installComponentNames(findings);
+  if (names.length === 0) return 'Refresh the committed install manifest';
+  const named = `Refresh the committed install of ${names.join(' and ')}`;
+  if (names.length <= 2 && named.length <= TITLE_ROOM) return named;
+  return `Refresh the committed install of ${names.length} components`;
+}
+
+/**
+ * Refreshes the committed install in place; the check then passes.
+ *
+ * @param {string} repoRoot
+ */
+function refreshInstall(repoRoot) {
+  execFileSync(process.execPath, ['bin/aif.js', 'install', '--scope', 'project', '--update'], {
+    cwd: repoRoot,
+    stdio: ['ignore', 'ignore', 'inherit'],
+  });
+}
+
+/** @type {Check[]} */
+export const CHECKS = [
+  {
+    id: 'install-drift',
+    title: 'Committed project-scope install has drifted',
+    // The install is built from these and committed under .claude/; adapters in
+    // lib/ decide how, so a change to any of them can leave it out of date.
+    paths: [
+      '.claude/',
+      'agents/',
+      'skills/',
+      'steering/',
+      'standards/',
+      'servers/',
+      'bundles/',
+      'lib/',
+      'bin/',
+    ],
+    fix: 'Run `aif install --scope project --update` and commit the result in its own PR. Feature PRs should not refresh it: `.claude/.installs.yaml` is one shared file, so doing it per PR makes them conflict.',
+    run: runInstallDrift,
+    report: 'pr',
+    prFix: {
+      apply: refreshInstall,
+      prTitle: installDriftTitle,
+      summary: 'The committed `.claude/` install no longer matches its sources.',
+      fixCommand: 'aif install --scope project --update',
+      verifyCommand: 'aif install --scope project --check',
+    },
+  },
+];
+
+/**
+ * Whether anything a check watches changed. Pure.
+ *
+ * @param {string[]} changedFiles
+ * @param {Check[]} checks
+ * @returns {Check[]} The checks with at least one watched path in `changedFiles`.
+ */
+export function checksTouched(changedFiles, checks) {
+  return checks.filter((c) => changedFiles.some((f) => c.paths.some((p) => f.startsWith(p))));
+}
+
+/**
+ * Decides whether the expensive part needs to run. Pure.
+ *
+ * @param {{force: boolean, openItems: number, changedFiles: string[]|null, checks: Check[]}} input
+ *   `openItems` counts open issues and bot PRs, each of which the next run may close.
+ *   `changedFiles` is null when the window start is unknown (a young or shallow history).
+ * @returns {{run: boolean, reason: string}}
+ */
+export function decideGuard({ force, openItems, changedFiles, checks }) {
+  if (force) return { run: true, reason: 'forced' };
+  if (openItems > 0) return { run: true, reason: `${openItems} open item(s) to re-check` };
+  if (changedFiles === null) return { run: true, reason: 'cannot tell what changed' };
+  const touched = checksTouched(changedFiles, checks);
+  if (touched.length > 0) {
+    return { run: true, reason: `changed paths watched by ${touched.map((c) => c.id).join(', ')}` };
+  }
+  return { run: false, reason: `nothing watched changed in the last ${WINDOW_HOURS}h` };
+}
+
+/**
+ * The hidden marker tying an issue to a check.
+ *
+ * @param {string} id
+ */
+export const markerFor = (id) => `<!-- morning-check:${id} -->`;
+
+/**
+ * Issue body for a check's findings. It holds nothing that changes from run to
+ * run, so an unchanged finding list never edits the issue. Pure.
+ *
+ * @param {Check} check
+ * @param {string[]} findings
+ * @returns {string}
+ */
+export function renderBody(check, findings) {
+  return [
+    markerFor(check.id),
+    `The morning check found ${findings.length} item(s):`,
+    '',
+    ...findings.map((f) => `- \`${f}\``),
+    '',
+    `**What to do:** ${check.fix}`,
+    '',
+    'This issue is maintained by `.github/workflows/morning-check.yml`. It closes by itself once the check passes.',
+  ].join('\n');
+}
+
+/**
+ * What to do with a check's issue given its findings and any open issue. Pure.
+ *
+ * @param {{check: Check, findings: string[], existing: Issue|null}} input
+ * @returns {IssuePlan}
+ */
+export function planIssue({ check, findings, existing }) {
+  const title = `Morning check: ${check.title}`;
+  const body = renderBody(check, findings);
+  if (findings.length === 0) return { action: existing ? 'close' : 'none', title, body };
+  if (!existing) return { action: 'create', title, body };
+  return { action: existing.body === body ? 'none' : 'update', title, body };
+}
+
+/**
+ * Open issues for this check, found by marker among the labelled ones.
+ *
+ * @param {Issue[]} openIssues
+ * @param {string} id
+ * @returns {Issue|null}
+ */
+export function findExisting(openIssues, id) {
+  return openIssues.find((i) => (i.body ?? '').includes(markerFor(id))) ?? null;
+}
+
+/**
+ * Markdown report for the job summary. Pure.
+ *
+ * @param {{check: Check, findings: string[]|null, error: string|null, action: string}[]} results
+ * @returns {string}
+ */
+export function renderSummary(results) {
+  const rows = results.map(({ check, findings, error, action }) => {
+    const status = error ?? `${findings?.length ?? 0} finding(s)`;
+    return `| ${check.id} | ${status.replace(/[\\|]/g, '\\$&')} | ${action} |`;
+  });
+  return [
+    '## Morning check',
+    '',
+    '| Check | Result | Report |',
+    '| --- | --- | --- |',
+    ...rows,
+    '',
+  ].join('\n');
+}
+
+/**
+ * Files changed on the default branch over the last `hours`, from the first
+ * parent history. A PR's own commits can be older than the window, so this
+ * compares the tip with the last commit before the window instead of reading
+ * commit dates.
+ *
+ * @param {string} repoRoot
+ * @param {number} hours
+ * @returns {string[]|null} Null when no commit precedes the window.
+ */
+export function changedFilesSince(repoRoot, hours) {
+  const git = (/** @type {string[]} */ args) =>
+    execFileSync('git', args, { cwd: repoRoot, encoding: 'utf8' }).trim();
+  const base = git(['rev-list', '-1', '--first-parent', `--before=${hours} hours ago`, 'HEAD']);
+  if (!base) return null;
+  return git(['diff', '--name-only', `${base}..HEAD`])
+    .split('\n')
+    .filter(Boolean);
+}
+
+/**
+ * @param {ApiClient} api
+ * @param {string} repo
+ * @returns {Promise<Issue[]>}
+ */
+async function listOpenIssues(api, repo) {
+  const issues = await api.paginate(
+    `/repos/${repo}/issues?state=open&labels=${LABEL}&per_page=100`,
+  );
+  // The issues endpoint also lists pull requests.
+  return issues.filter((i) => !i.pull_request);
+}
+
+/**
+ * Open issues plus open bot PRs: everything a later run may need to close.
+ *
+ * @param {ApiClient} api
+ * @param {string} repo
+ * @returns {Promise<number>}
+ */
+async function countOpenItems(api, repo) {
+  const issues = await listOpenIssues(api, repo);
+  const prCounts = await Promise.all(
+    CHECKS.filter((c) => c.report === 'pr').map(
+      async (c) => (await listBotPrs(api, repo, c.id)).length,
+    ),
+  );
+  return issues.length + prCounts.reduce((a, b) => a + b, 0);
+}
+
+/**
+ * Applies one plan through the API.
+ *
+ * @param {ApiClient} api
+ * @param {string} repo
+ * @param {IssuePlan} plan
+ * @param {Issue|null} existing
+ * @param {string} runUrl
+ */
+async function applyPlan(api, repo, plan, existing, runUrl) {
+  if (plan.action === 'create') {
+    await ensureLabel(api, repo);
+    await api.request('POST', `/repos/${repo}/issues`, {
+      title: plan.title,
+      body: plan.body,
+      labels: [LABEL],
+    });
+  } else if (plan.action === 'update' && existing) {
+    await api.request('PATCH', `/repos/${repo}/issues/${existing.number}`, { body: plan.body });
+  } else if (plan.action === 'close' && existing) {
+    await api.request('POST', `/repos/${repo}/issues/${existing.number}/comments`, {
+      body: `The check passes again${runUrl ? ` (${runUrl})` : ''}. Closing.`,
+    });
+    await api.request('PATCH', `/repos/${repo}/issues/${existing.number}`, {
+      state: 'closed',
+      state_reason: 'completed',
+    });
+  }
+}
+
+/**
+ * The GitHub client for this environment, or null for a dry run (no token or
+ * repo, or DRY_RUN=true).
+ *
+ * @param {NodeJS.ProcessEnv} env
+ * @returns {ApiClient|null}
+ */
+function clientFromEnv(env) {
+  const token = env.GH_TOKEN ?? env.GITHUB_TOKEN;
+  if (!token || !env.REPO || env.DRY_RUN === 'true') return null;
+  return createApi({ token });
+}
+
+/**
+ * Whether today is the weekly forced run.
+ *
+ * @param {Date} now
+ */
+export const isForcedDay = (now) => now.getUTCDay() === FORCE_WEEKDAY;
+
+/**
+ * Guard mode: decide, report, and write the output the workflow reads.
+ *
+ * @param {{env: NodeJS.ProcessEnv, repoRoot: string, now?: Date, api?: ApiClient|null, log?: (line: string) => void}} input
+ *   `api` replaces the client built from the environment; null forces a dry run.
+ * @returns {Promise<{run: boolean, reason: string}>}
+ */
+export async function runGuard({ env, repoRoot, now = new Date(), api, log = console.log }) {
+  const client = api === undefined ? clientFromEnv(env) : api;
+  const repo = env.REPO ?? '';
+  const openItems = client ? await countOpenItems(client, repo) : 0;
+  const decision = decideGuard({
+    force: env.FORCE === 'true' || isForcedDay(now),
+    openItems,
+    changedFiles: changedFilesSince(repoRoot, WINDOW_HOURS),
+    checks: CHECKS,
+  });
+  log(`Guard: run=${decision.run} (${decision.reason})`);
+  if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `run=${decision.run}\n`);
+  return decision;
+}
+
+/**
+ * Whether a check reports through a bot PR on this run: it must ask for one,
+ * have a fix, and a bot client must exist. Anything else reports as an issue,
+ * so a finding is never lost. Pure.
+ *
+ * @param {Check} check
+ * @param {boolean} hasBot
+ * @returns {'issue'|'pr'}
+ */
+export function reportMode(check, hasBot) {
+  return check.report === 'pr' && check.prFix && hasBot ? 'pr' : 'issue';
+}
+
+/** @param {Check} check */
+const wantsPr = (check) => check.report === 'pr' && Boolean(check.prFix);
+
+/**
+ * The bot account's client, or null without a bot token or in a dry run.
+ *
+ * @param {NodeJS.ProcessEnv} env
+ * @returns {ApiClient|null}
+ */
+function botClientFromEnv(env) {
+  if (!env.BOT_TOKEN || !env.REPO || env.DRY_RUN === 'true') return null;
+  return createApi({ token: env.BOT_TOKEN });
+}
+
+/**
+ * Run mode: every check, then its issue or PR. A check that throws is recorded
+ * and fails the run at the end, after the other checks have been reported.
+ *
+ * @param {{env: NodeJS.ProcessEnv, repoRoot: string, checks?: Check[], api?: ApiClient|null, botApi?: ApiClient|null, publish?: typeof publishFix, log?: (line: string) => void}} input
+ *   `api` and `botApi` replace the clients built from the environment; null forces a dry run.
+ * @returns {Promise<{failed: number}>}
+ */
+export async function runChecks({
+  env,
+  repoRoot,
+  checks = CHECKS,
+  api: injected,
+  botApi: injectedBot,
+  publish = publishFix,
+  log = console.log,
+}) {
+  const repo = env.REPO ?? '';
+  const api = injected === undefined ? clientFromEnv(env) : injected;
+  const botApi = injectedBot === undefined ? botClientFromEnv(env) : injectedBot;
+  const openIssues = api ? await listOpenIssues(api, repo) : [];
+
+  const results = [];
+  for (const check of checks) {
+    /** @type {string[]|null} */
+    let findings = null;
+    let error = null;
+    let action = 'none';
+    try {
+      findings = check.run(repoRoot);
+    } catch (err) {
+      error = `could not verify: ${/** @type {Error} */ (err).message}`;
+    }
+    const mode = reportMode(check, Boolean(botApi));
+    const dryPr = !botApi && env.DRY_RUN === 'true' && Boolean(env.BOT_TOKEN) && wantsPr(check);
+    if (findings) {
+      try {
+        if (dryPr && findings.length > 0) {
+          action = 'PR (dry run)';
+          log(`Dry run: would open a PR for ${check.id} as the bot`);
+        } else if (mode === 'pr' && findings.length > 0 && botApi) {
+          action = `PR ${await publish({
+            check,
+            findings,
+            repoRoot,
+            repo,
+            botApi,
+            token: env.BOT_TOKEN ?? '',
+            runUrl: env.RUN_URL ?? '',
+          })}`;
+        } else {
+          const existing = findExisting(openIssues, check.id);
+          const plan = planIssue({ check, findings, existing });
+          action = `issue ${plan.action}`;
+          if (api) await applyPlan(api, repo, plan, existing, env.RUN_URL ?? '');
+          else log(`Dry run: ${plan.action} issue "${plan.title}"`);
+          if (mode === 'pr' && botApi) {
+            const closed = await closeBotPrs({ check, repo, botApi, runUrl: env.RUN_URL ?? '' });
+            if (closed > 0) action += `, PR closed ${closed}`;
+          }
+        }
+      } catch (err) {
+        // The check itself ran; acting on it failed. Fail the run visibly.
+        error = `could not report: ${/** @type {Error} */ (err).message}`;
+      }
+    }
+    if (wantsPr(check) && mode === 'issue' && !dryPr && findings?.length) {
+      log(`${check.id}: no bot token, reporting as an issue instead of a PR`);
+    }
+    log(error ? `${check.id}: ${error}` : `${check.id}: ${findings?.length} finding(s), ${action}`);
+    results.push({ check, findings, error, action });
+  }
+  if (env.GITHUB_STEP_SUMMARY) appendFileSync(env.GITHUB_STEP_SUMMARY, renderSummary(results));
+  return { failed: results.filter((r) => r.error).length };
+}
+
+async function main() {
+  const repoRoot = resolve(import.meta.dirname, '../..');
+  const mode = process.argv[2];
+  if (mode === 'guard') {
+    await runGuard({ env: process.env, repoRoot });
+  } else if (mode === 'run') {
+    const { failed } = await runChecks({ env: process.env, repoRoot });
+    if (failed > 0) process.exitCode = 1;
+  } else {
+    console.error('Usage: morning-check.mjs guard|run');
+    process.exitCode = 2;
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((err) => {
+    console.error(err);
+    process.exitCode = 1;
+  });
+}

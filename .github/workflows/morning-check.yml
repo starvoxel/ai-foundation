@@ -1,0 +1,85 @@
+name: Morning check
+
+# Things that need a human but should not block a PR. A blocking check on a
+# file every AI-component PR regenerates (the project install manifest) would
+# make those PRs conflict, so they are raised here instead. A check with a
+# mechanical fix (install drift) gets a PR from the bot account; any other check
+# gets one issue that opens on a finding and closes when it clears. Both carry
+# the `morning-check` label.
+#
+# The bot's token lives in Bitwarden Secrets Manager. Two things are configured
+# in the repo's Actions settings, neither in this file: the secret
+# BWS_ACCESS_TOKEN (a machine account that can read only that one secret) and
+# the variables BOT_TOKEN_SECRET_ID (the Bitwarden secret's ID, not the token)
+# and, if the account is not on the US cloud, BWS_CLOUD_REGION. Until
+# BOT_TOKEN_SECRET_ID is set, every check reports as an issue.
+#
+# The checks and the rules for when to run live in
+# .github/scripts/morning-check.mjs. The guard step needs only Node and git, so
+# on a quiet morning the job ends before `npm ci`. It runs when forced, on
+# Mondays, when a check has an open issue to re-check, or when `main` changed a
+# path a check watches.
+on:
+  schedule:
+    # 04:07 EST (09:07 UTC). GitHub cron has no time zone, so this is 05:07
+    # during daylight saving time.
+    - cron: "7 9 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+env:
+  GH_TOKEN: ${{ github.token }}
+  REPO: ${{ github.repository }}
+  # A manual dispatch always runs the checks.
+  FORCE: ${{ github.event_name == 'workflow_dispatch' }}
+  RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+jobs:
+  morning-check:
+    name: Run the morning checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      # Full history: the guard compares the tip with the last commit before
+      # the window, which can be older than any fixed depth.
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Decide whether anything needs checking
+        id: guard
+        run: node .github/scripts/morning-check.mjs guard
+
+      - name: Set up Node.js
+        if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-node@v5
+        with:
+          # The newest 22.x, which the engines.node floor in package.json allows.
+          node-version: "22.x"
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.guard.outputs.run == 'true'
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      # Fetched after `npm ci` and right before the run step, so no dependency
+      # code sees the token: the action exports it to the steps that follow, and
+      # the only one is the run step. The action is pinned to a commit, not a tag.
+      - name: Fetch the bot token from Bitwarden Secrets Manager
+        if: steps.guard.outputs.run == 'true' && vars.BOT_TOKEN_SECRET_ID != ''
+        uses: bitwarden/sm-action@1238aae8fc64b212641190a9227c8a734ab1a793 # v3.0.1
+        with:
+          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
+          cloud_region: ${{ vars.BWS_CLOUD_REGION || 'us' }}
+          secrets: |
+            ${{ vars.BOT_TOKEN_SECRET_ID }} > BOT_TOKEN
+
+      - name: Run the checks
+        if: steps.guard.outputs.run == 'true'
+        run: node .github/scripts/morning-check.mjs run

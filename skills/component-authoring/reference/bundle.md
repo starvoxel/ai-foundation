@@ -15,4 +15,4 @@ A bundle defines which components get installed to a harness. File: `bundles/{na
 
 - [ ] File at `bundles/{name}/bundle.yaml` with the required fields
 - [ ] Every listed agent, skill, steering file, and server exists in the repo
-- [ ] `aif validate` and `aif snapshot` pass
+- [ ] `aif validate` passes
