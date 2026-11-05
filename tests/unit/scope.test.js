@@ -8,7 +8,7 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import { manifestLocation, parseScope, ScopeError } from '../../lib/scope.js';
 import { fromStoredPath, mapManifestPaths, toStoredPath } from '../../lib/manifest.js';
@@ -52,9 +52,11 @@ describe('manifestLocation', () => {
 
 describe('stored manifest paths', () => {
   it('round-trips a project path through its stored, forward-slash form', () => {
-    const abs = join('/proj', '.claude', 'agents', 'a.md');
-    assert.equal(toStoredPath(abs, '/proj'), '.claude/agents/a.md');
-    assert.equal(fromStoredPath('.claude/agents/a.md', '/proj'), abs);
+    // resolve() makes the base absolute on every platform (adds a drive letter on win32).
+    const base = resolve('/proj');
+    const abs = join(base, '.claude', 'agents', 'a.md');
+    assert.equal(toStoredPath(abs, base), '.claude/agents/a.md');
+    assert.equal(fromStoredPath('.claude/agents/a.md', base), abs);
   });
 
   it('leaves an absolute stored path unchanged', () => {

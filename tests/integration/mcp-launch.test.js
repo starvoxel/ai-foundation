@@ -155,14 +155,19 @@ describe('integration: project-scope stdio launcher', () => {
     assert.ok(retry.stderr.includes('installing dependencies'));
   });
 
-  it('forwards SIGTERM to the server and passes its exit code through', async () => {
-    writeFileSync(
-      join(serverDir, 'index.js'),
-      "process.on('SIGTERM', () => process.exit(3));\nsetInterval(() => {}, 1000);\nprocess.stdout.write('ready\\n');\n",
-    );
-    const { code } = await startEntry((child) => child.kill('SIGTERM'));
-    assert.equal(code, 3);
-  });
+  // win32 has no POSIX signals: kill('SIGTERM') is a hard kill, so no exit code can pass through.
+  it(
+    'forwards SIGTERM to the server and passes its exit code through',
+    { skip: process.platform === 'win32' && 'POSIX signals unavailable on win32' },
+    async () => {
+      writeFileSync(
+        join(serverDir, 'index.js'),
+        "process.on('SIGTERM', () => process.exit(3));\nsetInterval(() => {}, 1000);\nprocess.stdout.write('ready\\n');\n",
+      );
+      const { code } = await startEntry((child) => child.kill('SIGTERM'));
+      assert.equal(code, 3);
+    },
+  );
 
   it('waits for a held lock, then reuses the install the holder finished', async () => {
     const lock = join(serverDir, LOCK_FILE);
