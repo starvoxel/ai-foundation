@@ -205,3 +205,32 @@ jobs:
 
       - name: Test
         run: npm test
+
+  # Windows is a supported platform for the CLI, so its tests run on it too.
+  # Node min only: the Linux jobs already cover the max-version break; this job
+  # exists to catch platform assumptions (paths, spawning, signals, exec bits).
+  test-windows:
+    name: Test (Windows, Node 22.x)
+    needs: validate
+    if: needs.validate.outputs.code_changed == 'true'
+    runs-on: windows-latest
+    steps:
+      # Keep checked-out files byte-identical to the repo (LF) so format and
+      # hash-based tests behave as they do on Linux.
+      - name: Disable CRLF conversion
+        run: git config --global core.autocrlf false
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ env.NODE_VERSION_MIN }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test
+        run: npm test
