@@ -10,6 +10,7 @@
   "dependencies": {
     "@googleapis/gmail": "22.0.2",
     "@modelcontextprotocol/sdk": "1.30.0",
-    "google-auth-library": "11.3.3"
+    "google-auth-library": "11.3.3",
+    "zod": "4.4.3"
   }
 }
