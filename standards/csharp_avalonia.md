@@ -1,6 +1,6 @@
 ---
 name: csharp_avalonia
-version: 1.1.1
+version: 2.0.0
 description: Avalonia UI conventions for C# desktop applications
 tags: [csharp, avalonia]
 depends_on: [csharp_base]
@@ -12,12 +12,12 @@ depends_on: [csharp_base]
 
 ## Stack
 
-| Layer        | Library / Version           |
-| ------------ | --------------------------- |
-| UI Framework | Avalonia 11.x               |
-| Theme        | Avalonia.Themes.Fluent      |
-| Bindings     | Compiled bindings (default) |
-| Testing (UI) | Avalonia.Headless.XUnit     |
+| Layer        | Library / Version                                    |
+| ------------ | ---------------------------------------------------- |
+| UI Framework | Avalonia 12.x                                        |
+| Theme        | Named by the project's design standard (see Theming) |
+| Bindings     | Compiled bindings (default in Avalonia 12)           |
+| Testing (UI) | Avalonia.Headless.XUnit                              |
 
 ---
 
@@ -147,15 +147,20 @@ Rules:
 
 ## Theming
 
-- Use `Avalonia.Themes.Fluent` as the base theme
+- The base theme is named by the project's design standard; without one, use `Avalonia.Themes.Fluent`
+- Load exactly one base theme. Never combine two Fluent-family themes (`Avalonia.Themes.Fluent`, `FluentAvaloniaTheme`, Avalonia 12.2's `Avalonia.Themes.Fluent2`); they override each other's resources
 - Custom styles go in `Assets/Styles/` as separate AXAML resource dictionaries
-- Do not override theme colors inline — use resource keys
-- Dark/light mode: support both via `RequestedThemeVariant` if the app needs it
+- Never set colours inline; reference theme resource keys through `DynamicResource` so light and dark variants follow
+- Prefer the WinUI token keys shared by Avalonia's Fluent themes and FluentAvalonia (`TextFillColor*`, `*FillColor*`, `*StrokeColor*`, `ControlCornerRadius`, `OverlayCornerRadius`) over theme-specific keys, so a theme change does not touch views
+- Support dark and light via `RequestedThemeVariant` if the app needs it
 
 ---
 
 ## Platform Considerations
 
-- **Windows:** Menu bar via `<Menu>` control docked to top (NativeMenu is macOS-primary)
+- **Top-level commands:** follow the product design. If the app has a menu bar, use `<Menu>` on Windows and Linux and `NativeMenu` on macOS
+- **macOS:** always provide a `NativeMenu` with at least About, Settings, Quit and the standard Edit items, whatever the in-window design, so Cmd+Q, Cmd+Z and Cmd+S work
 - **Cross-platform paths:** Always use `Path.Combine`, never hardcoded separators
 - **File dialogs:** Use Avalonia `StorageProvider` API (Avalonia 11+), not legacy `OpenFileDialog`
+- **ViewLocator:** use an explicit type-to-factory registration, not the template's reflection-based locator, which is not trim-safe
+- **Diagnostics:** `Avalonia.Diagnostics` is gone in Avalonia 12. Reference any replacement (paid Dev Tools or a community fork) in Debug builds only
