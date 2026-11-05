@@ -16,7 +16,7 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -284,6 +284,29 @@ describe('integration: check-version-bumps.mjs', () => {
       const { code, stdout } = runCheck(repo, ['auto-parent', 'feature']);
       assert.equal(code, 0);
       assert.match(stdout, /all bumped correctly/);
+    });
+  });
+
+  describe('ignores files under .github/', () => {
+    it('passes a branch that edits a .github yaml file without changing its version', () => {
+      // dependabot.yml's `version: 2` is Dependabot's schema version, not a component version.
+      mkdirSync(join(repo, '.github'));
+      writeFileSync(join(repo, '.github', 'dependabot.yml'), 'version: 2\nupdates: []\n', 'utf8');
+      commit(repo, 'add dependabot config');
+      publishBranch(repo, 'main');
+
+      runGit(repo, ['checkout', '-q', '-b', 'feature']);
+      writeFileSync(
+        join(repo, '.github', 'dependabot.yml'),
+        'version: 2\nupdates: [{ x: 1 }]\n',
+        'utf8',
+      );
+      commit(repo, 'edit dependabot config');
+      publishBranch(repo, 'feature');
+
+      const { code, stdout } = runCheck(repo, ['auto-parent', 'feature']);
+      assert.equal(code, 0);
+      assert.doesNotMatch(stdout, /content changed but version stayed/);
     });
   });
 });
