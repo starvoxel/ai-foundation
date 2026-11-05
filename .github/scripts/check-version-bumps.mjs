@@ -7,6 +7,10 @@
  * value. Encodes the "bump frontmatter version on every modified file"
  * convention documented across skills/steering/agents plans.
  *
+ * Files under `.github/` are never checked: no versioned component lives there,
+ * and their `version` keys belong to other tools (e.g. `version: 2` in
+ * `dependabot.yml` is Dependabot's schema version and cannot be bumped).
+ *
  * Usage:
  *   node check-version-bumps.mjs sha <baseSha> [headRef]
  *     Diff explicitly against <baseSha>. If <baseSha> is empty or the
@@ -149,6 +153,9 @@ if (!diffOutput) {
   process.exit(0);
 }
 
+// Repo-relative prefix whose files are skipped; see the header comment.
+const EXCLUDED_PREFIX = '.github/';
+
 const errors = [];
 let checked = 0;
 
@@ -156,6 +163,7 @@ for (const line of diffOutput.split('\n')) {
   const [status, ...pathParts] = line.split('\t');
   const path = pathParts[pathParts.length - 1]; // renames: use the new path
   if (!status.startsWith('M') && !status.startsWith('R')) continue; // only modified/renamed
+  if (path.startsWith(EXCLUDED_PREFIX)) continue;
   if (!path.endsWith('.md') && !path.endsWith('.yaml') && !path.endsWith('.yml')) continue;
 
   const oldContent = readAtRef(baseSha, status.startsWith('R') ? pathParts[0] : path);
