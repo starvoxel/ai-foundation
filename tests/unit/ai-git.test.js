@@ -16,6 +16,11 @@ import {
   buildAuthHeaderValue,
   buildAuthConfigArgs,
   findRemoteName,
+  getSigningKeyEnvName,
+  isSigningRequired,
+  needsSigning,
+  normalizePrivateKey,
+  buildSigningConfigArgs,
   isDoctorCommand,
   buildDoctorReport,
   buildDoctorProbeArgs,
@@ -437,6 +442,94 @@ describe('unit: ai-git', () => {
           makeIsExecutableFile({ ...fsFake('missing', true), platform: 'linux' })('/a'),
           false,
         );
+      });
+    });
+  });
+
+  describe('SSH commit signing', () => {
+    const KEY =
+      '-----BEGIN OPENSSH PRIVATE KEY-----\nAAAA\nBBBB\n-----END OPENSSH PRIVATE KEY-----';
+
+    describe('getSigningKeyEnvName', () => {
+      it('returns the configured env var name', () => {
+        assert.equal(
+          getSigningKeyEnvName({ ai_identity: { git_signing_key_env: 'AI_GIT_SIGNING_KEY' } }),
+          'AI_GIT_SIGNING_KEY',
+        );
+      });
+      it('returns null when unset or ai_identity is absent', () => {
+        assert.equal(getSigningKeyEnvName({}), null);
+        assert.equal(getSigningKeyEnvName({ ai_identity: {} }), null);
+        assert.equal(getSigningKeyEnvName({ ai_identity: { git_signing_key_env: '' } }), null);
+      });
+    });
+
+    describe('isSigningRequired', () => {
+      it('defaults to true', () => {
+        assert.equal(isSigningRequired({}), true);
+        assert.equal(isSigningRequired({ ai_identity: {} }), true);
+      });
+      it('is false only for an explicit false', () => {
+        assert.equal(isSigningRequired({ ai_identity: { git_signing_required: false } }), false);
+        assert.equal(isSigningRequired({ ai_identity: { git_signing_required: true } }), true);
+        assert.equal(isSigningRequired({ ai_identity: { git_signing_required: 'false' } }), true);
+      });
+    });
+
+    describe('needsSigning', () => {
+      it('is true for every commit-creating subcommand', () => {
+        for (const sub of ['commit', 'merge', 'cherry-pick', 'revert', 'rebase', 'pull', 'am']) {
+          assert.equal(needsSigning(sub), true, sub);
+        }
+      });
+      it('is false for other subcommands, tag included, and undefined', () => {
+        for (const sub of ['push', 'fetch', 'status', 'add', 'log', 'tag', 'worktree', undefined]) {
+          assert.equal(needsSigning(sub), false, String(sub));
+        }
+      });
+    });
+
+    describe('normalizePrivateKey', () => {
+      it('adds exactly one trailing newline', () => {
+        assert.equal(normalizePrivateKey(KEY), `${KEY}\n`);
+        assert.equal(normalizePrivateKey(`${KEY}\n\n\n`), `${KEY}\n`);
+      });
+      it('converts CRLF and CR line endings to LF', () => {
+        assert.equal(normalizePrivateKey(KEY.replace(/\n/g, '\r\n')), `${KEY}\n`);
+        assert.equal(normalizePrivateKey(KEY.replace(/\n/g, '\r')), `${KEY}\n`);
+      });
+      it('trims surrounding whitespace', () => {
+        assert.equal(normalizePrivateKey(`  \n${KEY}  \n`), `${KEY}\n`);
+      });
+      it('rejects text that is not a private key block, without echoing it', () => {
+        for (const bad of [
+          '',
+          'hunter2-secret',
+          'ssh-ed25519 AAAA public',
+          '-----BEGIN OPENSSH PRIVATE KEY-----',
+        ]) {
+          assert.throws(
+            () => normalizePrivateKey(bad),
+            (err) =>
+              /not a valid private key/.test(err.message) && !err.message.includes('hunter2'),
+          );
+        }
+      });
+    });
+
+    describe('buildSigningConfigArgs', () => {
+      it('builds transient -c overrides pointing at the key path', () => {
+        assert.deepEqual(buildSigningConfigArgs('/tmp/k/key'), [
+          '-c',
+          'gpg.format=ssh',
+          '-c',
+          'user.signingkey=/tmp/k/key',
+          '-c',
+          'commit.gpgsign=true',
+        ]);
+      });
+      it('never contains key material', () => {
+        assert.ok(!buildSigningConfigArgs('/tmp/k/key').join(' ').includes('PRIVATE KEY'));
       });
     });
   });
