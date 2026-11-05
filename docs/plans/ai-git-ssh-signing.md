@@ -13,14 +13,14 @@ Commits made through `ai-git` show as **Verified** on GitHub, attributed to `sta
 ## Scope
 
 - In: optional SSH signing in `ai-git` driven by `.aiconfig.json`; resolving the private key through the existing `secrets.run` mechanism; `ai-git doctor` reporting; docs and template config; a one-time human rollout (key generation, registration, secret storage).
-- Out: GPG signing; commit creation through the GitHub API; signing for humans; local `git log` signature display (`gpg.ssh.allowedSignersFile`); rotating the existing bot token; re-signing past commits.
+- Out: GPG signing; signing tags (decided out of scope); commit creation through the GitHub API; signing for humans; local `git log` signature display (`gpg.ssh.allowedSignersFile`); rotating the existing bot token; re-signing past commits.
 
 ## Approach
 
 - **Config.** New optional `ai_identity.git_signing_key_env`: the _name_ of an env var holding the OpenSSH private key (same pattern as `git_token_env`). Unset means no signing, so behaviour is unchanged for every existing project.
 - **Resolution.** The private key is a second secret fetched through `secrets.run` (`bws run …`), never written to the repo or `.aiconfig.json`. `resolveSecrets` today runs only for `push`/`fetch`/`gh-*`; it will also run for commit-creating subcommands when signing is configured and the key env var is missing. This adds one `bws` call per signing command (cost to be measured in milestone 2).
-- **Signing.** Git cannot read an SSH private key from an env var, so `ai-git` writes it to a temp file (`mkdtemp`, directory `0700`, file `0600`, trailing newline normalised), runs git with transient `-c gpg.format=ssh -c user.signingkey=<file> -c commit.gpgsign=true -c tag.gpgsign=true`, and deletes the file in a `finally`. Config is passed with `-c` only, never `git config`, so nothing is persisted in `.git/config` (same discipline as the auth header).
-- **Which subcommands.** `commit`, `merge`, `tag`, `cherry-pick`, `revert`, `rebase`, `pull`, `am`. Decided by a pure `needsSigning(subcommand)`.
+- **Signing.** Git cannot read an SSH private key from an env var, so `ai-git` writes it to a temp file (`mkdtemp`, directory `0700`, file `0600`, trailing newline normalised), runs git with transient `-c gpg.format=ssh -c user.signingkey=<file> -c commit.gpgsign=true`, and deletes the file in a `finally`. Config is passed with `-c` only, never `git config`, so nothing is persisted in `.git/config` (same discipline as the auth header).
+- **Which subcommands.** `commit`, `merge`, `cherry-pick`, `revert`, `rebase`, `pull`, `am`. Decided by a pure `needsSigning(subcommand)`.
 - **Failure policy.** New boolean `ai_identity.git_signing_required`, default `true`. When signing is configured but cannot happen (key unresolved, `ssh-keygen` missing, malformed key), `true` makes commit-creating commands **fail** with an error naming the env var or tool (never a value); `false` prints a warning and runs the command unsigned. Removing `git_signing_key_env` opts out of signing entirely. This repo sets `git_signing_required: false` while the feature is tested; flipping it to `true` (or removing it) is a follow-up once commits verify.
 - **Structure.** Pure logic (config extraction, subcommand classification, `-c` arg building, key normalisation) in `lib/ai-git.js`; I/O (temp file lifecycle, spawn) in `bin/ai-git.js`, per the testability rule.
 - **GitHub requirements.** A commit is Verified only if the signing key is registered on the account whose verified email matches the committer email. So `starvoxel.ltd+generalBot@gmail.com` (set in `.aiconfig.json` on this branch) must be a **verified email on `starvoxel-bot`**.
@@ -76,6 +76,9 @@ Reference: GitHub's [signing-key instructions](https://docs.github.com/en/authen
 - Failure policy is a config toggle, `ai_identity.git_signing_required` (default `true` = error, `false` = warn and continue). Human decided 2026-11-05.
 - One extra `bws` call per signing command is acceptable. Human decided 2026-11-05; the per-process key cache fallback is not needed unless it proves otherwise.
 
+- Tags are not signed (`tag` and `tag.gpgsign` are left out). Human decided 2026-11-05.
+- `starvoxel.ltd+generalBot@gmail.com` is a verified email on `starvoxel-bot`. Human confirmed 2026-11-05.
+
 ## Open questions
 
-- Is `starvoxel.ltd+generalBot@gmail.com` already a verified email on `starvoxel-bot`? Human confirms before milestone 4.
+- None. The signing key and its registration (milestone 4) are not set up yet; the human does that when milestone 4 starts.
