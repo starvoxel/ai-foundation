@@ -106,6 +106,18 @@ describe('classify', () => {
       /protected/,
     ],
     [
+      'Dependabot branch, however old',
+      { name: 'dependabot/npm_and_yarn/foo-1.2.3', lastCommit: daysAgo(900) },
+      'Mandatory',
+      /Dependabot/,
+    ],
+    [
+      'merged Dependabot branch',
+      { name: 'dependabot/npm_and_yarn/foo-1.2.3', merged: true },
+      'Mandatory',
+      /Dependabot/,
+    ],
+    [
       'merged PR, even when brand new',
       { merged: true, lastCommit: daysAgo(0) },
       'Archive',

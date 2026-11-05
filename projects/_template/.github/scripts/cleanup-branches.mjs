@@ -7,7 +7,8 @@
  * other than the default branch and the protected list is sorted into exactly
  * one category, checked in this order (first match wins):
  *
- *   Mandatory  default branch, protected branches, branches not forked from
+ *   Mandatory  default branch, protected branches, Dependabot branches
+ *              (`dependabot/…`), branches not forked from
  *              the default branch (unrelated history) unless their name marks
  *              them as throwaway tests (project short code + test/valid/verif).
  *                                                                      -> keep
@@ -62,6 +63,8 @@ import { pathToFileURL } from 'node:url';
 
 const DAY_MS = 86_400_000;
 export const STALE_LABEL = 'stale';
+/** Dependabot owns its branches and PRs; cleanup never touches them. */
+export const DEPENDABOT_PREFIX = 'dependabot/';
 
 /**
  * @typedef {object} OpenPr
@@ -148,6 +151,7 @@ export function rankBranches(facts, cfg) {
   const eligible = facts.filter((f) => {
     if (f.error || f.merged || !f.lastCommit) return false;
     if (f.name === cfg.defaultBranch || cfg.protectedBranches.includes(f.name)) return false;
+    if (f.name.startsWith(DEPENDABOT_PREFIX)) return false;
     if (f.ahead === null) return isThrowawayTestName(f.name, cfg.shortcode);
     if (f.ahead === 0) return !f.name.startsWith('push-check/') && agesWhenEmpty(f.name, cfg);
     return true;
@@ -174,6 +178,9 @@ export function classify(f, cfg, now) {
   if (f.name === cfg.defaultBranch) return { category: 'Mandatory', reason: 'default branch' };
   if (cfg.protectedBranches.includes(f.name)) {
     return { category: 'Mandatory', reason: 'protected branch' };
+  }
+  if (f.name.startsWith(DEPENDABOT_PREFIX)) {
+    return { category: 'Mandatory', reason: 'Dependabot branch' };
   }
   if (f.merged) return { category: 'Archive', reason: 'merged by a PR' };
   if (f.ahead === null && !isThrowawayTestName(f.name, cfg.shortcode)) {
@@ -405,8 +412,14 @@ export async function gatherFacts(api, repo, cfg) {
     const name = b.name;
     const base = { name, lastCommit: null, ahead: null, openPr: openPrs.get(name) ?? null };
     const isMerged = merged.has(`${name}@${b.commit.sha}`);
-    if (name === cfg.defaultBranch || cfg.protectedBranches.includes(name) || isMerged) {
-      facts.push({ ...base, merged: isMerged });
+    const isDependabot = name.startsWith(DEPENDABOT_PREFIX);
+    if (
+      name === cfg.defaultBranch ||
+      cfg.protectedBranches.includes(name) ||
+      isDependabot ||
+      isMerged
+    ) {
+      facts.push({ ...base, merged: isMerged && !isDependabot });
       continue;
     }
     try {
