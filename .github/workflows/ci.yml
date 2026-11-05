@@ -159,7 +159,7 @@ jobs:
             node .github/scripts/check-version-bumps.mjs auto-parent "${HEAD_REF:-$REF_NAME}"
           fi
 
-  # The two test jobs wait on Validate for its docs-only verdict and are
+  # The test jobs wait on Validate for its docs-only verdict and are
   # skipped when only docs/ changed. A job skipped by an `if:` reports
   # "Skipped", which a required status check counts as passing — unlike a
   # workflow skipped by a `paths:` filter, which leaves the check Pending
