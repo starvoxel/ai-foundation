@@ -165,11 +165,14 @@ describe('integration: init command', () => {
   it('scaffolds git hooks and a session-start hook that keep the architecture index fresh', async () => {
     await quiet(() => runInit({ args: { name: 'hooked' }, positional: [] }));
     const root = join(workDir, 'hooked');
-    for (const f of ['refresh-index', 'post-merge', 'post-checkout', 'post-rewrite']) {
-      const mode = statSync(join(root, '.githooks', f)).mode;
-      assert.ok(mode & 0o100, `.githooks/${f} must be executable`);
+    // win32 has no POSIX exec bit; git records it from the index, not the filesystem.
+    if (process.platform !== 'win32') {
+      for (const f of ['refresh-index', 'post-merge', 'post-checkout', 'post-rewrite']) {
+        const mode = statSync(join(root, '.githooks', f)).mode;
+        assert.ok(mode & 0o100, `.githooks/${f} must be executable`);
+      }
+      assert.ok(statSync(join(root, 'scripts', 'session-start.sh')).mode & 0o100);
     }
-    assert.ok(statSync(join(root, 'scripts', 'session-start.sh')).mode & 0o100);
     assert.match(
       readFileSync(join(root, '.gitignore'), 'utf8'),
       /^knowledge\/architecture\/index\.json$/m,
