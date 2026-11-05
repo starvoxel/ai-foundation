@@ -13,7 +13,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
-import { google } from 'googleapis';
+import { gmail as createGmailClient } from '@googleapis/gmail';
 import { pathToFileURL } from 'node:url';
 
 import { getAuthorizedClient } from './auth.js';
@@ -56,7 +56,7 @@ const IRREVERSIBLE_NOTICE =
  * error) until a tool is actually invoked — a missing/invalid token must not
  * prevent the server from loading.
  *
- * @param {import('googleapis').gmail_v1.Gmail | (() => Promise<import('googleapis').gmail_v1.Gmail>)} gmailOrFactory
+ * @param {import('@googleapis/gmail').gmail_v1.Gmail | (() => Promise<import('@googleapis/gmail').gmail_v1.Gmail>)} gmailOrFactory
  */
 export function createGmailServer(gmailOrFactory) {
   const server = new McpServer({ name: 'gmail', version: SERVER_VERSION });
@@ -71,7 +71,7 @@ export function createGmailServer(gmailOrFactory) {
     isError: true,
   });
   /**
-   * @param {(gmail: import('googleapis').gmail_v1.Gmail, args: any) => Promise<unknown>} fn
+   * @param {(gmail: import('@googleapis/gmail').gmail_v1.Gmail, args: any) => Promise<unknown>} fn
    * @returns {(args: any) => Promise<{ content: { type: 'text', text: string }[], isError?: true }>}
    */
   const wrap = (fn) => async (args) => {
@@ -382,7 +382,7 @@ async function main() {
   const getGmail = async () => {
     if (!gmailClient) {
       const authClient = await getAuthorizedClient();
-      gmailClient = google.gmail({ version: 'v1', auth: authClient });
+      gmailClient = createGmailClient({ version: 'v1', auth: authClient });
     }
     return gmailClient;
   };
