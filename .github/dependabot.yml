@@ -1,0 +1,48 @@
+# Dependabot version updates. Security updates are configured in the repo's
+# Code security settings; the groups below only shape version-update PRs.
+#
+# Only the `*-patch` groups are eligible for auto-merge, see
+# .github/workflows/dependabot-auto-merge.yml. Everything else (runtime
+# dependencies, minor and major updates) arrives as its own PR for a human.
+#
+# `cooldown` holds a new release back for a week before it is proposed, so a
+# compromised release is usually caught first. Security updates ignore it.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    groups:
+      dev-patch:
+        dependency-type: development
+        update-types:
+          - patch
+
+  - package-ecosystem: npm
+    directory: /servers/gmail
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    groups:
+      dev-patch:
+        dependency-type: development
+        update-types:
+          - patch
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    cooldown:
+      default-days: 7
+    groups:
+      actions-patch:
+        update-types:
+          - patch
