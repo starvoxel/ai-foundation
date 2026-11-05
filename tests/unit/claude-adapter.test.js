@@ -27,6 +27,7 @@ import {
   parseFrontmatter,
   detectSharedResource,
   BLOCK_COMMAND_RESOURCE,
+  quoteArg,
 } from '../../lib/harnesses/claude.js';
 import { UNSUPPORTED } from '../../lib/harnesses/base.js';
 
@@ -422,7 +423,7 @@ describe('unit: claude adapter', () => {
 
       // Must not rely on PATH resolution for "node" — must be the exact
       // absolute execPath of the Node binary that ran the install.
-      assert.ok(command.includes(process.execPath));
+      assert.ok(command.startsWith(quoteArg(process.execPath)));
       assert.ok(!command.startsWith('node '));
     });
 
@@ -505,5 +506,20 @@ describe('unit: claude adapter', () => {
       const agent = { ...baseAgent, blocked_commands: [] };
       assert.equal(detectSharedResource(agent), null);
     });
+  });
+});
+
+describe('quoteArg', () => {
+  it('wraps the value in double quotes', () => {
+    assert.equal(quoteArg('a b'), '"a b"');
+  });
+
+  it('escapes embedded double quotes', () => {
+    assert.equal(quoteArg('a"b'), '"a\\"b"');
+  });
+
+  it('escapes backslashes so they cannot cancel a quote escape', () => {
+    assert.equal(quoteArg('C:\\dir\\'), '"C:\\\\dir\\\\"');
+    assert.equal(quoteArg('a\\"b'), '"a\\\\\\"b"');
   });
 });
