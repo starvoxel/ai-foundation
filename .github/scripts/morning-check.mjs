@@ -7,7 +7,7 @@
  * a PR over, because a blocking check would make every PR that touches the same
  * shared file conflict. Each check chooses how it reports (`report`):
  *
- *   issue  One labelled GitHub issue, updated only when the findings change and
+ *   issue  One GitHub issue, updated only when the findings change and
  *          closed once they are gone. The default.
  *   pr     The check has a mechanical fix (`prFix`), so the bot account opens a
  *          PR with it instead (morning-check-pr.mjs). At most one is open per
@@ -15,7 +15,8 @@
  *          it. Without a bot token, a `pr` check reports as an issue, so a
  *          finding is never lost.
  *
- * Nothing is stored in the repo.
+ * Every issue and PR it opens carries the `morning-check` label. Nothing is
+ * stored in the repo.
  *
  * Two modes, so the cheap decision costs no `npm ci`:
  *
@@ -50,9 +51,17 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createApi } from './cleanup-branches.mjs';
-import { closeBotPrs, listBotPrs, publishFix } from './morning-check-pr.mjs';
+import {
+  CI_TITLE_PREFIX,
+  LABEL,
+  closeBotPrs,
+  ensureLabel,
+  listBotPrs,
+  publishFix,
+} from './morning-check-pr.mjs';
 
-export const LABEL = 'morning-check';
+export { LABEL };
+
 /** Longer than the daily gap, so one slow or skipped run does not hide a change. */
 export const WINDOW_HOURS = 26;
 /** 0 = Sunday. A forced weekly run catches anything the change guard missed. */
@@ -70,8 +79,10 @@ export const FORCE_WEEKDAY = 1;
  *
  * @typedef {object} PrFix
  * @property {(repoRoot: string) => void} apply  Edits the working tree to clear the findings.
- * @property {string} commitMessage
- * @property {string} prTitle
+ * @property {(findings: string[]) => string} prTitle  Imperative, under 70 characters, and specific to what was found.
+ * @property {string} summary  One sentence on why the PR exists, for its Summary.
+ * @property {string} fixCommand  The command `apply` runs, shown in the PR and the commit message.
+ * @property {string} verifyCommand  The command that reports the findings, to show before and after.
  *
  * @typedef {object} Issue
  * @property {number} number
@@ -124,6 +135,48 @@ function runInstallDrift(repoRoot) {
 }
 
 /**
+ * The components named by `changed:`, `missing:` or `retired:` install findings,
+ * from paths like `.claude/rules/engineering-git-workflow.md` or
+ * `.claude/skills/oversight/SKILL.md`. The manifest is left out: it changes with
+ * every one of them, so it says nothing about what drifted. Pure.
+ *
+ * @param {string[]} findings
+ * @returns {string[]} Unique names in first-seen order.
+ */
+export function installComponentNames(findings) {
+  const names = [];
+  for (const finding of findings) {
+    const path = finding.replace(/^\w+: /, '');
+    const m = path.match(/^\.claude\/[^/]+\/([^/]+)(\/|$)/);
+    if (!m) continue;
+    const name = m[1].replace(/\.[^.]+$/, '');
+    if (!names.includes(name)) names.push(name);
+  }
+  return names;
+}
+
+/** The longest PR title the repo's PR standards allow. */
+export const MAX_TITLE = 70;
+
+/** What is left of MAX_TITLE once the workflow's prefix is added to a title. */
+const TITLE_ROOM = MAX_TITLE - CI_TITLE_PREFIX.length;
+
+/**
+ * PR title for an install refresh, naming what drifted, or how many components
+ * when the names would not fit. Pure.
+ *
+ * @param {string[]} findings
+ * @returns {string}
+ */
+export function installDriftTitle(findings) {
+  const names = installComponentNames(findings);
+  if (names.length === 0) return 'Refresh the committed install manifest';
+  const named = `Refresh the committed install of ${names.join(' and ')}`;
+  if (names.length <= 2 && named.length <= TITLE_ROOM) return named;
+  return `Refresh the committed install of ${names.length} components`;
+}
+
+/**
  * Refreshes the committed install in place; the check then passes.
  *
  * @param {string} repoRoot
@@ -158,8 +211,10 @@ export const CHECKS = [
     report: 'pr',
     prFix: {
       apply: refreshInstall,
-      commitMessage: 'Refresh committed project-scope engineering install',
-      prTitle: 'Refresh committed project-scope engineering install',
+      prTitle: installDriftTitle,
+      summary: 'The committed `.claude/` install no longer matches its sources.',
+      fixCommand: 'aif install --scope project --update',
+      verifyCommand: 'aif install --scope project --check',
     },
   },
 ];
@@ -256,7 +311,7 @@ export function findExisting(openIssues, id) {
 export function renderSummary(results) {
   const rows = results.map(({ check, findings, error, action }) => {
     const status = error ?? `${findings?.length ?? 0} finding(s)`;
-    return `| ${check.id} | ${status.replace(/\|/g, '\\|')} | ${action} |`;
+    return `| ${check.id} | ${status.replace(/[\\|]/g, '\\$&')} | ${action} |`;
   });
   return [
     '## Morning check',
@@ -329,16 +384,7 @@ async function countOpenItems(api, repo) {
  */
 async function applyPlan(api, repo, plan, existing, runUrl) {
   if (plan.action === 'create') {
-    try {
-      await api.request('POST', `/repos/${repo}/labels`, {
-        name: LABEL,
-        color: 'fbca04',
-        description: 'Raised by the scheduled morning check',
-      });
-    } catch (err) {
-      // 422: the label already exists.
-      if (/** @type {any} */ (err).status !== 422) throw err;
-    }
+    await ensureLabel(api, repo);
     await api.request('POST', `/repos/${repo}/issues`, {
       title: plan.title,
       body: plan.body,

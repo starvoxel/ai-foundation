@@ -11,7 +11,7 @@
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { homedir } from 'node:os';
-import { google } from 'googleapis';
+import { OAuth2Client } from 'google-auth-library';
 
 export const GMAIL_SCOPES = [
   'https://mail.google.com/',
@@ -131,11 +131,11 @@ export function saveTokenFile(tokenPath, tokenData) {
  * refresh tokens back to the token file automatically.
  *
  * @param {string} tokenPath
- * @returns {import('googleapis').Auth.OAuth2Client}
+ * @returns {import('google-auth-library').OAuth2Client}
  */
 export function buildOAuth2Client(tokenPath) {
   const stored = loadTokenFile(tokenPath);
-  const client = new google.auth.OAuth2(stored.client_id, stored.client_secret);
+  const client = new OAuth2Client(stored.client_id, stored.client_secret);
   client.setCredentials({
     refresh_token: stored.refresh_token,
     access_token: stored.access_token,
@@ -163,7 +163,7 @@ export function buildOAuth2Client(tokenPath) {
  * expired or missing. This is the single entry point tool implementations use.
  *
  * @param {string} [tokenPath]
- * @returns {Promise<import('googleapis').Auth.OAuth2Client>}
+ * @returns {Promise<import('google-auth-library').OAuth2Client>}
  */
 export async function getAuthorizedClient(tokenPath = resolveTokenPath(process.env)) {
   const client = buildOAuth2Client(tokenPath);
