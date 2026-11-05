@@ -1,10 +1,12 @@
 # Dependabot version updates. Security updates are configured in the repo's
 # Code security settings; the groups below only shape version-update PRs.
 #
-# The patch groups only batch PRs. Auto-merge eligibility is decided by
+# Groups only batch PRs: `*-patch` and `*-minor` for dev dependencies and Actions,
+# kept apart so a minor update never joins a patch PR. Auto-merge eligibility is decided by
 # .github/scripts/dependabot-auto-merge.mjs, not by group, so an ungrouped patch
 # update (a security update, say) of a dev dependency or an Action qualifies too.
-# Runtime dependencies, minor and major updates arrive as their own PR for a human.
+# Minor groups, major updates and all runtime dependencies (not grouped yet) are
+# reviewed by a human.
 #
 # `cooldown` holds a new release back for a week before it is proposed, so a
 # compromised release is usually caught first. Security updates ignore it.
@@ -22,6 +24,10 @@ updates:
         dependency-type: development
         update-types:
           - patch
+      dev-minor:
+        dependency-type: development
+        update-types:
+          - minor
 
   - package-ecosystem: npm
     directory: /servers/gmail
@@ -35,6 +41,10 @@ updates:
         dependency-type: development
         update-types:
           - patch
+      dev-minor:
+        dependency-type: development
+        update-types:
+          - minor
 
   - package-ecosystem: github-actions
     directory: /
@@ -47,3 +57,6 @@ updates:
       actions-patch:
         update-types:
           - patch
+      actions-minor:
+        update-types:
+          - minor
