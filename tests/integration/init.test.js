@@ -4,7 +4,15 @@
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, existsSync, readFileSync, rmSync, mkdirSync, statSync } from 'node:fs';
+import {
+  mkdtempSync,
+  existsSync,
+  readFileSync,
+  rmSync,
+  mkdirSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -180,5 +188,70 @@ describe('integration: init command', () => {
     const settings = JSON.parse(readFileSync(join(root, '.claude', 'settings.json'), 'utf8'));
     assert.match(settings.hooks.SessionStart[0].hooks[0].command, /scripts\/session-start\.sh/);
     assert.equal(settings.agent, 'engineer');
+  });
+
+  it('scaffolds the branch-cleanup workflow and script, neutral and without per-project edits', async () => {
+    await quiet(() => runInit({ args: { name: 'qol' }, positional: [] }));
+    const gh = join(workDir, 'qol', '.github');
+    const wf = readFileSync(join(gh, 'workflows', 'cleanup-branches.yml'), 'utf8');
+    assert.ok(existsSync(join(gh, 'scripts', 'cleanup-branches.mjs')));
+    assert.match(wf, /^ {2}PROTECTED_BRANCHES: "docs"$/m);
+    assert.doesNotMatch(wf, /cloud-sandbox|agent-testing|02_constraints/);
+    assert.match(
+      readFileSync(join(gh, 'scripts', 'cleanup-branches.mjs'), 'utf8'),
+      /\.aiconfig\.json/,
+    );
+  });
+
+  it('scaffolds neutral .gitignore entries and keeps the architecture-index ignore', async () => {
+    await quiet(() => runInit({ args: { name: 'ign' }, positional: [] }));
+    const lines = readFileSync(join(workDir, 'ign', '.gitignore'), 'utf8').split('\n');
+    for (const entry of [
+      '.DS_Store',
+      'Thumbs.db',
+      'desktop.ini',
+      '.vscode/',
+      '.idea/',
+      '*.swp',
+      '*.swo',
+      'scratch/',
+      'tmp/',
+      'local/',
+      '*.local.md',
+      '*.draft.md',
+      '.env',
+      '.env.*',
+      '!.env.example',
+      'knowledge/architecture/index.json',
+    ]) {
+      assert.ok(lines.includes(entry), `.gitignore lacks ${entry}`);
+    }
+    for (const entry of [
+      'node_modules/',
+      '.kiro/settings/',
+      '.installs.yaml',
+      'docs/architecture/index.json',
+    ]) {
+      assert.ok(!lines.includes(entry), `.gitignore must not contain ${entry}`);
+    }
+  });
+
+  it('scaffolds settings.json that suppresses AI attribution', async () => {
+    await quiet(() => runInit({ args: { name: 'attr' }, positional: [] }));
+    const settings = JSON.parse(
+      readFileSync(join(workDir, 'attr', '.claude', 'settings.json'), 'utf8'),
+    );
+    assert.deepEqual(settings.attribution, { commit: '', pr: '', sessionUrl: false });
+    assert.equal(settings.agent, 'engineer');
+  });
+
+  it('does not touch an existing directory without --force', async () => {
+    mkdirSync(join(workDir, 'keep', '.github', 'workflows'), { recursive: true });
+    const file = join(workDir, 'keep', '.github', 'workflows', 'cleanup-branches.yml');
+    writeFileSync(file, 'mine\n');
+    const { code } = await quiet(() => runInit({ args: { name: 'keep' }, positional: [] }));
+    assert.equal(code, 1);
+    assert.equal(readFileSync(file, 'utf8'), 'mine\n');
+    assert.ok(!existsSync(join(workDir, 'keep', '.gitignore')));
   });
 });
