@@ -44,8 +44,14 @@ describe('validation: .githooks', () => {
   it('refresh-index exits 0 outside a git repository', () => {
     const dir = mkdtempSync(join(tmpdir(), 'aif-hook-'));
     try {
-      // Run through sh: win32 cannot execute a shebang script directly (git runs hooks via sh).
-      execFileSync('sh', [join(ROOT, '.githooks', 'refresh-index')], { cwd: dir, stdio: 'pipe' });
+      const hook = join(ROOT, '.githooks', 'refresh-index');
+      // POSIX runs the hook directly (exec bit + shebang, as git does); win32 cannot
+      // execute a shebang script, so it goes through sh.
+      if (process.platform === 'win32') {
+        execFileSync('sh', [hook], { cwd: dir, stdio: 'pipe' });
+      } else {
+        execFileSync(hook, { cwd: dir, stdio: 'pipe' });
+      }
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }
