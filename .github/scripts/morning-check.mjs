@@ -311,7 +311,7 @@ export function findExisting(openIssues, id) {
 export function renderSummary(results) {
   const rows = results.map(({ check, findings, error, action }) => {
     const status = error ?? `${findings?.length ?? 0} finding(s)`;
-    return `| ${check.id} | ${status.replace(/\|/g, '\\|')} | ${action} |`;
+    return `| ${check.id} | ${status.replace(/[\\|]/g, '\\$&')} | ${action} |`;
   });
   return [
     '## Morning check',
