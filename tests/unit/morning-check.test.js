@@ -235,6 +235,13 @@ describe('renderSummary', () => {
     assert.match(md, /\| demo \| 1 finding\(s\) \| create \|/);
     assert.match(md, /\| b \| could not verify: x \\\| y \| none \|/);
   });
+
+  it('escapes backslashes so they cannot neutralise the pipe escape', () => {
+    const md = renderSummary([
+      { check: fakeCheck(), findings: null, error: 'a\\| b', action: 'none' },
+    ]);
+    assert.ok(md.includes('| demo | a\\\\\\| b | none |'));
+  });
 });
 
 describe('runChecks', () => {
