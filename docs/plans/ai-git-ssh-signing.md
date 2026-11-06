@@ -51,7 +51,7 @@ Reference: GitHub's [signing-key instructions](https://docs.github.com/en/authen
 
 ### 3. Doctor and docs
 
-- Does: `ai-git doctor` reports `ok`/`FAIL` for signing (key env resolved, `ssh-keygen` on PATH, the `git_signing_required` setting) only when signing is configured, never printing the key; update arc42 `05.03`; required version bumps.
+- Does: `ai-git doctor` reports signing (key env resolved, `ssh-keygen` on PATH, the `git_signing_required` setting) only when signing is configured: `ok`, or `FAIL` (exit 1) when signing is required and `WARN` (exit 0) when it is not, never printing the key; update arc42 `05.03`; required version bumps.
 - Acceptance criteria: doctor output is unchanged when signing is unconfigured; `aif index architecture --check` and `aif validate` pass.
 - Verified by: unit tests for the report, validation suite.
 
