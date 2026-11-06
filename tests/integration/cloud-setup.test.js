@@ -66,7 +66,11 @@ describe(
       }
       // curl writes a placeholder at the -o target; the stubs below fake the extraction.
       stub('curl', 'while [ $# -gt 0 ]; do [ "$1" = -o ] && echo data > "$2"; shift; done');
-      stub('sha256sum', '[ -z "$STUB_SHA_FAIL" ]');
+      // Records its stdin (`<sha>  <file>`), and fails when it matches the STUB_SHA_FAIL glob.
+      stub(
+        'sha256sum',
+        `input=$(cat); echo "sha256sum-input $input" >> "${log}"; case "$input" in $STUB_SHA_FAIL) exit 1;; esac`,
+      );
       stub(
         'tar',
         'mkdir -p gh_2.102.0_linux_amd64/bin && printf "#!/bin/sh\\necho gh version 2.102.0\\n" > gh_2.102.0_linux_amd64/bin/gh',
@@ -128,7 +132,7 @@ describe(
     });
 
     it('installs nothing and exits 0 on a checksum mismatch', () => {
-      const result = run({ STUB_SHA_FAIL: '1' });
+      const result = run({ STUB_SHA_FAIL: '*' });
       assert.equal(result.status, 0);
       assert.equal(existsSync(join(bin, 'gh')), false);
       assert.equal(existsSync(join(bin, 'bws')), false);
@@ -154,15 +158,26 @@ describe(
       assert.ok(calls().some((c) => c.startsWith('python3 -m zipfile -e bws.zip')));
     });
 
-    it('verifies the checksum before extracting', () => {
+    it('checks each archive against its pinned sha256', () => {
       run();
-      const names = calls().map((c) => c.split(' ')[0]);
-      for (const extract of ['tar', 'unzip']) {
-        assert.ok(
-          names.indexOf('sha256sum') < names.indexOf(extract),
-          `${extract} ran before sha256sum`,
-        );
-      }
+      const inputs = calls().filter((c) => c.startsWith('sha256sum-input '));
+      assert.deepEqual(inputs, [
+        'sha256sum-input bb766f710eef8ede859c18578c72c327597cd4c8a85b06001b1f3843c6019386  gh.tar.gz',
+        'sha256sum-input ba8233c3a4aee5d43e3c73bbd04d99e9bc5aba13bbbfd06d89b073abe732b860  bws.zip',
+      ]);
+    });
+
+    it('verifies each tool before extracting it, and extracts nothing that failed', () => {
+      run({ STUB_SHA_FAIL: '*bws.zip' });
+      const log = calls();
+      assert.ok(!log.some((c) => c.startsWith('unzip')), 'bws was extracted despite a mismatch');
+      assert.ok(!existsSync(join(bin, 'bws')));
+      const gh = log.findIndex((c) => c.startsWith('sha256sum-input') && c.endsWith('gh.tar.gz'));
+      assert.ok(
+        gh >= 0 && gh < log.findIndex((c) => c.startsWith('tar')),
+        'gh extracted before verify',
+      );
+      assert.ok(existsSync(join(bin, 'gh')));
     });
 
     it('never prints a token', () => {

@@ -129,4 +129,27 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
     assert.match(result.stderr, /npm link failed/);
     assert.match(result.stderr, /ai-git doctor reported problems/);
   });
+
+  describe('projects/_template/scripts/session-start.sh', () => {
+    const TEMPLATE = resolve(
+      import.meta.dirname,
+      '../../projects/_template/scripts/session-start.sh',
+    );
+
+    it('builds the index but installs no bundles, even with AIF_BUNDLES set', () => {
+      stub('aif');
+      stub('git');
+      const result = spawnSync('bash', [TEMPLATE], {
+        encoding: 'utf8',
+        env: {
+          PATH: `${dir}${delimiter}${process.env.PATH}`,
+          CLAUDE_PROJECT_DIR: dir,
+          CLAUDE_CODE_REMOTE: 'true',
+          AIF_BUNDLES: 'engineering',
+        },
+      });
+      assert.equal(result.status, 0);
+      assert.deepEqual(calls(), ['git config core.hooksPath .githooks', 'aif index architecture']);
+    });
+  });
 });
