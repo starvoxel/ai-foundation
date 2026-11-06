@@ -4,7 +4,9 @@
   "ai_identity": {
     "git_author_name": "{AI Agent Name}",
     "git_author_email": "{ai-agent@example.com}",
-    "git_token_env": "{AI_GIT_TOKEN}"
+    "git_token_env": "{AI_GIT_TOKEN}",
+    "git_signing_key_env": "{AI_GIT_SIGNING_KEY}",
+    "git_signing_required": true
   },
   "secrets": {
     "run": ["{secrets-cli}", "run", "--project-id", "${BWS_PROJECT_ID}", "--"],
