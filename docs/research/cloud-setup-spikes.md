@@ -7,7 +7,7 @@ description: 'What the AIF-005 spikes (2026-09-29/30) proved about Claude Code c
 
 # Cloud setup and primary-agent spikes (AIF-005)
 
-Condensed from AIF-005 (2026-09-29/30, Claude Code 2.1.285, Trusted network level). The plan, full spike log and Setup scripts are in [`cloud-setup-spikes.parts/`](./cloud-setup-spikes.parts/README.md).
+Condensed from AIF-005 (2026-09-29/30, Claude Code 2.1.285, Trusted network level). The plan, spike log and throwaway scripts were deleted once superseded; they remain in git history before the commit that removed `docs/research/cloud-setup-spikes.parts/`. The implementation is [`scripts/cloud-setup.sh`](../../scripts/cloud-setup.sh).
 
 **Status:** superseded. AIF-005 selected the primary agent from the environment Setup script; it is now selected by a committed project-scope install (`aif install --scope project`, README "Primary agent"), so no Setup-script edit or cache bust is needed to change it. The toolchain findings below still drive the README's Setup script.
 
@@ -30,7 +30,7 @@ Condensed from AIF-005 (2026-09-29/30, Claude Code 2.1.285, Trusted network leve
 | `bws-x86_64-unknown-linux-gnu-2.1.0.zip` from the Bitwarden GitHub release, sha256-checked against its checksum file | 777 ms                                  |
 | `cargo install bws --locked`                                                                                         | 232.8 s (about 78% of the cache budget) |
 
-Decision: pinned, checksum-verified release binaries; cargo only as a fallback. `unzip` may be missing from the image (A2 fell back to Python's `zipfile`). Now in the README Setup script for `gh` and `bws`.
+Decision: pinned, checksum-verified release binaries; cargo only as a fallback. `unzip` may be missing from the image (A2 fell back to Python's `zipfile`). Now implemented in `scripts/cloud-setup.sh`, run by the README Setup script.
 
 ## Selecting the primary agent
 
@@ -47,4 +47,4 @@ Decision: pinned, checksum-verified release binaries; cargo only as a fallback. 
 
 ## Never tested
 
-- D3: a cache bust by changing only a revision variable in the script.
+- D3: a cache bust by changing only the `# rev:` comment of the pasted Setup script (README "Setup script"). Pending a human run; the result is recorded here.

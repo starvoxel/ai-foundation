@@ -174,46 +174,29 @@ and finish in about five minutes to be cached.
 
 #### Setup script
 
-Pinned versions only (never `latest`), each download verified against a hardcoded
-sha256 before it is installed, and `--ignore-scripts` because the script runs as
-root. Replace `<ref>` with the tag or commit of ai-foundation to pin. Requires
-`curl`, `sha256sum`, `tar` and `unzip` in the image.
+Paste this; it is the whole script. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh), which owns the pinned, sha256-verified `gh` and `bws` release binaries (installed to `/usr/local/bin`, ahead of any cargo-built `bws` on PATH) and is idempotent and always exits 0.
 
 ```bash
 #!/bin/bash
+# rev: 1
 set -euo pipefail
-
-npm install -g github:starvoxel/ai-foundation#<ref> --ignore-scripts
-
-tmp="$(mktemp -d)"
-cd "$tmp"
-
-# gh 2.102.0
-curl -fsSL -o gh.tar.gz https://github.com/cli/cli/releases/download/v2.102.0/gh_2.102.0_linux_amd64.tar.gz
-echo "bb766f710eef8ede859c18578c72c327597cd4c8a85b06001b1f3843c6019386  gh.tar.gz" | sha256sum -c -
-tar -xzf gh.tar.gz
-install -m 0755 gh_2.102.0_linux_amd64/bin/gh /usr/local/bin/gh
-
-# bws 2.1.0
-curl -fsSL -o bws.zip https://github.com/bitwarden/sdk-sm/releases/download/bws-v2.1.0/bws-x86_64-unknown-linux-gnu-2.1.0.zip
-echo "ba8233c3a4aee5d43e3c73bbd04d99e9bc5aba13bbbfd06d89b073abe732b860  bws.zip" | sha256sum -c -
-unzip -o bws.zip bws
-install -m 0755 bws /usr/local/bin/bws
+npm install -g github:starvoxel/ai-foundation --ignore-scripts
+bash "$(npm root -g)/ai-foundation/scripts/cloud-setup.sh"
 ```
 
-`npm install -g` puts `ai-git` and `aif` on PATH. A checksum mismatch fails the script (non-zero exit, so the
-setup is not cached) before that tool is installed.
+- **Head, not a pin.** The environment gets whatever `main` of this repo holds when the cache is built, and the script runs as root, so the environment trusts this repo's `main`. `--ignore-scripts` stops package install hooks; the `gh` and `bws` binaries stay version-pinned and checksum-verified in `scripts/cloud-setup.sh`. The cache is rebuilt after about seven days or when the pasted text changes, which picks up a newer head.
+- **Force a rebuild.** Increment the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text is unchanged.
+- A failed `npm install` fails the script (non-zero), so a broken setup is never cached.
 
 #### Environment variables
 
 Set these in the environment's **Environment variables**, never in the script:
 
-| Variable            | Value                                                                                                                                                                                                                  |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it.                                                                                      |
-| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.                                                                                          |
-| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.                                                                                              |
-| `AIF_BUNDLES`       | Extra comma-separated bundles (e.g. `ai-engineering,generic`) that the SessionStart hook installs globally with `aif install -H claude --skip-project`, skipping any the project already commits; unset installs none. |
+| Variable            | Value                                                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `GIT_CONFIG_GLOBAL` | `/dev/null`. The harness writes `/root/.gitconfig` with its own identity; this makes a raw `git commit` fail instead of using it. |
+| `BWS_PROJECT_ID`    | Bitwarden Secrets Manager project holding the token named by `ai_identity.git_token_env` (`AI_GIT_TOKEN` here). Not a secret.     |
+| `BWS_ACCESS_TOKEN`  | Machine-account token for that project. The one credential in the environment; scope it to the `ai-git` credentials only.         |
 
 #### SessionStart hook
 
@@ -222,18 +205,16 @@ sessions only (`CLAUDE_CODE_REMOTE=true`) it runs, in order:
 
 1. `npm ci --ignore-scripts`: this repo's lockfile-pinned dependencies, dev included so a session can run the full CI locally; `aif` needs the production ones (`npm link` alone does not install them). Fails on lockfile drift. A project's own scaffolded SessionStart hook should install production dependencies only (`--omit=dev`).
 2. `npm link --ignore-scripts`: puts `ai-git` and `aif` on PATH.
-3. `aif install -B $AIF_BUNDLES -H claude --skip-project`, only if `AIF_BUNDLES` is set. These apply from the next session; a bundle needed from the first turn is committed at project scope instead.
+3. `git config core.hooksPath .githooks` and `aif index architecture`: a fresh clone has no hooks yet, and the arc42 index is gitignored.
 4. `ai-git doctor`: report only.
 
-Step 1 is the hook's only network step; `gh`, `bws` and
-the pinned package come from the Setup script, never from SessionStart. Every step
-warns on failure instead of aborting, and the hook always exits 0.
+Step 1 is the hook's only network step; `gh`, `bws` and the global `ai-git`/`aif` come from the Setup script, never from SessionStart. Every step warns on failure instead of aborting, and the hook always exits 0. The hook installs no bundles: an agent or bundle a session needs is committed at project scope (`aif install --scope project`), so it applies from turn 1. The former `AIF_BUNDLES` environment variable is ignored and can be unset.
 
 #### Verification checklist
 
 Run in a fresh session of a repo that has `.aiconfig.json`:
 
-1. `command -v ai-git aif gh bws` resolves all four.
+1. `command -v ai-git aif gh bws` resolves all four, and `command -v bws` is `/usr/local/bin/bws` at version 2.1.0 (not a cargo-built copy).
 2. `ai-git commit` (on a throwaway branch) shows the AI identity as author.
 3. A raw `git commit` fails with "Author identity unknown".
 4. `ai-git gh-api repos/{owner}/{repo}/issues --method POST -f title="a title with spaces"`

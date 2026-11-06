@@ -7,8 +7,7 @@
 # fails on lockfile drift); `npm link` alone does not provide them, so `aif`
 # would fail on its first import. A project's own scaffolded SessionStart hook
 # should install production dependencies only (--omit=dev). Then it puts ai-git and aif on PATH
-# with `npm link --ignore-scripts`, installs the bundles named in AIF_BUNDLES,
-# and runs `ai-git doctor` to report (never fix) whether ai-git, gh, bws and the
+# with `npm link --ignore-scripts`, and runs `ai-git doctor` to report (never fix) whether ai-git, gh, bws and the
 # token resolve. gh and bws come from the environment's Setup script (see
 # README, "Claude Code Cloud"). It also enables the repo's .githooks and builds the arc42 index. Every step warns on failure and the hook still exits 0.
 set -euo pipefail
@@ -36,11 +35,6 @@ git config core.hooksPath .githooks \
   || echo "WARNING: could not set core.hooksPath" >&2
 node bin/aif.js index architecture \
   || echo "WARNING: aif index architecture failed" >&2
-
-if [ -n "${AIF_BUNDLES:-}" ]; then
-  node bin/aif.js install -B "$AIF_BUNDLES" -H claude --skip-project \
-    || echo "WARNING: aif install failed for AIF_BUNDLES=$AIF_BUNDLES" >&2
-fi
 
 ai-git doctor \
   || echo "WARNING: ai-git doctor reported problems (see output above)" >&2
