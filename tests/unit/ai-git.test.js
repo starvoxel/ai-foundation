@@ -24,6 +24,7 @@ import {
   describeSigningFailure,
   isDoctorCommand,
   buildDoctorReport,
+  buildSigningReport,
   buildDoctorProbeArgs,
   findUnsafeArg,
   makeIsExecutableFile,
@@ -552,6 +553,86 @@ describe('unit: ai-git', () => {
       it('omits the cause prefix when unknown', () => {
         assert.doesNotMatch(describeSigningFailure(true, 'K', null).message, /null/);
         assert.doesNotMatch(describeSigningFailure(false, 'K', null).message, /null/);
+      });
+    });
+
+    describe('buildSigningReport / doctor signing section', () => {
+      const signingOk = {
+        keyEnvName: 'KEY_VAR',
+        required: true,
+        keySource: 'env',
+        sshKeygen: true,
+      };
+      const baseFacts = {
+        tools: { 'ai-git': true, gh: true, bws: true },
+        configFound: true,
+        tokenEnvName: 'MY_TOKEN',
+        tokenSource: 'env',
+      };
+
+      it('reports ok lines and the required setting when everything resolves', () => {
+        const r = buildSigningReport(signingOk);
+        assert.equal(r.ok, true);
+        assert.ok(r.lines.includes('ok   signing key (KEY_VAR): resolved via env'));
+        assert.ok(r.lines.includes('ok   ssh-keygen: found on PATH'));
+        assert.ok(r.lines.some((l) => /signing: required/.test(l)));
+      });
+
+      it('fails when required and the key does not resolve', () => {
+        const r = buildSigningReport({ ...signingOk, keySource: null });
+        assert.equal(r.ok, false);
+        assert.ok(r.lines.some((l) => l.startsWith('FAIL signing key (KEY_VAR): NOT resolved')));
+      });
+
+      it('fails when required and ssh-keygen is missing', () => {
+        const r = buildSigningReport({ ...signingOk, sshKeygen: false });
+        assert.equal(r.ok, false);
+        assert.ok(r.lines.includes('FAIL ssh-keygen: NOT found on PATH'));
+      });
+
+      it('only warns when not required', () => {
+        const r = buildSigningReport({
+          ...signingOk,
+          required: false,
+          keySource: null,
+          sshKeygen: false,
+        });
+        assert.equal(r.ok, true);
+        assert.ok(r.lines.some((l) => l.startsWith('WARN signing key (KEY_VAR): NOT resolved')));
+        assert.ok(r.lines.includes('WARN ssh-keygen: NOT found on PATH'));
+        assert.ok(r.lines.some((l) => /signing: not required/.test(l)));
+      });
+
+      it('explains an unsafe probe path and an unset placeholder', () => {
+        const unsafe = buildSigningReport({
+          ...signingOk,
+          keySource: null,
+          unsafeProbePath: '/my dir/probe.js',
+        });
+        assert.ok(
+          unsafe.lines.some((l) => /key check could not run \(\/my dir\/probe\.js\)/.test(l)),
+        );
+        const unset = buildSigningReport({
+          ...signingOk,
+          keySource: null,
+          unsetPlaceholder: 'BWS_PROJECT_ID',
+        });
+        assert.ok(unset.lines.some((l) => /unset environment variable BWS_PROJECT_ID/.test(l)));
+      });
+
+      it('adds nothing to buildDoctorReport when signing is not configured', () => {
+        const without = buildDoctorReport(baseFacts);
+        assert.deepEqual(buildDoctorReport({ ...baseFacts, signing: null }), without);
+        assert.ok(!without.lines.some((l) => /signing|ssh-keygen/.test(l)));
+      });
+
+      it('includes the signing lines and fails the report when required signing fails', () => {
+        const r = buildDoctorReport({
+          ...baseFacts,
+          signing: { ...signingOk, keySource: null },
+        });
+        assert.equal(r.ok, false);
+        assert.ok(r.lines.some((l) => l.includes('signing key (KEY_VAR)')));
       });
     });
   });
