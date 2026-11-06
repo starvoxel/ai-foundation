@@ -283,8 +283,52 @@ function toolResolves(tool) {
 }
 
 /**
- * Report tool presence, config found and token resolution (yes/no only;
- * never prints a token). Returns the process exit code.
+ * Work out how an env var would resolve, trying the process environment,
+ * then the `secrets.run` wrapper, then the opt-in `.env` file. Yes/no only:
+ * the value is never read beyond a truthiness test.
+ * @param {string} envName
+ * @param {object} config - Parsed .aiconfig.json
+ * @param {string} root - Project root
+ * @returns {{ source: 'env'|'wrapper'|'dotenv'|null, unsetPlaceholder: string|null, unsafeProbePath: string|null }}
+ */
+function probeEnvVarSource(envName, config, root) {
+  const { run, allowInsecureDotenv } = getSecretsConfig(config);
+  let source = null;
+  let unsetPlaceholder = null;
+  let unsafeProbePath = null;
+  if (process.env[envName]) {
+    source = 'env';
+  } else if (run) {
+    try {
+      const [cmd, ...rest] = run.map((p) => resolvePlaceholders(p, process.env));
+      const probeArgs = buildDoctorProbeArgs(DOCTOR_PROBE_SCRIPT);
+      unsafeProbePath = findUnsafeArg(probeArgs);
+      if (!unsafeProbePath) {
+        const r = spawnSync(cmd, [...rest, ...probeArgs], {
+          env: { ...process.env, [DOCTOR_PROBE_ENV]: envName },
+          stdio: 'ignore',
+        });
+        if (!r.error && r.status === 0) source = 'wrapper';
+      }
+    } catch (err) {
+      const m = /unset environment variable ([A-Z0-9_]+)/.exec(err.message);
+      if (!m) throw err;
+      unsetPlaceholder = m[1];
+    }
+  }
+  if (!source && allowInsecureDotenv) {
+    const dotenvPath = join(root, '.env');
+    if (existsSync(dotenvPath) && parseDotenv(readFileSync(dotenvPath, 'utf8'))[envName]) {
+      source = 'dotenv';
+    }
+  }
+  return { source, unsetPlaceholder, unsafeProbePath };
+}
+
+/**
+ * Report tool presence, config found, token resolution and (when
+ * configured) signing key resolution (yes/no only; never prints a token or
+ * key). Returns the process exit code.
  */
 function runDoctor() {
   const tools = {};
@@ -292,39 +336,23 @@ function runDoctor() {
 
   const found = findAiConfig();
   let tokenEnvName = null;
-  let tokenSource = null;
-  let unsetPlaceholder = null;
-  let unsafeProbePath = null;
+  let tokenProbe = { source: null, unsetPlaceholder: null, unsafeProbePath: null };
+  let signing = null;
   if (found) {
     tokenEnvName = getIdentity(found.config).tokenEnvName;
-    if (tokenEnvName) {
-      const { run, allowInsecureDotenv } = getSecretsConfig(found.config);
-      if (process.env[tokenEnvName]) {
-        tokenSource = 'env';
-      } else if (run) {
-        try {
-          const [cmd, ...rest] = run.map((p) => resolvePlaceholders(p, process.env));
-          const probeArgs = buildDoctorProbeArgs(DOCTOR_PROBE_SCRIPT);
-          unsafeProbePath = findUnsafeArg(probeArgs);
-          if (!unsafeProbePath) {
-            const r = spawnSync(cmd, [...rest, ...probeArgs], {
-              env: { ...process.env, [DOCTOR_PROBE_ENV]: tokenEnvName },
-              stdio: 'ignore',
-            });
-            if (!r.error && r.status === 0) tokenSource = 'wrapper';
-          }
-        } catch (err) {
-          const m = /unset environment variable ([A-Z0-9_]+)/.exec(err.message);
-          if (!m) throw err;
-          unsetPlaceholder = m[1];
-        }
-      }
-      if (!tokenSource && allowInsecureDotenv) {
-        const dotenvPath = join(found.root, '.env');
-        if (existsSync(dotenvPath) && parseDotenv(readFileSync(dotenvPath, 'utf8'))[tokenEnvName]) {
-          tokenSource = 'dotenv';
-        }
-      }
+    if (tokenEnvName) tokenProbe = probeEnvVarSource(tokenEnvName, found.config, found.root);
+
+    const keyEnvName = getSigningKeyEnvName(found.config);
+    if (keyEnvName) {
+      const keyProbe = probeEnvVarSource(keyEnvName, found.config, found.root);
+      signing = {
+        keyEnvName,
+        required: isSigningRequired(found.config),
+        keySource: keyProbe.source,
+        sshKeygen: toolResolves('ssh-keygen'),
+        unsetPlaceholder: keyProbe.unsetPlaceholder,
+        unsafeProbePath: keyProbe.unsafeProbePath,
+      };
     }
   }
 
@@ -332,9 +360,10 @@ function runDoctor() {
     tools,
     configFound: Boolean(found),
     tokenEnvName,
-    tokenSource,
-    unsetPlaceholder,
-    unsafeProbePath,
+    tokenSource: tokenProbe.source,
+    unsetPlaceholder: tokenProbe.unsetPlaceholder,
+    unsafeProbePath: tokenProbe.unsafeProbePath,
+    signing,
   });
   for (const line of lines) console.log(line);
   return ok ? 0 : 1;
@@ -362,7 +391,7 @@ GitHub commands (GH_TOKEN injected):
   ai-git gh-repo-view
 
 Diagnostics:
-  ai-git doctor   Report whether ai-git, gh, bws, .aiconfig.json and the token resolve
+  ai-git doctor   Report whether ai-git, gh, bws, .aiconfig.json, the token and (if configured) the signing key resolve
 
 Configuration:
   Reads .aiconfig.json from the current directory or any parent.

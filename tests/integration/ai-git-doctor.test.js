@@ -192,4 +192,64 @@ describe('integration: ai-git doctor', () => {
       assert.match(r.out, /FAIL bws: NOT found/);
     },
   );
+
+  describe('signing section', () => {
+    const KEY_VAR = 'AI_GIT_SIGNING_KEY_TEST';
+    const KEY =
+      '-----BEGIN OPENSSH PRIVATE KEY-----\nseeded-key-body\n-----END OPENSSH PRIVATE KEY-----';
+
+    it('prints nothing about signing when it is not configured', () => {
+      writeConfig();
+      const r = runDoctor(root, { [TOKEN_VAR]: SECRET });
+      assert.equal(r.code, 0);
+      assert.doesNotMatch(r.out, /signing|ssh-keygen/);
+    });
+
+    it('key in env and ssh-keygen present: exits 0, never prints the key', () => {
+      makeTools(['ssh-keygen']);
+      writeConfig({}, { git_signing_key_env: KEY_VAR });
+      const r = runDoctor(root, { [TOKEN_VAR]: SECRET, [KEY_VAR]: KEY });
+      assert.equal(r.code, 0, r.all);
+      assert.match(r.out, /ok\s+signing key \(AI_GIT_SIGNING_KEY_TEST\): resolved via env/);
+      assert.match(r.out, /ok\s+ssh-keygen: found on PATH/);
+      assert.match(r.out, /signing: required/);
+      assert.ok(!r.all.includes('seeded-key-body'));
+    });
+
+    it('key via the secrets.run wrapper', () => {
+      makeTools(['ssh-keygen']);
+      writeConfig({ secrets: { run: wrapperRun() } }, { git_signing_key_env: KEY_VAR });
+      const r = runDoctor(root, {
+        [TOKEN_VAR]: SECRET,
+        FAKE_WRAP_VAR: KEY_VAR,
+        FAKE_WRAP_SECRET: 'x',
+      });
+      assert.equal(r.code, 0, r.all);
+      assert.match(r.out, /signing key \(AI_GIT_SIGNING_KEY_TEST\): resolved via wrapper/);
+    });
+
+    it('required signing with no key: exits 1 and names the variable', () => {
+      makeTools(['ssh-keygen']);
+      writeConfig({}, { git_signing_key_env: KEY_VAR });
+      const r = runDoctor(root, { [TOKEN_VAR]: SECRET });
+      assert.equal(r.code, 1);
+      assert.match(r.out, /FAIL signing key \(AI_GIT_SIGNING_KEY_TEST\): NOT resolved/);
+    });
+
+    it('required signing without ssh-keygen: exits 1', () => {
+      writeConfig({}, { git_signing_key_env: KEY_VAR });
+      const r = runDoctor(root, { [TOKEN_VAR]: SECRET, [KEY_VAR]: KEY });
+      assert.equal(r.code, 1);
+      assert.match(r.out, /FAIL ssh-keygen: NOT found on PATH/);
+    });
+
+    it('signing not required: failures warn and the exit code stays 0', () => {
+      writeConfig({}, { git_signing_key_env: KEY_VAR, git_signing_required: false });
+      const r = runDoctor(root, { [TOKEN_VAR]: SECRET });
+      assert.equal(r.code, 0, r.all);
+      assert.match(r.out, /WARN signing key \(AI_GIT_SIGNING_KEY_TEST\): NOT resolved/);
+      assert.match(r.out, /WARN ssh-keygen: NOT found on PATH/);
+      assert.match(r.out, /signing: not required/);
+    });
+  });
 });
