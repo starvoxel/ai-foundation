@@ -130,24 +130,28 @@ function writeTempKey(keyText) {
 /**
  * Prepare commit signing from the key env var: validate the key, check
  * ssh-keygen, write the temp key file. Never throws and never returns key
- * material in `cause`.
+ * material in `cause`. Exactly one of `cause` (failure) or `path` + `dir`
+ * (success) is set.
  * @param {string} keyEnvName
- * @returns {{ ok: true, dir: string, path: string } | { ok: false, cause: string }}
+ * @param {string|null} priorCause - Why resolving the key already failed, if it did
+ * @returns {{ cause: string|null, dir: string|null, path: string|null }}
  */
-function prepareSigning(keyEnvName) {
+function prepareSigning(keyEnvName, priorCause) {
+  const failed = (/** @type {string} */ cause) => ({ cause, dir: null, path: null });
+  if (priorCause) return failed(priorCause);
   const raw = process.env[keyEnvName];
-  if (!raw) return { ok: false, cause: `${keyEnvName} is not set` };
-  if (!toolResolves('ssh-keygen')) return { ok: false, cause: 'ssh-keygen not found on PATH' };
+  if (!raw) return failed(`${keyEnvName} is not set`);
+  if (!toolResolves('ssh-keygen')) return failed('ssh-keygen not found on PATH');
   let keyText;
   try {
     keyText = normalizePrivateKey(raw);
   } catch (err) {
-    return { ok: false, cause: `${keyEnvName}: ${err.message}` };
+    return failed(`${keyEnvName}: ${err.message}`);
   }
   try {
-    return { ok: true, ...writeTempKey(keyText) };
+    return { cause: null, ...writeTempKey(keyText) };
   } catch (err) {
-    return { ok: false, cause: `cannot write temporary signing key (${err.code ?? 'error'})` };
+    return failed(`cannot write temporary signing key (${err.code ?? 'error'})`);
   }
 }
 
@@ -195,10 +199,8 @@ function runGit(args, identity, signing = null) {
   // that is removed afterwards, so nothing is persisted in .git/config.
   let keyDir = null;
   if (signing) {
-    const prepared = signing.cause
-      ? { ok: false, cause: signing.cause }
-      : prepareSigning(signing.keyEnvName);
-    if (prepared.ok) {
+    const prepared = prepareSigning(signing.keyEnvName, signing.cause);
+    if (prepared.path) {
       keyDir = prepared.dir;
       finalArgs = [...buildSigningConfigArgs(prepared.path), ...finalArgs];
     } else {
