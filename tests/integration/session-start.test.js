@@ -138,7 +138,6 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
 
     it('builds the index but installs no bundles, even with AIF_BUNDLES set', () => {
       stub('aif');
-      stub('git');
       const result = spawnSync('bash', [TEMPLATE], {
         encoding: 'utf8',
         env: {
@@ -149,7 +148,7 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
         },
       });
       assert.equal(result.status, 0);
-      assert.deepEqual(calls(), ['git config core.hooksPath .githooks', 'aif index architecture']);
+      assert.deepEqual(calls(), ['aif index architecture']);
     });
   });
 });

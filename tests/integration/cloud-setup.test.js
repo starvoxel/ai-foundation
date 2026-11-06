@@ -27,12 +27,19 @@ const SCRIPT = resolve(import.meta.dirname, '../../scripts/cloud-setup.sh');
 const REAL_TOOLS = ['mktemp', 'rm', 'mkdir', 'install', 'mv', 'grep', 'head', 'cat'];
 
 const BASH = spawnSync('sh', ['-c', 'command -v bash'], { encoding: 'utf8' }).stdout.trim();
+// The script installs Linux release binaries into /usr/local/bin, so it is Linux-only;
+// Windows Git Bash cannot run it under a hermetic PATH (POSIX bash path, no symlinks).
+const IS_WINDOWS = process.platform === 'win32';
 const HAS_BASH = spawnSync('bash', ['-c', 'true']).status === 0;
 const HAS_TOOLS = REAL_TOOLS.every((t) => spawnSync('sh', ['-c', `command -v ${t}`]).status === 0);
 
 describe(
   'scripts/cloud-setup.sh',
-  { skip: (!HAS_BASH || !HAS_TOOLS) && 'bash tools unavailable' },
+  {
+    skip:
+      (IS_WINDOWS && 'Linux-only script') ||
+      ((!HAS_BASH || !HAS_TOOLS) && 'bash tools unavailable'),
+  },
   () => {
     let dir;
     let stubs;
