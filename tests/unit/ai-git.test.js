@@ -21,6 +21,7 @@ import {
   needsSigning,
   normalizePrivateKey,
   buildSigningConfigArgs,
+  describeSigningFailure,
   isDoctorCommand,
   buildDoctorReport,
   buildDoctorProbeArgs,
@@ -523,6 +524,8 @@ describe('unit: ai-git', () => {
           '-c',
           'gpg.format=ssh',
           '-c',
+          'gpg.ssh.program=ssh-keygen',
+          '-c',
           'user.signingkey=/tmp/k/key',
           '-c',
           'commit.gpgsign=true',
@@ -530,6 +533,25 @@ describe('unit: ai-git', () => {
       });
       it('never contains key material', () => {
         assert.ok(!buildSigningConfigArgs('/tmp/k/key').join(' ').includes('PRIVATE KEY'));
+      });
+    });
+
+    describe('describeSigningFailure', () => {
+      it('is fatal when signing is required and names the env var and cause', () => {
+        const f = describeSigningFailure(true, 'KEY_VAR', 'KEY_VAR is not set');
+        assert.equal(f.fatal, true);
+        assert.match(f.message, /^ERROR: KEY_VAR is not set; cannot sign commits with KEY_VAR/);
+        assert.match(f.message, /git_signing_required/);
+      });
+      it('warns and continues when signing is not required', () => {
+        const f = describeSigningFailure(false, 'KEY_VAR', 'ssh-keygen not found on PATH');
+        assert.equal(f.fatal, false);
+        assert.match(f.message, /^WARNING: ssh-keygen not found on PATH; KEY_VAR unavailable/);
+        assert.match(f.message, /without signing/);
+      });
+      it('omits the cause prefix when unknown', () => {
+        assert.doesNotMatch(describeSigningFailure(true, 'K', null).message, /null/);
+        assert.doesNotMatch(describeSigningFailure(false, 'K', null).message, /null/);
       });
     });
   });

@@ -25,13 +25,25 @@
  * Plan: AIF-008 (Task 001: re-exec argument transport and failure policy;
  * Task 002: the `ai-git doctor` I/O wrapper).
  *
+ * Plan: docs/plans/ai-git-ssh-signing.md (milestone 2) — SSH commit signing.
+ *
  * No Plan ID for the original body — small human-approved security bugfix (see chat approval
  * 2026-08-23) for the push/fetch auth-injection argument-order bug.
  */
 
 import { spawnSync } from 'node:child_process';
-import { readFileSync, existsSync, statSync, accessSync, constants } from 'node:fs';
+import {
+  readFileSync,
+  existsSync,
+  statSync,
+  accessSync,
+  constants,
+  mkdtempSync,
+  writeFileSync,
+  rmSync,
+} from 'node:fs';
 import { resolve, join, delimiter } from 'node:path';
+import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import {
   getIdentity,
@@ -50,6 +62,12 @@ import {
   findUnsafeArg,
   makeIsExecutableFile,
   isOnPath,
+  getSigningKeyEnvName,
+  isSigningRequired,
+  needsSigning,
+  normalizePrivateKey,
+  buildSigningConfigArgs,
+  describeSigningFailure,
 } from '../lib/ai-git.js';
 import {
   getSecretsConfig,
@@ -97,12 +115,55 @@ function findAiConfig() {
 // --- Command execution ---
 
 /**
- * Run a git command with AI identity and optional push auth.
+ * Write the signing key to a private temp file for git to read.
+ * @param {string} keyText - Normalised private key
+ * @returns {{ dir: string, path: string }}
+ */
+function writeTempKey(keyText) {
+  // mkdtemp creates the directory 0700 on POSIX; the key file is 0600.
+  const dir = mkdtempSync(join(tmpdir(), 'ai-git-sign-'));
+  const path = join(dir, 'key');
+  writeFileSync(path, keyText, { mode: 0o600 });
+  return { dir, path };
+}
+
+/**
+ * Prepare commit signing from the key env var: validate the key, check
+ * ssh-keygen, write the temp key file. Never throws and never returns key
+ * material in `cause`. Exactly one of `cause` (failure) or `path` + `dir`
+ * (success) is set.
+ * @param {string} keyEnvName
+ * @param {string|null} priorCause - Why resolving the key already failed, if it did
+ * @returns {{ cause: string|null, dir: string|null, path: string|null }}
+ */
+function prepareSigning(keyEnvName, priorCause) {
+  const failed = (/** @type {string} */ cause) => ({ cause, dir: null, path: null });
+  if (priorCause) return failed(priorCause);
+  const raw = process.env[keyEnvName];
+  if (!raw) return failed(`${keyEnvName} is not set`);
+  if (!toolResolves('ssh-keygen')) return failed('ssh-keygen not found on PATH');
+  let keyText;
+  try {
+    keyText = normalizePrivateKey(raw);
+  } catch (err) {
+    return failed(`${keyEnvName}: ${err.message}`);
+  }
+  try {
+    return { cause: null, ...writeTempKey(keyText) };
+  } catch (err) {
+    return failed(`cannot write temporary signing key (${err.code ?? 'error'})`);
+  }
+}
+
+/**
+ * Run a git command with AI identity, optional push auth and optional
+ * commit signing.
  * @param {string[]} args - Git arguments (e.g. ['commit', '-m', 'message'])
  * @param {{ name: string, email: string, tokenEnvName: string|null }} identity
+ * @param {{ keyEnvName: string, required: boolean, cause: string|null }|null} [signing] - Set when this command creates commits and signing is configured
  * @returns {number} Exit code
  */
-function runGit(args, identity) {
+function runGit(args, identity, signing = null) {
   const env = buildGitEnv(identity, process.env);
   let finalArgs = args;
 
@@ -134,13 +195,31 @@ function runGit(args, identity) {
     }
   }
 
-  const result = spawnSync('git', finalArgs, {
-    env,
-    stdio: 'inherit',
-    cwd: process.cwd(),
-  });
+  // Commit signing: transient `-c` overrides pointing at a temp key file
+  // that is removed afterwards, so nothing is persisted in .git/config.
+  let keyDir = null;
+  if (signing) {
+    const prepared = prepareSigning(signing.keyEnvName, signing.cause);
+    if (prepared.path) {
+      keyDir = prepared.dir;
+      finalArgs = [...buildSigningConfigArgs(prepared.path), ...finalArgs];
+    } else {
+      const failure = describeSigningFailure(signing.required, signing.keyEnvName, prepared.cause);
+      console.error(failure.message);
+      if (failure.fatal) return 1;
+    }
+  }
 
-  return result.status ?? 1;
+  try {
+    const result = spawnSync('git', finalArgs, {
+      env,
+      stdio: 'inherit',
+      cwd: process.cwd(),
+    });
+    return result.status ?? 1;
+  } finally {
+    if (keyDir) rmSync(keyDir, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
+  }
 }
 
 /**
@@ -299,15 +378,17 @@ Configuration:
  * --project-id X --`) if configured, else load a gitignored `.env` if
  * `secrets.allow_insecure_dotenv` is explicitly true. Re-exec never
  * returns — it replaces this process with the wrapped child's exit code.
- * Mirrors runGit/runGh's existing discipline: the token is never logged
+ * Mirrors runGit/runGh's existing discipline: the secret is never logged
  * or echoed, only passed via `stdio: 'inherit'` env injection.
+ * Returns instead of reporting so each caller applies its own failure
+ * policy (token: describeTokenFailure; signing key: describeSigningFailure).
  * @param {object} config - Parsed .aiconfig.json
  * @param {string} root - Project root (where .aiconfig.json was found)
- * @param {{ tokenEnvName: string|null }} identity
- * @param {boolean} isGh - Whether the command is gh-* (failure policy: error vs warn)
+ * @param {string|null} envName - Name of the env var to resolve
+ * @returns {{ resolved: boolean, cause: string|null }}
  */
-function resolveSecrets(config, root, identity, isGh) {
-  if (!identity.tokenEnvName || process.env[identity.tokenEnvName]) return;
+function resolveSecrets(config, root, envName) {
+  if (!envName || process.env[envName]) return { resolved: true, cause: null };
 
   const { run, allowInsecureDotenv } = getSecretsConfig(config);
   let cause = null;
@@ -367,13 +448,8 @@ function resolveSecrets(config, root, identity, isGh) {
     }
   }
 
-  // Failure policy: token still unresolved. gh-* stop; push/fetch warn
-  // and proceed. Names the variable, never a value.
-  if (!process.env[identity.tokenEnvName]) {
-    const failure = describeTokenFailure(isGh, identity.tokenEnvName, cause);
-    console.error(failure.message);
-    if (failure.fatal) process.exit(1);
-  }
+  const resolved = Boolean(process.env[envName]);
+  return { resolved, cause: resolved ? null : cause };
 }
 
 /**
@@ -418,19 +494,35 @@ function main() {
   const command = args[0];
   const commandArgs = args.slice(1);
 
-  // Only resolve secrets for operations that actually need the token —
-  // every other invocation (commit, add, status, log, worktree, ...)
-  // must stay fast and must not depend on a secrets backend being
-  // installed/reachable.
+  // Only resolve secrets for operations that actually need them — every
+  // other invocation (add, status, log, worktree, ...) must stay fast and
+  // must not depend on a secrets backend being installed/reachable.
   if (isGhCommand(command) || needsPushAuth(command)) {
-    resolveSecrets(found.config, found.root, identity, isGhCommand(command));
+    const { resolved, cause } = resolveSecrets(found.config, found.root, identity.tokenEnvName);
+    // Failure policy: gh-* stop; push/fetch warn and proceed. Names the
+    // variable, never a value.
+    if (!resolved) {
+      const failure = describeTokenFailure(isGhCommand(command), identity.tokenEnvName, cause);
+      console.error(failure.message);
+      if (failure.fatal) process.exit(1);
+    }
+  }
+
+  // Commit signing applies only when a key env var is configured and the
+  // subcommand creates commits. The key normally arrives in the session
+  // environment; only when it is missing is it fetched through secrets.run.
+  let signing = null;
+  const keyEnvName = getSigningKeyEnvName(found.config);
+  if (keyEnvName && needsSigning(command)) {
+    const { cause } = resolveSecrets(found.config, found.root, keyEnvName);
+    signing = { keyEnvName, required: isSigningRequired(found.config), cause };
   }
 
   // Route to git or gh
   if (isGhCommand(command)) {
     process.exit(runGh(command, commandArgs, identity));
   } else {
-    process.exit(runGit(args, identity));
+    process.exit(runGit(args, identity, signing));
   }
 }
 
