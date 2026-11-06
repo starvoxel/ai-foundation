@@ -126,6 +126,28 @@ describe('integration: ai-git SSH commit signing', () => {
     assert.ok(!r.stdout.includes('PRIVATE KEY') && !r.stderr.includes('PRIVATE KEY'));
   });
 
+  it('removes the temp key when git itself fails', () => {
+    git(repo, ['reset', '-q']);
+    const r = aiGit(repo, ['commit', '-m', 'nothing to commit'], { key: keyText, tmp });
+    assert.notEqual(r.status, 0);
+    assert.deepEqual(readdirSync(tmp), []);
+  });
+
+  it('signs with the configured key even when the host config sets another signer', () => {
+    const hostConfig = join(work, 'host-gitconfig');
+    writeFileSync(
+      hostConfig,
+      '[gpg "ssh"]\n\tprogram = definitely-not-a-signer\n[commit]\n\tgpgsign = true\n',
+      'utf8',
+    );
+    const r = run('node', [BIN_PATH, 'commit', '-m', 'signed'], {
+      cwd: repo,
+      env: { GIT_CONFIG_GLOBAL: hostConfig, [KEY_VAR]: keyText, TMPDIR: tmp, TEMP: tmp, TMP: tmp },
+    });
+    assert.equal(r.status, 0, r.stderr);
+    assert.equal(signatureStatus(repo, signersFile), 'G');
+  });
+
   it('does not persist signing config in .git/config', () => {
     aiGit(repo, ['commit', '-m', 'signed'], { key: keyText, tmp });
     const config = readFileSync(join(repo, '.git', 'config'), 'utf8');
