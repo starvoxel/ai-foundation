@@ -524,6 +524,8 @@ describe('unit: ai-git', () => {
           '-c',
           'gpg.format=ssh',
           '-c',
+          'gpg.ssh.program=ssh-keygen',
+          '-c',
           'user.signingkey=/tmp/k/key',
           '-c',
           'commit.gpgsign=true',
