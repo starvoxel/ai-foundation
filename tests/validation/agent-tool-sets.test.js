@@ -80,6 +80,7 @@ const AGENT_GRANTS = {
       'skill',
       'session_info',
       'pr_follow_through',
+      'routines',
     ],
     approved: [
       'read',
@@ -94,6 +95,7 @@ const AGENT_GRANTS = {
       'skill',
       'session_info',
       'pr_follow_through',
+      'routines',
     ],
   },
 };
@@ -125,6 +127,16 @@ const CLAUDE_NATIVE = {
     'ReadNotifications',
   ],
   repo_list: CCR('list_repos'),
+  routines: CCR(
+    'create_trigger',
+    'update_trigger',
+    'delete_trigger',
+    'fire_trigger',
+    'get_trigger',
+    'list_triggers',
+    'watch_url',
+    'unwatch_url',
+  ),
 };
 
 /** Names Kiro has no equivalent for; everything else resolves to itself. */
