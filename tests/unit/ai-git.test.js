@@ -16,8 +16,15 @@ import {
   buildAuthHeaderValue,
   buildAuthConfigArgs,
   findRemoteName,
+  getSigningKeyEnvName,
+  isSigningRequired,
+  needsSigning,
+  normalizePrivateKey,
+  buildSigningConfigArgs,
+  describeSigningFailure,
   isDoctorCommand,
   buildDoctorReport,
+  buildSigningReport,
   buildDoctorProbeArgs,
   findUnsafeArg,
   makeIsExecutableFile,
@@ -437,6 +444,195 @@ describe('unit: ai-git', () => {
           makeIsExecutableFile({ ...fsFake('missing', true), platform: 'linux' })('/a'),
           false,
         );
+      });
+    });
+  });
+
+  describe('SSH commit signing', () => {
+    const KEY =
+      '-----BEGIN OPENSSH PRIVATE KEY-----\nAAAA\nBBBB\n-----END OPENSSH PRIVATE KEY-----';
+
+    describe('getSigningKeyEnvName', () => {
+      it('returns the configured env var name', () => {
+        assert.equal(
+          getSigningKeyEnvName({ ai_identity: { git_signing_key_env: 'AI_GIT_SIGNING_KEY' } }),
+          'AI_GIT_SIGNING_KEY',
+        );
+      });
+      it('returns null when unset or ai_identity is absent', () => {
+        assert.equal(getSigningKeyEnvName({}), null);
+        assert.equal(getSigningKeyEnvName({ ai_identity: {} }), null);
+        assert.equal(getSigningKeyEnvName({ ai_identity: { git_signing_key_env: '' } }), null);
+      });
+    });
+
+    describe('isSigningRequired', () => {
+      it('defaults to true', () => {
+        assert.equal(isSigningRequired({}), true);
+        assert.equal(isSigningRequired({ ai_identity: {} }), true);
+      });
+      it('is false only for an explicit false', () => {
+        assert.equal(isSigningRequired({ ai_identity: { git_signing_required: false } }), false);
+        assert.equal(isSigningRequired({ ai_identity: { git_signing_required: true } }), true);
+        assert.equal(isSigningRequired({ ai_identity: { git_signing_required: 'false' } }), true);
+      });
+    });
+
+    describe('needsSigning', () => {
+      it('is true for every commit-creating subcommand', () => {
+        for (const sub of ['commit', 'merge', 'cherry-pick', 'revert', 'rebase', 'pull', 'am']) {
+          assert.equal(needsSigning(sub), true, sub);
+        }
+      });
+      it('is false for other subcommands, tag included, and undefined', () => {
+        for (const sub of ['push', 'fetch', 'status', 'add', 'log', 'tag', 'worktree', undefined]) {
+          assert.equal(needsSigning(sub), false, String(sub));
+        }
+      });
+    });
+
+    describe('normalizePrivateKey', () => {
+      it('adds exactly one trailing newline', () => {
+        assert.equal(normalizePrivateKey(KEY), `${KEY}\n`);
+        assert.equal(normalizePrivateKey(`${KEY}\n\n\n`), `${KEY}\n`);
+      });
+      it('converts CRLF and CR line endings to LF', () => {
+        assert.equal(normalizePrivateKey(KEY.replace(/\n/g, '\r\n')), `${KEY}\n`);
+        assert.equal(normalizePrivateKey(KEY.replace(/\n/g, '\r')), `${KEY}\n`);
+      });
+      it('trims surrounding whitespace', () => {
+        assert.equal(normalizePrivateKey(`  \n${KEY}  \n`), `${KEY}\n`);
+      });
+      it('rejects text that is not a private key block, without echoing it', () => {
+        for (const bad of [
+          '',
+          'hunter2-secret',
+          'ssh-ed25519 AAAA public',
+          '-----BEGIN OPENSSH PRIVATE KEY-----',
+        ]) {
+          assert.throws(
+            () => normalizePrivateKey(bad),
+            (err) =>
+              /not a valid private key/.test(err.message) && !err.message.includes('hunter2'),
+          );
+        }
+      });
+    });
+
+    describe('buildSigningConfigArgs', () => {
+      it('builds transient -c overrides pointing at the key path', () => {
+        assert.deepEqual(buildSigningConfigArgs('/tmp/k/key'), [
+          '-c',
+          'gpg.format=ssh',
+          '-c',
+          'gpg.ssh.program=ssh-keygen',
+          '-c',
+          'user.signingkey=/tmp/k/key',
+          '-c',
+          'commit.gpgsign=true',
+        ]);
+      });
+      it('never contains key material', () => {
+        assert.ok(!buildSigningConfigArgs('/tmp/k/key').join(' ').includes('PRIVATE KEY'));
+      });
+    });
+
+    describe('describeSigningFailure', () => {
+      it('is fatal when signing is required and names the env var and cause', () => {
+        const f = describeSigningFailure(true, 'KEY_VAR', 'KEY_VAR is not set');
+        assert.equal(f.fatal, true);
+        assert.match(f.message, /^ERROR: KEY_VAR is not set; cannot sign commits with KEY_VAR/);
+        assert.match(f.message, /git_signing_required/);
+      });
+      it('warns and continues when signing is not required', () => {
+        const f = describeSigningFailure(false, 'KEY_VAR', 'ssh-keygen not found on PATH');
+        assert.equal(f.fatal, false);
+        assert.match(f.message, /^WARNING: ssh-keygen not found on PATH; KEY_VAR unavailable/);
+        assert.match(f.message, /without signing/);
+      });
+      it('omits the cause prefix when unknown', () => {
+        assert.doesNotMatch(describeSigningFailure(true, 'K', null).message, /null/);
+        assert.doesNotMatch(describeSigningFailure(false, 'K', null).message, /null/);
+      });
+    });
+
+    describe('buildSigningReport / doctor signing section', () => {
+      const signingOk = {
+        keyEnvName: 'KEY_VAR',
+        required: true,
+        keySource: 'env',
+        sshKeygen: true,
+      };
+      const baseFacts = {
+        tools: { 'ai-git': true, gh: true, bws: true },
+        configFound: true,
+        tokenEnvName: 'MY_TOKEN',
+        tokenSource: 'env',
+      };
+
+      it('reports ok lines and the required setting when everything resolves', () => {
+        const r = buildSigningReport(signingOk);
+        assert.equal(r.ok, true);
+        assert.ok(r.lines.includes('ok   signing key (KEY_VAR): resolved via env'));
+        assert.ok(r.lines.includes('ok   ssh-keygen: found on PATH'));
+        assert.ok(r.lines.some((l) => /signing: required/.test(l)));
+      });
+
+      it('fails when required and the key does not resolve', () => {
+        const r = buildSigningReport({ ...signingOk, keySource: null });
+        assert.equal(r.ok, false);
+        assert.ok(r.lines.some((l) => l.startsWith('FAIL signing key (KEY_VAR): NOT resolved')));
+      });
+
+      it('fails when required and ssh-keygen is missing', () => {
+        const r = buildSigningReport({ ...signingOk, sshKeygen: false });
+        assert.equal(r.ok, false);
+        assert.ok(r.lines.includes('FAIL ssh-keygen: NOT found on PATH'));
+      });
+
+      it('only warns when not required', () => {
+        const r = buildSigningReport({
+          ...signingOk,
+          required: false,
+          keySource: null,
+          sshKeygen: false,
+        });
+        assert.equal(r.ok, true);
+        assert.ok(r.lines.some((l) => l.startsWith('WARN signing key (KEY_VAR): NOT resolved')));
+        assert.ok(r.lines.includes('WARN ssh-keygen: NOT found on PATH'));
+        assert.ok(r.lines.some((l) => /signing: not required/.test(l)));
+      });
+
+      it('explains an unsafe probe path and an unset placeholder', () => {
+        const unsafe = buildSigningReport({
+          ...signingOk,
+          keySource: null,
+          unsafeProbePath: '/my dir/probe.js',
+        });
+        assert.ok(
+          unsafe.lines.some((l) => /key check could not run \(\/my dir\/probe\.js\)/.test(l)),
+        );
+        const unset = buildSigningReport({
+          ...signingOk,
+          keySource: null,
+          unsetPlaceholder: 'BWS_PROJECT_ID',
+        });
+        assert.ok(unset.lines.some((l) => /unset environment variable BWS_PROJECT_ID/.test(l)));
+      });
+
+      it('adds nothing to buildDoctorReport when signing is not configured', () => {
+        const without = buildDoctorReport(baseFacts);
+        assert.deepEqual(buildDoctorReport({ ...baseFacts, signing: null }), without);
+        assert.ok(!without.lines.some((l) => /signing|ssh-keygen/.test(l)));
+      });
+
+      it('includes the signing lines and fails the report when required signing fails', () => {
+        const r = buildDoctorReport({
+          ...baseFacts,
+          signing: { ...signingOk, keySource: null },
+        });
+        assert.equal(r.ok, false);
+        assert.ok(r.lines.some((l) => l.includes('signing key (KEY_VAR)')));
       });
     });
   });
