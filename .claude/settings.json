@@ -16,6 +16,28 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "mcp__claude-code-remote__(create_trigger|send_later|get_trigger|list_triggers|update_trigger|delete_trigger|fire_trigger)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/scripts/trigger-hook-log.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__claude-code-remote__(create_trigger|send_later|get_trigger|list_triggers|update_trigger|delete_trigger|fire_trigger)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/scripts/trigger-hook-log.js"
+          }
+        ]
+      }
     ]
   }
 }
