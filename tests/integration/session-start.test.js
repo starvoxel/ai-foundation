@@ -56,12 +56,12 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
   }
 
   it('does nothing outside a cloud session', () => {
-    const result = run({ AIF_BUNDLES: 'engineering' });
+    const result = run({});
     assert.equal(result.status, 0);
     assert.deepEqual(calls(), []);
   });
 
-  it('links ai-git and runs doctor, but installs no bundles, when AIF_BUNDLES is unset', () => {
+  it('links ai-git, builds the index and runs doctor', () => {
     const result = run({ CLAUDE_CODE_REMOTE: 'true' });
     assert.equal(result.status, 0);
     assert.deepEqual(calls(), [
@@ -72,44 +72,28 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
     ]);
   });
 
-  it('installs the listed bundles to the claude harness between link and doctor', () => {
-    const result = run({ CLAUDE_CODE_REMOTE: 'true', AIF_BUNDLES: 'engineering,generic' });
-    assert.equal(result.status, 0);
-    assert.deepEqual(calls(), [
-      'npm ci --ignore-scripts --no-audit --no-fund',
-      'npm link --ignore-scripts',
-      'node bin/aif.js index architecture',
-      'node bin/aif.js install -B engineering,generic -H claude --skip-project',
-      'ai-git doctor',
-    ]);
+  it('installs no bundles even when AIF_BUNDLES is set (project scope owns them)', () => {
+    run({ CLAUDE_CODE_REMOTE: 'true', AIF_BUNDLES: 'engineering,generic' });
+    assert.ok(!calls().some((c) => c.includes('install')));
   });
 
   it('only installs its own dependencies, with --ignore-scripts', () => {
-    run({ CLAUDE_CODE_REMOTE: 'true', AIF_BUNDLES: 'engineering' });
+    run({ CLAUDE_CODE_REMOTE: 'true' });
     for (const call of calls().filter((c) => c.startsWith('npm '))) {
       assert.match(call, /^npm (ci|link) --ignore-scripts/);
       assert.doesNotMatch(call, / -g( |$)|--global/);
     }
   });
 
-  it('warns without failing when the bundle install fails', () => {
-    stub('node', 1);
-    const result = run({ CLAUDE_CODE_REMOTE: 'true', AIF_BUNDLES: 'nope' });
-    assert.equal(result.status, 0);
-    assert.match(result.stderr, /aif install failed for AIF_BUNDLES=nope/);
-    assert.equal(calls().at(-1), 'ai-git doctor');
-  });
-
   it('warns and still runs the later steps when npm link fails', () => {
     stub('npm', 1);
-    const result = run({ CLAUDE_CODE_REMOTE: 'true', AIF_BUNDLES: 'engineering' });
+    const result = run({ CLAUDE_CODE_REMOTE: 'true' });
     assert.equal(result.status, 0);
     assert.match(result.stderr, /npm link failed/);
     assert.deepEqual(calls(), [
       'npm ci --ignore-scripts --no-audit --no-fund',
       'npm link --ignore-scripts',
       'node bin/aif.js index architecture',
-      'node bin/aif.js install -B engineering -H claude --skip-project',
       'ai-git doctor',
     ]);
   });
@@ -144,5 +128,27 @@ describe('scripts/session-start.sh', { skip: !HAS_BASH && 'bash not available' }
     assert.match(result.stderr, /npm ci failed/);
     assert.match(result.stderr, /npm link failed/);
     assert.match(result.stderr, /ai-git doctor reported problems/);
+  });
+
+  describe('projects/_template/scripts/session-start.sh', () => {
+    const TEMPLATE = resolve(
+      import.meta.dirname,
+      '../../projects/_template/scripts/session-start.sh',
+    );
+
+    it('builds the index but installs no bundles, even with AIF_BUNDLES set', () => {
+      stub('aif');
+      const result = spawnSync('bash', [TEMPLATE], {
+        encoding: 'utf8',
+        env: {
+          PATH: `${dir}${delimiter}${process.env.PATH}`,
+          CLAUDE_PROJECT_DIR: dir,
+          CLAUDE_CODE_REMOTE: 'true',
+          AIF_BUNDLES: 'engineering',
+        },
+      });
+      assert.equal(result.status, 0);
+      assert.deepEqual(calls(), ['aif index architecture']);
+    });
   });
 });
