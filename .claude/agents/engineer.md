@@ -9,7 +9,13 @@ tools: Read, Write, Edit, Bash, Grep, Glob, Agent, ListAgents, SendMessage,
   mcp__claude-code-remote__get_session,
   mcp__claude-code-remote__subscribe_pr_activity,
   mcp__claude-code-remote__unsubscribe_pr_activity,
-  mcp__claude-code-remote__send_later, ReadNotifications
+  mcp__claude-code-remote__send_later, ReadNotifications,
+  mcp__claude-code-remote__create_trigger,
+  mcp__claude-code-remote__update_trigger,
+  mcp__claude-code-remote__delete_trigger,
+  mcp__claude-code-remote__fire_trigger, mcp__claude-code-remote__get_trigger,
+  mcp__claude-code-remote__list_triggers, mcp__claude-code-remote__watch_url,
+  mcp__claude-code-remote__unwatch_url
 skills:
   - oversight
 hooks:
