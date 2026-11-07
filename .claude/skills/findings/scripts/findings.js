@@ -33,7 +33,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const FINDING_LABEL = 'finding';
@@ -179,6 +179,61 @@ export function formatLine(e) {
 // ---- I/O -----------------------------------------------------------------
 
 /**
+ * Node cannot spawn an npm `.cmd` shim without a shell, and a shell would
+ * re-parse finding titles and bodies. On Windows, find the shim's node script
+ * and run it with node directly: no shell, args passed verbatim.
+ * @param {string[]} args - Arguments for ai-git
+ * @param {{ platform?: string, pathEnv?: string, execPath?: string, exists?: (p: string) => boolean, readText?: (p: string) => string }} [env]
+ * @returns {{ command: string, args: string[] }}
+ */
+export function resolveAiGit(args, env = {}) {
+  const {
+    platform = process.platform,
+    pathEnv = process.env.PATH ?? '',
+    execPath = process.execPath,
+    exists = existsSync,
+    readText = (p) => readFileSync(p, 'utf8'),
+  } = env;
+  if (platform !== 'win32') return { command: 'ai-git', args };
+  for (const dir of pathEnv.split(delimiter).filter(Boolean)) {
+    const shim = join(dir, 'ai-git.cmd');
+    if (!exists(shim)) continue;
+    const m = /"%dp0%[\\/]([^"]+\.js)"/i.exec(readText(shim));
+    if (!m) break;
+    const script = join(dirname(shim), m[1]);
+    if (exists(script)) return { command: execPath, args: [script, ...args] };
+    break;
+  }
+  return { command: 'ai-git', args };
+}
+
+/**
+ * Message for a failed spawn: the spawn error (ENOENT etc.), exit status and output.
+ * @param {string} label
+ * @param {{ error?: Error, status: number|null, stderr?: string, stdout?: string }} r
+ * @returns {string}
+ */
+export function describeSpawnFailure(label, r) {
+  const detail = (r.stderr || r.stdout || '').trim();
+  const cause = r.error ? `${r.error.message}; ` : '';
+  return `${label} failed: ${cause}exit status ${r.status}${detail ? `: ${detail}` : ''}`;
+}
+
+/**
+ * Run `ai-git` and return its stdout.
+ * @param {string[]} args
+ * @param {{ input?: string, spawn?: typeof spawnSync, resolveCmd?: typeof resolveAiGit }} [opts]
+ * @returns {string}
+ * @throws {Error} When the process cannot start or exits non-zero
+ */
+export function runAiGit(args, { input, spawn = spawnSync, resolveCmd = resolveAiGit } = {}) {
+  const cmd = resolveCmd(args);
+  const r = spawn(cmd.command, cmd.args, { encoding: 'utf8', input });
+  if (r.error || r.status !== 0) throw new Error(describeSpawnFailure(`ai-git ${args[0]}`, r));
+  return r.stdout ?? '';
+}
+
+/**
  * Run `ai-git gh-api` and return its stdout.
  * @param {string[]} args
  * @param {string} [input] - Optional stdin
@@ -186,9 +241,7 @@ export function formatLine(e) {
  * @throws {Error} When the call fails
  */
 function gh(args, input) {
-  const r = spawnSync('ai-git', ['gh-api', ...args], { encoding: 'utf8', input });
-  if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'ai-git gh-api failed').trim());
-  return r.stdout;
+  return runAiGit(['gh-api', ...args], { input });
 }
 
 /**
@@ -209,8 +262,15 @@ export function parseRepoSlug(url) {
 function repoSlug(argv) {
   const i = argv.indexOf('--repo');
   if (i !== -1) return argv[i + 1];
-  const r = spawnSync('ai-git', ['remote', 'get-url', 'origin'], { encoding: 'utf8' });
-  const slug = parseRepoSlug(r.stdout ?? '');
+  let url;
+  try {
+    url = runAiGit(['remote', 'get-url', 'origin']);
+  } catch (err) {
+    throw new Error(`Cannot derive the repo (${err.message}); pass --repo owner/name`, {
+      cause: err,
+    });
+  }
+  const slug = parseRepoSlug(url);
   if (!slug) throw new Error('Cannot derive the repo; pass --repo owner/name');
   return slug;
 }
