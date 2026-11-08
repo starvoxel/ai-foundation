@@ -219,8 +219,9 @@ export function effortClass(entry) {
 /**
  * Entries ordered severity first (critical to low, unrated last), then oldest
  * issue number first.
- * @param {Array<{ n: number, severity: string }>} entries
- * @returns {Array<{ n: number, severity: string }>}
+ * @template {{ n: number, severity: string }} T
+ * @param {T[]} entries
+ * @returns {T[]}
  */
 function bySeverity(entries) {
   return [...entries].sort(compareSeverity);
@@ -242,8 +243,9 @@ function compareSeverity(a, b) {
 
 /**
  * Group entries that share a file into clusters (connected components).
- * @param {Array<{ n: number, files: string[] }>} entries
- * @returns {Array<Array<{ n: number, files: string[] }>>}
+ * @template {{ files: string[] }} T
+ * @param {T[]} entries
+ * @returns {T[][]}
  */
 function clusterByFile(entries) {
   const clusters = [];
