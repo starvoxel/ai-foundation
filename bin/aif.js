@@ -145,7 +145,6 @@ Examples:
   aif install --bundle engineering,product --harness kiro
   aif install --update
   aif install --scope project -B engineering -H claude
-  aif init --cloud-steps
   aif install --scope project --check
   aif uninstall --bundle engineering --harness kiro
   aif status
@@ -157,6 +156,7 @@ Examples:
   aif index architecture --check
   aif init --name my-app --language csharp
   aif init --interactive
+  aif init --cloud-steps
   aif config paths.research
   aif config paths.research --abs
 `.trim();

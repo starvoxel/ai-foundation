@@ -17,7 +17,7 @@ import {
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
-import { runInit } from '../../lib/commands/init.js';
+import { printCloudSetupSteps, runInit } from '../../lib/commands/init.js';
 
 describe('integration: init command', () => {
   let workDir;
@@ -117,12 +117,47 @@ describe('integration: init command', () => {
     assert.deepEqual(readdirSync(workDir), []);
   });
 
-  it('--cloud-steps scaffolds nothing even when --name is also given', async () => {
-    const { code } = await quiet(() =>
-      runInit({ args: { 'cloud-steps': true, name: 'ignored' }, positional: [] }),
+  it('--cloud-steps ignores --name, --force, --interactive and --with-default-bundles', async () => {
+    const { code, output } = await quiet(() =>
+      runInit({
+        args: {
+          'cloud-steps': true,
+          name: 'ignored',
+          force: true,
+          interactive: true,
+          'with-default-bundles': true,
+        },
+        positional: [],
+      }),
     );
     assert.equal(code, 0);
-    assert.ok(!existsSync(join(workDir, 'ignored')));
+    const text = output.join('\n');
+    assert.deepEqual(readdirSync(workDir), [], 'nothing may be scaffolded or installed');
+    assert.doesNotMatch(text, /initialized|Installing default bundles/);
+    // The bundles are not installed, so the step to install them stays in the output.
+    assert.match(text, /aif install --scope project -B engineering -H claude/);
+  });
+
+  it('printCloudSetupSteps reports an unreadable bootstrap on stderr, prints nothing, returns false', async () => {
+    const stdout = [];
+    const stderr = [];
+    const origLog = console.log;
+    const origErr = console.error;
+    console.log = (...args) => stdout.push(args.join(' '));
+    console.error = (...args) => stderr.push(args.join(' '));
+    let printed;
+    try {
+      printed = printCloudSetupSteps(false, join(workDir, 'no-such-bootstrap.sh'));
+    } finally {
+      console.log = origLog;
+      console.error = origErr;
+    }
+    assert.equal(printed, false);
+    assert.deepEqual(stdout, []);
+    assert.match(
+      stderr.join('\n'),
+      /Could not read .*no-such-bootstrap\.sh; skipping cloud setup steps/,
+    );
   });
 
   it('prints no cloud setup steps when init fails', async () => {
