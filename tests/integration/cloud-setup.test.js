@@ -305,10 +305,34 @@ describe(
         assert.match(second.stdout, /already exists, left alone/);
       });
 
-      it('does nothing and exits 0 when the repos directory is missing', () => {
+      it('says so, and still exits 0, when the repos directory is missing', () => {
         const result = run({ AIF_AGENT: 'reviewer' });
         assert.equal(result.status, 0);
+        assert.match(result.stderr, /no git repo found under .*AIF_AGENT=reviewer was not applied/);
+        assert.match(result.stderr, /agent override not fully applied/);
+        assert.doesNotMatch(result.stdout, /^cloud-setup: done$/m);
+      });
+
+      it('says so when the home directory holds no git repo, only plain directories', () => {
+        repo('notes', { git: false });
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(result.status, 0);
+        assert.match(result.stderr, /no git repo found/);
+        assert.equal(existsSync(settingsOf('notes')), false);
+      });
+
+      it('does not report a missing repo when AIF_AGENT is unset', () => {
+        const result = run();
         assert.equal(result.stderr, '');
+        assert.match(result.stdout, /^cloud-setup: done$/m);
+      });
+
+      it('does not report a missing repo when the only repo already has its file', () => {
+        repo('app');
+        mkdirSync(join(dir, 'home', 'app', '.claude'));
+        writeFileSync(settingsOf('app'), '{"agent":"mine"}\n');
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.doesNotMatch(result.stderr, /no git repo found/);
       });
     });
   },
