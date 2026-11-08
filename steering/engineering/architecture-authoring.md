@@ -1,6 +1,6 @@
 ---
 name: 'architecture-authoring'
-version: '0.5.1'
+version: '0.6.0'
 description: 'Defines how arc42 documentation stays current: staleness is computed from git, and a change that leaves a doc accurate is waived in its commit message.'
 file_patterns: []
 ---
