@@ -17,9 +17,10 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 
 ## Approach
 
-- `batch` is pure selection over the issues `findings.js` already loads, so there is no new network call. Pure `planBatch(map, { limit, maxEffort })` returns the batch; the CLI only prints it.
-- Ranking: severity first (critical → low), then effort ascending (S, M, L, unset last). Findings that share a file are clustered (connected components over `files:`) and a cluster is taken whole, so one file is not revisited across PRs. Clusters are added in the rank of their best finding until `limit` issues is reached; a cluster that alone exceeds `limit` is taken only when it is the first.
-- Defaults: `limit` 5 issues, `maxEffort` M (L findings are skipped unless `--max-effort L` is given). Both are overridable on the command line and by the human's request.
+- `batch` is pure selection over the issues `findings.js` already loads, so there is no new network call. Pure `planBatch(map, { maxM, maxS })` returns the batch; the CLI only prints it.
+- Selection: effort L findings are never selected. Pick up to 5 M findings (`--max-m`), severity first (critical → low), then oldest issue number first. Then add S findings that fall in the same areas as the picked M findings, again severity first, up to 15 S (`--max-s`). An S finding is in the same area when it shares a file or a parent directory with a picked finding. When no M finding is open, take up to 15 S findings, severity first, and keep those that share areas together. A finding with no `effort:` line counts as M.
+- Findings that share a file are never split across batches: a cluster (connected by shared `files:`) is taken whole or not at all, and a cluster larger than the caps is taken only when it is the first selected.
+- Defaults are the caps above; both are overridable on the command line and by the human's request.
 - Output: one line per finding in the existing `formatLine` format, a blank line between clusters, and a final `Fixes #a, Fixes #b` line to paste into the PR.
 - `skill/findings` gains Step 4, "Burn down a batch": run `batch`, implement under the usual standards, put each `Fixes #n` in the PR, and for a finding that proves wrong or not worth fixing comment on it and leave it open for triage. Then the normal flow applies unchanged: oversight sizing, tests, independent review, PR.
 - `agents/engineer.yaml` gets one process line: when asked to work down findings, start with `skill/findings` Step 4 ("Burn down a batch") instead of a feature request. No new agent tools or skills.
@@ -29,8 +30,8 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 
 ### 1. `batch` selection and CLI
 
-- Does: `planBatch` plus the `batch` subcommand with `--limit`, `--max-effort`, `--from-file` and `--repo`.
-- Acceptance criteria: given a fixture set, selection is ordered by severity then effort; findings sharing a file land in one cluster and are taken together; `limit` and `maxEffort` are honoured; no findings gives empty output and exit 0; an invalid `--max-effort` or `--limit` exits 1 with a message.
+- Does: `planBatch` plus the `batch` subcommand with `--max-m`, `--max-s`, `--from-file` and `--repo`.
+- Acceptance criteria: given a fixture set, L findings are never selected; at most `maxM` M findings are picked severity first; S findings are added only in the same areas as picked findings, capped at `maxS`; an S-only backlog fills up to `maxS`; a missing effort counts as M; findings sharing a file are never split; no findings gives empty output and exit 0; an invalid `--max-m` or `--max-s` exits 1 with a message.
 - Verified by: unit tests in `tests/unit/findings.test.js`, `npm run test:unit`.
 
 ### 2. Skill, agent prompt, docs
@@ -46,5 +47,5 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 
 ## Open questions
 
-- Is a batch of 5 issues at effort ≤ M the right default?
-- Should a batch ever skip severity ordering to prefer cheap wins (for example LOW/S before MEDIUM/M)? The plan proceeds severity-first unless you say otherwise.
+- Resolved by you: 5 M findings plus up to 15 S in the same areas, no L, severity-first within each effort class.
+- Assumed, correct me if wrong: "same areas" means a shared file or parent directory; a finding with no effort counts as M.
