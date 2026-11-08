@@ -373,6 +373,54 @@ describe('aif index architecture — CLI wiring', () => {
     assert.equal(exitCode, 1);
   });
 
+  describe('--commit-msg', () => {
+    function run(message) {
+      const msgFile = join(repoRoot, 'MSG');
+      writeFileSync(msgFile, message);
+      const errors = [];
+      const original = console.error;
+      console.error = (...a) => errors.push(a.join(' '));
+      try {
+        const code = runIndex(
+          parseArgs(['index', 'architecture', '--commit-msg', msgFile]),
+          repoRoot,
+        );
+        return { code, output: errors.join('\n') };
+      } finally {
+        console.error = original;
+      }
+    }
+
+    it('warns, exiting 0, when a staged key_file has no doc edit or waiver', () => {
+      setup();
+      writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+      git(repoRoot, 'add', '-A');
+      const { code, output } = run('Change thing');
+      assert.equal(code, 0);
+      assert.match(output, /arc42 §01: src\/thing\.js/);
+      assert.match(output, /Arch-Unaffected: 01/);
+    });
+
+    it('is silent with a waiver in the message or the doc staged', () => {
+      const { archDir } = setup();
+      writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+      git(repoRoot, 'add', '-A');
+      assert.equal(run('Change\n\nArch-Unaffected: 01 — refactor only').output, '');
+      writeFileSync(join(archDir, '01_intro.md'), sectionContent() + '\nUpdated.\n');
+      git(repoRoot, 'add', '-A');
+      assert.equal(run('Change thing').output, '');
+    });
+
+    it('never fails: an unreadable message file still exits 0', () => {
+      setup();
+      const code = runIndex(
+        parseArgs(['index', 'architecture', '--commit-msg', join(repoRoot, 'missing')]),
+        repoRoot,
+      );
+      assert.equal(code, 0);
+    });
+  });
+
   it('--check does not read or require a stored index (a corrupt one is ignored)', () => {
     const { archDir } = setup();
     writeFileSync(join(archDir, 'index.json'), '{ not json');
