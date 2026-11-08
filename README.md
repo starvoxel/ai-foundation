@@ -72,7 +72,8 @@ aif index architecture --check  # verify the architecture index without writing
 # Project scaffolding
 aif init --name my-app --shortname myapp --language csharp
 aif init --name my-app --with-default-bundles   # also install the default bundles at project scope
-                                                # (init also prints the steps to set up a Claude Code cloud environment)
+aif init --cloud-steps                          # only print the steps to set up a Claude Code cloud environment
+                                                # (a normal init prints them after scaffolding too)
 aif init --interactive
 
 # Config field resolution
@@ -175,7 +176,7 @@ and finish in about five minutes to be cached.
 
 #### Setup script
 
-Paste this; it is the whole script. `aif init` prints it, with the environment variables and the other steps below, after scaffolding a project; the text lives in [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-bootstrap.sh) and a validation test keeps this block identical to it. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh), which owns the pinned, sha256-verified `gh` and `bws` release binaries (installed to `/usr/local/bin`, ahead of any cargo-built `bws` on PATH) and is idempotent and always exits 0.
+Paste the script below into the environment's Setup script. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh). That script installs pinned, sha256-verified `gh` and `bws` release binaries into `/usr/local/bin` (ahead of any cargo-built `bws` on PATH), is idempotent, and always exits 0.
 
 ```bash
 #!/bin/bash
@@ -186,9 +187,11 @@ npm install -g github:starvoxel/ai-foundation --ignore-scripts
 bash "$(npm root -g)/ai-foundation/scripts/cloud-setup.sh"
 ```
 
-- **Head, not a pin.** The environment gets whatever `main` of this repo holds when the cache is built, and the script runs as root, so the environment trusts this repo's `main`. `--ignore-scripts` stops package install hooks; the `gh` and `bws` binaries stay version-pinned and checksum-verified in `scripts/cloud-setup.sh`. The cache is rebuilt after about seven days or when the pasted text changes, which picks up a newer head.
-- **Force a rebuild.** Increment the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text is unchanged.
-- A failed `npm install` fails the script (non-zero), so a broken setup is never cached.
+The script lives in [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-bootstrap.sh), and a validation test keeps the block above identical to it. `aif init --cloud-steps` prints it together with the environment variables and the other setup steps; a normal `aif init` prints them after scaffolding a project.
+
+- **Head, not a pin.** The environment installs whatever `main` of this repo holds when its cache is built. Because the script runs as root, that means trusting this repo's `main`. `--ignore-scripts` disables package install hooks, and `gh` and `bws` stay version-pinned and checksum-verified. The cache is rebuilt after about seven days, or whenever the pasted text changes, which picks up a newer head.
+- **Forcing a rebuild.** Increase the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text stays the same.
+- **Failures.** A failed `npm install` fails the script (non-zero exit), so a broken setup is never cached.
 
 #### Environment variables
 
