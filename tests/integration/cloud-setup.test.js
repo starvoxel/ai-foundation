@@ -282,6 +282,8 @@ describe(
           assert.equal(result.status, 0);
           assert.equal(existsSync(settingsOf('app')), false);
           assert.match(result.stderr, /AIF_AGENT is not a valid agent name/);
+          assert.match(result.stderr, /agent override not fully applied/);
+          assert.doesNotMatch(result.stderr, /missing tool/);
           assert.doesNotMatch(result.stderr + result.stdout, /\$\(id\)|\.\.\/x/);
         });
       }

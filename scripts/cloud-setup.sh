@@ -135,25 +135,30 @@ write_agent_override() {
 }
 
 failed=0
+override_failed=0
 mkdir -p "$BIN_DIR" || { err "cannot create $BIN_DIR"; failed=1; }
 provision gh "$GH_VERSION" "$GH_URL" "$GH_SHA256" gh.tar.gz extract_gh || failed=$((failed + 1))
 provision bws "$BWS_VERSION" "$BWS_URL" "$BWS_SHA256" bws.zip extract_bws || failed=$((failed + 1))
 
 if [ -n "${AIF_AGENT:-}" ]; then
   if valid_agent_name "$AIF_AGENT"; then
-    write_agent_override "$AIF_AGENT" || failed=$((failed + 1))
+    write_agent_override "$AIF_AGENT" || override_failed=1
   else
     # The value is not echoed: it is untrusted until it passes the pattern.
     err "AIF_AGENT is not a valid agent name (lowercase letters, digits, - and _, 1-64 chars, starting with a letter or digit); ignored"
-    failed=$((failed + 1))
+    override_failed=1
   fi
 else
   log "agent override: AIF_AGENT not set, repos keep their committed agent"
 fi
 
-if [ "$failed" -eq 0 ]; then
-  log "done"
-else
+if [ "$failed" -gt 0 ]; then
   err "done with $failed failure(s); the session will start without the missing tool(s)"
+fi
+if [ "$override_failed" -ne 0 ]; then
+  err "agent override not fully applied (see above); repos keep their committed agent where it failed"
+fi
+if [ "$failed" -eq 0 ] && [ "$override_failed" -eq 0 ]; then
+  log "done"
 fi
 exit 0
