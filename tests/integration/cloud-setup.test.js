@@ -92,7 +92,12 @@ describe(
     function run(env = {}) {
       return spawnSync(BASH, [SCRIPT], {
         encoding: 'utf8',
-        env: { PATH: stubs, CLOUD_SETUP_BIN_DIR: bin, ...env },
+        env: {
+          PATH: stubs,
+          CLOUD_SETUP_BIN_DIR: bin,
+          CLOUD_SETUP_REPOS_DIR: join(dir, 'home'),
+          ...env,
+        },
       });
     }
 
@@ -193,6 +198,118 @@ describe(
         AI_GIT_TOKEN: 'super-secret-token-xyz',
       });
       assert.doesNotMatch(result.stdout + result.stderr, /super-secret-token-xyz/);
+    });
+
+    describe('AIF_AGENT override', () => {
+      const settingsOf = (repo) => join(dir, 'home', repo, '.claude', 'settings.local.json');
+
+      /** A repo directly under the scratch home; `.git` makes it a repo. */
+      function repo(name, { git = true } = {}) {
+        mkdirSync(join(dir, 'home', name, git ? '.git' : 'src'), { recursive: true });
+      }
+
+      beforeEach(() => {
+        // Pinned versions already installed, so only the override is under test.
+        installed('gh', '2.102.0');
+        installed('bws', '2.1.0');
+      });
+
+      it('writes nothing when AIF_AGENT is unset', () => {
+        repo('app');
+        const result = run();
+        assert.equal(result.status, 0);
+        assert.equal(existsSync(settingsOf('app')), false);
+        assert.match(result.stdout, /AIF_AGENT not set/);
+      });
+
+      it('writes the agent into each repo and skips directories that are not repos', () => {
+        repo('app');
+        repo('lib');
+        repo('notes', { git: false });
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(result.status, 0);
+        assert.equal(readFileSync(settingsOf('app'), 'utf8'), '{"agent":"reviewer"}\n');
+        assert.equal(readFileSync(settingsOf('lib'), 'utf8'), '{"agent":"reviewer"}\n');
+        assert.equal(existsSync(settingsOf('notes')), false);
+        assert.match(result.stdout, /app starts as reviewer/);
+        assert.equal(result.stderr, '');
+      });
+
+      it('warns, but still writes, when the repo has no such agent file', () => {
+        repo('app');
+        const result = run({ AIF_AGENT: 'custom' });
+        assert.match(result.stdout, /warning: .*app has no \.claude\/agents\/custom\.md/);
+        assert.ok(existsSync(settingsOf('app')));
+      });
+
+      it('leaves an existing settings.local.json alone', () => {
+        repo('app');
+        mkdirSync(join(dir, 'home', 'app', '.claude'));
+        writeFileSync(settingsOf('app'), '{"agent":"mine"}\n');
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(readFileSync(settingsOf('app'), 'utf8'), '{"agent":"mine"}\n');
+        assert.match(result.stdout, /already exists, left alone/);
+      });
+
+      it('skips a symlinked repo and a symlinked .claude', () => {
+        const outside = join(dir, 'outside');
+        mkdirSync(join(outside, '.git'), { recursive: true });
+        mkdirSync(join(dir, 'home'), { recursive: true });
+        symlinkSync(outside, join(dir, 'home', 'linked'));
+        repo('app');
+        symlinkSync(outside, join(dir, 'home', 'app', '.claude'));
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(result.status, 0);
+        assert.equal(existsSync(join(outside, '.claude')), false);
+        assert.equal(existsSync(join(outside, 'settings.local.json')), false);
+        assert.match(result.stdout, /linked is a symlink, skipped/);
+        assert.match(result.stdout, /app is a symlink, skipped/);
+      });
+
+      for (const bad of [
+        '../x',
+        'a b',
+        '$(id)',
+        'UPPER',
+        '-lead',
+        '"quoted"',
+        'ok\n../x',
+        'a'.repeat(65),
+      ]) {
+        it(`rejects the invalid name ${JSON.stringify(bad.slice(0, 20))} without writing`, () => {
+          repo('app');
+          const result = run({ AIF_AGENT: bad });
+          assert.equal(result.status, 0);
+          assert.equal(existsSync(settingsOf('app')), false);
+          assert.match(result.stderr, /AIF_AGENT is not a valid agent name/);
+          assert.match(result.stderr, /agent override not fully applied/);
+          assert.doesNotMatch(result.stderr, /missing tool/);
+          assert.doesNotMatch(result.stderr + result.stdout, /\$\(id\)|\.\.\/x/);
+        });
+      }
+
+      it('accepts the boundary names a and 64 characters', () => {
+        repo('app');
+        for (const ok of ['a', 'a'.repeat(64), 'eng_1-x']) {
+          rmSync(join(dir, 'home', 'app', '.claude'), { recursive: true, force: true });
+          run({ AIF_AGENT: ok });
+          assert.equal(readFileSync(settingsOf('app'), 'utf8'), `{"agent":"${ok}"}\n`);
+        }
+      });
+
+      it('is idempotent: a second run changes nothing', () => {
+        repo('app');
+        run({ AIF_AGENT: 'reviewer' });
+        const second = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(readFileSync(settingsOf('app'), 'utf8'), '{"agent":"reviewer"}\n');
+        assert.match(second.stdout, /already exists, left alone/);
+      });
+
+      it('does nothing and exits 0 when the repos directory is missing', () => {
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(result.status, 0);
+        assert.equal(result.stderr, '');
+      });
     });
   },
 );

@@ -180,6 +180,7 @@ Paste this; it is the whole script. It installs `ai-git` and `aif` from the head
 #!/bin/bash
 # rev: 1
 set -euo pipefail
+# export AIF_AGENT=reviewer   # optional: start repos as this agent (see "Primary agent")
 npm install -g github:starvoxel/ai-foundation --ignore-scripts
 bash "$(npm root -g)/ai-foundation/scripts/cloud-setup.sh"
 ```
@@ -224,6 +225,13 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
 #### Primary agent
 
 `"agent": "engineer"` in `.claude/settings.json` (set in this repo and the project template) makes the engineer the main-thread agent, so its tool set and spawn limits apply instead of the default agent's. The agent must already be installed when Claude Code launches, and the SessionStart hook runs after the agent is resolved. So the agent is committed: this repo carries its `engineering` bundle at project scope in `.claude/`, and a new project gets the same with `aif init --with-default-bundles`. Neither the Setup script nor its cache is involved, so updating the agent is a commit (`aif install --scope project --update`), never a Setup-script edit. If the agent file is missing, the harness falls back to the default agent without an error (arc42 §11).
+
+**Overriding the agent in a cloud environment.** The committed default stays `engineer`, so a fresh checkout needs nothing. To start a cloud environment's repos as another agent, uncomment and edit the `export AIF_AGENT=<name>` line in the pasted Setup script and bump `# rev:`. `scripts/cloud-setup.sh` then writes `.claude/settings.local.json` (`{"agent":"<name>"}`) into every repo already under `/home/user`; a project's local settings outrank its committed `settings.json`, and the file is untracked and gitignored, so it survives checkouts and is never committed. Remove the line and bump `# rev:` to go back to the default. Limits:
+
+- It is a line in the Setup text, not an environment variable: the Setup script cannot read the environment's variables.
+- The name must be lowercase letters, digits, `-` or `_`, 1–64 characters, starting with a letter or digit; anything else is logged and ignored. An existing `settings.local.json` is never overwritten. A name with no agent file in the repo only logs a warning (it may be a user-level or built-in agent); if no such agent exists the harness falls back to the default agent.
+- Only repos present when the environment was built are covered; the result is snapshotted with the environment, and later sessions reuse it.
+- A user-level `~/.claude/settings.json` `agent` and managed settings cannot override the committed agent (see `docs/research/cloud-setup-spikes.md`).
 
 #### Cloud limits
 

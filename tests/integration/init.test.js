@@ -223,6 +223,7 @@ describe('integration: init command', () => {
       '.env.*',
       '!.env.example',
       'knowledge/architecture/index.json',
+      '.claude/settings.local.json',
     ]) {
       assert.ok(lines.includes(entry), `.gitignore lacks ${entry}`);
     }

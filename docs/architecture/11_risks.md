@@ -46,3 +46,5 @@ agent must always see uses `file_patterns: []` (always load) regardless of harne
 `agent: engineer` in `.claude/settings.json` only works if the agent is installed before Claude Code launches. The agent is resolved before the SessionStart hook (`scripts/session-start.sh`) runs, and the hook installs no bundles, so if the agent is not already present the harness falls back to the default agent without an error. The default agent keeps its own tool set, so the engineer's restrictions (no web tools, spawn limits) do not apply.
 
 **Mitigation:** commit a project-scope install (`aif install --scope project -B engineering -H claude`), so the agent arrives with the clone (README, "Primary agent"). Nothing detects the fallback when it is missing; a session that does not behave like the engineer is the only signal.
+
+A cloud environment can override the committed agent with `AIF_AGENT` in its Setup script (README, "Primary agent"), which writes the gitignored `.claude/settings.local.json`. A name with no installed agent also falls back silently, so the override carries the same risk; the script only warns when the repo has no such agent file.

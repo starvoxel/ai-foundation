@@ -15,6 +15,9 @@ desktop.ini
 # Kiro local settings
 .kiro/settings/
 
+# Written by the cloud Setup script (AIF_AGENT) to override the committed agent; per-environment, never committed
+.claude/settings.local.json
+
 # Local / personal scratch files — not tracked
 scratch/
 tmp/
