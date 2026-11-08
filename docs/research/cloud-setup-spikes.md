@@ -45,6 +45,22 @@ Decision: pinned, checksum-verified release binaries; cargo only as a fallback. 
 - `skills:` frontmatter preloads skills into a subagent but not into a primary agent (canary test); a primary agent loads them with the Skill tool.
 - The full plan → approval → decomposition → dispatch loop worked with a primary agent in cloud (Test E). Auto permission mode stopped an earlier attempt with classifier "no verdict" errors.
 
+## Overriding the committed agent (probes, 2026-11-07)
+
+Goal: a repo commits `"agent": "engineer"` and a cloud environment can start it as another agent. Local tests on Claude Code 2.1.319, plus two probe sessions in a real cloud environment.
+
+| Route                                                                           | Result                                                                                                        |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| User-level `~/.claude/settings.json` `agent`                                    | Loses to the project's committed `agent`                                                                      |
+| Managed settings (`/etc/claude-code`, `CLAUDE_CODE_MANAGED_SETTINGS_PATH`)      | Ignored in cloud: the binary skips the machine policy folder when the host attests it absent; tested          |
+| `.claude/settings.local.json`, `--agent`, `--settings`                          | All beat the committed `agent`                                                                                |
+| Environment variable read by the Setup script                                   | Not possible: the script cannot see the environment's variables (docs, and probe `sees_AIF_PROBE_VAR=` blank) |
+| Setup script writes `.claude/settings.local.json` into `/home/user/<repo>`      | Works from turn 1: the repo is already cloned when the script runs                                            |
+| Second session on the same environment                                          | Snapshot restored with the file in place; the script did not re-run; still the override agent                 |
+| `post-checkout` hook or `init.templateDir` git template installed by the script | Never fired in either probe; unverified, and the template affects every `git clone`. Not used                 |
+
+Implemented in `scripts/cloud-setup.sh` (`AIF_AGENT`). Plan: `docs/plans/cloud-agent-override.md`.
+
 ## Never tested
 
 - D3: a cache bust by changing only the `# rev:` comment of the pasted Setup script (README "Setup script"). Pending a human run; the result is recorded here.
