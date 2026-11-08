@@ -17,8 +17,8 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 
 ## Approach
 
-- `batch` is pure selection over the issues `findings.js` already loads, so there is no new network call. Pure `planBatch(map, { maxM, maxS })` returns the batch; the CLI only prints it.
-- Selection: effort L findings are never selected. Pick up to 5 M findings (`--max-m`), severity first (critical → low), then oldest issue number first. Then add S findings that fall in the same areas as the picked M findings, again severity first, up to 15 S (`--max-s`). An S finding is in the same area when it shares a file or a parent directory with a picked finding. When no M finding is open, take up to 15 S findings, severity first, and keep those that share areas together. A finding with no `effort:` line counts as M.
+- `batch` is pure selection over the issues `findings.js` already loads, so there is no new network call. Pure `planBatch(map, { max, maxSimple, includeLarge })` returns the batch; the CLI only prints it.
+- Selection: effort L findings are not selected unless `--include-large` is passed, which makes L findings eligible for the M group (they count against its cap of 5). Pick up to 5 M findings (`--max`), severity first (critical → low), then oldest issue number first. Then add S findings that fall in the same areas as the picked M findings, again severity first, up to 15 S (`--max-simple`). An S finding is in the same area when it shares a file or a parent directory with a picked finding. When no M finding is open, take up to 15 S findings, severity first, and keep those that share areas together. A finding with no `effort:` line counts as M.
 - Findings that share a file are never split across batches: a cluster (connected by shared `files:`) is taken whole or not at all, and a cluster larger than the caps is taken only when it is the first selected.
 - Defaults are the caps above; both are overridable on the command line and by the human's request.
 - Output: one line per finding in the existing `formatLine` format, a blank line between clusters, and a final `Fixes #a, Fixes #b` line to paste into the PR.
@@ -30,8 +30,8 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 
 ### 1. `batch` selection and CLI
 
-- Does: `planBatch` plus the `batch` subcommand with `--max-m`, `--max-s`, `--from-file` and `--repo`.
-- Acceptance criteria: given a fixture set, L findings are never selected; at most `maxM` M findings are picked severity first; S findings are added only in the same areas as picked findings, capped at `maxS`; an S-only backlog fills up to `maxS`; a missing effort counts as M; findings sharing a file are never split; no findings gives empty output and exit 0; an invalid `--max-m` or `--max-s` exits 1 with a message.
+- Does: `planBatch` plus the `batch` subcommand with `--max`, `--max-simple`, `--include-large`, `--from-file` and `--repo`.
+- Acceptance criteria: given a fixture set, L findings are selected only with `--include-large` (then they count in the M group); at most `max` M findings are picked severity first; S findings are added only in the same areas as picked findings, capped at `maxSimple`; an S-only backlog fills up to `maxSimple`; a missing effort counts as M; findings sharing a file are never split; no findings gives empty output and exit 0; an invalid `--max` or `--max-simple` exits 1 with a message.
 - Verified by: unit tests in `tests/unit/findings.test.js`, `npm run test:unit`.
 
 ### 2. Skill, agent prompt, docs
@@ -48,4 +48,4 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 ## Open questions
 
 - Resolved by you: 5 M findings plus up to 15 S in the same areas, no L, severity-first within each effort class.
-- Assumed, correct me if wrong: "same areas" means a shared file or parent directory; a finding with no effort counts as M.
+- Assumed, correct me if wrong: the flag is named `--include-large`; "passed first specified" is read as the flag simply being passed; "same areas" means a shared file or parent directory; a finding with no effort counts as M.
