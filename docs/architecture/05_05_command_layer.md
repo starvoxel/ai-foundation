@@ -13,6 +13,7 @@ key_files:
   - lib/commands/index.js
   - lib/commands/init.js
   - lib/cloud-setup-steps.js
+  - scripts/cloud-setup-bootstrap.sh
   - lib/commands/config.js
 ---
 
