@@ -12,6 +12,7 @@ import {
   mkdirSync,
   statSync,
   writeFileSync,
+  readdirSync,
 } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -98,6 +99,30 @@ describe('integration: init command', () => {
     const text = output.join('\n');
     assert.match(text, /Commit the project-scope install in \.claude\//);
     assert.doesNotMatch(text, /^\s+aif install --scope project -B engineering/m);
+  });
+
+  it('--cloud-steps prints only the steps: no --name needed, nothing scaffolded', async () => {
+    const { code, output } = await quiet(() =>
+      runInit({ args: { 'cloud-steps': true }, positional: [] }),
+    );
+    assert.equal(code, 0);
+    const text = output.join('\n');
+    const bootstrap = readFileSync(
+      join(import.meta.dirname, '..', '..', 'scripts', 'cloud-setup-bootstrap.sh'),
+      'utf8',
+    ).trimEnd();
+    assert.ok(text.includes(bootstrap));
+    assert.match(text, /Cloud setup/);
+    assert.doesNotMatch(text, /initialized/);
+    assert.deepEqual(readdirSync(workDir), []);
+  });
+
+  it('--cloud-steps scaffolds nothing even when --name is also given', async () => {
+    const { code } = await quiet(() =>
+      runInit({ args: { 'cloud-steps': true, name: 'ignored' }, positional: [] }),
+    );
+    assert.equal(code, 0);
+    assert.ok(!existsSync(join(workDir, 'ignored')));
   });
 
   it('prints no cloud setup steps when init fails', async () => {
