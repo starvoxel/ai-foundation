@@ -176,18 +176,9 @@ and finish in about five minutes to be cached.
 
 #### Setup script
 
-Paste the script below into the environment's Setup script. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh). That script installs pinned, sha256-verified `gh` and `bws` release binaries into `/usr/local/bin` (ahead of any cargo-built `bws` on PATH), is idempotent, and always exits 0.
+Paste the contents of [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-bootstrap.sh) into the environment's Setup script. `aif init --cloud-steps` prints it ready to copy, together with the environment variables and the other setup steps; a normal `aif init` prints them after scaffolding a project.
 
-```bash
-#!/bin/bash
-# rev: 1
-set -euo pipefail
-# export AIF_AGENT=reviewer   # optional: start repos as this agent (see "Primary agent")
-npm install -g github:starvoxel/ai-foundation --ignore-scripts
-bash "$(npm root -g)/ai-foundation/scripts/cloud-setup.sh"
-```
-
-The script lives in [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-bootstrap.sh), and a validation test keeps the block above identical to it. `aif init --cloud-steps` prints it together with the environment variables and the other setup steps; a normal `aif init` prints them after scaffolding a project.
+The script installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh). That script installs pinned, sha256-verified `gh` and `bws` release binaries into `/usr/local/bin` (ahead of any cargo-built `bws` on PATH), is idempotent, and always exits 0. An optional `export AIF_AGENT=<name>` line in the pasted script starts repos as another agent (see "Primary agent").
 
 - **Head, not a pin.** The environment installs whatever `main` of this repo holds when its cache is built. Because the script runs as root, that means trusting this repo's `main`. `--ignore-scripts` disables package install hooks, and `gh` and `bws` stay version-pinned and checksum-verified. The cache is rebuilt after about seven days, or whenever the pasted text changes, which picks up a newer head.
 - **Forcing a rebuild.** Increase the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text stays the same.
