@@ -161,6 +161,63 @@ describe('architecture index — real git integration', () => {
     );
   });
 
+  describe('a waiver on a later commit', () => {
+    const waiver = 'Arch-Unaffected: 01 — pure simplification, behavior unchanged';
+    const stale = () =>
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC);
+
+    function changeThing(n, message) {
+      writeFileSync(join(repoRoot, 'src', 'thing.js'), `export const x = ${n};\n`);
+      commitAll(repoRoot, message);
+    }
+
+    it('covers earlier unwaived key_file commits, via an empty commit', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      changeThing(3, 'Change thing again');
+      assert.equal(stale(), true);
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      assert.equal(stale(), false);
+    });
+
+    it('does not cover a key_file commit made after it', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      changeThing(3, 'Change behavior');
+      assert.equal(stale(), true);
+    });
+
+    it('does not cover a different section', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', 'Waive\n\nArch-Unaffected: 02 — other');
+      assert.equal(stale(), true);
+    });
+
+    it('covers commits on a branch merged before the waiver', () => {
+      commitCodeThenDoc();
+      const base = git(repoRoot, 'rev-parse', '--abbrev-ref', 'HEAD');
+      git(repoRoot, 'checkout', '-q', '-b', 'feature');
+      changeThing(2, 'Change on branch');
+      git(repoRoot, 'checkout', '-q', base);
+      git(repoRoot, 'merge', '--no-ff', '-q', '-m', 'Merge feature', 'feature');
+      assert.equal(stale(), true);
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      assert.equal(stale(), false);
+    });
+
+    it('stops covering once a doc-editing commit lands, as before', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      writeFileSync(join(repoRoot, DOC), sectionContent() + '\nVerified.\n');
+      commitAll(repoRoot, 'update doc');
+      changeThing(3, 'Change behavior');
+      assert.equal(stale(), true);
+    });
+  });
+
   it('becomes fresh again once the doc is committed after the key_file change', () => {
     commitCodeThenDoc();
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
