@@ -72,6 +72,8 @@ aif index architecture --check  # verify the architecture index without writing
 # Project scaffolding
 aif init --name my-app --shortname myapp --language csharp
 aif init --name my-app --with-default-bundles   # also install the default bundles at project scope
+aif init --cloud-steps                          # only print the steps to set up a Claude Code cloud environment
+                                                # (a normal init prints them after scaffolding too)
 aif init --interactive
 
 # Config field resolution
@@ -169,25 +171,18 @@ Requires Node.js 22.23.4+ (earlier 22.x releases have known security vulnerabili
 This section owns the `ai-git`, `gh`, `bws` and environment-variable
 parts of a cloud environment; agent selection is composed on top of it separately.
 The environment's **Setup script** (set by hand in the environment settings) runs
-as root before the repo is checked out, so it only provisions the VM. It must exit 0
+as root and only provisions the VM. In the observed environment the repo is already cloned when it runs, but that is not guaranteed, so it never depends on the repo (except the optional agent override, which reports when it finds none). It must exit 0
 and finish in about five minutes to be cached.
 
 #### Setup script
 
-Paste this; it is the whole script. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh), which owns the pinned, sha256-verified `gh` and `bws` release binaries (installed to `/usr/local/bin`, ahead of any cargo-built `bws` on PATH) and is idempotent and always exits 0.
+Paste the contents of [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-bootstrap.sh) into the environment's Setup script. `aif init --cloud-steps` prints it ready to copy, together with the environment variables and the other setup steps; a normal `aif init` prints them after scaffolding a project.
 
-```bash
-#!/bin/bash
-# rev: 1
-set -euo pipefail
-# export AIF_AGENT=reviewer   # optional: start repos as this agent (see "Primary agent")
-npm install -g github:starvoxel/ai-foundation --ignore-scripts
-bash "$(npm root -g)/ai-foundation/scripts/cloud-setup.sh"
-```
+The script installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh). That script installs pinned, sha256-verified `gh` and `bws` release binaries into `/usr/local/bin` (ahead of any cargo-built `bws` on PATH), is idempotent, and always exits 0. An optional `export AIF_AGENT=<name>` line in the pasted script starts repos as another agent (see "Primary agent").
 
-- **Head, not a pin.** The environment gets whatever `main` of this repo holds when the cache is built, and the script runs as root, so the environment trusts this repo's `main`. `--ignore-scripts` stops package install hooks; the `gh` and `bws` binaries stay version-pinned and checksum-verified in `scripts/cloud-setup.sh`. The cache is rebuilt after about seven days or when the pasted text changes, which picks up a newer head.
-- **Force a rebuild.** Increment the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text is unchanged.
-- A failed `npm install` fails the script (non-zero), so a broken setup is never cached.
+- **Head, not a pin.** The environment installs whatever `main` of this repo holds when its cache is built. Because the script runs as root, that means trusting this repo's `main`. `--ignore-scripts` disables package install hooks, and `gh` and `bws` stay version-pinned and checksum-verified. The cache is rebuilt after about seven days, or whenever the pasted text changes, which picks up a newer head.
+- **Forcing a rebuild.** Increase the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text stays the same.
+- **Failures.** A failed `npm install` fails the script (non-zero exit), so a broken setup is never cached.
 
 #### Environment variables
 
@@ -230,7 +225,7 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
 
 - It is a line in the Setup text, not an environment variable: the Setup script cannot read the environment's variables.
 - The name must be lowercase letters, digits, `-` or `_`, 1–64 characters, starting with a letter or digit; anything else is logged and ignored. An existing `settings.local.json` is never overwritten. A name with no agent file in the repo only logs a warning (it may be a user-level or built-in agent); if no such agent exists the harness falls back to the default agent.
-- Only repos present when the environment was built are covered; the result is snapshotted with the environment, and later sessions reuse it.
+- Only repos present when the environment was built are covered; the result is snapshotted with the environment, and later sessions reuse it. If the script finds no repo under `/home/user` it logs an error (`no git repo found … not applied`) and the session starts as the committed agent.
 - A user-level `~/.claude/settings.json` `agent` and managed settings cannot override the committed agent (see `docs/research/cloud-setup-spikes.md`).
 
 #### Cloud limits

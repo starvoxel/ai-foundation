@@ -106,17 +106,20 @@ valid_agent_name() {
 
 # write_agent_override <name>: writes .claude/settings.local.json into each git repo directly
 # under REPOS_DIR. Never overwrites an existing file; never follows a symlinked repo or
-# .claude. Returns non-zero if any write failed.
+# .claude. Returns non-zero if any write failed, or if no repo was found at all (the repo may not
+# be cloned yet when this script runs, so a silent no-op would hide that the override did nothing).
 write_agent_override() {
-  local agent="$1" repo path rc=0
+  local agent="$1" repo path rc=0 seen=0
   for repo in "$REPOS_DIR"/*/; do
     path="${repo%/}"
     [ -d "$path" ] || continue
     if [ -L "$path" ] || [ -L "$path/.claude" ]; then
       log "agent override: $path is a symlink, skipped"
+      seen=$((seen + 1))
       continue
     fi
     [ -e "$path/.git" ] || continue
+    seen=$((seen + 1))
     if [ -e "$path/.claude/settings.local.json" ] || [ -L "$path/.claude/settings.local.json" ]; then
       log "agent override: $path/.claude/settings.local.json already exists, left alone"
       continue
@@ -131,6 +134,10 @@ write_agent_override() {
       rc=1
     fi
   done
+  if [ "$seen" -eq 0 ]; then
+    err "agent override: no git repo found under $REPOS_DIR, so AIF_AGENT=$agent was not applied (the repo may not be cloned yet when this script runs)"
+    rc=1
+  fi
   return "$rc"
 }
 
