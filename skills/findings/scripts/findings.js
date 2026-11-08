@@ -21,7 +21,9 @@
  *   node findings.js [path ...] [--json]      findings touching those paths (all when none given)
  *   node findings.js file --title T --severity S --source X --rule R --files a,b [--effort E] [--detail D]
  *                                             comment on a matching finding, or open a new one
- *   Both accept --repo owner/name (default: derived from the origin remote) and
+ *   node findings.js batch [--max N] [--max-simple N] [--include-large]
+ *                                             a batch of open findings to fix in one PR (default 5 M, 15 S)
+ *   All accept --repo owner/name (default: derived from the origin remote) and
  *   --from-file <issues.json> (offline: read issues from a file instead of GitHub).
  *
  * Issue body format (first lines, then free text):
@@ -176,6 +178,162 @@ export function formatLine(e) {
   return parts.join(' ');
 }
 
+/** Default cap on the M group of a batch. */
+export const DEFAULT_MAX = 5;
+/** Default cap on the S findings of a batch. */
+export const DEFAULT_MAX_SIMPLE = 15;
+
+/**
+ * Parse the options of the `batch` subcommand.
+ * @param {string[]} argv - Arguments after `batch`
+ * @returns {{ max: number, maxSimple: number, includeLarge: boolean }}
+ * @throws {Error} When `--max` or `--max-simple` is not a positive integer
+ */
+export function parseBatchOptions(argv) {
+  const count = (name, fallback) => {
+    const raw = flag(argv, name);
+    if (raw === undefined) return fallback;
+    if (!/^[1-9]\d*$/.test(raw))
+      throw new Error(`--${name} needs a positive integer, got "${raw}"`);
+    return Number(raw);
+  };
+  return {
+    max: count('max', DEFAULT_MAX),
+    maxSimple: count('max-simple', DEFAULT_MAX_SIMPLE),
+    includeLarge: argv.includes('--include-large'),
+  };
+}
+
+/**
+ * Effort class of a finding: S is simple, L is large, anything else (M, or no
+ * `effort:` line) counts as M.
+ * @param {{ effort: string }} entry
+ * @returns {'S'|'M'|'L'}
+ */
+export function effortClass(entry) {
+  const effort = entry.effort.trim().toUpperCase();
+  if (effort === 'S' || effort === 'L') return effort;
+  return 'M';
+}
+
+/**
+ * Entries ordered severity first (critical to low, unrated last), then oldest
+ * issue number first.
+ * @param {Array<{ n: number, severity: string }>} entries
+ * @returns {Array<{ n: number, severity: string }>}
+ */
+function bySeverity(entries) {
+  return [...entries].sort(compareSeverity);
+}
+
+/**
+ * Comparator: severity first (critical to low, unrated last), then oldest issue first.
+ * @param {{ n: number, severity: string }} a
+ * @param {{ n: number, severity: string }} b
+ * @returns {number}
+ */
+function compareSeverity(a, b) {
+  const rank = (e) => {
+    const i = SEVERITIES.indexOf(e.severity);
+    return i === -1 ? SEVERITIES.length : i;
+  };
+  return rank(a) - rank(b) || a.n - b.n;
+}
+
+/**
+ * Group entries that share a file into clusters (connected components).
+ * @param {Array<{ n: number, files: string[] }>} entries
+ * @returns {Array<Array<{ n: number, files: string[] }>>}
+ */
+function clusterByFile(entries) {
+  const clusters = [];
+  for (const entry of entries) {
+    const touching = clusters.filter((c) =>
+      c.some((e) => e.files.some((f) => entry.files.includes(f))),
+    );
+    const merged = [entry, ...touching.flat()];
+    for (const c of touching) clusters.splice(clusters.indexOf(c), 1);
+    clusters.push(merged);
+  }
+  return clusters;
+}
+
+/**
+ * Directory part of a repo path, '.' for a root file.
+ * @param {string} file
+ * @returns {string}
+ */
+function dirOf(file) {
+  const i = file.lastIndexOf('/');
+  return i === -1 ? '.' : file.slice(0, i);
+}
+
+/**
+ * Pick a batch of open findings to fix in one PR. Effort L is skipped unless
+ * `includeLarge`, which makes L part of the M group. Up to `max` M-group
+ * findings are taken severity first, then S findings in the same areas (a
+ * shared file or parent directory) up to `maxSimple`. With no M-group finding
+ * the batch is S findings only, kept together by area. Findings that share a
+ * file are never split: a cluster is taken whole, and one that exceeds a cap is
+ * taken only when it is the first selected.
+ * @param {ReturnType<typeof buildMap>} map
+ * @param {{ max?: number, maxSimple?: number, includeLarge?: boolean }} [options]
+ * @returns {Array<Array<ReturnType<typeof buildMap>[string][number]>>} Clusters in pick order
+ */
+export function planBatch(
+  map,
+  { max = DEFAULT_MAX, maxSimple = DEFAULT_MAX_SIMPLE, includeLarge = false } = {},
+) {
+  const eligible = lookup(map, []).filter((e) => includeLarge || effortClass(e) !== 'L');
+  const isSimple = (e) => effortClass(e) === 'S';
+  const clusters = clusterByFile(bySeverity(eligible)).map((c) => bySeverity(c));
+  const best = (c) => bySeverity(c)[0];
+  const order = (list) => [...list].sort((a, b) => compareSeverity(best(a), best(b)));
+
+  const picked = [];
+  let mCount = 0;
+  let sCount = 0;
+  const areas = new Set();
+  const take = (cluster) => {
+    const s = cluster.filter(isSimple).length;
+    const m = cluster.length - s;
+    const fits = mCount + m <= max && sCount + s <= maxSimple;
+    if (!fits && picked.length > 0) return false;
+    picked.push(cluster);
+    mCount += m;
+    sCount += s;
+    for (const e of cluster) for (const f of e.files) areas.add(f).add(dirOf(f));
+    return true;
+  };
+
+  const mGroup = order(clusters.filter((c) => c.some((e) => !isSimple(e))));
+  for (const cluster of mGroup) take(cluster);
+
+  const inArea = (c) => c.some((e) => e.files.some((f) => areas.has(f) || areas.has(dirOf(f))));
+  let remaining = order(clusters.filter((c) => c.every(isSimple) && !picked.includes(c)));
+  const seedFromBest = mCount === 0;
+  while (remaining.length > 0) {
+    const next = remaining.find(inArea) ?? (seedFromBest ? remaining[0] : undefined);
+    if (!next) break;
+    remaining = remaining.filter((c) => c !== next);
+    take(next);
+  }
+  return picked;
+}
+
+/**
+ * Batch lines: one per finding, a blank line between clusters, then the
+ * `Fixes #n` line for the PR. Empty when the batch is.
+ * @param {ReturnType<typeof planBatch>} batch
+ * @returns {string}
+ */
+export function formatBatch(batch) {
+  if (batch.length === 0) return '';
+  const groups = batch.map((cluster) => cluster.map(formatLine).join('\n'));
+  const fixes = batch.flat().map((e) => `Fixes #${e.n}`);
+  return `${groups.join('\n\n')}\n\n${fixes.join(', ')}`;
+}
+
 // ---- I/O -----------------------------------------------------------------
 
 /**
@@ -309,6 +467,7 @@ function flag(argv, name) {
  */
 export function main(argv) {
   try {
+    const batchOptions = argv[0] === 'batch' ? parseBatchOptions(argv.slice(1)) : null;
     const repo = argv.includes('--from-file') ? '' : repoSlug(argv);
     const map = buildMap(loadIssues(argv, repo));
 
@@ -350,6 +509,12 @@ export function main(argv) {
         for (const label of plan.labels) args.push('-f', `labels[]=${label}`);
         console.log(`Opened #${JSON.parse(gh(args)).number}`);
       }
+      return 0;
+    }
+
+    if (batchOptions) {
+      const text = formatBatch(planBatch(map, batchOptions));
+      if (text) console.log(text);
       return 0;
     }
 

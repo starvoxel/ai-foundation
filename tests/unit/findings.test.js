@@ -16,10 +16,14 @@ import { delimiter } from 'node:path';
 
 import {
   buildMap,
+  effortClass,
+  formatBatch,
   formatLine,
   lookup,
   parseRepoSlug,
+  parseBatchOptions,
   parseBody,
+  planBatch,
   planFiling,
   resolveAiGit,
   runAiGit,
@@ -183,5 +187,112 @@ describe('unit: findings ai-git spawning', () => {
     assert.equal(runAiGit(['gh-api'], { input: 'in', spawn, resolveCmd }), 'ok');
     assert.equal(seen.input, 'in');
     assert.equal(seen.shell, undefined);
+  });
+});
+
+describe('unit: findings batch', () => {
+  const withEffort = (number, files, effort, severity = 'low') => {
+    const i = issue(number, files, `R${number}`, severity);
+    return { ...i, body: effort ? `${i.body}\neffort: ${effort}` : i.body };
+  };
+  const numbers = (batch) => batch.map((cluster) => cluster.map((e) => e.n));
+
+  it('classifies effort, counting a missing effort as M', () => {
+    assert.equal(effortClass({ effort: 's' }), 'S');
+    assert.equal(effortClass({ effort: 'L' }), 'L');
+    assert.equal(effortClass({ effort: 'M' }), 'M');
+    assert.equal(effortClass({ effort: '' }), 'M');
+  });
+
+  it('parses options with defaults and rejects bad numbers', () => {
+    assert.deepEqual(parseBatchOptions([]), { max: 5, maxSimple: 15, includeLarge: false });
+    assert.deepEqual(parseBatchOptions(['--max', '2', '--max-simple', '4', '--include-large']), {
+      max: 2,
+      maxSimple: 4,
+      includeLarge: true,
+    });
+    assert.throws(() => parseBatchOptions(['--max', '0']), /--max needs a positive integer/);
+    assert.throws(() => parseBatchOptions(['--max-simple', 'x']), /--max-simple/);
+  });
+
+  it('returns nothing for no findings', () => {
+    assert.deepEqual(planBatch(buildMap([])), []);
+    assert.equal(formatBatch([]), '');
+  });
+
+  it('skips L unless includeLarge, then counts it in the M group', () => {
+    const map = buildMap([withEffort(1, 'a/x.js', 'L', 'high'), withEffort(2, 'b/y.js', 'M')]);
+    assert.deepEqual(numbers(planBatch(map)), [[2]]);
+    assert.deepEqual(numbers(planBatch(map, { includeLarge: true })), [[1], [2]]);
+    assert.deepEqual(numbers(planBatch(map, { includeLarge: true, max: 1 })), [[1]]);
+  });
+
+  it('takes M severity first then oldest, up to max', () => {
+    const map = buildMap([
+      withEffort(1, 'a/1.js', 'M', 'low'),
+      withEffort(2, 'b/2.js', 'M', 'high'),
+      withEffort(3, 'c/3.js', 'M', 'high'),
+      withEffort(4, 'd/4.js', 'M', 'critical'),
+    ]);
+    assert.deepEqual(numbers(planBatch(map, { max: 3 })), [[4], [2], [3]]);
+  });
+
+  it('adds S findings only in the same areas as picked M findings, up to maxSimple', () => {
+    const map = buildMap([
+      withEffort(1, 'lib/a.js', 'M', 'low'),
+      withEffort(2, 'lib/b.js', 'S', 'low'),
+      withEffort(3, 'other/c.js', 'S', 'critical'),
+      withEffort(4, 'lib/d.js', 'S', 'medium'),
+      withEffort(5, 'lib/e.js', 'S', 'low'),
+    ]);
+    assert.deepEqual(numbers(planBatch(map, { maxSimple: 2 })), [[1], [4], [2]]);
+  });
+
+  it('fills an S-only backlog up to maxSimple, keeping areas together', () => {
+    const map = buildMap([
+      withEffort(1, 'x/a.js', 'S', 'high'),
+      withEffort(2, 'y/b.js', 'S', 'high'),
+      withEffort(3, 'x/c.js', 'S', 'low'),
+      withEffort(4, 'y/d.js', 'S', 'low'),
+    ]);
+    assert.deepEqual(numbers(planBatch(map, { maxSimple: 3 })), [[1], [3], [2]]);
+  });
+
+  it('never splits findings that share a file', () => {
+    const map = buildMap([
+      withEffort(1, 'a.js', 'M', 'high'),
+      withEffort(2, 'a.js, b.js', 'S', 'low'),
+      withEffort(3, 'b.js', 'M', 'low'),
+    ]);
+    const batch = planBatch(map, { max: 5 });
+    assert.deepEqual(
+      numbers(batch).map((c) => c.sort()),
+      [[1, 2, 3]],
+    );
+  });
+
+  it('skips a cluster over a cap unless it is first', () => {
+    const map = buildMap([
+      withEffort(1, 'a.js', 'M', 'low'),
+      withEffort(2, 'a.js, b.js', 'M', 'low'),
+      withEffort(3, 'c/c.js', 'M', 'low'),
+    ]);
+    assert.deepEqual(
+      numbers(planBatch(map, { max: 1 })).map((c) => c.sort()),
+      [[1, 2]],
+    );
+    const small = buildMap([
+      withEffort(3, 'c/c.js', 'M', 'high'),
+      ...[1, 2].map((n) => withEffort(n, 'a.js', 'M')),
+    ]);
+    assert.deepEqual(numbers(planBatch(small, { max: 2 })), [[3]]);
+  });
+
+  it('formats lines, blank-line separated clusters and a Fixes line', () => {
+    const map = buildMap([withEffort(1, 'a.js', 'M', 'high'), withEffort(2, 'b.js', 'M', 'low')]);
+    assert.equal(
+      formatBatch(planBatch(map)),
+      '#1 high a.js R1 (M)\n\n#2 low b.js R2 (M)\n\nFixes #1, Fixes #2',
+    );
   });
 });
