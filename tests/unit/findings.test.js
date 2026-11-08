@@ -12,7 +12,9 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { delimiter } from 'node:path';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { delimiter, join } from 'node:path';
 
 import {
   buildMap,
@@ -20,6 +22,7 @@ import {
   formatBatch,
   formatLine,
   lookup,
+  main,
   parseRepoSlug,
   parseBatchOptions,
   parseBody,
@@ -294,5 +297,50 @@ describe('unit: findings batch', () => {
       formatBatch(planBatch(map)),
       '#1 high a.js R1 (M)\n\n#2 low b.js R2 (M)\n\nFixes #1, Fixes #2',
     );
+  });
+});
+
+describe('unit: findings batch CLI', () => {
+  const run = (issues, args) => {
+    const dir = mkdtempSync(join(tmpdir(), 'findings-'));
+    const file = join(dir, 'issues.json');
+    writeFileSync(file, JSON.stringify(issues));
+    const out = [];
+    const err = [];
+    const origLog = console.log;
+    const origError = console.error;
+    console.log = (...a) => out.push(a.join(' '));
+    console.error = (...a) => err.push(a.join(' '));
+    try {
+      const code = main(['batch', ...args, '--from-file', file]);
+      return { code, out: out.join('\n'), err: err.join('\n') };
+    } finally {
+      console.log = origLog;
+      console.error = origError;
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
+  const open = [issue(1, 'a.js', 'R1', 'high')];
+
+  it('prints nothing and exits 0 when there are no findings', () => {
+    assert.deepEqual(run([], []), { code: 0, out: '', err: '' });
+  });
+
+  it('prints the batch and a Fixes line', () => {
+    const { code, out } = run(open, []);
+    assert.equal(code, 0);
+    assert.equal(out, '#1 high a.js R1\n\nFixes #1');
+  });
+
+  it('exits 1 with a message on an invalid --max or --max-simple', () => {
+    for (const [flagName, value] of [
+      ['--max', '0'],
+      ['--max-simple', 'x'],
+    ]) {
+      const { code, out, err } = run(open, [flagName, value]);
+      assert.equal(code, 1);
+      assert.equal(out, '');
+      assert.match(err, new RegExp(`^✗ ${flagName} needs a positive integer`));
+    }
   });
 });
