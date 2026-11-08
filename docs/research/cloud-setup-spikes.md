@@ -13,15 +13,15 @@ Condensed from AIF-005 (2026-09-29/30, Claude Code 2.1.285, Trusted network leve
 
 ## Setup script behaviour
 
-| Finding                                                                                                                                                                      | Evidence                 |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
-| The script runs as root before the repo is cloned; its result is cached and later sessions do not re-run it.                                                                 | Stage B sessions 1 and 2 |
-| Any edit to the script rebuilds the cache from a clean image; only a human can edit it.                                                                                      | Stage D1                 |
-| On the first start after an edit, the environment build and the first session appear to run the script concurrently, so it must be idempotent with no external side effects. | Stage B session 2        |
-| A session started right after an edit waits for the whole script; script duration is the first-start delay.                                                                  | Stages A2, D1            |
-| The cache needs the script to finish within about five minutes.                                                                                                              | Platform docs, stage A2  |
-| Fetching the public repo anonymously and `aif install` took about 15–19s in total.                                                                                           | Stages B, D1             |
-| Anything installed under a directory not on `PATH` is invisible to the session; link or install into `/usr/local/bin`.                                                       | Stage C first attempt    |
+| Finding                                                                                                                                                                                                                                                       | Evidence                 |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| The script runs as root; its result is cached and later sessions do not re-run it. In September it ran before the repo was cloned; in the November probes the repo was already cloned (see "Overriding the committed agent"), so do not rely on either order. | Stage B sessions 1 and 2 |
+| Any edit to the script rebuilds the cache from a clean image; only a human can edit it.                                                                                                                                                                       | Stage D1                 |
+| On the first start after an edit, the environment build and the first session appear to run the script concurrently, so it must be idempotent with no external side effects.                                                                                  | Stage B session 2        |
+| A session started right after an edit waits for the whole script; script duration is the first-start delay.                                                                                                                                                   | Stages A2, D1            |
+| The cache needs the script to finish within about five minutes.                                                                                                                                                                                               | Platform docs, stage A2  |
+| Fetching the public repo anonymously and `aif install` took about 15–19s in total.                                                                                                                                                                            | Stages B, D1             |
+| Anything installed under a directory not on `PATH` is invisible to the session; link or install into `/usr/local/bin`.                                                                                                                                        | Stage C first attempt    |
 
 ## Tool binaries: download, don't build
 

@@ -169,7 +169,7 @@ Requires Node.js 22.23.4+ (earlier 22.x releases have known security vulnerabili
 This section owns the `ai-git`, `gh`, `bws` and environment-variable
 parts of a cloud environment; agent selection is composed on top of it separately.
 The environment's **Setup script** (set by hand in the environment settings) runs
-as root before the repo is checked out, so it only provisions the VM. It must exit 0
+as root and only provisions the VM. In the observed environment the repo is already cloned when it runs, but that is not guaranteed, so it never depends on the repo (except the optional agent override, which reports when it finds none). It must exit 0
 and finish in about five minutes to be cached.
 
 #### Setup script
@@ -230,7 +230,7 @@ Run in a fresh session of a repo that has `.aiconfig.json`:
 
 - It is a line in the Setup text, not an environment variable: the Setup script cannot read the environment's variables.
 - The name must be lowercase letters, digits, `-` or `_`, 1–64 characters, starting with a letter or digit; anything else is logged and ignored. An existing `settings.local.json` is never overwritten. A name with no agent file in the repo only logs a warning (it may be a user-level or built-in agent); if no such agent exists the harness falls back to the default agent.
-- Only repos present when the environment was built are covered; the result is snapshotted with the environment, and later sessions reuse it.
+- Only repos present when the environment was built are covered; the result is snapshotted with the environment, and later sessions reuse it. If the script finds no repo under `/home/user` it logs an error (`no git repo found … not applied`) and the session starts as the committed agent.
 - A user-level `~/.claude/settings.json` `agent` and managed settings cannot override the committed agent (see `docs/research/cloud-setup-spikes.md`).
 
 #### Cloud limits
