@@ -137,6 +137,7 @@ Init Options:
   --standards <list>    Comma-separated standard tags (e.g. csharp,avalonia)
   --interactive         Force interactive prompts (flag values as defaults)
   --with-default-bundles  Also install the default bundles at project scope (Claude Code)
+  --cloud-steps         Only print the steps to set up a Claude Code cloud environment (no scaffolding, no --name)
 
 Examples:
   aif install --bundle engineering --harness kiro
@@ -155,6 +156,7 @@ Examples:
   aif index architecture --check
   aif init --name my-app --language csharp
   aif init --interactive
+  aif init --cloud-steps
   aif config paths.research
   aif config paths.research --abs
 `.trim();
