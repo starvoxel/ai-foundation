@@ -207,6 +207,15 @@ describe('architecture index — real git integration', () => {
       assert.equal(stale(), false);
     });
 
+    it('covers a key_file commit from a file other than the one the waiver was written for', () => {
+      commitCodeThenDoc(['src/thing.js', 'src/other.js']);
+      writeFileSync(join(repoRoot, 'src', 'other.js'), 'export const y = 2;\n');
+      commitAll(repoRoot, 'Change other');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Waive\n\n${waiver}`);
+      const record = { key_files: ['src/thing.js', 'src/other.js'], section: '01' };
+      assert.equal(isStaleAgainstGit(record, repoRoot, DOC), false);
+    });
+
     it('stops covering once a doc-editing commit lands, as before', () => {
       commitCodeThenDoc();
       changeThing(2, 'Change thing');
