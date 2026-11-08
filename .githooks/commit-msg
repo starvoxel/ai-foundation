@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Warn when a commit touches an arc42 section's key_files with no doc edit and no
+# `Arch-Unaffected:` waiver, while the miss is still cheap to fix. Advisory only:
+# never blocks a commit. $1 is the commit message file; $2 is not used.
+root="$(git rev-parse --show-toplevel 2>/dev/null)" || exit 0
+[ -f "$root/bin/aif.js" ] || exit 0
+# A merge commit only brings in commits that were checked on their own.
+git rev-parse -q --verify MERGE_HEAD >/dev/null 2>&1 && exit 0
+(cd "$root" && node bin/aif.js index architecture --commit-msg "$1") || true
+exit 0

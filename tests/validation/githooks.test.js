@@ -20,7 +20,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
-const HOOKS = ['post-merge', 'post-checkout', 'post-rewrite', 'refresh-index'];
+const HOOKS = ['commit-msg', 'post-merge', 'post-checkout', 'post-rewrite', 'refresh-index'];
 
 describe('validation: .githooks', () => {
   for (const hook of HOOKS) {

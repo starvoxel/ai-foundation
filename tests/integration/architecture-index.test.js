@@ -161,6 +161,72 @@ describe('architecture index — real git integration', () => {
     );
   });
 
+  describe('a waiver on a later commit', () => {
+    const waiver = 'Arch-Unaffected: 01 — pure simplification, behavior unchanged';
+    const stale = () =>
+      isStaleAgainstGit({ key_files: ['src/thing.js'], section: '01' }, repoRoot, DOC);
+
+    function changeThing(n, message) {
+      writeFileSync(join(repoRoot, 'src', 'thing.js'), `export const x = ${n};\n`);
+      commitAll(repoRoot, message);
+    }
+
+    it('covers earlier unwaived key_file commits, via an empty commit', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      changeThing(3, 'Change thing again');
+      assert.equal(stale(), true);
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      assert.equal(stale(), false);
+    });
+
+    it('does not cover a key_file commit made after it', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      changeThing(3, 'Change behavior');
+      assert.equal(stale(), true);
+    });
+
+    it('does not cover a different section', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', 'Waive\n\nArch-Unaffected: 02 — other');
+      assert.equal(stale(), true);
+    });
+
+    it('covers commits on a branch merged before the waiver', () => {
+      commitCodeThenDoc();
+      const base = git(repoRoot, 'rev-parse', '--abbrev-ref', 'HEAD');
+      git(repoRoot, 'checkout', '-q', '-b', 'feature');
+      changeThing(2, 'Change on branch');
+      git(repoRoot, 'checkout', '-q', base);
+      git(repoRoot, 'merge', '--no-ff', '-q', '-m', 'Merge feature', 'feature');
+      assert.equal(stale(), true);
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      assert.equal(stale(), false);
+    });
+
+    it('covers a key_file commit from a file other than the one the waiver was written for', () => {
+      commitCodeThenDoc(['src/thing.js', 'src/other.js']);
+      writeFileSync(join(repoRoot, 'src', 'other.js'), 'export const y = 2;\n');
+      commitAll(repoRoot, 'Change other');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Waive\n\n${waiver}`);
+      const record = { key_files: ['src/thing.js', 'src/other.js'], section: '01' };
+      assert.equal(isStaleAgainstGit(record, repoRoot, DOC), false);
+    });
+
+    it('stops covering once a doc-editing commit lands, as before', () => {
+      commitCodeThenDoc();
+      changeThing(2, 'Change thing');
+      git(repoRoot, 'commit', '-q', '--allow-empty', '-m', `Record waiver\n\n${waiver}`);
+      writeFileSync(join(repoRoot, DOC), sectionContent() + '\nVerified.\n');
+      commitAll(repoRoot, 'update doc');
+      changeThing(3, 'Change behavior');
+      assert.equal(stale(), true);
+    });
+  });
+
   it('becomes fresh again once the doc is committed after the key_file change', () => {
     commitCodeThenDoc();
     writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
@@ -371,6 +437,54 @@ describe('aif index architecture — CLI wiring', () => {
 
     const exitCode = runIndex(parseArgs(['index', 'architecture', '--check']), repoRoot);
     assert.equal(exitCode, 1);
+  });
+
+  describe('--commit-msg', () => {
+    function run(message) {
+      const msgFile = join(repoRoot, 'MSG');
+      writeFileSync(msgFile, message);
+      const errors = [];
+      const original = console.error;
+      console.error = (...a) => errors.push(a.join(' '));
+      try {
+        const code = runIndex(
+          parseArgs(['index', 'architecture', '--commit-msg', msgFile]),
+          repoRoot,
+        );
+        return { code, output: errors.join('\n') };
+      } finally {
+        console.error = original;
+      }
+    }
+
+    it('warns, exiting 0, when a staged key_file has no doc edit or waiver', () => {
+      setup();
+      writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+      git(repoRoot, 'add', '-A');
+      const { code, output } = run('Change thing');
+      assert.equal(code, 0);
+      assert.match(output, /arc42 §01: src\/thing\.js/);
+      assert.match(output, /Arch-Unaffected: 01/);
+    });
+
+    it('is silent with a waiver in the message or the doc staged', () => {
+      const { archDir } = setup();
+      writeFileSync(join(repoRoot, 'src', 'thing.js'), 'export const x = 2;\n');
+      git(repoRoot, 'add', '-A');
+      assert.equal(run('Change\n\nArch-Unaffected: 01 — refactor only').output, '');
+      writeFileSync(join(archDir, '01_intro.md'), sectionContent() + '\nUpdated.\n');
+      git(repoRoot, 'add', '-A');
+      assert.equal(run('Change thing').output, '');
+    });
+
+    it('never fails: an unreadable message file still exits 0', () => {
+      setup();
+      const code = runIndex(
+        parseArgs(['index', 'architecture', '--commit-msg', join(repoRoot, 'missing')]),
+        repoRoot,
+      );
+      assert.equal(code, 0);
+    });
   });
 
   it('--check does not read or require a stored index (a corrupt one is ignored)', () => {

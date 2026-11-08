@@ -5,7 +5,12 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { isBotAuthor, parseCommits, commitMakesStale } from '../../lib/architecture.js';
+import {
+  isBotAuthor,
+  parseCommits,
+  commitMakesStale,
+  uncoveredCommits,
+} from '../../lib/architecture.js';
 
 describe('isBotAuthor', () => {
   it('matches GitHub bot accounts', () => {
@@ -30,6 +35,14 @@ describe('parseCommits', () => {
     ]);
   });
 
+  it('reads an optional leading hash field', () => {
+    const out = 'abc\x1fAnn\x1fFix\n\nbody\x1e\ndef\x1fBob\x1fOther\x1e\n';
+    assert.deepEqual(parseCommits(out), [
+      { hash: 'abc', author: 'Ann', message: 'Fix\n\nbody' },
+      { hash: 'def', author: 'Bob', message: 'Other' },
+    ]);
+  });
+
   it('returns nothing for empty output', () => {
     assert.deepEqual(parseCommits(''), []);
   });
@@ -47,5 +60,13 @@ describe('commitMakesStale', () => {
   it('does not count a human commit with a waiver', () => {
     const message = 'Change\n\nArch-Unaffected: 02 — comment only';
     assert.equal(commitMakesStale({ author: 'Ann', message }, '02'), false);
+  });
+});
+
+describe('uncoveredCommits', () => {
+  it('drops commits whose hash is covered', () => {
+    const commits = [{ hash: 'a' }, { hash: 'b' }];
+    assert.deepEqual(uncoveredCommits(commits, new Set(['a'])), [{ hash: 'b' }]);
+    assert.deepEqual(uncoveredCommits(commits, new Set()), commits);
   });
 });

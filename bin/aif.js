@@ -154,6 +154,7 @@ Examples:
   aif validate skill-deps
   aif index architecture
   aif index architecture --check
+  aif index architecture --commit-msg .git/COMMIT_EDITMSG
   aif init --name my-app --language csharp
   aif init --interactive
   aif init --cloud-steps
