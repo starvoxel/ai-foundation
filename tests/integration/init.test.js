@@ -76,6 +76,38 @@ describe('integration: init command', () => {
     assert.ok(!manifest.includes('ai-engineering_claude'), 'non-default bundle not installed');
   });
 
+  it('prints the cloud setup steps after scaffolding, with the real bootstrap script', async () => {
+    const { code, output } = await quiet(() =>
+      runInit({ args: { name: 'steps' }, positional: [] }),
+    );
+    assert.equal(code, 0);
+    const text = output.join('\n');
+    const bootstrap = readFileSync(
+      join(import.meta.dirname, '..', '..', 'scripts', 'cloud-setup-bootstrap.sh'),
+      'utf8',
+    ).trimEnd();
+    assert.ok(text.includes(bootstrap), 'bootstrap script missing from init output');
+    assert.match(text, /aif install --scope project -B engineering -H claude/);
+    assert.match(text, /BWS_ACCESS_TOKEN=<machine-account token>/);
+  });
+
+  it('does not ask to run the project-scope install when the bundles were just installed', async () => {
+    const { output } = await quiet(() =>
+      runInit({ args: { name: 'steps2', 'with-default-bundles': true }, positional: [] }),
+    );
+    const text = output.join('\n');
+    assert.match(text, /Commit the project-scope install in \.claude\//);
+    assert.doesNotMatch(text, /^\s+aif install --scope project -B engineering/m);
+  });
+
+  it('prints no cloud setup steps when init fails', async () => {
+    const { code, output } = await quiet(() =>
+      runInit({ args: { name: 'bad/name' }, positional: [] }),
+    );
+    assert.equal(code, 1);
+    assert.doesNotMatch(output.join('\n'), /Cloud setup/);
+  });
+
   it('creates the project directory', async () => {
     const { code } = await quiet(() => runInit({ args: { name: 'test-project' }, positional: [] }));
     assert.equal(code, 0);
