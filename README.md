@@ -72,6 +72,7 @@ aif index architecture --check  # verify the architecture index without writing
 # Project scaffolding
 aif init --name my-app --shortname myapp --language csharp
 aif init --name my-app --with-default-bundles   # also install the default bundles at project scope
+                                                # (init also prints the steps to set up a Claude Code cloud environment)
 aif init --interactive
 
 # Config field resolution
@@ -174,7 +175,7 @@ and finish in about five minutes to be cached.
 
 #### Setup script
 
-Paste this; it is the whole script. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh), which owns the pinned, sha256-verified `gh` and `bws` release binaries (installed to `/usr/local/bin`, ahead of any cargo-built `bws` on PATH) and is idempotent and always exits 0.
+Paste this; it is the whole script. `aif init` prints it, with the environment variables and the other steps below, after scaffolding a project; the text lives in [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-bootstrap.sh) and a validation test keeps this block identical to it. It installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh), which owns the pinned, sha256-verified `gh` and `bws` release binaries (installed to `/usr/local/bin`, ahead of any cargo-built `bws` on PATH) and is idempotent and always exits 0.
 
 ```bash
 #!/bin/bash
