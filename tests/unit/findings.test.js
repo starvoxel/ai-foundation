@@ -240,25 +240,59 @@ describe('unit: findings batch', () => {
     assert.deepEqual(numbers(planBatch(map, { max: 3 })), [[4], [2], [3]]);
   });
 
-  it('adds S findings only in the same areas as picked M findings, up to maxSimple', () => {
+  it('fills the main group with M or smaller, so S findings can take its slots', () => {
     const map = buildMap([
-      withEffort(1, 'lib/a.js', 'M', 'low'),
+      withEffort(1, 'a/1.js', 'M', 'low'),
+      withEffort(2, 'b/2.js', 'S', 'low'),
+      withEffort(3, 'c/3.js', 'S', 'low'),
+    ]);
+    assert.deepEqual(numbers(planBatch(map, { max: 2, maxSimple: 1 })), [[1], [2]]);
+  });
+
+  it('adds S findings in the same areas as picked ones, up to maxSimple', () => {
+    const map = buildMap([
+      withEffort(1, 'lib/a.js', 'M', 'high'),
       withEffort(2, 'lib/b.js', 'S', 'low'),
       withEffort(3, 'other/c.js', 'S', 'critical'),
       withEffort(4, 'lib/d.js', 'S', 'medium'),
       withEffort(5, 'lib/e.js', 'S', 'low'),
+      withEffort(6, 'far/f.js', 'S', 'medium'),
     ]);
-    assert.deepEqual(numbers(planBatch(map, { maxSimple: 2 })), [[1], [4], [2]]);
+    assert.deepEqual(numbers(planBatch(map, { max: 2, maxSimple: 1 })), [[3], [1], [4]]);
+    assert.deepEqual(numbers(planBatch(map, { max: 2, maxSimple: 9 })), [[3], [1], [4], [2], [5]]);
   });
 
-  it('fills an S-only backlog up to maxSimple, keeping areas together', () => {
+  it('gives an S-only backlog the main group plus the extra allowance, oldest first', () => {
+    const map = buildMap(Array.from({ length: 22 }, (_, i) => withEffort(i + 1, 'x/a.js', 'S')));
+    const batch = planBatch(map);
+    assert.equal(batch.length, 1);
+    assert.equal(batch[0].length, 22);
+    const separate = buildMap(
+      Array.from({ length: 22 }, (_, i) => withEffort(i + 1, `x/${i + 1}.js`, 'S')),
+    );
+    assert.deepEqual(
+      numbers(planBatch(separate)).flat(),
+      Array.from({ length: 20 }, (_, i) => i + 1),
+    );
+  });
+
+  it('orders by severity regardless of size, then size, then age', () => {
     const map = buildMap([
-      withEffort(1, 'x/a.js', 'S', 'high'),
-      withEffort(2, 'y/b.js', 'S', 'high'),
-      withEffort(3, 'x/c.js', 'S', 'low'),
-      withEffort(4, 'y/d.js', 'S', 'low'),
+      withEffort(1, 'a/1.js', 'M', 'low'),
+      withEffort(2, 'b/2.js', 'S', 'high'),
+      withEffort(3, 'c/3.js', 'S', 'low'),
+      withEffort(4, 'd/4.js', 'L', 'low'),
+      withEffort(5, 'e/5.js', 'M', 'high'),
+      withEffort(6, 'f/6.js', 'M', 'low'),
     ]);
-    assert.deepEqual(numbers(planBatch(map, { maxSimple: 3 })), [[1], [3], [2]]);
+    assert.deepEqual(numbers(planBatch(map, { includeLarge: true, max: 6 })), [
+      [5],
+      [2],
+      [4],
+      [1],
+      [6],
+      [3],
+    ]);
   });
 
   it('never splits findings that share a file', () => {

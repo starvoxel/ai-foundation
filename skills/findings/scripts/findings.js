@@ -217,28 +217,19 @@ export function effortClass(entry) {
 }
 
 /**
- * Entries ordered severity first (critical to low, unrated last), then oldest
- * issue number first.
- * @template {{ n: number, severity: string }} T
- * @param {T[]} entries
- * @returns {T[]}
- */
-function bySeverity(entries) {
-  return [...entries].sort(compareSeverity);
-}
-
-/**
- * Comparator: severity first (critical to low, unrated last), then oldest issue first.
- * @param {{ n: number, severity: string }} a
- * @param {{ n: number, severity: string }} b
+ * Comparator for batch order: severity first (critical to low, unrated last),
+ * regardless of size, then size (L, M, S), then oldest issue first.
+ * @param {{ n: number, severity: string, effort: string }} a
+ * @param {{ n: number, severity: string, effort: string }} b
  * @returns {number}
  */
-function compareSeverity(a, b) {
-  const rank = (e) => {
+function compareEntries(a, b) {
+  const severity = (e) => {
     const i = SEVERITIES.indexOf(e.severity);
     return i === -1 ? SEVERITIES.length : i;
   };
-  return rank(a) - rank(b) || a.n - b.n;
+  const size = (e) => ['L', 'M', 'S'].indexOf(effortClass(e));
+  return severity(a) - severity(b) || size(a) - size(b) || a.n - b.n;
 }
 
 /**
@@ -271,16 +262,16 @@ function dirOf(file) {
 }
 
 /**
- * Pick a batch of open findings to fix in one PR. Effort L is skipped unless
- * `includeLarge`, which makes L part of the M group. Up to `max` M-group
- * findings are taken severity first, then S findings in the same areas (a
- * shared file or parent directory) up to `maxSimple`. With no M-group finding
- * the batch is S findings only, kept together by area. Findings that share a
- * file are never split: a cluster is taken whole, and one that exceeds a cap is
- * taken only when it is the first selected.
+ * Pick a batch of open findings to fix in one PR. The main group takes up to
+ * `max` findings of size M or smaller (L too with `includeLarge`), ordered by
+ * severity, then size, then age. Then S findings in the same areas (a shared
+ * file or parent directory) as the picked ones are added up to `maxSimple`, a
+ * separate allowance. Findings that share a file are never split: a cluster is
+ * taken whole, and one that exceeds a cap is taken only when it is the first
+ * selected. The batch comes back in the same severity, size, age order.
  * @param {ReturnType<typeof buildMap>} map
  * @param {{ max?: number, maxSimple?: number, includeLarge?: boolean }} [options]
- * @returns {Array<Array<ReturnType<typeof buildMap>[string][number]>>} Clusters in pick order
+ * @returns {Array<Array<ReturnType<typeof buildMap>[string][number]>>} Clusters in batch order
  */
 export function planBatch(
   map,
@@ -288,39 +279,33 @@ export function planBatch(
 ) {
   const eligible = lookup(map, []).filter((e) => includeLarge || effortClass(e) !== 'L');
   const isSimple = (e) => effortClass(e) === 'S';
-  const clusters = clusterByFile(bySeverity(eligible)).map((c) => bySeverity(c));
-  const best = (c) => bySeverity(c)[0];
-  const order = (list) => [...list].sort((a, b) => compareSeverity(best(a), best(b)));
+  const clusters = clusterByFile(eligible).map((c) => [...c].sort(compareEntries));
+  const ordered = [...clusters].sort((a, b) => compareEntries(a[0], b[0]));
 
   const picked = [];
-  let mCount = 0;
-  let sCount = 0;
   const areas = new Set();
-  const take = (cluster) => {
-    const s = cluster.filter(isSimple).length;
-    const m = cluster.length - s;
-    const fits = mCount + m <= max && sCount + s <= maxSimple;
-    if (!fits && picked.length > 0) return false;
-    picked.push(cluster);
-    mCount += m;
-    sCount += s;
+  const addAreas = (cluster) => {
     for (const e of cluster) for (const f of e.files) areas.add(f).add(dirOf(f));
-    return true;
   };
 
-  const mGroup = order(clusters.filter((c) => c.some((e) => !isSimple(e))));
-  for (const cluster of mGroup) take(cluster);
+  let mainCount = 0;
+  for (const cluster of ordered) {
+    if (picked.length > 0 && mainCount + cluster.length > max) continue;
+    picked.push(cluster);
+    mainCount += cluster.length;
+    addAreas(cluster);
+  }
 
   const inArea = (c) => c.some((e) => e.files.some((f) => areas.has(f) || areas.has(dirOf(f))));
-  let remaining = order(clusters.filter((c) => c.every(isSimple) && !picked.includes(c)));
-  const seedFromBest = mCount === 0;
-  while (remaining.length > 0) {
-    const next = remaining.find(inArea) ?? (seedFromBest ? remaining[0] : undefined);
-    if (!next) break;
-    remaining = remaining.filter((c) => c !== next);
-    take(next);
+  let simpleCount = 0;
+  for (const cluster of ordered) {
+    if (picked.includes(cluster) || !cluster.every(isSimple) || !inArea(cluster)) continue;
+    if (simpleCount + cluster.length > maxSimple) continue;
+    picked.push(cluster);
+    simpleCount += cluster.length;
+    addAreas(cluster);
   }
-  return picked;
+  return picked.sort((a, b) => compareEntries(a[0], b[0]));
 }
 
 /**
