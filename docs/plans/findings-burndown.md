@@ -1,10 +1,10 @@
 # Plan: Findings burn-down
 
-| Field       | Value                             |
-| ----------- | --------------------------------- |
-| Status      | Approved                          |
-| Approved by | jeremysmellie@gmail.com (in chat) |
-| Created     | 2026-11-08                        |
+| Field       | Value      |
+| ----------- | ---------- |
+| Status      | Draft      |
+| Approved by | Pending    |
+| Created     | 2026-11-08 |
 
 ## Goal
 
@@ -18,7 +18,8 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 ## Approach
 
 - `batch` is pure selection over the issues `findings.js` already loads, so there is no new network call. Pure `planBatch(map, { max, maxSimple, includeLarge })` returns the batch; the CLI only prints it.
-- Selection: effort L findings are not selected unless `--include-large` is passed, which makes L findings eligible for the M group (they count against its cap of 5). Pick up to 5 M findings (`--max`), severity first (critical → low), then oldest issue number first. Then add S findings that fall in the same areas as the picked M findings, again severity first, up to 15 S (`--max-simple`). An S finding is in the same area when it shares a file or a parent directory with a picked finding. When no M finding is open, take up to 15 S findings, severity first, and keep those that share areas together. A finding with no `effort:` line counts as M.
+- Selection has two groups. The main group (`--max`, default 5) is filled with M findings or smaller, so S findings can take its slots; effort L is excluded unless `--include-large` is passed, which makes L eligible for the main group too. Then extra S findings in the same areas as the picked findings are added up to `--max-simple` (default 15), which is a separate allowance, so a backlog of only S findings yields up to 20. An S finding is in the same area when it shares a file or a parent directory with a picked finding. A finding with no `effort:` line counts as M.
+- Ordering, for choosing within each group and for the printed output: severity first (critical → low), regardless of size, then size (L, M, S), then oldest issue number first. Severity only decides order among findings that are in the batch; it never pulls in a finding the groups above exclude.
 - Findings that share a file are never split across batches: a cluster (connected by shared `files:`) is taken whole or not at all, and a cluster larger than the caps is taken only when it is the first selected.
 - Defaults are the caps above; both are overridable on the command line and by the human's request.
 - Output: one line per finding in the existing `formatLine` format, a blank line between clusters, and a final `Fixes #a, Fixes #b` line to paste into the PR.
@@ -31,7 +32,7 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 ### 1. `batch` selection and CLI
 
 - Does: `planBatch` plus the `batch` subcommand with `--max`, `--max-simple`, `--include-large`, `--from-file` and `--repo`.
-- Acceptance criteria: given a fixture set, L findings are selected only with `--include-large` (then they count in the M group); at most `max` M findings are picked severity first; S findings are added only in the same areas as picked findings, capped at `maxSimple`; an S-only backlog fills up to `maxSimple`; a missing effort counts as M; findings sharing a file are never split; no findings gives empty output and exit 0; an invalid `--max` or `--max-simple` exits 1 with a message.
+- Acceptance criteria: given a fixture set, L findings are selected only with `--include-large` (then they are eligible for the main group); the main group takes at most `max` findings of size M or smaller, ordered severity, then size, then age; extra S findings are added only in the same areas as picked findings, capped at `maxSimple`; an S-only backlog yields up to `max` plus `maxSimple`; the printed order is severity, then size, then age; a missing effort counts as M; findings sharing a file are never split; no findings gives empty output and exit 0; an invalid `--max` or `--max-simple` exits 1 with a message.
 - Verified by: unit tests in `tests/unit/findings.test.js`, `npm run test:unit`.
 
 ### 2. Skill, agent prompt, docs
@@ -47,5 +48,5 @@ Open `finding` issues are only read when the engineer happens to touch a listed 
 
 ## Open questions
 
-- Resolved by you: 5 M findings plus up to 15 S in the same areas, no L, severity-first within each effort class.
-- Assumed, correct me if wrong: the flag is named `--include-large`; "passed first specified" is read as the flag simply being passed; "same areas" means a shared file or parent directory; a finding with no effort counts as M.
+- Resolved by you: main group of 5 filled by M or smaller, plus up to 15 extra S in the same areas, no L unless asked; order is severity, then size, then age.
+- Assumed, correct me if wrong: the flag is named `--include-large`; "same areas" means a shared file or parent directory; a finding with no effort counts as M; "size" orders larger first (L, M, S) within a severity; "if there are only A open" meant S.
