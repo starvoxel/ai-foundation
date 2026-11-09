@@ -3,9 +3,11 @@ bundles:
     version: 1.1.0
     files:
       - path: .claude/standards/csharp_avalonia.md
-        hash: sha256:d4f08d2a646cbdfa48967f084a57dc195b7bb08f59e334333a4976ba85c44953
+        hash: sha256:22bd4c117d071bf27bb379aa581d3de455ec699b3987a5a7c573c84c2ee1d343
+      - path: .claude/standards/csharp_avalonia_fluentavalonia.md
+        hash: sha256:af2b82ca6ad91d8b22b3d39926cabd8b189157bbecfd8293940271b5ef79c8d0
       - path: .claude/standards/csharp_base.md
-        hash: sha256:fe0a589d012e4ef1f2cb631a05e2617f66c69ea290b8643e3dfb87327539f933
+        hash: sha256:064b85fa03d352f7a16a5d03d1613aacd78fb6ce26979786520d8632279e79e2
       - path: .claude/standards/javascript_base.md
         hash: sha256:6444f0429b8d9c5f4b1eae79aacde6f74ef1bf752f147267e3f2cf46d5c7a699
       - path: .claude/standards/javascript_node.md
@@ -27,15 +29,17 @@ bundles:
       - path: .claude/rules/global-standards-loading.md
         hash: sha256:49863b995747621bfc7e6f1aff77691cba14b2c6cfebbc000605e2b0a2461b8e
       - path: .claude/rules/engineering-architecture-authoring.md
-        hash: sha256:e639cf4c24d3ca43d8982f89018c481e498185dc07a0f91a6a1edd309815ef84
+        hash: sha256:9d604dc20838f34224d685cd697cc1e3e23375f193effaaa5902e01427a2ad04
       - path: .claude/rules/engineering-architecture-docs.md
         hash: sha256:181ad562fd49989c0c4f66614f017ca5e9a707cc51475402337f29729d48ab4e
       - path: .claude/rules/engineering-core.md
         hash: sha256:fe347ab3ef2a84d8f5709fefb89b5a5c2541aa8ef640c860bc3171416eeae96a
+      - path: .claude/rules/engineering-cross-platform.md
+        hash: sha256:467b3eeb278303115016742c8eb7077b78433df601e687d21c9f205d7a46b0f9
       - path: .claude/rules/engineering-document-types.md
         hash: sha256:baa7b77c12787592e975d446cbd2a0e4e4c8269f65222e0a85c2ce1e2d9daa18
       - path: .claude/rules/engineering-git-workflow.md
-        hash: sha256:534f88fbd695ffa365f3676c71f67c3959d76115b914c603bc30923370d95370
+        hash: sha256:f33669759b4674ed101455767444eaf1debba3c6f146a86bcb42d09a098efe06
       - path: .claude/skills/oversight/SKILL.md
         hash: sha256:f00c66fc150b81d7be35ad0d9a1aad2af3b9a59a3a3bac08887184441fd122af
       - path: .claude/skills/oversight/scripts/resolve.js
@@ -69,7 +73,7 @@ bundles:
       - path: .claude/skills/findings/SKILL.md
         hash: sha256:8ce477b6869ebc0af4c7cb3e4e8018bffac8437e830ee8ac665b9629293444b2
       - path: .claude/skills/findings/scripts/findings.js
-        hash: sha256:c9c4e980b929709676ed6fb23929abdbf94f9c95dcdbb1665281ec23e094f584
+        hash: sha256:ca4ebf8831d7920b0411a13de4de15e8212bf6cbaecfa62eb1218f4361564d53
       - path: .claude/skills/code-review/SKILL.md
         hash: sha256:95c98530ed5e5e7984f0a3bfd334e73bbd9e7423a27f48649d1da074e95d67c5
       - path: .claude/skills/ai-component-review/SKILL.md
@@ -86,11 +90,12 @@ bundles:
       steering/global/knowledge-consumption.md: sha256:21509323004190ff3d69b2d3f5e69466c33ccb330ec1177c2f51f00b6a48736e
       steering/global/markdown-authoring.md: sha256:fe0403df523a60a3c42ef5fc97b849146c8d78f6ae2d0f42e3de61e052fb26c5
       steering/global/standards-loading.md: sha256:87b303074424e7da45e1384709806a3f8fb72619f76f4f170c2d26d4791ab802
-      steering/engineering/architecture-authoring.md: sha256:c0a464f387ab2dc110a99ad72d74dad44c7ebfd556aa7221739e3605b6a9c862
+      steering/engineering/architecture-authoring.md: sha256:c1105611432f47ef7220b1635c55c0193e70e631e1184024ec22064a6d332c89
       steering/engineering/architecture-docs.md: sha256:8741e7e33c66be1a24274e6933037a69851fe09f71883455b1a3bfe09e914823
       steering/engineering/core.md: sha256:495a1a12248a8436be9638556c2a76fa00294d049260c3ab98bb26593365791f
+      steering/engineering/cross-platform.md: sha256:a6926903e434b7512608db7177e6333cdce7b6cb4e6e64317d507620d09bf9cd
       steering/engineering/document-types.md: sha256:ae7b8438cd36163f3e36b5dc7b043cdb746eab6534d496be8b5686dbb630f01e
-      steering/engineering/git-workflow.md: sha256:72019ba7fa0120f9347dbb431f5d96de68723cd1eebc246f4478978be515fd9d
+      steering/engineering/git-workflow.md: sha256:8458a583cd7c09f4afebb6cd0d7dba28dd6b23e368538f130b0c56b4f8d03f4b
       skills/oversight/SKILL.md: sha256:f00c66fc150b81d7be35ad0d9a1aad2af3b9a59a3a3bac08887184441fd122af
       skills/oversight/scripts/resolve.js: sha256:8d7cdc8fb52032ae51e662202a9e3dd036851d2cc9ad23395c745016cfff4169
       skills/test-execution/SKILL.md: sha256:aa43c0d6df7752b9bbbd327c97d4de766f22dc565461ffdae29fd769e90e2a21
@@ -107,7 +112,7 @@ bundles:
       skills/review-severity/SKILL.md: sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de
       skills/review-severity/reference/template.md: sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5
       skills/findings/SKILL.md: sha256:8ce477b6869ebc0af4c7cb3e4e8018bffac8437e830ee8ac665b9629293444b2
-      skills/findings/scripts/findings.js: sha256:c9c4e980b929709676ed6fb23929abdbf94f9c95dcdbb1665281ec23e094f584
+      skills/findings/scripts/findings.js: sha256:ca4ebf8831d7920b0411a13de4de15e8212bf6cbaecfa62eb1218f4361564d53
       skills/code-review/SKILL.md: sha256:95c98530ed5e5e7984f0a3bfd334e73bbd9e7423a27f48649d1da074e95d67c5
       skills/ai-component-review/SKILL.md: sha256:66c5f91534f16572bd5c493c988d4a4eb0c777c764ee5bf01e72762b91ef5963
 servers: {}
