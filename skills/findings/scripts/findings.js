@@ -211,9 +211,27 @@ export function parseBatchOptions(argv) {
  * @returns {'S'|'M'|'L'}
  */
 export function effortClass(entry) {
-  const effort = entry.effort.trim().toUpperCase();
-  if (effort === 'S' || effort === 'L') return effort;
-  return 'M';
+  switch (entry.effort.trim().toUpperCase()) {
+    case 'S':
+      return 'S';
+    case 'L':
+      return 'L';
+    default:
+      return 'M';
+  }
+}
+
+/** Effort classes from largest to smallest; the batch order within a severity. */
+export const EFFORT_ORDER = ['L', 'M', 'S'];
+
+/**
+ * Whether a finding counts as simple: size S today. Kept as one function so
+ * the definition can grow to cover smaller sizes.
+ * @param {{ effort: string }} entry
+ * @returns {boolean}
+ */
+export function isSimple(entry) {
+  return effortClass(entry) === 'S';
 }
 
 /**
@@ -228,7 +246,7 @@ function compareEntries(a, b) {
     const i = SEVERITIES.indexOf(e.severity);
     return i === -1 ? SEVERITIES.length : i;
   };
-  const size = (e) => ['L', 'M', 'S'].indexOf(effortClass(e));
+  const size = (e) => EFFORT_ORDER.indexOf(effortClass(e));
   return severity(a) - severity(b) || size(a) - size(b) || a.n - b.n;
 }
 
@@ -278,7 +296,6 @@ export function planBatch(
   { max = DEFAULT_MAX, maxSimple = DEFAULT_MAX_SIMPLE, includeLarge = false } = {},
 ) {
   const eligible = lookup(map, []).filter((e) => includeLarge || effortClass(e) !== 'L');
-  const isSimple = (e) => effortClass(e) === 'S';
   const clusters = clusterByFile(eligible).map((c) => [...c].sort(compareEntries));
   const ordered = [...clusters].sort((a, b) => compareEntries(a[0], b[0]));
 

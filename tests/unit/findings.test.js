@@ -21,6 +21,7 @@ import {
   effortClass,
   formatBatch,
   formatLine,
+  isSimple,
   lookup,
   main,
   parseRepoSlug,
@@ -205,6 +206,10 @@ describe('unit: findings batch', () => {
     assert.equal(effortClass({ effort: 'L' }), 'L');
     assert.equal(effortClass({ effort: 'M' }), 'M');
     assert.equal(effortClass({ effort: '' }), 'M');
+    assert.equal(effortClass({ effort: 'bogus' }), 'M');
+    assert.equal(isSimple({ effort: 'S' }), true);
+    assert.equal(isSimple({ effort: 'M' }), false);
+    assert.equal(isSimple({ effort: '' }), false);
   });
 
   it('parses options with defaults and rejects bad numbers', () => {
