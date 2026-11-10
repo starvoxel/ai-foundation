@@ -61,6 +61,16 @@ Goal: a repo commits `"agent": "engineer"` and a cloud environment can start it 
 
 Implemented in `scripts/cloud-setup.sh` (`AIF_AGENT`). Plan: `docs/plans/cloud-agent-override.md`.
 
+## Installing ai-foundation from the Setup script (2026-11-10)
+
+| Install form (npm 10.9.9, Node 22.23.4)                                                   | Result                                                                                                                                                                                                 |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Local `npm install github:…#<sha>` (the September spikes)                                 | Works                                                                                                                                                                                                  |
+| Global `npm install -g github:…` (the first version of the bootstrap)                     | Exits 0 with `TAR_ENTRY_ERROR` warnings, but `lib/node_modules/ai-foundation` is a symlink into `~/.npm/_cacache/tmp/git-clone…`, which lacks `bin/` and `scripts/`; the next step fails with exit 127 |
+| Global `npm install -g https://codeload.github.com/<owner>/<repo>/tar.gz/refs/heads/main` | Works: a real directory, bins resolve, no warnings, about 3 s                                                                                                                                          |
+
+The bootstrap uses the tarball form; a validation test pins it. The merged bootstrap was only exercised in pieces before this (the script by tests and a real run, the install step never), which is how it shipped broken.
+
 ## Never tested
 
 - D3: a cache bust by changing only the `# rev:` comment of the pasted Setup script (README "Setup script"). Pending a human run; the result is recorded here.
