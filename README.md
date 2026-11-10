@@ -181,7 +181,6 @@ Paste the contents of [`scripts/cloud-setup-bootstrap.sh`](scripts/cloud-setup-b
 The script installs `ai-git` and `aif` from the head of this repo, then runs [`scripts/cloud-setup.sh`](scripts/cloud-setup.sh). That script installs pinned, sha256-verified `gh` and `bws` release binaries into `/usr/local/bin` (ahead of any cargo-built `bws` on PATH), is idempotent, and always exits 0. An optional `export AIF_AGENT=<name>` line in the pasted script starts repos as another agent (see "Primary agent").
 
 - **Head, not a pin.** The environment installs whatever `main` of this repo holds when its cache is built. Because the script runs as root, that means trusting this repo's `main`. `--ignore-scripts` disables package install hooks, and `gh` and `bws` stay version-pinned and checksum-verified. The cache is rebuilt after about seven days, or whenever the pasted text changes, which picks up a newer head.
-- **Tarball, not `github:`.** The script installs from the `codeload.github.com` tarball of `main`. `npm install -g github:…` (npm 10) reports success but links `ai-foundation` to a temporary clone that it then partly deletes, so `scripts/cloud-setup.sh` is missing and the Setup script fails with exit 127.
 - **Forcing a rebuild.** Increase the `# rev:` number and save. Editing `scripts/cloud-setup.sh` in the repo does not rebuild the cache, because the pasted text stays the same.
 - **Failures.** A failed `npm install` fails the script (non-zero exit), so a broken setup is never cached.
 
