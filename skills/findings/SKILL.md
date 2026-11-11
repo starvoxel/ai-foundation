@@ -25,7 +25,17 @@ For each reported finding below the blocking line, and for each scan result wort
 
 `node scripts/findings.js file --title "<short title>" --severity <critical|high|medium|low> --source <review|scan name> --rule "<rule violated>" --files a,b [--effort <S|M|L>] [--detail "<why and fix hint>"]`
 
+Always pass `--effort`, sized as below; a finding with no `effort:` line counts as M, so an omitted size is a guess. Size the fix, not the severity:
+
+| Size  | Fix is                                                                                                                                           |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **S** | One file plus its test, a known change, no design choice, nothing security-, data-, or API-sensitive. Fits in a batch beside other work           |
+| **M** | A few files, or one small design choice, or a security-sensitive edit; one review pass. The default when unsure between S and M                  |
+| **L** | Cross-cutting, a new dependency, convention, or schema, an unclear fix, or more than one review pass. Skipped by a burn-down unless asked for it |
+
 It comments on an open finding that shares a file and a rule, otherwise opens a new issue labelled `finding`, `severity:<level>` and `source:<source>`. When it reports new files on an existing finding, add them to that issue's `files:` line.
+
+To size an existing finding that has none, add an `effort: <S|M|L>` line to its header (beside `files:`, `rule:`, `source:`).
 
 ### Step 3 — Create missing labels (once per repo)
 
