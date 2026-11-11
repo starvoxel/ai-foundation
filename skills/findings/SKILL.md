@@ -36,13 +36,13 @@ If filing fails because a label is missing, create `finding`, `severity:*` and `
 
 When the human asks to work down findings, run `node scripts/findings.js batch [--max N] [--max-simple N] [--include-large]` from this skill's directory with the repo as the working directory. `--max` (default 5) caps the main group of M findings or smaller, `--max-simple` (default 15) caps the extra S findings in the same areas, and `--include-large` makes L findings eligible. It prints one line per finding, a blank line between findings that share a file, and a final `Fixes #a, Fixes #b` line.
 
-Implement the batch under the active standards and put every `Fixes #n` in the PR. For a finding that proves wrong or not worth fixing, comment on the issue with why, leave it open for triage, and leave its `Fixes #n` out. Then the normal flow applies: oversight sizing, tests, independent review, PR.
+Implement the batch under the active standards and put every `Fixes #n` in the PR. For a finding that proves wrong or not worth fixing, comment on the issue with why, leave it open for triage, leave its `Fixes #n` out, and list it in the PR as `Reviewed #n` so it is recorded without being closed. Then the normal flow applies: oversight sizing, tests, independent review, PR.
 
 ## Outputs
 
 - Step 1: the matching findings, one line each
 - Step 2: the issue number commented on or opened
-- Step 4: the batch lines and the `Fixes #n` line
+- Step 4: the batch lines, the `Fixes #n` line, and a `Reviewed #n` line for each finding commented on and left open
 
 ## Edge Cases
 
