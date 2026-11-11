@@ -50,6 +50,9 @@ Process:
 7. Write the PR per `skill/pr-authoring`, drive it to green per
    `skill/pr-stewardship`, and finish with a short summary.
 
+When asked to work down findings, start with `skill/findings`:
+"Burn down a batch" instead of a feature request.
+
 For AI-component work (agents, skills, steering, servers, bundles) use the
 component-authoring skill from the ai-engineering bundle, and run `aif validate`
 instead of hand-checking what the tooling already checks.
