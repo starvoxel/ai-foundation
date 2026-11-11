@@ -1,6 +1,6 @@
 ---
 name: 'findings'
-version: '1.0.0'
+version: '1.1.0'
 description: 'Records review and scan findings that should not block a PR as labelled GitHub issues, and shows which open findings touch the files you are about to change so they can be folded into the work.'
 ---
 
@@ -11,7 +11,7 @@ Findings below the blocking line (LOW from review, anything a scan reports that 
 ## Inputs
 
 - **Paths** — files the work will touch (before implementing) or that a finding affects (when filing)
-- **A finding** — title, severity, source, rule violated, affected files, optional effort and detail
+- **A finding** — title, severity, source, rule violated, affected files, effort (S, M, or L), and optional detail
 
 ## Steps
 
@@ -23,13 +23,13 @@ Run `node scripts/findings.js <path> …` from this skill's directory with the r
 
 For each reported finding below the blocking line, and for each scan result worth keeping, run:
 
-`node scripts/findings.js file --title "<short title>" --severity <critical|high|medium|low> --source <review|scan name> --rule "<rule violated>" --files a,b [--effort <S|M|L>] [--detail "<why and fix hint>"]`
+`node scripts/findings.js file --title "<short title>" --severity <critical|high|medium|low> --source <review|scan name> --rule "<rule violated>" --files a,b --effort <S|M|L> [--detail "<why and fix hint>"]`
 
-Always pass `--effort`, sized as below; a finding with no `effort:` line counts as M, so an omitted size is a guess. Size the fix, not the severity:
+`--effort` is required and the command fails without it. Size the fix, not the severity:
 
 | Size  | Fix is                                                                                                                                           |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **S** | One file plus its test, a known change, no design choice, nothing security-, data-, or API-sensitive. Fits in a batch beside other work           |
+| **S** | One file plus its test, a known change, no design choice, nothing security-, data-, or API-sensitive. Fits in a batch beside other work          |
 | **M** | A few files, or one small design choice, or a security-sensitive edit; one review pass. The default when unsure between S and M                  |
 | **L** | Cross-cutting, a new dependency, convention, or schema, an unclear fix, or more than one review pass. Skipped by a burn-down unless asked for it |
 

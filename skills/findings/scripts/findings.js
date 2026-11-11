@@ -19,7 +19,7 @@
  *
  * Usage:
  *   node findings.js [path ...] [--json]      findings touching those paths (all when none given)
- *   node findings.js file --title T --severity S --source X --rule R --files a,b [--effort E] [--detail D]
+ *   node findings.js file --title T --severity S --source X --rule R --files a,b --effort S|M|L [--detail D]
  *                                             comment on a matching finding, or open a new one
  *   node findings.js batch [--max N] [--max-simple N] [--include-large]
  *                                             a batch of open findings to fix in one PR (default 5 M, 15 S)
@@ -30,7 +30,7 @@
  *   files: a.js, b.js
  *   rule: <standard or check violated>
  *   source: <review | scan name>
- *   effort: <optional>
+ *   effort: <S | M | L; required when filing, optional on older issues>
  */
 
 import { spawnSync } from 'node:child_process';
@@ -40,6 +40,7 @@ import { fileURLToPath } from 'node:url';
 
 export const FINDING_LABEL = 'finding';
 export const SEVERITIES = ['critical', 'high', 'medium', 'low'];
+export const EFFORTS = ['S', 'M', 'L'];
 
 /**
  * Parse the `key: value` header lines of a finding body.
@@ -136,12 +137,16 @@ export function staleKeys(map, exists) {
  * Decide how to file a finding: comment on an open one that shares a file and
  * a rule, otherwise open a new issue.
  * @param {ReturnType<typeof buildMap>} map
- * @param {{title:string,severity:string,source:string,rule:string,files:string[],effort?:string,detail?:string}} f
+ * @param {{title:string,severity:string,source:string,rule:string,files:string[],effort:string,detail?:string}} f
  * @returns {{action:'comment',n:number,body:string,missingFiles:string[]}|{action:'create',title:string,body:string,labels:string[]}}
  */
 export function planFiling(map, f) {
   if (!SEVERITIES.includes(f.severity)) {
     throw new Error(`Invalid severity "${f.severity}". Use one of: ${SEVERITIES.join(', ')}`);
+  }
+  const effort = (f.effort ?? '').trim().toUpperCase();
+  if (!EFFORTS.includes(effort)) {
+    throw new Error(`--effort is required. Use one of: ${EFFORTS.join(', ')}`);
   }
   if (!f.files.length || !f.rule || !f.title)
     throw new Error('A finding needs --title, --rule and --files');
@@ -158,7 +163,7 @@ export function planFiling(map, f) {
     };
   }
   const header = [`files: ${f.files.join(', ')}`, `rule: ${f.rule}`, `source: ${f.source}`];
-  if (f.effort) header.push(`effort: ${f.effort}`);
+  header.push(`effort: ${effort}`);
   return {
     action: 'create',
     title: f.title,
