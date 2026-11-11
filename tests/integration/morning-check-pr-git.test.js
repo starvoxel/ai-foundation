@@ -242,6 +242,13 @@ describe('publishFix — real git', () => {
     assert.equal(git(root, '--git-dir', remote, 'rev-list', '--count', 'bot/demo'), '2');
   });
 
+  it('builds on a leftover branch when its PR has ended', async () => {
+    await publish(makeApi());
+    const api = makeApi([]);
+    assert.equal(await publish(api), 'created #5');
+    assert.equal(git(root, '--git-dir', remote, 'rev-list', '--count', 'bot/demo'), '3');
+  });
+
   it('refuses a dirty working tree and pushes nothing', async () => {
     writeFileSync(join(work, 'stray.txt'), 'x');
     const api = makeApi();

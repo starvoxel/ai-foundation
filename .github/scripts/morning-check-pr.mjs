@@ -143,7 +143,7 @@ function git(cwd, args, env = process.env) {
 }
 
 /**
- * Open PRs for a check: those whose head branch carries its prefix.
+ * Open PRs for a check: those on its branch, or on a retired hashed branch under its prefix.
  *
  * @param {ApiClient} botApi
  * @param {string} repo
@@ -247,13 +247,15 @@ export async function publishFix({
     };
     if (process.env.GITHUB_ACTIONS === 'true') console.log(`::add-mask::${basicAuth(token)}`);
 
-    // The branch's own tip, if a PR is open on it: the new commit goes on top.
+    // The branch's own tip, if the remote has one (a PR may have ended without
+    // deleting it): the new commit goes on top, so the push stays a fast-forward.
     let tip = '';
-    if (current) {
+    if (git(repoRoot, ['ls-remote', '--heads', remoteUrl, `refs/heads/${branch}`], env)) {
       git(repoRoot, ['fetch', '-q', remoteUrl, `refs/heads/${branch}`], env);
       tip = git(repoRoot, ['rev-parse', 'FETCH_HEAD']);
     }
-    const treeMatches = Boolean(tip) && git(repoRoot, ['rev-parse', `${tip}^{tree}`]) === tree;
+    const treeMatches =
+      Boolean(current && tip) && git(repoRoot, ['rev-parse', `${tip}^{tree}`]) === tree;
     const plan = planPr({ branch, openPrs, findings, treeMatches });
 
     let created = null;
@@ -273,8 +275,8 @@ export async function publishFix({
     }
 
     // An open PR whose text is stale (new fix, or the title scheme changed) is edited, not replaced.
-    const retitle = current && (plan.action === 'update' || current.title !== title);
-    if (current && retitle) {
+    const editText = current && (plan.action === 'update' || current.title !== title);
+    if (current && editText) {
       await botApi.request('PATCH', `/repos/${repo}/pulls/${current.number}`, { title, body });
     }
 
@@ -293,7 +295,7 @@ export async function publishFix({
     }
     if (created) return `created #${created.number}`;
     if (current && plan.action === 'update') return `updated #${current.number}`;
-    if (current && retitle) return `retitled #${current.number}`;
+    if (current && editText) return `retitled #${current.number}`;
     if (current && relabel) return `labelled #${current.number}`;
     return plan.supersede.length > 0 ? `closed ${plan.supersede.length} superseded` : 'none';
   } finally {
