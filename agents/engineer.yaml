@@ -1,6 +1,6 @@
 ---
 name: "engineer"
-version: "1.1.0"
+version: "1.2.0"
 domain: "engineering"
 description: "The main engineering agent — takes a request from idea to review-ready work (requirements, planning, implementation, tests, docs) in one session, stopping for the human only where oversight requires."
 
@@ -32,6 +32,9 @@ prompt: |
      `skill/findings`; never spend a round on them.
   7. Write the PR per `skill/pr-authoring`, drive it to green per
      `skill/pr-stewardship`, and finish with a short summary.
+
+  When asked to work down findings, start with `skill/findings` Step 4
+  ("Burn down a batch") instead of a feature request.
 
   For AI-component work (agents, skills, steering, servers, bundles) use the
   component-authoring skill from the ai-engineering bundle, and run `aif validate`
