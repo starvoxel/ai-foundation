@@ -1,6 +1,6 @@
 ---
 name: 'findings'
-version: '1.1.0'
+version: '1.1.1'
 description: 'Records review and scan findings that should not block a PR as labelled GitHub issues, and shows which open findings touch the files you are about to change so they can be folded into the work.'
 ---
 
