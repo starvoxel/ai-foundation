@@ -40,19 +40,15 @@ function fakeApi(openPrs = []) {
 }
 
 describe('branchFor', () => {
-  it('prefixes the check id and uses the first 10 characters of the tree', () => {
-    assert.equal(branchFor('demo', 'abcdef0123456789'), 'bot/demo-abcdef0123');
-    assert.ok(branchFor('demo', 'abcdef0123456789').startsWith(branchPrefix('demo')));
-  });
-
-  it('gives the same branch for the same tree and different ones for different trees', () => {
-    assert.equal(branchFor('d', 'aaaaaaaaaaaa'), branchFor('d', 'aaaaaaaaaaaa'));
-    assert.notEqual(branchFor('d', 'aaaaaaaaaaaa'), branchFor('d', 'bbbbbbbbbbbb'));
+  it('is one stable branch per check, apart from the retired hashed ones', () => {
+    assert.equal(branchFor('demo'), 'bot/demo');
+    assert.ok(!branchFor('demo').startsWith(branchPrefix('demo')));
+    assert.ok('bot/demo-abcdef0123'.startsWith(branchPrefix('demo')));
   });
 });
 
 describe('planPr', () => {
-  const branch = 'bot/demo-new';
+  const branch = 'bot/demo';
 
   it('creates a PR when none is open', () => {
     assert.deepEqual(planPr({ branch, openPrs: [], findings: ['f'] }), {
@@ -61,13 +57,18 @@ describe('planPr', () => {
     });
   });
 
-  it('does nothing when a PR is already open for the same branch', () => {
-    const plan = planPr({ branch, openPrs: [pr(1, branch)], findings: ['f'] });
+  it('does nothing when the open PR already holds the fixed tree', () => {
+    const plan = planPr({ branch, openPrs: [pr(1, branch)], findings: ['f'], treeMatches: true });
     assert.deepEqual(plan, { action: 'none', supersede: [] });
   });
 
-  it('creates a new PR and supersedes an open one with a different branch', () => {
-    const old = pr(1, 'bot/demo-old');
+  it('updates the open PR when the fix differs', () => {
+    const plan = planPr({ branch, openPrs: [pr(1, branch)], findings: ['f'] });
+    assert.deepEqual(plan, { action: 'update', supersede: [] });
+  });
+
+  it('creates a PR on the stable branch and supersedes a retired hashed one', () => {
+    const old = pr(1, 'bot/demo-0000000000');
     assert.deepEqual(planPr({ branch, openPrs: [old], findings: ['f'] }), {
       action: 'create',
       supersede: [old],
@@ -76,12 +77,17 @@ describe('planPr', () => {
 
   it('keeps the matching PR and supersedes the others', () => {
     const old = pr(1, 'bot/demo-old');
-    const plan = planPr({ branch, openPrs: [old, pr(2, branch)], findings: ['f'] });
+    const plan = planPr({
+      branch,
+      openPrs: [old, pr(2, branch)],
+      findings: ['f'],
+      treeMatches: true,
+    });
     assert.deepEqual(plan, { action: 'none', supersede: [old] });
   });
 
   it('closes every open PR once the findings are gone', () => {
-    const open = [pr(1, 'bot/demo-a'), pr(2, 'bot/demo-b')];
+    const open = [pr(1, 'bot/demo'), pr(2, 'bot/demo-b')];
     assert.deepEqual(planPr({ branch, openPrs: open, findings: [] }), {
       action: 'close',
       supersede: open,
@@ -104,6 +110,7 @@ describe('renderPrBody', () => {
     prFix: {
       apply: () => {},
       prTitle: () => 'Refresh the demo',
+      details: () => 'Components refreshed:\n\n- `a`',
       summary: 'The demo is out of date.',
       fixCommand: 'demo --fix',
       verifyCommand: 'demo --check',
@@ -122,13 +129,17 @@ describe('renderPrBody', () => {
     );
   });
 
+  it("includes the check's details after the summary", () => {
+    assert.ok(body.includes('Components refreshed:\n\n- `a`'));
+  });
+
   it('gives the check command with its before and after result', () => {
     assert.ok(body.includes('`demo --check` reported 2 drifted file(s) before and none after.'));
   });
 
   it('is short, with no checklist, disclosure or instructions to a reader', () => {
-    assert.ok(body.split('\n').length <= 8);
-    assert.ok(body.length < 300);
+    assert.ok(body.split('\n').length <= 12);
+    assert.ok(body.length < 400);
     assert.ok(!body.includes('[ ]') && !body.includes('AI disclosure'));
     assert.ok(!body.includes('Run the demo fix.') && !body.includes('item(s)'));
   });
@@ -150,13 +161,18 @@ describe('git auth', () => {
 });
 
 describe('listBotPrs / closeBotPrs', () => {
-  const open = [pr(1, 'bot/demo-abc'), pr(2, 'feature/x'), pr(3, 'bot/other-abc')];
+  const open = [
+    pr(1, 'bot/demo-abc'),
+    pr(2, 'feature/x'),
+    pr(3, 'bot/other-abc'),
+    pr(4, 'bot/demo'),
+  ];
 
   it('keeps only PRs whose branch carries the check prefix', async () => {
     const found = await listBotPrs(fakeApi(open), 'o/r', 'demo');
     assert.deepEqual(
       found.map((p) => p.number),
-      [1],
+      [1, 4],
     );
   });
 
@@ -168,7 +184,7 @@ describe('listBotPrs / closeBotPrs', () => {
       botApi: api,
       runUrl: 'https://example.test/r',
     });
-    assert.equal(closed, 1);
+    assert.equal(closed, 2);
     assert.equal(api.calls[0].path, '/repos/o/r/issues/1/comments');
     assert.match(api.calls[0].body.body, /example\.test/);
     assert.deepEqual(api.calls[1], {

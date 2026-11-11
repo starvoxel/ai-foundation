@@ -11,7 +11,7 @@
  *          closed once they are gone. The default.
  *   pr     The check has a mechanical fix (`prFix`), so the bot account opens a
  *          PR with it instead (morning-check-pr.mjs). At most one is open per
- *          check; a changed fix supersedes the old PR, and a clean check closes
+ *          check; a changed fix is added to that PR, and a clean check closes
  *          it. Without a bot token, a `pr` check reports as an issue, so a
  *          finding is never lost.
  *
@@ -51,14 +51,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import { createApi } from './cleanup-branches.mjs';
-import {
-  CI_TITLE_PREFIX,
-  LABEL,
-  closeBotPrs,
-  ensureLabel,
-  listBotPrs,
-  publishFix,
-} from './morning-check-pr.mjs';
+import { LABEL, closeBotPrs, ensureLabel, listBotPrs, publishFix } from './morning-check-pr.mjs';
 
 export { LABEL };
 
@@ -79,7 +72,8 @@ export const FORCE_WEEKDAY = 1;
  *
  * @typedef {object} PrFix
  * @property {(repoRoot: string) => void} apply  Edits the working tree to clear the findings.
- * @property {(findings: string[]) => string} prTitle  Imperative, under 70 characters, and specific to what was found.
+ * @property {(findings: string[]) => string} prTitle  Under 70 characters and the same on every run: the PR is edited in place, so the title does not name what was found.
+ * @property {(findings: string[]) => string} [details]  Markdown for the PR description saying what changed.
  * @property {string} summary  One sentence on why the PR exists, for its Summary.
  * @property {string} fixCommand  The command `apply` runs, shown in the PR and the commit message.
  * @property {string} verifyCommand  The command that reports the findings, to show before and after.
@@ -155,25 +149,19 @@ export function installComponentNames(findings) {
   return names;
 }
 
-/** The longest PR title the repo's PR standards allow. */
-export const MAX_TITLE = 70;
-
-/** What is left of MAX_TITLE once the workflow's prefix is added to a title. */
-const TITLE_ROOM = MAX_TITLE - CI_TITLE_PREFIX.length;
+/** The title of every install-refresh PR; `installDriftDetails` says what changed. */
+export const INSTALL_DRIFT_TITLE = 'Refreshing Project AI Components';
 
 /**
- * PR title for an install refresh, naming what drifted, or how many components
- * when the names would not fit. Pure.
+ * The components an install refresh changes, for the PR description. Pure.
  *
  * @param {string[]} findings
  * @returns {string}
  */
-export function installDriftTitle(findings) {
+export function installDriftDetails(findings) {
   const names = installComponentNames(findings);
-  if (names.length === 0) return 'Refresh the committed install manifest';
-  const named = `Refresh the committed install of ${names.join(' and ')}`;
-  if (names.length <= 2 && named.length <= TITLE_ROOM) return named;
-  return `Refresh the committed install of ${names.length} components`;
+  if (names.length === 0) return 'Only the install manifest changed.';
+  return `Components refreshed:\n\n${names.map((n) => `- \`${n}\``).join('\n')}`;
 }
 
 /**
@@ -211,7 +199,8 @@ export const CHECKS = [
     report: 'pr',
     prFix: {
       apply: refreshInstall,
-      prTitle: installDriftTitle,
+      prTitle: () => INSTALL_DRIFT_TITLE,
+      details: installDriftDetails,
       summary: 'The committed `.claude/` install no longer matches its sources.',
       fixCommand: 'aif install --scope project --update',
       verifyCommand: 'aif install --scope project --check',

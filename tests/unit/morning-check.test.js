@@ -10,21 +10,18 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-const PR_SCRIPT = pathToFileURL(
-  resolve(import.meta.dirname, '../../.github/scripts/morning-check-pr.mjs'),
-).href;
 const SCRIPT = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/morning-check.mjs'),
 ).href;
 const {
   CHECKS,
   LABEL,
-  MAX_TITLE,
+  INSTALL_DRIFT_TITLE,
   checksTouched,
   decideGuard,
   findExisting,
   installComponentNames,
-  installDriftTitle,
+  installDriftDetails,
   isForcedDay,
   markerFor,
   parseDriftOutput,
@@ -34,7 +31,6 @@ const {
   renderSummary,
   runChecks,
 } = await import(SCRIPT);
-const { CI_TITLE_PREFIX } = await import(PR_SCRIPT);
 
 /** @returns {import('../../.github/scripts/morning-check.mjs').Check} */
 function fakeCheck(overrides = {}) {
@@ -489,53 +485,29 @@ describe('installComponentNames', () => {
   });
 });
 
-describe('installDriftTitle', () => {
-  it('names one or two drifted components', () => {
-    assert.equal(
-      installDriftTitle([
-        'changed: .claude/.installs.yaml',
-        'changed: .claude/rules/engineering-git-workflow.md',
-      ]),
-      'Refresh the committed install of engineering-git-workflow',
-    );
-    assert.equal(
-      installDriftTitle(['changed: .claude/rules/a.md', 'changed: .claude/rules/b.md']),
-      'Refresh the committed install of a and b',
-    );
+describe('install PR title and details', () => {
+  const prFix = CHECKS.find((c) => c.id === 'install-drift').prFix;
+
+  it('uses one title whatever drifted, within the title limit', () => {
+    assert.equal(INSTALL_DRIFT_TITLE, 'Refreshing Project AI Components');
+    assert.equal(prFix.prTitle(['changed: .claude/rules/a.md']), INSTALL_DRIFT_TITLE);
+    assert.equal(prFix.prTitle(['changed: .claude/rules/b.md']), INSTALL_DRIFT_TITLE);
+    assert.ok(INSTALL_DRIFT_TITLE.length <= 70);
   });
 
-  it('counts the components when there are more than two', () => {
-    const findings = ['a', 'b', 'c'].map((n) => `changed: .claude/rules/${n}.md`);
-    assert.equal(installDriftTitle(findings), 'Refresh the committed install of 3 components');
-  });
-
-  it('counts the components when two names would be too long', () => {
-    const long = 'x'.repeat(40);
-    const findings = [`changed: .claude/rules/${long}.md`, `changed: .claude/rules/${long}y.md`];
-    assert.equal(installDriftTitle(findings), 'Refresh the committed install of 2 components');
-  });
-
-  it('falls back to the manifest when nothing else is named', () => {
-    assert.equal(
-      installDriftTitle(['changed: .claude/.installs.yaml']),
-      'Refresh the committed install manifest',
-    );
-  });
-
-  it('is imperative and leaves room for the CI prefix within the title limit', () => {
-    const t = installDriftTitle(['changed: .claude/rules/engineering-git-workflow.md']);
-    assert.match(t, /^Refresh /);
-    assert.ok(`${CI_TITLE_PREFIX}${t}`.length <= MAX_TITLE);
-  });
-
-  it('falls back to a count when two names fit only without the prefix', () => {
-    // 'Refresh the committed install of ' is 33 chars, so two 15-char names make 68: it fits 70 but not once '[CI] ' is added.
-    const a = 'a'.repeat(15);
-    const b = 'b'.repeat(15);
-    const t = installDriftTitle([
-      `changed: .claude/rules/${a}.md`,
-      `changed: .claude/rules/${b}.md`,
+  it('lists the drifted components in the details', () => {
+    const d = installDriftDetails([
+      'changed: .claude/.installs.yaml',
+      'changed: .claude/rules/a.md',
+      'missing: .claude/skills/oversight/SKILL.md',
     ]);
-    assert.equal(t, 'Refresh the committed install of 2 components');
+    assert.match(d, /^Components refreshed:\n\n- `a`\n- `oversight`$/);
+  });
+
+  it('says so when only the manifest changed', () => {
+    assert.equal(
+      installDriftDetails(['changed: .claude/.installs.yaml']),
+      'Only the install manifest changed.',
+    );
   });
 });

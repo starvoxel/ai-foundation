@@ -106,14 +106,14 @@ describe('publishFix — real git', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
-  it('pushes a hashed branch, opens the PR as the bot, and restores the tree', async () => {
+  it("pushes the check's branch, opens the PR as the bot, and restores the tree", async () => {
     const api = makeApi();
     const result = await publish(api);
 
     assert.equal(result, 'created #5');
     const branches = remoteBranches();
-    const botBranch = branches.find((b) => b.startsWith('bot/demo-'));
-    assert.ok(botBranch, `expected a bot/demo-* branch, got ${branches}`);
+    const botBranch = 'bot/demo';
+    assert.ok(branches.includes(botBranch), `expected bot/demo, got ${branches}`);
 
     // The label exists before the PR does, and is put on the PR afterwards.
     const order = api.calls.map((c) => `${c.method} ${c.path}`);
@@ -127,14 +127,14 @@ describe('publishFix — real git', () => {
     const pull = api.calls.find((c) => c.path === '/repos/o/r/pulls');
     assert.equal(pull.body.head, botBranch);
     assert.equal(pull.body.base, 'main');
-    assert.equal(pull.body.title, '[CI] Refresh the demo');
+    assert.equal(pull.body.title, 'Refresh the demo');
     assert.match(
       pull.body.body,
       /^## Summary\n\nThe demo file is out of date\. Regenerated with `demo --fix`/,
     );
     assert.ok(pull.body.body.includes('reported 1 drifted file(s) before and none after'));
     const subject = git(root, '--git-dir', remote, 'log', '-1', '--format=%s', botBranch);
-    assert.equal(subject, '[CI] Refresh the demo');
+    assert.equal(subject, 'Refresh the demo');
     const bodyText = git(root, '--git-dir', remote, 'log', '-1', '--format=%b', botBranch);
     assert.match(bodyText, /Generated with `demo --fix`\./);
 
@@ -155,34 +155,98 @@ describe('publishFix — real git', () => {
   it('does nothing when a PR is already open for the same result', async () => {
     const first = makeApi();
     await publish(first);
-    const botBranch = remoteBranches().find((b) => b.startsWith('bot/demo-'));
+    const botBranch = 'bot/demo';
 
     const second = makeApi([
-      { number: 5, head: { ref: botBranch }, labels: [{ name: 'morning-check' }] },
+      {
+        number: 5,
+        head: { ref: botBranch },
+        labels: [{ name: 'morning-check' }],
+        title: 'Refresh the demo',
+      },
     ]);
     assert.equal(await publish(second), 'none');
     assert.equal(second.calls.filter((c) => c.method !== 'GET').length, 0);
-    assert.equal(remoteBranches().filter((b) => b.startsWith('bot/demo-')).length, 1);
+    assert.equal(remoteBranches().filter((b) => b.startsWith('bot/demo')).length, 1);
   });
 
   it('labels an open PR for the same result that is missing the label', async () => {
     await publish(makeApi());
-    const botBranch = remoteBranches().find((b) => b.startsWith('bot/demo-'));
+    const botBranch = 'bot/demo';
 
-    const api = makeApi([{ number: 5, head: { ref: botBranch }, labels: [] }]);
+    const api = makeApi([
+      { number: 5, head: { ref: botBranch }, labels: [], title: 'Refresh the demo' },
+    ]);
     assert.equal(await publish(api), 'labelled #5');
     const writes = api.calls.filter((c) => c.method !== 'GET').map((c) => c.path);
     assert.deepEqual(writes, ['/repos/o/r/labels', '/repos/o/r/issues/5/labels']);
-    assert.equal(remoteBranches().filter((b) => b.startsWith('bot/demo-')).length, 1);
+    assert.equal(remoteBranches().filter((b) => b.startsWith('bot/demo')).length, 1);
   });
 
-  it('opens a new PR and closes the old one when the fix differs', async () => {
+  it('closes a retired hashed-branch PR and opens one on the stable branch', async () => {
     const api = makeApi([{ number: 3, head: { ref: 'bot/demo-0000000000' } }]);
     assert.equal(await publish(api), 'created #5');
 
     const comment = api.calls.find((c) => c.path === '/repos/o/r/issues/3/comments');
     assert.match(comment.body.body, /Superseded by #5/);
     assert.ok(api.calls.some((c) => c.path === '/repos/o/r/pulls/3' && c.body.state === 'closed'));
+  });
+
+  it('adds a commit to the open PR and edits it when the fix differs', async () => {
+    await publish(makeApi());
+    const firstTip = git(root, '--git-dir', remote, 'rev-parse', 'bot/demo');
+
+    // A later run whose fix writes different content.
+    const check = makeCheck({
+      run: (repoRoot) => {
+        const f = join(repoRoot, 'generated.txt');
+        return existsSync(f) && readFileSync(f, 'utf8') === 'fixed v2' ? [] : ['changed: x'];
+      },
+      prFix: {
+        apply: (repoRoot) => writeFileSync(join(repoRoot, 'generated.txt'), 'fixed v2'),
+        prTitle: () => 'Refresh the demo',
+        summary: 'The demo file is out of date.',
+        fixCommand: 'demo --fix',
+        verifyCommand: 'demo --check',
+      },
+    });
+    const api = makeApi([
+      { number: 5, head: { ref: 'bot/demo' }, labels: [{ name: 'morning-check' }], title: 'old' },
+    ]);
+    assert.equal(await publish(api, { check }), 'updated #5');
+
+    const parents = git(root, '--git-dir', remote, 'rev-list', '--parents', '-n1', 'bot/demo');
+    assert.ok(parents.includes(firstTip), 'the new commit sits on the old tip');
+    assert.equal(git(root, '--git-dir', remote, 'show', 'bot/demo:generated.txt'), 'fixed v2');
+    assert.ok(!api.calls.some((c) => c.method === 'POST' && c.path === '/repos/o/r/pulls'));
+    const edit = api.calls.find((c) => c.method === 'PATCH' && c.path === '/repos/o/r/pulls/5');
+    assert.equal(edit.body.title, 'Refresh the demo');
+    assert.ok(!api.calls.some((c) => c.body?.state === 'closed'));
+  });
+
+  it('retitles an open PR for the same result whose title differs', async () => {
+    await publish(makeApi());
+    const api = makeApi([
+      {
+        number: 5,
+        head: { ref: 'bot/demo' },
+        labels: [{ name: 'morning-check' }],
+        title: '[CI] x',
+      },
+    ]);
+    assert.equal(await publish(api), 'retitled #5');
+    assert.equal(
+      api.calls.filter((c) => c.method === 'PATCH' && c.path === '/repos/o/r/pulls/5').length,
+      1,
+    );
+    assert.equal(git(root, '--git-dir', remote, 'rev-list', '--count', 'bot/demo'), '2');
+  });
+
+  it('builds on a leftover branch when its PR has ended', async () => {
+    await publish(makeApi());
+    const api = makeApi([]);
+    assert.equal(await publish(api), 'created #5');
+    assert.equal(git(root, '--git-dir', remote, 'rev-list', '--count', 'bot/demo'), '3');
   });
 
   it('refuses a dirty working tree and pushes nothing', async () => {
