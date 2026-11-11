@@ -21,7 +21,9 @@
  *   node findings.js [path ...] [--json]      findings touching those paths (all when none given)
  *   node findings.js file --title T --severity S --source X --rule R --files a,b [--effort E] [--detail D]
  *                                             comment on a matching finding, or open a new one
- *   Both accept --repo owner/name (default: derived from the origin remote) and
+ *   node findings.js batch [--max N] [--max-simple N] [--include-large]
+ *                                             a batch of open findings to fix in one PR (default 5 M, 15 S)
+ *   All accept --repo owner/name (default: derived from the origin remote) and
  *   --from-file <issues.json> (offline: read issues from a file instead of GitHub).
  *
  * Issue body format (first lines, then free text):
@@ -33,7 +35,7 @@
 
 import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const FINDING_LABEL = 'finding';
@@ -176,7 +178,222 @@ export function formatLine(e) {
   return parts.join(' ');
 }
 
+/** Default cap on the M group of a batch. */
+export const DEFAULT_MAX = 5;
+/** Default cap on the S findings of a batch. */
+export const DEFAULT_MAX_SIMPLE = 15;
+
+/**
+ * Parse the options of the `batch` subcommand.
+ * @param {string[]} argv - Arguments after `batch`
+ * @returns {{ max: number, maxSimple: number, includeLarge: boolean }}
+ * @throws {Error} When `--max` or `--max-simple` is not a positive integer
+ */
+export function parseBatchOptions(argv) {
+  const count = (name, fallback) => {
+    const raw = flag(argv, name);
+    if (raw === undefined) return fallback;
+    if (!/^[1-9]\d*$/.test(raw))
+      throw new Error(`--${name} needs a positive integer, got "${raw}"`);
+    return Number(raw);
+  };
+  return {
+    max: count('max', DEFAULT_MAX),
+    maxSimple: count('max-simple', DEFAULT_MAX_SIMPLE),
+    includeLarge: argv.includes('--include-large'),
+  };
+}
+
+/**
+ * Effort class of a finding: S is simple, L is large, anything else (M, or no
+ * `effort:` line) counts as M.
+ * @param {{ effort: string }} entry
+ * @returns {'S'|'M'|'L'}
+ */
+export function effortClass(entry) {
+  switch (entry.effort.trim().toUpperCase()) {
+    case 'S':
+      return 'S';
+    case 'L':
+      return 'L';
+    default:
+      return 'M';
+  }
+}
+
+/** Effort classes from largest to smallest; the batch order within a severity. */
+export const EFFORT_ORDER = ['L', 'M', 'S'];
+
+/**
+ * Whether a finding counts as simple: size S today. Kept as one function so
+ * the definition can grow to cover smaller sizes.
+ * @param {{ effort: string }} entry
+ * @returns {boolean}
+ */
+export function isSimple(entry) {
+  return effortClass(entry) === 'S';
+}
+
+/**
+ * Comparator for batch order: severity first (critical to low, unrated last),
+ * regardless of size, then size (L, M, S), then oldest issue first.
+ * @param {{ n: number, severity: string, effort: string }} a
+ * @param {{ n: number, severity: string, effort: string }} b
+ * @returns {number}
+ */
+function compareEntries(a, b) {
+  const severity = (e) => {
+    const i = SEVERITIES.indexOf(e.severity);
+    return i === -1 ? SEVERITIES.length : i;
+  };
+  const size = (e) => EFFORT_ORDER.indexOf(effortClass(e));
+  return severity(a) - severity(b) || size(a) - size(b) || a.n - b.n;
+}
+
+/**
+ * Group entries that share a file into clusters (connected components).
+ * @template {{ files: string[] }} T
+ * @param {T[]} entries
+ * @returns {T[][]}
+ */
+function clusterByFile(entries) {
+  const clusters = [];
+  for (const entry of entries) {
+    const touching = clusters.filter((c) =>
+      c.some((e) => e.files.some((f) => entry.files.includes(f))),
+    );
+    const merged = [entry, ...touching.flat()];
+    for (const c of touching) clusters.splice(clusters.indexOf(c), 1);
+    clusters.push(merged);
+  }
+  return clusters;
+}
+
+/**
+ * Directory part of a repo path, '.' for a root file.
+ * @param {string} file
+ * @returns {string}
+ */
+function dirOf(file) {
+  const i = file.lastIndexOf('/');
+  return i === -1 ? '.' : file.slice(0, i);
+}
+
+/**
+ * Pick a batch of open findings to fix in one PR. The main group takes up to
+ * `max` findings of size M or smaller (L too with `includeLarge`), ordered by
+ * severity, then size, then age. Then S findings in the same areas (a shared
+ * file or parent directory) as the picked ones are added up to `maxSimple`, a
+ * separate allowance. Findings that share a file are never split: a cluster is
+ * taken whole, and one that exceeds a cap is taken only when it is the first
+ * selected. The batch comes back in the same severity, size, age order.
+ * @param {ReturnType<typeof buildMap>} map
+ * @param {{ max?: number, maxSimple?: number, includeLarge?: boolean }} [options]
+ * @returns {Array<Array<ReturnType<typeof buildMap>[string][number]>>} Clusters in batch order
+ */
+export function planBatch(
+  map,
+  { max = DEFAULT_MAX, maxSimple = DEFAULT_MAX_SIMPLE, includeLarge = false } = {},
+) {
+  const eligible = lookup(map, []).filter((e) => includeLarge || effortClass(e) !== 'L');
+  const clusters = clusterByFile(eligible).map((c) => [...c].sort(compareEntries));
+  const ordered = [...clusters].sort((a, b) => compareEntries(a[0], b[0]));
+
+  const picked = [];
+  const areas = new Set();
+  const addAreas = (cluster) => {
+    for (const e of cluster) for (const f of e.files) areas.add(f).add(dirOf(f));
+  };
+
+  let mainCount = 0;
+  for (const cluster of ordered) {
+    if (picked.length > 0 && mainCount + cluster.length > max) continue;
+    picked.push(cluster);
+    mainCount += cluster.length;
+    addAreas(cluster);
+  }
+
+  const inArea = (c) => c.some((e) => e.files.some((f) => areas.has(f) || areas.has(dirOf(f))));
+  let simpleCount = 0;
+  for (const cluster of ordered) {
+    if (picked.includes(cluster) || !cluster.every(isSimple) || !inArea(cluster)) continue;
+    if (simpleCount + cluster.length > maxSimple) continue;
+    picked.push(cluster);
+    simpleCount += cluster.length;
+    addAreas(cluster);
+  }
+  return picked.sort((a, b) => compareEntries(a[0], b[0]));
+}
+
+/**
+ * Batch lines: one per finding, a blank line between clusters, then the
+ * `Fixes #n` line for the PR. Empty when the batch is.
+ * @param {ReturnType<typeof planBatch>} batch
+ * @returns {string}
+ */
+export function formatBatch(batch) {
+  if (batch.length === 0) return '';
+  const groups = batch.map((cluster) => cluster.map(formatLine).join('\n'));
+  const fixes = batch.flat().map((e) => `Fixes #${e.n}`);
+  return `${groups.join('\n\n')}\n\n${fixes.join(', ')}`;
+}
+
 // ---- I/O -----------------------------------------------------------------
+
+/**
+ * Node cannot spawn an npm `.cmd` shim without a shell, and a shell would
+ * re-parse finding titles and bodies. On Windows, find the shim's node script
+ * and run it with node directly: no shell, args passed verbatim.
+ * @param {string[]} args - Arguments for ai-git
+ * @param {{ platform?: string, pathEnv?: string, execPath?: string, exists?: (p: string) => boolean, readText?: (p: string) => string }} [env]
+ * @returns {{ command: string, args: string[] }}
+ */
+export function resolveAiGit(args, env = {}) {
+  const {
+    platform = process.platform,
+    pathEnv = process.env.PATH ?? '',
+    execPath = process.execPath,
+    exists = existsSync,
+    readText = (p) => readFileSync(p, 'utf8'),
+  } = env;
+  if (platform !== 'win32') return { command: 'ai-git', args };
+  for (const dir of pathEnv.split(delimiter).filter(Boolean)) {
+    const shim = join(dir, 'ai-git.cmd');
+    if (!exists(shim)) continue;
+    const m = /"%dp0%[\\/]([^"]+\.js)"/i.exec(readText(shim));
+    if (!m) break;
+    const script = join(dirname(shim), m[1]);
+    if (exists(script)) return { command: execPath, args: [script, ...args] };
+    break;
+  }
+  return { command: 'ai-git', args };
+}
+
+/**
+ * Message for a failed spawn: the spawn error (ENOENT etc.), exit status and output.
+ * @param {string} label
+ * @param {{ error?: Error, status: number|null, stderr?: string, stdout?: string }} r
+ * @returns {string}
+ */
+export function describeSpawnFailure(label, r) {
+  const detail = (r.stderr || r.stdout || '').trim();
+  const cause = r.error ? `${r.error.message}; ` : '';
+  return `${label} failed: ${cause}exit status ${r.status}${detail ? `: ${detail}` : ''}`;
+}
+
+/**
+ * Run `ai-git` and return its stdout.
+ * @param {string[]} args
+ * @param {{ input?: string, spawn?: typeof spawnSync, resolveCmd?: typeof resolveAiGit }} [opts]
+ * @returns {string}
+ * @throws {Error} When the process cannot start or exits non-zero
+ */
+export function runAiGit(args, { input, spawn = spawnSync, resolveCmd = resolveAiGit } = {}) {
+  const cmd = resolveCmd(args);
+  const r = spawn(cmd.command, cmd.args, { encoding: 'utf8', input });
+  if (r.error || r.status !== 0) throw new Error(describeSpawnFailure(`ai-git ${args[0]}`, r));
+  return r.stdout ?? '';
+}
 
 /**
  * Run `ai-git gh-api` and return its stdout.
@@ -186,9 +403,7 @@ export function formatLine(e) {
  * @throws {Error} When the call fails
  */
 function gh(args, input) {
-  const r = spawnSync('ai-git', ['gh-api', ...args], { encoding: 'utf8', input });
-  if (r.status !== 0) throw new Error((r.stderr || r.stdout || 'ai-git gh-api failed').trim());
-  return r.stdout;
+  return runAiGit(['gh-api', ...args], { input });
 }
 
 /**
@@ -209,8 +424,15 @@ export function parseRepoSlug(url) {
 function repoSlug(argv) {
   const i = argv.indexOf('--repo');
   if (i !== -1) return argv[i + 1];
-  const r = spawnSync('ai-git', ['remote', 'get-url', 'origin'], { encoding: 'utf8' });
-  const slug = parseRepoSlug(r.stdout ?? '');
+  let url;
+  try {
+    url = runAiGit(['remote', 'get-url', 'origin']);
+  } catch (err) {
+    throw new Error(`Cannot derive the repo (${err.message}); pass --repo owner/name`, {
+      cause: err,
+    });
+  }
+  const slug = parseRepoSlug(url);
   if (!slug) throw new Error('Cannot derive the repo; pass --repo owner/name');
   return slug;
 }
@@ -249,6 +471,7 @@ function flag(argv, name) {
  */
 export function main(argv) {
   try {
+    const batchOptions = argv[0] === 'batch' ? parseBatchOptions(argv.slice(1)) : null;
     const repo = argv.includes('--from-file') ? '' : repoSlug(argv);
     const map = buildMap(loadIssues(argv, repo));
 
@@ -290,6 +513,12 @@ export function main(argv) {
         for (const label of plan.labels) args.push('-f', `labels[]=${label}`);
         console.log(`Opened #${JSON.parse(gh(args)).number}`);
       }
+      return 0;
+    }
+
+    if (batchOptions) {
+      const text = formatBatch(planBatch(map, batchOptions));
+      if (text) console.log(text);
       return 0;
     }
 
