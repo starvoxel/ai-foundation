@@ -30,7 +30,7 @@
  *   files: a.js, b.js
  *   rule: <standard or check violated>
  *   source: <review | scan name>
- *   effort: <S | M | L; required when filing, optional on older issues>
+ *   effort: <S | M | L>
  */
 
 import { spawnSync } from 'node:child_process';

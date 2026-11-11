@@ -26,13 +26,13 @@ For each reported finding below the blocking line, and for each scan result wort
 
 `node scripts/findings.js file --title "<short title>" --severity <critical|high|medium|low> --source <review|scan name> --rule "<rule violated>" --files a,b --effort <S|M|L> [--detail "<why and fix hint>"]`
 
-`--effort` is required and the command fails without it. Size the fix, not the severity:
+`--effort` is required and the command fails without it. Size the effort to fix it, including the tests it needs; never its severity or sensitivity, which is priority:
 
-| Size  | Fix is                                                                                                                                           |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **S** | One file plus its test, a known change, no design choice, nothing security-, data-, or API-sensitive. Fits in a batch beside other work          |
-| **M** | A few files, or one small design choice, or a security-sensitive edit; one review pass. The default when unsure between S and M                  |
-| **L** | Cross-cutting, a new dependency, convention, or schema, an unclear fix, or more than one review pass. Skipped by a burn-down unless asked for it |
+| Size  | Fix is                                                                                                                                                                                                |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **S** | One file plus its test, a known change, no design choice. Existing tests cover it or one new test does. Fits in a batch beside other work                                                             |
+| **M** | A few files, or one small design choice. A handful of new tests, or an existing suite to extend; one review pass. The default when unsure between S and M                                             |
+| **L** | Cross-cutting, a new dependency, convention, or schema, or an unclear fix. Needs new test infrastructure or broad test changes; more than one review pass. Skipped by a burn-down unless asked for it |
 
 It comments on an open finding that shares a file and a rule, otherwise opens a new issue labelled `finding`, `severity:<level>` and `source:<source>`. When it reports new files on an existing finding, add them to that issue's `files:` line.
 
