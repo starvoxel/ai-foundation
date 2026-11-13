@@ -1,7 +1,7 @@
 ---
 name: typescript_electron
 version: 1.0.0
-description: Electron 45 desktop-shell conventions for TypeScript projects, covering process model, hardening, IPC, privacy checks, fuses, packaging and end-to-end testing
+description: Electron desktop-shell conventions for TypeScript projects, covering process model, hardening, IPC, privacy checks, fuses, packaging and end-to-end testing
 tags: [typescript, electron]
 depends_on: [typescript_node, typescript_react]
 ---
@@ -16,16 +16,16 @@ Where this file disagrees with a standard it depends on, this file wins. Rules m
 
 ## Stack Baseline
 
-| Layer            | Convention                                                                                                                                            |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Shell            | Electron 45.x, pinned to an exact version                                                                                                             |
-| Platforms        | Windows and macOS first; Linux later (see Linux)                                                                                                      |
-| Main and preload | TypeScript under `typescript_node` (NodeNext, `.js` specifiers), one `tsconfig` per process                                                           |
-| Renderer         | `typescript_react` (Bundler resolution, no Node, no Electron imports)                                                                                 |
-| Packaging        | `@electron/packager` with `@electron/fuses`, and `electron-builder` for installers; another tool must meet every rule below                           |
-| Install          | Electron 42 and later has no install script: the binary downloads on first run, or with `npx install-electron --no`. It needs no `allowScripts` entry |
+| Layer            | Convention                                                                                                                                                                                                      |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shell            | Electron, pinned to an exact version                                                                                                                                                                            |
+| Platforms        | Windows and macOS first; Linux later (see Linux)                                                                                                                                                                |
+| Main and preload | TypeScript under `typescript_node` (NodeNext, `.js` specifiers), one `tsconfig` per process                                                                                                                     |
+| Renderer         | `typescript_react` (Bundler resolution, no Node, no Electron imports)                                                                                                                                           |
+| Packaging        | `@electron/packager` with `@electron/fuses`, and `electron-builder` for installers; another tool must meet every rule below                                                                                     |
+| Install          | Check whether the pinned Electron has an install script (`npm install-scripts ls`). Where it has none, it needs no `allowScripts` entry; the binary downloads on first run, or with `npx install-electron --no` |
 
-Electron ships a new major every eight weeks or so, tracking Chromium, and only the latest three stable majors get security fixes (checked at 45.3.1). Chromium security fixes become the project's job once it bundles Chromium. Plan monthly updates (see Updates).
+Electron ships frequent majors tracking Chromium, and only the most recent few get security fixes (check the current support policy). Chromium security fixes become the project's job once it bundles Chromium. Plan monthly updates (see Updates).
 
 ---
 

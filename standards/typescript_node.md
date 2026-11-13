@@ -1,7 +1,7 @@
 ---
 name: typescript_node
 version: 1.0.0
-description: Node.js-side TypeScript conventions, npm 12 supply-chain hardening, and CI rules for TypeScript projects
+description: Node.js-side TypeScript conventions, npm supply-chain hardening, and CI rules for TypeScript projects
 tags: [typescript, node]
 depends_on: [typescript_base, javascript_node]
 ---
@@ -16,13 +16,13 @@ This file assumes `typescript_base` and `javascript_node` are loaded (per `depen
 
 ## Stack Baseline
 
-| Layer           | Convention                                                                                                                                                                           |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Runtime         | Node.js within the range npm 12 supports (`^22.22.2 \|\| ^24.15.0 \|\| >=26`), pinned in `engines` and CI. On the 22 line, `javascript_node`'s stricter 22.23.4+ floor still applies |
-| Module system   | ES Modules: `"type": "module"` in `package.json`                                                                                                                                     |
-| Package manager | npm 12 with workspaces (see Package Management). pnpm is the documented alternative                                                                                                  |
-| Type-check      | `tsc --noEmit`, with `module` and `moduleResolution` set to `NodeNext`                                                                                                               |
-| Test runner     | Vitest instead of `node:test`; test-writing rules are in `typescript_testing`, when loaded                                                                                           |
+| Layer           | Convention                                                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime         | The Node.js version `javascript_node` requires, and within what the pinned npm supports (its `engines`); pinned in `engines` and CI |
+| Module system   | ES Modules: `"type": "module"` in `package.json`                                                                                    |
+| Package manager | npm 12 with workspaces (see Package Management). pnpm is the documented alternative                                                 |
+| Type-check      | `tsc --noEmit`, with `module` and `moduleResolution` set to `NodeNext`                                                              |
+| Test runner     | Vitest instead of `node:test`; test-writing rules are in `typescript_testing`, when loaded                                          |
 
 How Node-side TypeScript is executed (compiled with `tsc`, bundled, or run through a loader) is a project decision. Whichever is chosen must keep NodeNext resolution rules, and the type-check above must still pass on its own.
 
@@ -63,17 +63,17 @@ Long-running Node code takes a logger through an injected interface (`debug`, `i
 
 ### Baseline
 
-npm 12 (released 2026-07-08) with workspaces. It blocks dependency lifecycle scripts by default. No stable Node release bundles npm 12 yet (Node 26 LTS bundles npm 11.20), so install it explicitly in CI and locally with `npm install -g npm@12`, and require it with `engines`:
+npm 12 or later, with workspaces. It blocks dependency lifecycle scripts by default, which this section relies on. Until the Node release you use bundles that npm, install it explicitly in CI and locally with `npm install -g npm@12`, and require it with `engines`:
 
 ```json
 {
   "private": true,
   "type": "module",
-  "engines": { "node": "^22.22.2 || ^24.15.0 || >=26", "npm": ">=12" }
+  "engines": { "node": "<supported range>", "npm": ">=12" }
 }
 ```
 
-Do not depend on Corepack: it is not distributed from Node 25. Use `package-lock.json`; npm 12 dropped `npm-shrinkwrap.json` support.
+Do not depend on Corepack: newer Node releases no longer distribute it. Use `package-lock.json`; npm 12 dropped `npm-shrinkwrap.json` support.
 
 - The root `package.json` is `private` and lists workspaces. Workspace packages are first-party code: their own scripts are not blocked, and they reference each other by workspace protocol or version, never by a path outside the repository.
 - Commit `package-lock.json`. Pin every dependency to an exact version (`save-exact`), so a lockfile change is the only way a version moves.
@@ -92,14 +92,14 @@ min-release-age=7
 audit-level=high
 ```
 
-| Setting                | Effect                                                                                                                                                                                                                                                                                                                                                                                  |
-| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `save-exact`           | `npm install` writes exact versions                                                                                                                                                                                                                                                                                                                                                     |
-| `engine-strict`        | Install fails when Node or npm does not satisfy `engines`                                                                                                                                                                                                                                                                                                                               |
-| `strict-npmrc`         | An invalid or unknown `.npmrc` entry is an error, not silently ignored                                                                                                                                                                                                                                                                                                                  |
-| `strict-allow-scripts` | A skipped dependency script fails the install. Without it, npm 12 skips blocked scripts quietly and exits 0                                                                                                                                                                                                                                                                             |
-| `min-release-age`      | Days a version must have been published before npm will choose it (npm 11.10 and later; default off, so set 7). It applies when versions are chosen (install, update, `audit fix`), not to a committed lockfile. A security fix that is still too new keeps the vulnerable version, warns and exits non-zero; exempt a package deliberately with `min-release-age-exclude` and a reason |
-| `audit-level`          | Lowest severity at which `npm audit` fails; the project may choose a stricter level than `high`                                                                                                                                                                                                                                                                                         |
+| Setting                | Effect                                                                                                                                                                                                                                                                                                                                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `save-exact`           | `npm install` writes exact versions                                                                                                                                                                                                                                                                                                                                |
+| `engine-strict`        | Install fails when Node or npm does not satisfy `engines`                                                                                                                                                                                                                                                                                                          |
+| `strict-npmrc`         | An invalid or unknown `.npmrc` entry is an error, not silently ignored                                                                                                                                                                                                                                                                                             |
+| `strict-allow-scripts` | A skipped dependency script fails the install. Without it, npm 12 skips blocked scripts quietly and exits 0                                                                                                                                                                                                                                                        |
+| `min-release-age`      | Days a version must have been published before npm will choose it (default off, so set 7). It applies when versions are chosen (install, update, `audit fix`), not to a committed lockfile. A security fix that is still too new keeps the vulnerable version, warns and exits non-zero; exempt a package deliberately with `min-release-age-exclude` and a reason |
+| `audit-level`          | Lowest severity at which `npm audit` fails; the project may choose a stricter level than `high`                                                                                                                                                                                                                                                                    |
 
 Leave `allow-git` and `allow-remote` at their default, `none`; never enable them to make an install work.
 
@@ -107,7 +107,7 @@ Leave `allow-git` and `allow-remote` at their default, `none`; never enable them
 
 - npm 12 runs a dependency's `preinstall`, `install` and `postinstall` (and `prepare` for non-registry dependencies, and implicit `node-gyp` builds) only if the root `package.json` lists the package in its `allowScripts` map, a flat map of `name@version` to a boolean: `true` allows, `false` denies (deny wins), unlisted is blocked. Bundled dependencies can never be allowed. Workspace packages and the root project's own scripts are not blocked.
 - Write entries with `npm install-scripts approve <package>` (alias `npm approve-scripts`) and then `npm rebuild`; list candidates with `npm install-scripts ls` after the first install. Never hand-edit around a failing install.
-- Every `allowScripts` entry is a reviewed, justified change in a pull request, stating why the script is needed. A package that needs no script gets no entry. Electron 42 and later, Vite, Playwright, `@electron/fuses` and electron-builder had no install scripts when checked; esbuild does (`postinstall`), so it needs an entry. Re-check with `npm install-scripts ls` after each major dependency update.
+- Every `allowScripts` entry is a reviewed, justified change in a pull request, stating why the script is needed. A package that needs no script gets no entry. Many packages in this stack ship no install script; esbuild, where present, does (`postinstall`) and needs an entry. Re-check with `npm install-scripts ls` after each major dependency update.
 - Never use `--dangerously-allow-all-scripts`, `npm rebuild` on an unreviewed package, a wrapper script, or an environment variable to get around the block.
 
 ### CI
@@ -140,7 +140,7 @@ pnpm is the documented alternative, not the default. It fails an install on unre
 
 ### Sources
 
-npm 12 behaviour is taken from the [npm CLI changelog and source](https://github.com/npm/cli/blob/latest/CHANGELOG.md) (checked at v12.2.2, 2026-11-13); Node bundling and Corepack from the [Node.js release index](https://nodejs.org/dist/index.json) and docs; Dependabot's npm 12 support and `cooldown` from the [GitHub Docs](https://docs.github.com/en/code-security/dependabot); Electron Forge's hoisted-linker requirement from [electron/forge#3822](https://github.com/electron/forge/pull/3822) and electron-builder's regression from [electron-builder#9580](https://github.com/electron-userland/electron-builder/issues/9580). Not verified: the exact text npm prints for skipped scripts, whether `npm ci` ignores `min-release-age`, Corepack managing npm 12, and Dependabot's behaviour on npm workspaces. Re-check these when they matter.
+npm 12 behaviour is taken from the [npm CLI changelog and source](https://github.com/npm/cli/blob/latest/CHANGELOG.md) (checked 2026-11-13); Node bundling and Corepack from the [Node.js release index](https://nodejs.org/dist/index.json) and docs; Dependabot's npm 12 support and `cooldown` from the [GitHub Docs](https://docs.github.com/en/code-security/dependabot); Electron Forge's hoisted-linker requirement from [electron/forge#3822](https://github.com/electron/forge/pull/3822) and electron-builder's regression from [electron-builder#9580](https://github.com/electron-userland/electron-builder/issues/9580). Not verified: the exact text npm prints for skipped scripts, whether `npm ci` ignores `min-release-age`, Corepack managing npm 12, and Dependabot's behaviour on npm workspaces. Re-check these when they matter.
 
 ---
 

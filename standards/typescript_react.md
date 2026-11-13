@@ -1,7 +1,7 @@
 ---
 name: typescript_react
 version: 1.0.0
-description: React 19 renderer conventions for TypeScript projects, covering components, state, accessibility, Vite, virtualized tables and charts
+description: React renderer conventions for TypeScript projects, covering components, state, accessibility, Vite, virtualized tables and charts
 tags: [typescript, react]
 depends_on: [typescript_base]
 ---
@@ -18,7 +18,7 @@ This file assumes `typescript_base` is loaded (per `depends_on`). Where this fil
 
 | Layer         | Convention                                                                                    |
 | ------------- | --------------------------------------------------------------------------------------------- |
-| UI library    | React 19, function components and hooks                                                       |
+| UI library    | React, function components and hooks                                                          |
 | Bundler       | Vite                                                                                          |
 | Module system | ES Modules, `moduleResolution` `Bundler`: relative imports have **no file extension**         |
 | JSX           | `"jsx": "react-jsx"`; `.tsx` files; no `import React` for JSX                                 |
@@ -36,7 +36,7 @@ Renderer code imports only from the browser platform, React, its own packages, a
 - **Thin components.** A component reads state, calls handlers, and returns JSX. Parsing, formatting, sorting, filtering, validation and decisions live in pure functions in separate modules (see `javascript_node` Project Structure and `steering/engineering/core.md`: "Design for Testability"), where they are unit-tested without rendering. If a component needs more than a trivial test, move logic out of it.
 - One exported component per file, as a named export; the file is kebab-case (`transaction-row.tsx`) and the component PascalCase. No default exports, except where a tool requires one (a lazy-loaded route, a config file).
 - Props are an explicitly named `type` with `readonly` members. Never spread unknown props onto a DOM element. Children typed as `ReactNode`.
-- Pass `ref` as an ordinary prop (React 19); do not wrap new components in `forwardRef`.
+- Pass `ref` as an ordinary prop; do not wrap new components in `forwardRef`.
 - Keys are stable ids from the data, never the array index of a list that can reorder, insert or delete.
 - **Effects synchronise with external systems only** (subscriptions, timers, imperative widgets). Never use an effect to derive state from props or state: compute it during render, or in a pure function.
 - Memoise (`useMemo`, `useCallback`, `memo`) only after measuring a problem, and say what was measured in a comment.
@@ -94,7 +94,7 @@ Accessibility is a default, not a polish step.
 - The renderer is self-contained: bundle fonts, icons and scripts. No CDN links, remote fonts, remote scripts or remote images, in markup or CSS.
 - The dev server binds to loopback only. Never expose it on all interfaces or tunnel it.
 - Only variables prefixed `VITE_` reach client code, and they are public. Never put a secret in one.
-- Pin Vite exactly. Vite 8 uses Rolldown and had no install script when checked, but esbuild, where it is in the dependency tree, has a `postinstall` and needs an `allowScripts` entry under npm 12; see `typescript_node` Install scripts.
+- Pin Vite exactly. Under npm 12, any dependency with an install script (esbuild, where it is in the tree, has one) needs an `allowScripts` entry; check with `npm install-scripts ls` and see `typescript_node` Install scripts.
 - The production build fails on type errors and lint errors; type-check runs separately (`tsc --noEmit`) because Vite does not type-check.
 - Set `build.target` to the oldest engine the shell ships, not a generic "modern" default.
 
