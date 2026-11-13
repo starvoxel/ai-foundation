@@ -8,7 +8,7 @@
 
 ## Goal
 
-`standards/` has `javascript_base` and `javascript_node` but no TypeScript layers. Folio (a local-first Electron desktop budget app, decisions AD-14 to AD-20 in `starvoxel/folio`) needs them. Write layered stack-convention standards for TypeScript 7 strict, Node, React 19, Electron 45, and optionally Fluent UI React v9 and testing, so that Folio keeps only project-specific rules in its own `project-standards.md`.
+`standards/` has `javascript_base` and `javascript_node` but no TypeScript layers. Folio (a local-first Electron desktop budget app, decisions AD-14 to AD-20 in `starvoxel/folio`) needs them. Write layered stack-convention standards for TypeScript 6 strict, Node, React 19, Electron 45, and optionally Fluent UI React v9 and testing, so that Folio keeps only project-specific rules in its own `project-standards.md`.
 
 ## Scope
 

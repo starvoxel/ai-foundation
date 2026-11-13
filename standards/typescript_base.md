@@ -16,15 +16,15 @@ This file assumes `javascript_base` is loaded (per `depends_on`). Where the two 
 
 ## Language Baseline
 
-| Aspect           | Convention                                                                                                     |
-| ---------------- | -------------------------------------------------------------------------------------------------------------- |
-| Language version | TypeScript 7.x, strict mode, pinned to an exact version                                                        |
-| Module system    | ES Modules; resolution mode per runtime layer (see Import Specifiers)                                          |
-| Emit             | Type-check only (`noEmit`) unless a project standard says otherwise; the bundler or runtime emits              |
-| Syntax           | No `enum`, no `namespace`, no constructor parameter properties, no decorators unless a framework requires them |
-| Target and `lib` | ES2022 or newer (`Error` `cause` needs it), matching the oldest runtime that runs the code                     |
+| Aspect           | Convention                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Language version | TypeScript 6.x, strict mode, pinned to an exact version and kept within the range the pinned `typescript-eslint` supports |
+| Module system    | ES Modules; resolution mode per runtime layer (see Import Specifiers)                                                     |
+| Emit             | Type-check only (`noEmit`) unless a project standard says otherwise; the bundler or runtime emits                         |
+| Syntax           | No `enum`, no `namespace`, no constructor parameter properties, no decorators unless a framework requires them            |
+| Target and `lib` | ES2022 or newer (`Error` `cause` needs it), matching the oldest runtime that runs the code                                |
 
-`typescript-eslint` declared `typescript >=4.8.4 <6.1.0` when last checked (8.72.2, 2026-11-13; see `docs/research/typescript-standards-evidence.md`), which excludes TypeScript 7, and typed linting needs the TypeScript API. A project on TypeScript 7 records in its project standards how it keeps typed linting working, and re-checks before every TypeScript or `typescript-eslint` upgrade.
+Typed linting needs the TypeScript API, so check the pinned `typescript-eslint` release's supported `typescript` range before every TypeScript upgrade, and do not move to a TypeScript major it does not yet support (at `typescript-eslint` 8.72.2 the range was `>=4.8.4 <6.1.0`, which excludes 7; see `docs/research/typescript-standards-evidence.md`).
 
 ---
 
