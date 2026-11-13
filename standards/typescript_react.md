@@ -26,7 +26,7 @@ This file assumes `typescript_base` is loaded (per `depends_on`). Where this fil
 | Charts        | ECharts, behind chart models                                                                  |
 | Design system | One design-system package, hidden behind app-owned components (see Design System Containment) |
 
-Renderer code imports only from the browser platform, React, its own packages, and platform-neutral code. It never imports `node:*` or Electron. Anything it needs from the operating system comes through a host interface (see Host Access). Overrides `typescript_base` Import Specifiers: extension-free relative imports here, `.js` extensions on Node-side code.
+Renderer code imports only from the browser platform, React, its own packages, and platform-neutral code. It never imports `node:*` or Electron. Anything it needs from the operating system comes through a host interface (see Host Access). Import extensions: see `typescript_base` Import Specifiers.
 
 ---
 
@@ -74,7 +74,7 @@ Accessibility is a default, not a polish step.
 
 ### Stable Test Identifiers
 
-- Interactive elements and the main landmarks of each screen carry a `data-testid`. Tests prefer role and accessible name, and use the test id where those are ambiguous.
+- Interactive elements and the main landmarks of each screen carry a `data-testid`.
 - Values are kebab-case, describe the element's purpose (`import-confirm-button`), and are never derived from copy, styling, or a list index. Use an id from the data for repeated rows (`row-${id}`).
 - A test id is part of the app's test contract: renaming or removing one is a deliberate change and updates its tests in the same change.
 
@@ -96,7 +96,7 @@ Accessibility is a default, not a polish step.
 - Only variables prefixed `VITE_` reach client code, and they are public. Never put a secret in one.
 - Pin Vite exactly. Under npm 12, any dependency with an install script (esbuild, where it is in the tree, has one) needs an `allowScripts` entry; check with `npm install-scripts ls` and see `typescript_node` Install scripts.
 - The production build fails on type errors and lint errors; type-check runs separately (`tsc --noEmit`) because Vite does not type-check.
-- Set `build.target` to the oldest engine the shell ships, not a generic "modern" default.
+- Set `build.target` to the oldest engine the shell ships, not Vite's default.
 
 ---
 

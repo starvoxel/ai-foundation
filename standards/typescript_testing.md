@@ -8,7 +8,7 @@ depends_on: [typescript_base]
 
 # Standards: TypeScript Testing
 
-How to write and run tests in TypeScript projects, layered on `typescript_base`. It is a separate layer so any TypeScript project (Node, web, or Electron) can load it with the `testing` tag. Node-specific runner setup is in `typescript_node`; shell-specific end-to-end rules are in `typescript_electron`.
+How to write and run tests in TypeScript projects, layered on `typescript_base`. It is a separate layer so any TypeScript project (Node, web, or Electron) can load it with the `testing` tag. The Node runner baseline is named in `typescript_node`; shell-specific end-to-end rules are in `typescript_electron`.
 
 This file assumes `typescript_base` is loaded (per `depends_on`) and is otherwise self-contained. It replaces `javascript_node`'s runner (`node:test`) and test-naming shape for TypeScript projects, and owns the minimum-coverage rule below.
 
@@ -20,7 +20,7 @@ This file assumes `typescript_base` is loaded (per `depends_on`) and is otherwis
 | -------------------------- | ---------- | ---------------------------------------------------------------------- |
 | Unit and integration tests | Vitest     | Import `describe`, `it`, `expect` from `vitest`; do not enable globals |
 | Property-based tests       | fast-check | Run inside Vitest                                                      |
-| End-to-end tests           | Playwright | Drives a real browser or the packaged app                              |
+| End-to-end tests           | Playwright | Drives a real browser or the running app                               |
 
 Test code is TypeScript under the same compiler options, lint rules and formatting as production code (see `typescript_base`), with no exemptions.
 

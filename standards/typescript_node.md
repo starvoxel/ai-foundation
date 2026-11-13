@@ -114,7 +114,7 @@ Leave `allow-git` and `allow-remote` at their default, `none`; never enable them
 
 - CI installs with `npm ci` (from the lockfile only, never `npm install`) and then runs `npm audit signatures`. A failure of either fails the build.
 - CI installs npm 12 explicitly (`npm install -g npm@12`) before `npm ci`, and prints `node --version` and `npm --version`.
-- Dependency licences are checked in CI: every runtime dependency must be MIT or an equivalent permissive licence, and no component may be paid. The project chooses the tool and keeps the allowlist in the repository; a dependency outside the allowlist is a decision for the human.
+- Dependency licences are checked in CI: every runtime dependency must be on the project's licence allowlist (for example MIT or an equivalent permissive licence), and a project that excludes paid components enforces that here too. The project chooses the tool and keeps the allowlist in the repository; a dependency outside the allowlist is a decision for the human.
 
 ### Dependabot
 
@@ -153,5 +153,5 @@ Combine with `typescript_base` and `javascript_node`.
 - [ ] CI uses `npm ci` and `npm audit signatures`, and never `npm install`
 - [ ] Every third-party GitHub Action is pinned to a full commit SHA
 - [ ] Dependabot cooldown equals `min-release-age`
-- [ ] Dependency licences checked in CI; no paid component
+- [ ] Dependency licences checked in CI against the project's allowlist
 - [ ] Domain code receives its logger, clock and file access by injection and imports nothing from `node:*`

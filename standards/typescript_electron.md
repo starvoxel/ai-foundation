@@ -19,7 +19,7 @@ Where this file disagrees with a standard it depends on, this file wins. Rules m
 | Layer            | Convention                                                                                                                                                                                                      |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Shell            | Electron, pinned to an exact version                                                                                                                                                                            |
-| Platforms        | Windows and macOS first; Linux later (see Linux)                                                                                                                                                                |
+| Platforms        | Whichever operating systems the project ships, each with its own build, tests and baselines (see Packaging and Linux)                                                                                           |
 | Main and preload | TypeScript under `typescript_node` (NodeNext, `.js` specifiers), one `tsconfig` per process                                                                                                                     |
 | Renderer         | `typescript_react` (Bundler resolution, no Node, no Electron imports)                                                                                                                                           |
 | Packaging        | `@electron/packager` with `@electron/fuses`, and `electron-builder` for installers; another tool must meet every rule below                                                                                     |
@@ -75,7 +75,7 @@ default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: bl
 font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 ```
 
-- If the design system or chart library injects `<style>` elements at runtime, give them a per-load nonce rather than adding `'unsafe-inline'` to `style-src`. Fluent UI's Griffel supports this through `createDOMRenderer` with `styleElementAttributes` and `RendererProvider` (`FluentProvider` has no nonce prop). ECharts' SVG renderer sets inline `style` attributes on text, which a strict `style-src` may block (`style-src-attr`); this is an inference, not a measurement, so test it on the pinned versions. A per-load nonce also replaces
+- A per-load nonce replaces `'unsafe-inline'` wherever inline content cannot be avoided. Never use `'unsafe-inline'` for scripts or `'unsafe-eval'`. If a design system or chart library injects `<style>` elements at runtime, give them the nonce rather than loosening `style-src` (for Fluent UI see `typescript_react_fluentui` Stack). ECharts' SVG renderer sets inline `style` attributes on text, which a strict `style-src` may block (`style-src-attr`); this is an inference, not a measurement, so test it on the pinned versions.
 - A feature that must make a request (a server-backed store, an online lookup) adds exactly that origin to `connect-src`, is opt-in by the user, and is added to the capture allowlist (see Privacy Capture).
 
 ---
@@ -97,14 +97,14 @@ Apply these from the first scaffold, in the main process, before `app` is ready 
 
 - **No crash reporter.** Never call `crashReporter.start`.
 - **No updater, no update check** by default (see Packaging). The only mechanism that fits a no-leak rule is an opt-in, user-triggered check that fetches a static version file, and adding it is a decision for the human.
-- **No proxy discovery:** `app.commandLine.appendSwitch('no-proxy-server')` before the app is ready.
+- **No proxy discovery:** `app.commandLine.appendSwitch('no-proxy-server')` before the app is ready. Unverified against the pinned Electron's docs; confirm with the capture.
 - **Spellcheck off and its language list emptied:** disable spellcheck in `webPreferences` and call `session.setSpellCheckerLanguages([])`. Chromium downloads dictionaries from a Google CDN, and that request also bypasses the deny-all request filter. Electron's docs say an empty list falls back to `en-US`, and name `session.setSpellCheckerDictionaryDownloadURL` as the documented control. In one project's measurement the empty list was the only change that stopped the request, so the capture (see Privacy Capture) is the arbiter: re-check on every Electron update, and decide with the human whether to also set the download URL.
-- **Remove the Google API environment variables** (`GOOGLE_API_KEY`, `GOOGLE_DEFAULT_CLIENT_ID`, `GOOGLE_DEFAULT_CLIENT_SECRET`, and any `GOOGLE_CLIENT_ID_*` or `GOOGLE_CLIENT_SECRET_*`) from the process environment before use, so Chromium never receives Google service credentials.
+- **Remove the Google API environment variables** (`GOOGLE_API_KEY`, `GOOGLE_DEFAULT_CLIENT_ID`, `GOOGLE_DEFAULT_CLIENT_SECRET`, and any `GOOGLE_CLIENT_ID_*` or `GOOGLE_CLIENT_SECRET_*`) from the process environment before use, so Chromium is not given Google service credentials through the environment. Whether Electron's Chromium build honours these variables is unverified; the capture is the check.
 - No telemetry, analytics or error-reporting SDK in any process.
 
 ### Known Chromium Notice
 
-Before host-name resolution (even for an IP literal), Chromium makes an IPv6 reachability check: a UDP `connect()` to a public Google DNS address (`2001:4860:4860::8888`) on port 443. It sends no packet. No switch to disable it was found, though Chromium's source has override features, so treat it as unavoidable until tested. It is absent while the app makes no request. The capture allowlist names this one notice and nothing else; when a feature starts making requests, expect it to appear and allowlist it explicitly.
+Chromium makes an IPv6 reachability check: a UDP `connect()` to a public Google DNS address (`2001:4860:4860::8888`) on port 443. It is expected to send no packet and to appear only once the app makes a network request; both are unverified, so let the capture decide. No switch to disable it was found, though Chromium's source has override features, so treat it as unavoidable until tested. The capture allowlist names this one notice and nothing else; when a feature starts making requests, expect it to appear and allowlist it explicitly.
 
 ---
 
@@ -112,15 +112,15 @@ Before host-name resolution (even for an IP literal), Chromium makes an IPv6 rea
 
 Flip fuses at packaging time with `@electron/fuses`. A release build sets:
 
-| Fuse                                    | Release value |
-| --------------------------------------- | ------------- |
-| `RunAsNode`                             | off           |
-| `EnableNodeOptionsEnvironmentVariable`  | off           |
-| `EnableNodeCliInspectArguments`         | off           |
-| `OnlyLoadAppFromAsar`                   | on            |
-| `EnableEmbeddedAsarIntegrityValidation` | on            |
-| `EnableCookieEncryption`                | on            |
-| `GrantFileProtocolExtraPrivileges`      | off           |
+| Fuse                                    | Release value                                                             |
+| --------------------------------------- | ------------------------------------------------------------------------- |
+| `RunAsNode`                             | off                                                                       |
+| `EnableNodeOptionsEnvironmentVariable`  | off                                                                       |
+| `EnableNodeCliInspectArguments`         | off                                                                       |
+| `OnlyLoadAppFromAsar`                   | on                                                                        |
+| `EnableEmbeddedAsarIntegrityValidation` | on                                                                        |
+| `EnableCookieEncryption`                | on (one-way: data written with it on cannot be read after turning it off) |
+| `GrantFileProtocolExtraPrivileges`      | off                                                                       |
 
 - CI reads the fuses back from the **packaged binary** (`@electron/fuses read`) and fails on any mismatch with this table.
 - ASAR integrity is supported on **Windows and macOS only**, and is marked experimental. It also needs the app packed with `@electron/asar` and `OnlyLoadAppFromAsar` on, or it can be bypassed. On Linux the fuse gives no protection; do not claim it does.
@@ -142,7 +142,7 @@ The shipped binary contains no automation server and no network listener.
 
 If `typescript_testing` is loaded, its rules apply. Specific to Electron:
 
-- Drive the **packaged release binary**, not a development build, with the guard variable set. Playwright's `electron.launch` passes `--inspect=0` and `--remote-debugging-port=0`, so it does not work with the inspect fuses off, and no built-in `--remote-debugging-pipe` support was found. The project therefore supplies its own launch: the test process starts the binary with `--remote-debugging-pipe` and relays Chromium's debugging pipe, so no network port exists. This harness was measured in one project but is unverified against Playwright's documentation; check it against the pinned versions.
+- Drive the **packaged release binary**, not a development build, with the guard variable set. Playwright's `electron.launch` passes `--inspect=0` and `--remote-debugging-port=0`, so it is expected not to work with the inspect fuses off (unverified), and no built-in `--remote-debugging-pipe` support was found. The project therefore supplies its own launch: the test process starts the binary with `--remote-debugging-pipe` and relays Chromium's debugging pipe, so no network port exists. This harness was measured in one project but is unverified against Playwright's documentation; check it against the pinned versions.
 - Behaviour that depends on real focus (tab order, dialog focus) is checked with real key events where the platform allows; synthetic events from a driver do not move focus the way a user does.
 - Run the suite on every supported operating system, with screenshot baselines per operating system (see `typescript_testing`).
 
@@ -163,18 +163,18 @@ Nothing leaves the machine unless the user opts in, and an Electron update can a
 
 ## Packaging
 
-- Build installers for Windows (NSIS) and macOS (disk image). Every release binary has the fuses set and the guard in place, and passes the fuse read-back.
+- Build an installer per shipped operating system, with the project's chosen packager. Every release binary has the fuses set and the guard in place, and passes the fuse read-back.
 - **No auto-update** by default (see Privacy Switches). Updates are installed by hand.
-- Code signing and notarisation need a paid certificate and developer account, which the no-paid-components rule excludes by default. Whether builds are signed is a project decision recorded in its standards; unsigned builds ship with first-run instructions (the Windows SmartScreen publisher warning, macOS Gatekeeper's right-click Open).
+- Code signing and notarisation need certificates and developer accounts. Whether builds are signed is a project decision recorded in its standards; unsigned builds ship with first-run instructions for the operating system's unknown-publisher warning.
 - Every Electron update means a new build and a full test pass for each operating system.
 
 ### Linux
 
 When Linux is added:
 
-- Ship a **`.deb`** first, built with electron-builder's default install script, which chooses the sandbox mode and installs an AppArmor profile on Ubuntu 24.04 and later.
+- Ship a **`.deb`** first, built with electron-builder's default install script, which chooses the sandbox mode and installs an AppArmor profile when the host's AppArmor parser accepts it (relevant on Ubuntu 24.04 and later).
 - A CI job installs the package on Ubuntu 24.04 and launches it **without `--no-sandbox`**. Never ship or document `--no-sandbox` as a fix.
-- An AppImage is secondary only: it cannot carry the profile and silently runs without the Chromium sandbox on those systems.
+- An AppImage is secondary only: it is expected to be unable to carry the profile and so run without the Chromium sandbox on those systems (unverified; test it before shipping one).
 - Test X11 and Wayland, and real GPUs; CI runners have neither.
 
 ---
