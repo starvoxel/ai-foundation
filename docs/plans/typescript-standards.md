@@ -13,7 +13,7 @@
 ## Scope
 
 - In: new files under `standards/`; the `typescript_base (future)` pointer in `javascript_base`; its version bump and the bump of any other changed standard; the `standards/README.md` naming example only if it becomes wrong.
-- Out: Folio's own kinds of test, folder layout, package names and product behaviour (they stay in Folio's `project-standards.md`); a steering procedure for the privacy capture unless the human chooses one (open question 2); a Folio PR; changes to `javascript_node` (its rules are overridden from the TypeScript layers, not edited).
+- Out: Folio's own kinds of test, folder layout, package names and product behaviour (they stay in Folio's `project-standards.md`); a separate steering procedure for the privacy capture (decision 2); a Folio PR; changes to `javascript_node` (its rules are overridden from the TypeScript layers, not edited).
 
 ## Approach
 
