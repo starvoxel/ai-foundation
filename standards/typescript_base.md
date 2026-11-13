@@ -24,7 +24,7 @@ This file assumes `javascript_base` is loaded (per `depends_on`). Where the two 
 | Syntax           | No `enum`, no `namespace`, no constructor parameter properties, no decorators unless a framework requires them |
 | Target and `lib` | ES2022 or newer (`Error` `cause` needs it), matching the oldest runtime that runs the code                     |
 
-Before upgrading the TypeScript major version, confirm the pinned `typescript-eslint` release supports it.
+`typescript-eslint` declared `typescript >=4.8.4 <6.1.0` when last checked (8.72.2, 2026-11-13; see `docs/research/typescript-standards-evidence.md`), which excludes TypeScript 7, and typed linting needs the TypeScript API. A project on TypeScript 7 records in its project standards how it keeps typed linting working, and re-checks before every TypeScript or `typescript-eslint` upgrade.
 
 ---
 

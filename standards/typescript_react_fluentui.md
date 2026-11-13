@@ -18,6 +18,8 @@ Loaded only by projects tagged `fluentui`. Holds only the rules that apply when 
 - Icons come from `@fluentui/react-icons`.
 - Pin Fluent and its companion packages to exact versions (see `typescript_node` Package Management and Supply Chain). Verify every component and token name used against the pinned version before relying on it; names in examples and older documentation drift between releases.
 - Import from the package entry (`@fluentui/react-components`), not from deep or internal paths.
+- Griffel injects styles at runtime. Under a strict CSP, create the renderer with `createDOMRenderer({ styleElementAttributes: { nonce } })` and provide it through `RendererProvider`; `FluentProvider` has no nonce option.
+- Treat Nav components as not production-ready until their README says otherwise.
 
 ---
 

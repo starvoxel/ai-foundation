@@ -25,7 +25,7 @@ Where this file disagrees with a standard it depends on, this file wins. Rules m
 | Packaging        | `@electron/packager` with `@electron/fuses`, and `electron-builder` for installers; another tool must meet every rule below                           |
 | Install          | Electron 42 and later has no install script: the binary downloads on first run, or with `npx install-electron --no`. It needs no `allowScripts` entry |
 
-Electron ships a new major roughly every two months, tracking Chromium, and Chromium security fixes become the project's job once it bundles Chromium. Plan monthly updates (see Updates).
+Electron ships a new major every eight weeks or so, tracking Chromium, and only the latest three stable majors get security fixes (checked at 45.3.1). Chromium security fixes become the project's job once it bundles Chromium. Plan monthly updates (see Updates).
 
 ---
 
@@ -75,7 +75,7 @@ default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: bl
 font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 ```
 
-- If the design system or chart library injects `<style>` elements at runtime, give them a per-load nonce rather than adding `'unsafe-inline'` to `style-src`; verify this against the pinned versions. A per-load nonce also replaces `'unsafe-inline'` wherever inline content cannot be avoided. Never use `'unsafe-inline'` for scripts or `'unsafe-eval'`.
+- If the design system or chart library injects `<style>` elements at runtime, give them a per-load nonce rather than adding `'unsafe-inline'` to `style-src`. Fluent UI's Griffel supports this through `createDOMRenderer` with `styleElementAttributes` and `RendererProvider` (`FluentProvider` has no nonce prop). ECharts' SVG renderer sets inline `style` attributes on text, which a strict `style-src` may block (`style-src-attr`); this is an inference, not a measurement, so test it on the pinned versions. A per-load nonce also replaces
 - A feature that must make a request (a server-backed store, an online lookup) adds exactly that origin to `connect-src`, is opt-in by the user, and is added to the capture allowlist (see Privacy Capture).
 
 ---
@@ -98,13 +98,13 @@ Apply these from the first scaffold, in the main process, before `app` is ready 
 - **No crash reporter.** Never call `crashReporter.start`.
 - **No updater, no update check** by default (see Packaging). The only mechanism that fits a no-leak rule is an opt-in, user-triggered check that fetches a static version file, and adding it is a decision for the human.
 - **No proxy discovery:** `app.commandLine.appendSwitch('no-proxy-server')` before the app is ready.
-- **Spellcheck off and its language list emptied:** disable spellcheck in `webPreferences` and call `session.setSpellCheckerLanguages([])`. The language list is what stops Chromium's dictionary download from a Google CDN (measured); that request also bypasses the deny-all request filter. Re-check on every Electron update.
-- **Remove `GOOGLE_API_KEY` and its sibling `GOOGLE_*` variables** from the process environment before use, so Chromium never receives Google service credentials. The project keeps the exact list it removes, checked against the pinned Electron.
+- **Spellcheck off and its language list emptied:** disable spellcheck in `webPreferences` and call `session.setSpellCheckerLanguages([])`. Chromium downloads dictionaries from a Google CDN, and that request also bypasses the deny-all request filter. Electron's docs say an empty list falls back to `en-US`, and name `session.setSpellCheckerDictionaryDownloadURL` as the documented control. In one project's measurement the empty list was the only change that stopped the request, so the capture (see Privacy Capture) is the arbiter: re-check on every Electron update, and decide with the human whether to also set the download URL.
+- **Remove the Google API environment variables** (`GOOGLE_API_KEY`, `GOOGLE_DEFAULT_CLIENT_ID`, `GOOGLE_DEFAULT_CLIENT_SECRET`, and any `GOOGLE_CLIENT_ID_*` or `GOOGLE_CLIENT_SECRET_*`) from the process environment before use, so Chromium never receives Google service credentials.
 - No telemetry, analytics or error-reporting SDK in any process.
 
 ### Known Chromium Notice
 
-Before every host-name resolution (even for an IP literal), Chromium makes an IPv6 reachability check: a UDP `connect()` to a public DNS address on port 443. It sends no packet and cannot be disabled. It is absent while the app makes no request. The capture allowlist names this one notice and nothing else; when a feature starts making requests, expect it to appear and allowlist it explicitly.
+Before host-name resolution (even for an IP literal), Chromium makes an IPv6 reachability check: a UDP `connect()` to a public Google DNS address (`2001:4860:4860::8888`) on port 443. It sends no packet. No switch to disable it was found, though Chromium's source has override features, so treat it as unavoidable until tested. It is absent while the app makes no request. The capture allowlist names this one notice and nothing else; when a feature starts making requests, expect it to appear and allowlist it explicitly.
 
 ---
 
@@ -123,7 +123,7 @@ Flip fuses at packaging time with `@electron/fuses`. A release build sets:
 | `GrantFileProtocolExtraPrivileges`      | off           |
 
 - CI reads the fuses back from the **packaged binary** (`@electron/fuses read`) and fails on any mismatch with this table.
-- Verify ASAR integrity on each operating system you ship; if it cannot be verified on one, record that in the project's standards.
+- ASAR integrity is supported on **Windows and macOS only**, and is marked experimental. It also needs the app packed with `@electron/asar` and `OnlyLoadAppFromAsar` on, or it can be bypassed. On Linux the fuse gives no protection; do not claim it does.
 - A development build may relax a fuse only through a separate build target, never a runtime switch in the release binary.
 
 ---
@@ -142,7 +142,7 @@ The shipped binary contains no automation server and no network listener.
 
 If `typescript_testing` is loaded, its rules apply. Specific to Electron:
 
-- Playwright drives the **packaged release binary**, not a development build, with the guard variable set. It attaches through Chromium's **debugging pipe** (`--remote-debugging-pipe`), relayed by the test process, so no network port exists. This is a custom launch, not Playwright's `electron.launch`, which needs the Node inspect flag that the fuses disable.
+- Drive the **packaged release binary**, not a development build, with the guard variable set. Playwright's `electron.launch` passes `--inspect=0` and `--remote-debugging-port=0`, so it does not work with the inspect fuses off, and no built-in `--remote-debugging-pipe` support was found. The project therefore supplies its own launch: the test process starts the binary with `--remote-debugging-pipe` and relays Chromium's debugging pipe, so no network port exists. This harness was measured in one project but is unverified against Playwright's documentation; check it against the pinned versions.
 - Behaviour that depends on real focus (tab order, dialog focus) is checked with real key events where the platform allows; synthetic events from a driver do not move focus the way a user does.
 - Run the suite on every supported operating system, with screenshot baselines per operating system (see `typescript_testing`).
 

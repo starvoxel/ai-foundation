@@ -94,7 +94,7 @@ Accessibility is a default, not a polish step.
 - The renderer is self-contained: bundle fonts, icons and scripts. No CDN links, remote fonts, remote scripts or remote images, in markup or CSS.
 - The dev server binds to loopback only. Never expose it on all interfaces or tunnel it.
 - Only variables prefixed `VITE_` reach client code, and they are public. Never put a secret in one.
-- Pin Vite exactly. Under npm 12, esbuild (a Vite dependency) needs an `allowScripts` entry; check the pinned Vite version for others, and see `typescript_node` Install scripts for the rule on adding one.
+- Pin Vite exactly. Vite 8 uses Rolldown and had no install script when checked, but esbuild, where it is in the dependency tree, has a `postinstall` and needs an `allowScripts` entry under npm 12; see `typescript_node` Install scripts.
 - The production build fails on type errors and lint errors; type-check runs separately (`tsc --noEmit`) because Vite does not type-check.
 - Set `build.target` to the oldest engine the shell ships, not a generic "modern" default.
 
