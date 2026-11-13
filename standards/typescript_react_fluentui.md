@@ -16,16 +16,16 @@ Loaded only by projects tagged `fluentui`. Holds only the rules that apply when 
 
 - `@fluentui/react-components` v9 only. Never mix in v8 (`@fluentui/react`), and never import preview packages (`*-preview`) without a decision from the human: their API can change in a minor release.
 - Icons come from `@fluentui/react-icons`.
-- Pin Fluent and its companion packages to exact versions (see `typescript_node` Baseline). Verify every component and token name used against the pinned version before relying on it; names in examples and older documentation drift between releases.
+- Pin Fluent and its companion packages to exact versions (see `typescript_node` Package Management and Supply Chain). Verify every component and token name used against the pinned version before relying on it; names in examples and older documentation drift between releases.
 - Import from the package entry (`@fluentui/react-components`), not from deep or internal paths.
 
 ---
 
 ## Containment
 
-This is `typescript_react` Design System Containment, applied to Fluent.
+`typescript_react` Design System Containment applies, with Fluent as the design-system package.
 
-- `@fluentui/*` is imported only inside the one designated design-system folder, behind app-owned components (shell, dialogs, banners, icons, tables, form controls). Screens import those components and never Fluent types, tokens, hooks or icons. Enforce with dependency-cruiser and a failing CI check.
+- `@fluentui/*` (including `@fluentui/react-icons`) is the design-system package of `typescript_react` Design System Containment. Screens never import Fluent types, tokens, hooks or icons.
 - App-owned components expose their own prop types, not Fluent's, so a Fluent upgrade does not change screen code.
 - Swapping or upgrading Fluent changes that folder only.
 
@@ -35,7 +35,7 @@ This is `typescript_react` Design System Containment, applied to Fluent.
 
 - One theme module owns the theme. It builds the light and dark themes from a brand ramp (`createLightTheme`, `createDarkTheme`), follows the system theme unless the user chose one, and supplies the app tokens that Fluent does not have.
 - Wrap the app in a single `FluentProvider` at the root, with the theme from that module. Never nest providers to restyle a subtree.
-- Use `tokens.*` for colour, spacing, type, radius, stroke and shadow. Never hard-code a value, never copy a token's resolved value, and never use a token from another design system.
+- Use `tokens.*` for every value that `typescript_react` Design Tokens lists. Never copy a token's resolved value.
 - Style with `makeStyles` and `mergeClasses` using tokens. No inline style literals and no `!important`.
 - Charts and other non-Fluent rendering read colours through one helper that resolves the active theme's tokens, and redraw when the theme changes.
 - Keep Fluent's font tokens (the system font stack); do not import a web font (see `typescript_react` Vite).

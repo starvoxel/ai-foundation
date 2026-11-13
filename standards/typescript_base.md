@@ -16,12 +16,13 @@ This file assumes `javascript_base` is loaded (per `depends_on`). Where the two 
 
 ## Language Baseline
 
-| Aspect           | Convention                                                                                        |
-| ---------------- | ------------------------------------------------------------------------------------------------- |
-| Language version | TypeScript 7.x, strict mode, pinned to an exact version                                           |
-| Module system    | ES Modules; resolution mode per runtime layer (see Import Specifiers)                             |
-| Emit             | Type-check only (`noEmit`) unless a project standard says otherwise; the bundler or runtime emits |
-| Syntax           | Erasable-friendly: no `enum`, no `namespace`, no decorators unless a framework requires them      |
+| Aspect           | Convention                                                                                                     |
+| ---------------- | -------------------------------------------------------------------------------------------------------------- |
+| Language version | TypeScript 7.x, strict mode, pinned to an exact version                                                        |
+| Module system    | ES Modules; resolution mode per runtime layer (see Import Specifiers)                                          |
+| Emit             | Type-check only (`noEmit`) unless a project standard says otherwise; the bundler or runtime emits              |
+| Syntax           | No `enum`, no `namespace`, no constructor parameter properties, no decorators unless a framework requires them |
+| Target and `lib` | ES2022 or newer (`Error` `cause` needs it), matching the oldest runtime that runs the code                     |
 
 Before upgrading the TypeScript major version, confirm the pinned `typescript-eslint` release supports it.
 
@@ -156,11 +157,11 @@ export const err = <E>(error: E): Result<never, E> => ({ ok: false, error });
 export class StoreReadError extends Error {
   override readonly name = 'StoreReadError';
 
-  constructor(
-    readonly path: string,
-    options: { cause: unknown },
-  ) {
+  readonly path: string;
+
+  constructor(path: string, options: { cause: unknown }) {
     super(`Failed to read store at ${path}`, options);
+    this.path = path;
   }
 }
 ```
@@ -176,7 +177,7 @@ Every value that crosses a trust boundary is `unknown` until a runtime schema ha
 - Use one schema library across the project: **zod** (or an equivalent that infers static types from the schema). Derive the TypeScript type from the schema (`z.infer`) so the two cannot drift, and never hand-write a parallel type.
 - Validate at the edge and pass the typed result inward. Core logic never re-validates and never receives `unknown`.
 - A failed validation is an expected failure: return a `Result` carrying the schema issues (not the raw input) rather than throwing.
-- `JSON.parse` returns `unknown` in this codebase; never assign its output to a typed variable without a schema.
+- `JSON.parse` returns `any` in the TypeScript library. Treat its result as `unknown`: pass it straight into a schema and never assign it to a typed variable. The `no-unsafe-*` rules in the lint config (see Tooling) catch a slip.
 - Schemas for persisted data are versioned with the data, and every format change has a migration step.
 
 ### Archives
@@ -201,14 +202,14 @@ Code that holds the domain (rules, models, parsing, persistence format) imports 
 
 ## Override Points of `javascript_base`
 
-| `javascript_base` rule                                | This standard                                                          |
-| ----------------------------------------------------- | ---------------------------------------------------------------------- |
-| Language Baseline: Type system row                    | TypeScript strict, per Compiler Options above                          |
-| Comments and Documentation: JSDoc                     | TSDoc, with no types repeated (see below)                              |
-| File Header Block (`.js`)                             | The same block on every `.ts` and `.tsx` file, with the real file name |
-| Modules: import extensions (set in `javascript_node`) | Per Import Specifiers below                                            |
-| Error Handling                                        | Adds expected failures as `Result` values                              |
-| Linting and Formatting Tooling                        | typescript-eslint strict type-checked config; Prettier unchanged       |
+| `javascript_base` rule                                 | This standard                                                          |
+| ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| Language Baseline: Type system row                     | TypeScript strict, per Compiler Options above                          |
+| Comments and Documentation: JSDoc                      | TSDoc, with no types repeated (see below)                              |
+| File Header Block (`.js`)                              | The same block on every `.ts` and `.tsx` file, with the real file name |
+| `javascript_node` File Extensions in Import Specifiers | Per Import Specifiers below                                            |
+| Error Handling                                         | Adds expected failures as `Result` values                              |
+| Linting and Formatting Tooling                         | typescript-eslint strict type-checked config; Prettier unchanged       |
 
 ### TSDoc
 
@@ -220,7 +221,7 @@ Use TSDoc (`/** ... */`) on every exported function, class, type and constant. T
  * @param bundleName - Name of the bundle (matches the filename without extension)
  * @param repoRoot - Absolute path to the repository root
  * @returns The resolved bundle, or a failure naming why it could not be resolved
- * @throws {Error} If the repository root is not absolute (a caller bug)
+ * @throws If the repository root is not absolute (a caller bug)
  */
 export function resolveBundle(
   bundleName: string,

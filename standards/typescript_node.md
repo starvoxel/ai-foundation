@@ -16,13 +16,13 @@ This file assumes `typescript_base` and `javascript_node` are loaded (per `depen
 
 ## Stack Baseline
 
-| Layer           | Convention                                                                                                  |
-| --------------- | ----------------------------------------------------------------------------------------------------------- |
-| Runtime         | A Node.js version npm 12 supports (`^22.22.2 \|\| ^24.15.0 \|\| >=26`), pinned in `engines` and in CI       |
-| Module system   | ES Modules: `"type": "module"` in `package.json`                                                            |
-| Package manager | npm 12 with workspaces (see Package Management). pnpm is the documented alternative                         |
-| Type-check      | `tsc --noEmit`, with `module` and `moduleResolution` set to `NodeNext`                                      |
-| Test runner     | Vitest (overrides `javascript_node`'s `node:test`); the rules for writing tests are in `typescript_testing` |
+| Layer           | Convention                                                                                                                                                                           |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Runtime         | Node.js within the range npm 12 supports (`^22.22.2 \|\| ^24.15.0 \|\| >=26`), pinned in `engines` and CI. On the 22 line, `javascript_node`'s stricter 22.23.4+ floor still applies |
+| Module system   | ES Modules: `"type": "module"` in `package.json`                                                                                                                                     |
+| Package manager | npm 12 with workspaces (see Package Management). pnpm is the documented alternative                                                                                                  |
+| Type-check      | `tsc --noEmit`, with `module` and `moduleResolution` set to `NodeNext`                                                                                                               |
+| Test runner     | Vitest instead of `node:test`; test-writing rules are in `typescript_testing`, when loaded                                                                                           |
 
 How Node-side TypeScript is executed (compiled with `tsc`, bundled, or run through a loader) is a project decision. Whichever is chosen must keep NodeNext resolution rules, and the type-check above must still pass on its own.
 
@@ -30,13 +30,13 @@ How Node-side TypeScript is executed (compiled with `tsc`, bundled, or run throu
 
 ## Overrides of `javascript_node`
 
-| `javascript_node` rule                           | This standard                                                                                               |
-| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| Stack Baseline: runtime, testing                 | Per Stack Baseline above                                                                                    |
-| File Extensions in Import Specifiers             | Keep `.js` in relative specifiers although the source is `.ts` (see below)                                  |
-| Project Structure: `{module}.js`, `.test.js`     | `{module}.ts` and a colocated `{module}.test.ts`; tests are excluded from build output and packages         |
-| Testing Requirements: `node:test`, `node:assert` | Vitest, with imports from `vitest`; the minimum-coverage rule (happy path, each failure, empty input) stays |
-| Logging Requirements                             | Adds the injected-logger rule below                                                                         |
+| `javascript_node` rule                           | This standard                                                                                                                   |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Stack Baseline: runtime, testing                 | Per Stack Baseline above                                                                                                        |
+| File Extensions in Import Specifiers             | Keep `.js` in relative specifiers although the source is `.ts` (see below)                                                      |
+| Project Structure: `{module}.js`, `.test.js`     | `{module}.ts` and a colocated `{module}.test.ts`; tests are excluded from build output and packages                             |
+| Testing Requirements: `node:test`, `node:assert` | Vitest, with imports from `vitest`; the minimum-coverage rule moves to `typescript_testing`, which a project using Vitest loads |
+| Logging Requirements                             | Adds the injected-logger rule below                                                                                             |
 
 ### Import Specifiers
 

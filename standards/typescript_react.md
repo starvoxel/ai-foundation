@@ -108,7 +108,6 @@ Use TanStack Virtual for any list or table that can exceed a few hundred rows. R
 - Set `aria-rowcount` on the table and `aria-rowindex` on each rendered row, `aria-selected` on rows, and `aria-sort` on sorted column headers. Use the `table` or `grid` roles consistently with the keyboard model you implement; a full ARIA grid is not required, but never claim a role you do not support.
 - Give virtualized rows a stable key (the row id) and either a fixed row height or a measured one, never a guess that differs from what renders.
 - Sorting, filtering and selection happen on the data (pure functions), not on the rendered DOM.
-- Editing opens a side panel or dialog, not in-cell editors, unless the project standards say otherwise.
 
 ---
 

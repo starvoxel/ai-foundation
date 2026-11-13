@@ -10,7 +10,7 @@ depends_on: [typescript_base]
 
 How to write and run tests in TypeScript projects, layered on `typescript_base`. It is a separate layer so any TypeScript project (Node, web, or Electron) can load it with the `testing` tag. Node-specific runner setup is in `typescript_node`; shell-specific end-to-end rules are in `typescript_electron`.
 
-This file assumes `typescript_base` is loaded (per `depends_on`). It overrides the test-naming shape and runner in `javascript_node` (Testing Requirements) for TypeScript projects; the minimum-coverage rule there still applies.
+This file assumes `typescript_base` is loaded (per `depends_on`) and is otherwise self-contained. It replaces `javascript_node`'s runner (`node:test`) and test-naming shape for TypeScript projects, and owns the minimum-coverage rule below.
 
 ---
 
@@ -22,7 +22,7 @@ This file assumes `typescript_base` is loaded (per `depends_on`). It overrides t
 | Property-based tests       | fast-check | Run inside Vitest                                                      |
 | End-to-end tests           | Playwright | Drives a real browser or the packaged app                              |
 
-Test code is TypeScript under the same compiler options, lint rules and formatting as production code (see `typescript_base`). `any`, non-null assertions and unchecked casts are as forbidden in tests as elsewhere; `// @ts-expect-error` with a reason is allowed for tests of the type system itself.
+Test code is TypeScript under the same compiler options, lint rules and formatting as production code (see `typescript_base`), with no exemptions.
 
 ---
 
@@ -30,13 +30,13 @@ Test code is TypeScript under the same compiler options, lint rules and formatti
 
 A test's kind is decided by the most expensive resource it touches, not by how much code it covers.
 
-| Kind        | Rule                                                                                                                                                                            |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit        | One process, deterministic. No real file system, network, child process or browser engine; time comes from the injected `Clock`. A simulated DOM is allowed for component tests |
-| Integration | One machine: real temporary folders, real adapters, a real browser engine for the renderer, loopback                                                                            |
-| End-to-end  | The running app on a real window or browser, driven through its user interface                                                                                                  |
+The project's standards name its kinds and folders. The common three:
 
-- **Unit tests are colocated** next to the code as `{module}.test.ts`, consistent with `javascript_node`. Every other kind lives in its own folder, which the project's standards name.
+- **Unit:** one process, deterministic. No real file system, network, child process or browser engine; time comes from the injected `Clock`. A simulated DOM is allowed for component tests.
+- **Integration:** one machine. Real temporary folders, real adapters, a real browser engine, loopback.
+- **End-to-end:** the running app on a real window or browser, driven through its user interface.
+
+- **Unit tests are colocated** next to the code as `{module}.test.ts`. Every other kind lives in its own folder.
 - Test files never reach build output or packages, and production code never imports them.
 - Techniques are not kinds: property, snapshot and fixture-compatibility tests go in whichever kind their resources put them.
 - Each kind is runnable on its own, with its own script.
@@ -63,7 +63,7 @@ describe('parseTag', () => {
 
 - One behaviour per `it`. Arrange, act, assert, in that order, with no logic (loops, conditionals) in the test body.
 - Test through the public API. Do not test private fields, or assert on call counts of internal helpers.
-- Coverage minimum (from `javascript_node`): every exported function has a happy-path test, a test for each documented failure, and an empty or missing-input test where it accepts strings, arrays or objects.
+- Coverage minimum: every exported function has a happy-path test, a test for each documented failure, and an empty or missing-input test where it accepts strings, arrays or objects.
 - A test for a `Result` asserts both the `ok` flag and the value or error.
 
 ---
@@ -90,7 +90,7 @@ Use fast-check for invariants, where example tests would only sample the space. 
 
 ## End-to-End Tests
 
-- Locate controls by role and accessible name first, `data-testid` second; never by CSS class or visible-text position. See `typescript_react` Accessibility.
+- Locate controls by role and accessible name; use `data-testid` only where those are ambiguous. Never locate by CSS class or text position.
 - No fixed sleeps. Rely on Playwright's auto-waiting and on explicit conditions (for example a "settled" hook that the app exposes to tests).
 - Tests start from a known state (a fixture, a fresh profile) and clean up after themselves.
 - Playwright browsers are installed by a separate CI step after `npm ci` (`npx playwright install --with-deps`); they are not part of the dependency install.

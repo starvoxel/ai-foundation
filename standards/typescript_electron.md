@@ -10,7 +10,7 @@ depends_on: [typescript_node, typescript_react]
 
 Conventions for an Electron desktop shell around a React renderer, layered on `typescript_node` (main process, preload, build tooling) and `typescript_react` (renderer). Written for apps that handle private data on the user's own machine, where nothing may leave the computer unless the user opts in. A project that needs a looser setting records an exception in its own project standards.
 
-Where this file disagrees with a standard it depends on, this file wins. Most rules here were measured, not assumed; the evidence is in the `starvoxel/folio` repository (its decision records AD-17 to AD-20 and `knowledge/research/stack-decision-comparison.md`).
+Where this file disagrees with a standard it depends on, this file wins. Rules marked measured come from running the packaged app on CI runners; re-verify them on each Electron update (see Updates).
 
 ---
 
@@ -47,21 +47,21 @@ Electron ships a new major roughly every two months, tracking Chromium, and Chro
 
 Every `BrowserWindow` is created from one factory that sets these, so no window can be created without them:
 
-| Setting                                      | Value                                    |
-| -------------------------------------------- | ---------------------------------------- |
-| `webPreferences.contextIsolation`            | `true`                                   |
-| `webPreferences.nodeIntegration`             | `false` (also in workers and sub-frames) |
-| `webPreferences.sandbox`                     | `true`                                   |
-| `webPreferences.webSecurity`                 | left at its default (`true`)             |
-| `webPreferences.allowRunningInsecureContent` | `false`                                  |
-| `webPreferences.webviewTag`                  | `false`                                  |
-| `webPreferences.spellcheck`                  | `false` (and see Privacy Switches)       |
+| Setting                                      | Value                                                                                 |
+| -------------------------------------------- | ------------------------------------------------------------------------------------- |
+| `webPreferences.contextIsolation`            | `true`                                                                                |
+| `webPreferences.nodeIntegration`             | `false`; also keep `nodeIntegrationInWorker` and `nodeIntegrationInSubFrames` `false` |
+| `webPreferences.sandbox`                     | `true`                                                                                |
+| `webPreferences.webSecurity`                 | left at its default (`true`)                                                          |
+| `webPreferences.allowRunningInsecureContent` | `false`                                                                               |
+| `webPreferences.webviewTag`                  | `false`                                                                               |
+| `webPreferences.spellcheck`                  | `false` (and see Privacy Switches)                                                    |
 
-- **No remote content.** The window loads only the app's own custom protocol. Never call `loadURL` or `loadFile` with an `http(s)` or `file:` address, and never embed a remote page, script, style, font or image.
+- **No remote content.** The window loads only the app's own custom protocol. Never call `loadURL` with an `http(s)` or `file:` address, never call `loadFile`, and never embed a remote page, script, style, font or image.
 - **Navigation is blocked.** Deny `will-navigate` and `will-redirect` to anything but the app origin, deny every new window with `setWindowOpenHandler`, and prevent `<webview>` attachment (`will-attach-webview`).
 - **External links** open only on an explicit user action, through the host interface, which allows an `https:` scheme only and opens the system browser.
 - **Permissions are denied.** Set `setPermissionRequestHandler`, `setPermissionCheckHandler` and the device-permission handler on the session to deny everything, including device, notification, media, clipboard-read and USB or serial requests. A feature that needs one is an explicit, reviewed exception.
-- **A deny-all request filter** on the session allows only the app protocol, DevTools, `data:` and `blob:`, and cancels every other request. It is a backstop, not a substitute for the other rules: a spellcheck dictionary request escaped it in testing.
+- **A deny-all request filter** on the session allows only the app protocol, DevTools, `data:` and `blob:`, and cancels every other request. It is a backstop, not a substitute for the other rules: some Chromium-initiated requests bypass it.
 
 ---
 
@@ -75,7 +75,7 @@ default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: bl
 font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 ```
 
-- A per-load nonce replaces `'unsafe-inline'` wherever inline content cannot be avoided. Never use `'unsafe-inline'` for scripts or `'unsafe-eval'`.
+- If the design system or chart library injects `<style>` elements at runtime, give them a per-load nonce rather than adding `'unsafe-inline'` to `style-src`; verify this against the pinned versions. A per-load nonce also replaces `'unsafe-inline'` wherever inline content cannot be avoided. Never use `'unsafe-inline'` for scripts or `'unsafe-eval'`.
 - A feature that must make a request (a server-backed store, an online lookup) adds exactly that origin to `connect-src`, is opt-in by the user, and is added to the capture allowlist (see Privacy Capture).
 
 ---
@@ -98,7 +98,7 @@ Apply these from the first scaffold, in the main process, before `app` is ready 
 - **No crash reporter.** Never call `crashReporter.start`.
 - **No updater, no update check** by default (see Packaging). The only mechanism that fits a no-leak rule is an opt-in, user-triggered check that fetches a static version file, and adding it is a decision for the human.
 - **No proxy discovery:** `app.commandLine.appendSwitch('no-proxy-server')` before the app is ready.
-- **Spellcheck off and its language list emptied:** disable spellcheck in `webPreferences` and call `session.setSpellCheckerLanguages([])`. In testing this was the only change that stopped Chromium's dictionary request to a Google CDN; the request also bypasses the deny-all request filter. Re-check on every Electron update.
+- **Spellcheck off and its language list emptied:** disable spellcheck in `webPreferences` and call `session.setSpellCheckerLanguages([])`. The language list is what stops Chromium's dictionary download from a Google CDN (measured); that request also bypasses the deny-all request filter. Re-check on every Electron update.
 - **Remove `GOOGLE_API_KEY` and its sibling `GOOGLE_*` variables** from the process environment before use, so Chromium never receives Google service credentials. The project keeps the exact list it removes, checked against the pinned Electron.
 - No telemetry, analytics or error-reporting SDK in any process.
 
@@ -123,7 +123,7 @@ Flip fuses at packaging time with `@electron/fuses`. A release build sets:
 | `GrantFileProtocolExtraPrivileges`      | off           |
 
 - CI reads the fuses back from the **packaged binary** (`@electron/fuses read`) and fails on any mismatch with this table.
-- ASAR integrity was verified working on Windows; it was not tested on macOS. Verify it on macOS before relying on it, and say so in the project's standards if it cannot be verified.
+- Verify ASAR integrity on each operating system you ship; if it cannot be verified on one, record that in the project's standards.
 - A development build may relax a fuse only through a separate build target, never a runtime switch in the release binary.
 
 ---
@@ -134,16 +134,15 @@ The shipped binary contains no automation server and no network listener.
 
 - A main-process guard refuses `--remote-debugging-port`, `--remote-debugging-pipe`, `--remote-allow-origins` and every `--inspect*` flag unless a project-named guard environment variable (for example `APP_AUTOMATION=1`) is set. The Node inspect fuse stays off in release builds.
 - The same variable enables the renderer's test hook (a `window` object returning structured page state as JSON). Without the variable the hook does not exist.
-- The guard acts after Chromium starts parsing flags, so a very early attach is not covered. This window was not tested; do not claim the guard blocks it.
+- The guard acts after Chromium starts parsing flags, so a very early attach is not covered; do not claim the guard blocks it.
 
 ---
 
 ## End-to-End Testing
 
-See `typescript_testing` for test rules in general. Specific to Electron:
+If `typescript_testing` is loaded, its rules apply. Specific to Electron:
 
-- Playwright drives the **packaged release binary**, not a development build, with the guard variable set. It attaches through Chromium's **debugging pipe** (`--remote-debugging-pipe`), relayed by the test process, so no network port exists.
-- Locate controls by role, accessible name, and `data-testid` (see `typescript_react` Accessibility).
+- Playwright drives the **packaged release binary**, not a development build, with the guard variable set. It attaches through Chromium's **debugging pipe** (`--remote-debugging-pipe`), relayed by the test process, so no network port exists. This is a custom launch, not Playwright's `electron.launch`, which needs the Node inspect flag that the fuses disable.
 - Behaviour that depends on real focus (tab order, dialog focus) is checked with real key events where the platform allows; synthetic events from a driver do not move focus the way a user does.
 - Run the suite on every supported operating system, with screenshot baselines per operating system (see `typescript_testing`).
 
