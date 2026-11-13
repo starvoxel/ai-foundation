@@ -19,14 +19,14 @@
 
 Layering, each file with front-matter `name`, `version`, `description`, `tags`, `depends_on`, and prose not hard-wrapped.
 
-| File                                     | Tags                            | depends_on                            | Holds                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| ---------------------------------------- | ------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `typescript_base`                        | `[typescript]`                  | `javascript_base`                     | Strict compiler options, no `any`, `unknown` plus schema (zod) at every trust boundary, branded types, no float money, no `Date` in domain code, injected clock, result values for expected failures, error subclasses with `cause`, override points of `javascript_base` (type system row, TSDoc, header block, import extensions), fflate, linear-time regex, Prettier and ESLint (typescript-eslint strict type-checked), dependency-cruiser |
-| `typescript_node`                        | `[typescript, node]`            | `typescript_base`, `javascript_node`  | NodeNext and `.js` specifiers, Vitest, npm 12 workspaces and supply chain (`allowScripts`, `min-release-age`, `.npmrc`, lockfile-only CI, signatures), CI and GitHub (SHA-pinned actions, Dependabot, licence check), overrides of `javascript_node`'s `node:test` and `.test.js` rules                                                                                                                                                         |
-| `typescript_react`                       | `[typescript, react]`           | `typescript_base`                     | React 19 function components and hooks, thin components, `useSyncExternalStore`, accessibility, `data-testid`, tokens not literals, design-system containment, Vite and bundler resolution, TanStack Virtual, ECharts behind chart models                                                                                                                                                                                                       |
-| `typescript_electron`                    | `[typescript, electron]`        | `typescript_node`, `typescript_react` | Process model, hardening, IPC and preload, custom protocol and CSP, permissions and navigation, privacy switches, fuses, packaging, Playwright on the packaged binary, Linux `.deb` and AppArmor; the privacy capture unless open question 2 moves it                                                                                                                                                                                           |
-| `typescript_react_fluentui` (question 3) | `[typescript, react, fluentui]` | `typescript_react`                    | Only rules that apply when `@fluentui/react-components` v9 is used                                                                                                                                                                                                                                                                                                                                                                              |
-| `typescript_testing` (question 4)        | `[typescript, testing]`         | `typescript_base`                     | Test naming, determinism and seeding, no real network in unit tests, fast-check, Playwright, per-OS screenshot baselines                                                                                                                                                                                                                                                                                                                        |
+| File                        | Tags                            | depends_on                            | Holds                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| --------------------------- | ------------------------------- | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `typescript_base`           | `[typescript]`                  | `javascript_base`                     | Strict compiler options, no `any`, `unknown` plus schema (zod) at every trust boundary, branded types, no float money, no `Date` in domain code, injected clock, result values for expected failures, error subclasses with `cause`, override points of `javascript_base` (type system row, TSDoc, header block, import extensions), fflate, linear-time regex, Prettier and ESLint (typescript-eslint strict type-checked), dependency-cruiser |
+| `typescript_node`           | `[typescript, node]`            | `typescript_base`, `javascript_node`  | NodeNext and `.js` specifiers, Vitest, npm 12 workspaces and supply chain (`allowScripts`, `min-release-age`, `.npmrc`, lockfile-only CI, signatures), CI and GitHub (SHA-pinned actions, Dependabot, licence check), overrides of `javascript_node`'s `node:test` and `.test.js` rules                                                                                                                                                         |
+| `typescript_react`          | `[typescript, react]`           | `typescript_base`                     | React 19 function components and hooks, thin components, `useSyncExternalStore`, accessibility, `data-testid`, tokens not literals, design-system containment, Vite and bundler resolution, TanStack Virtual, ECharts behind chart models                                                                                                                                                                                                       |
+| `typescript_electron`       | `[typescript, electron]`        | `typescript_node`, `typescript_react` | Process model, hardening, IPC and preload, custom protocol and CSP, permissions and navigation, privacy switches, fuses, packaging, Playwright on the packaged binary, Linux `.deb` and AppArmor; the privacy capture                                                                                                                                                                                                                           |
+| `typescript_react_fluentui` | `[typescript, react, fluentui]` | `typescript_react`                    | Only rules that apply when `@fluentui/react-components` v9 is used                                                                                                                                                                                                                                                                                                                                                                              |
+| `typescript_testing`        | `[typescript, testing]`         | `typescript_base`                     | Test naming, determinism and seeding, no real network in unit tests, fast-check, Playwright, per-OS screenshot baselines                                                                                                                                                                                                                                                                                                                        |
 
 Adjustments to the proposed layering, with reasons:
 
@@ -63,10 +63,10 @@ Adjustments to the proposed layering, with reasons:
 - Acceptance criteria: every item in the brief's Electron list present; no Folio package names or paths; resolve order correct for a project tagged `typescript, node, react, electron`.
 - Verified by: as milestone 1.
 
-### 5. Optional layers per your answers
+### 5. `typescript_react_fluentui` and `typescript_testing`
 
-- Does: `typescript_react_fluentui` and `typescript_testing`, or folding them, per open questions 3 and 4.
-- Acceptance criteria: as the chosen option; no duplicated rules across files.
+- Does: the Fluent UI layer and the testing standard, per decisions 3 and 4.
+- Acceptance criteria: no rule duplicated across files; the testing standard holds no Folio-specific kinds of test.
 - Verified by: as milestone 1.
 
 ### 6. Review and PR
@@ -80,9 +80,15 @@ Adjustments to the proposed layering, with reasons:
 - Security: the Electron and boundary rules are the security content; they are written as checklists like `javascript_node`'s. No secrets in examples.
 - Logging: the standards state a logging rule for Node-side code consistent with `javascript_node` (structured logging for long-running services, never log secrets or financial data).
 
+## Decisions
+
+Resolved by you on 2026-11-13:
+
+1. Result-type style: a project-local discriminated-union `Result` type, no library.
+2. The privacy-capture job lives inside `typescript_electron`.
+3. `typescript_react_fluentui` is written now.
+4. Testing is its own standard, `typescript_testing`.
+
 ## Open questions
 
-1. Result-type style: a project-local `Result` type, a named library, or exceptions only. You decide.
-2. Does the privacy-capture job belong inside `typescript_electron`, or in a separate steering procedure. You decide.
-3. Is a Fluent UI layer worth writing now, or only when a second project needs it. You decide.
-4. Is testing its own standard, or folded into the layers above. You decide.
+- None outstanding.
