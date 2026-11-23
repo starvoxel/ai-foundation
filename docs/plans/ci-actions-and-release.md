@@ -1,10 +1,10 @@
 # Plan: Reusable CI actions and release workflow
 
-| Field       | Value      |
-| ----------- | ---------- |
-| Status      | Draft      |
-| Approved by | Pending    |
-| Created     | 2026-11-23 |
+| Field       | Value                             |
+| ----------- | --------------------------------- |
+| Status      | Approved                          |
+| Approved by | jeremysmellie@gmail.com (in chat) |
+| Created     | 2026-11-23                        |
 
 ## Goal
 
