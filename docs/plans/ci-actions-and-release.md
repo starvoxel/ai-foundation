@@ -25,7 +25,7 @@ Consumer repos (first: Folio) cannot run `aif` in CI without copying shell steps
 - **Validation test.** `tests/validation/` parses each `.github/actions/*/action.yml` and asserts every `run:` step sets `shell: bash`, plus a `using: composite` and `mode` input check.
 - **Docs.** New `docs/architecture/05_07_ci_actions_and_release.md` (key_files: the two `action.yml`, the two scripts, `release.yml`) with consumer usage and the SHA + Dependabot flow; a line in `05_building_blocks.md`. Existing sections' `key_files` are untouched, so no waivers are expected.
 - **`package.json` bump check.** Extend `.github/scripts/check-version-bumps.mjs` (same `sha`/`auto-parent` diff bases as today) with a pure `needsPackageBump(changedFiles)`: true when any changed file is under `agents/ skills/ steering/ standards/ servers/ bundles/ projects/ bin/ lib/`, excluding `package.json`/`package-lock.json` anywhere (so Dependabot PRs, which only touch those, stay exempt and keep auto-merging). When true, `package.json`'s `version` must differ from the base's, else the existing Check: version bump step fails. Unit tests extend `check-version-bumps` tests.
-- **Windows.** A job in `ci.yml` on `windows-latest` runs both actions from the checkout (`uses: ./.github/actions/index`, `bundles` in `check` mode), so the Git Bash path handling is verified in CI. New job only; no existing check is renamed or weakened.
+- **Windows.** A separate `.github/workflows/windows-actions.yml`, `workflow_dispatch` only (never on push or PR, so no required check and no cost per change), runs both actions from the checkout on `windows-latest` (`uses: ./.github/actions/index`, `bundles` in `check` mode) to verify the Git Bash path handling on demand. `ci.yml` is untouched.
 - **Version.** `package.json` 0.3.0 → 0.4.0 (new feature). The first release tag `v0.4.0` is created when this merges.
 
 ## Milestones
@@ -42,9 +42,9 @@ Consumer repos (first: Folio) cannot run `aif` in CI without copying shell steps
 - Acceptance criteria: a change under a shipped dir without a `package.json` version change fails; docs-only, `.github/`-only and dependency-only (Dependabot-shaped) changes pass; a bump passes.
 - Verified by: unit tests for the pure function, an integration test in `tests/integration/check-version-bumps.test.js`, and CI on the PR.
 
-### 3. Release workflow, Windows job, docs, version
+### 3. Release workflow, manual Windows workflow, docs, version
 
-- Does: `release.yml`, the Windows CI job, §5.07 and building-blocks link, version bump.
+- Does: `release.yml`, the manual Windows workflow, §5.07 and building-blocks link, version bump.
 - Acceptance criteria: `aif index architecture --check` and `npm run validate` pass; workflow follows `ci.yml` pinning and least privilege.
 - Verified by: local checks, independent review, CI on the PR.
 
@@ -56,6 +56,6 @@ Consumer repos (first: Folio) cannot run `aif` in CI without copying shell steps
 ## Open questions
 
 - **Bump-check trigger paths.** The shipped-dir list above is my proposal for what counts as "a change" (the repo has no other definition); confirm or amend at approval.
-- **Windows CI job** is my reading of "CI check is fine"; it is a new job in `ci.yml`. Drop it if you meant only a hand-off to Folio's CI.
+- **Windows workflow** is manual only, per your decision; it is a new workflow file, not a `ci.yml` job.
 
 Decided: re-run-safe tag test (`v<version>` absent), not literal latest-tag comparison.
