@@ -104,7 +104,14 @@ describe('unit: findings map', () => {
 
 describe('unit: planFiling', () => {
   const map = buildMap([issue(1, 'a.js', 'R1')]);
-  const base = { title: 'T', severity: 'low', source: 'review', rule: 'R1', files: ['a.js'] };
+  const base = {
+    title: 'T',
+    severity: 'low',
+    source: 'review',
+    rule: 'R1',
+    files: ['a.js'],
+    effort: 'M',
+  };
 
   it('comments on a finding sharing a file and rule, noting new files', () => {
     const plan = planFiling(map, { ...base, files: ['a.js', 'x.js'] });
@@ -114,7 +121,7 @@ describe('unit: planFiling', () => {
   });
 
   it('opens a new issue with labels when the rule differs', () => {
-    const plan = planFiling(map, { ...base, rule: 'R9', effort: 'S', detail: 'why' });
+    const plan = planFiling(map, { ...base, rule: 'R9', effort: 's', detail: 'why' });
     assert.equal(plan.action, 'create');
     assert.deepEqual(plan.labels, ['finding', 'severity:low', 'source:review']);
     assert.match(plan.body, /^files: a\.js\nrule: R9\nsource: review\neffort: S\n\nwhy$/);
@@ -123,6 +130,11 @@ describe('unit: planFiling', () => {
   it('rejects an invalid severity or an incomplete finding', () => {
     assert.throws(() => planFiling(map, { ...base, severity: 'meh' }), /Invalid severity/);
     assert.throws(() => planFiling(map, { ...base, files: [] }), /needs/);
+  });
+
+  it('requires an effort of S, M or L', () => {
+    for (const effort of [undefined, '', 'XL'])
+      assert.throws(() => planFiling(map, { ...base, effort }), /--effort is required/);
   });
 });
 
