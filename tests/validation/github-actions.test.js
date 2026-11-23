@@ -1,0 +1,75 @@
+// ------------------------------
+// github-actions.test.js
+//
+// Author: Starvoxel AI Agent - 2026-11-23
+//
+// Copyright (c) StarVoxel. All rights reserved.
+// ------------------------------
+
+/**
+ * Plan: ci-actions-and-release (Milestone 1). The reusable composite actions
+ * under .github/actions/ run on consumer runners, Windows included, so each
+ * must parse, be composite, take a `mode` input, set `shell: bash` on every
+ * `run:` step, and stay free of third-party actions (no network beyond npm ci).
+ */
+
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join, resolve } from 'node:path';
+import YAML from 'yaml';
+
+const ACTIONS_DIR = resolve(import.meta.dirname, '../../.github/actions');
+const actionNames = readdirSync(ACTIONS_DIR, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name);
+
+describe('.github/actions', () => {
+  it('contains the index and bundles actions', () => {
+    assert.ok(actionNames.includes('index'));
+    assert.ok(actionNames.includes('bundles'));
+  });
+
+  for (const name of actionNames) {
+    describe(name, () => {
+      const file = join(ACTIONS_DIR, name, 'action.yml');
+      const action = YAML.parse(readFileSync(file, 'utf8'));
+
+      it('parses as a composite action with a name and description', () => {
+        assert.equal(action.runs?.using, 'composite');
+        assert.ok(action.name);
+        assert.ok(action.description);
+      });
+
+      it('takes an optional `mode` input with a default', () => {
+        assert.ok(action.inputs?.mode?.default);
+        assert.equal(action.inputs.mode.required, false);
+      });
+
+      it('sets `shell: bash` on every run step', () => {
+        const runSteps = action.runs.steps.filter((step) => 'run' in step);
+        assert.ok(runSteps.length > 0);
+        for (const step of runSteps) {
+          assert.equal(step.shell, 'bash', `step "${step.name}" must set shell: bash`);
+        }
+      });
+
+      it('uses no third-party actions', () => {
+        for (const step of action.runs.steps) {
+          assert.equal('uses' in step, false, `step "${step.name}" must not use an action`);
+        }
+      });
+
+      it('has a README documenting the caller prerequisites', () => {
+        const readme = join(ACTIONS_DIR, name, 'README.md');
+        assert.ok(existsSync(readme));
+        assert.match(readFileSync(readme, 'utf8'), /setup-node/);
+      });
+    });
+  }
+
+  it('documents fetch-depth: 0 in the index README', () => {
+    const readme = readFileSync(join(ACTIONS_DIR, 'index', 'README.md'), 'utf8');
+    assert.match(readme, /fetch-depth: 0/);
+  });
+});
