@@ -41,20 +41,20 @@ Decisions agreed with the human:
 
 ### 1. Tests and test strength (PR 1)
 
-- Does: #145, #168, #176, #182, #185, #186, #189.
+- Does: #145, #168, #176, #182, #185, #186, #189, and #177 (it shares a test file with #176 and #182); this plan.
 - Acceptance criteria: each named branch or risk has a test that fails without the behaviour it covers.
 - Verified by: `npm test`; independent review.
 
 ### 2. Scripts, agents and docs (PR 2)
 
-- Does: #122, #123, #125, #129, #173, #177, #193, #178, and the `install-core.js` move for #128 (its quiet flag is a follow-up); closes #144, #200, #203 with a comment.
+- Does: #122, #123, #125, #173, #178, #193, and the refreshed project-scope install; closes #144, #200, #203 with a comment.
 - Acceptance criteria: each finding's described fix is in; `aif validate` and `aif index architecture --check` pass.
 - Verified by: `npm test`, `aif validate`; independent review.
 
-### 3. Adapter skipped/failed contract (shipped in the same PR)
+### 3. Install pipeline (PR 3)
 
-- Does: #130.
-- Acceptance criteria: a server that failed (definition not found, no protocol) stays in its bundle entry and is retried at global scope; deliberate skips do not.
+- Does: #129, #130, and the `install-core.js` move for #128 (its quiet flag is a follow-up that closes #128). These touch the same files, so they ship together.
+- Acceptance criteria: a server that failed (definition not found, no protocol) stays in its bundle entry and is retried at global scope; deliberate skips do not; Kiro HTTP records no manifest entry for the shared `mcp.json`.
 - Verified by: unit and integration tests for each adapter; independent review.
 
 ## Requirements
@@ -64,4 +64,4 @@ Decisions agreed with the human:
 
 ## Open questions
 
-- None. Delivered as one PR because the session may push to one branch only (human informed).
+- None.
