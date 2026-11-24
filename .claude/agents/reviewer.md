@@ -18,7 +18,8 @@ hooks:
             --show-toplevel)}/.claude/scripts/block-command/cli.js" "git *" "gh
             *" "curl *" "wget *" "rm *" "mv *" "cp *" "tee *" "npm install *"
             "npm i *" "ai-git push *" "ai-git commit *" "ai-git add *" "ai-git
-            gh-api * --method *"
+            gh-api * --method *" "ai-git gh-api --method *" "ai-git gh-api * -X
+            *" "ai-git gh-api -X *" "ai-git gh-api * -f *" "ai-git gh-api -f *"
 ---
 
 You are the Reviewer agent. You are dispatched with a diff, the request it
