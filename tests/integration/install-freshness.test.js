@@ -8,7 +8,7 @@ import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { mkdtempSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
 
 import { runInstall } from '../../lib/commands/install.js';
 import { runStatus } from '../../lib/commands/status.js';
@@ -95,6 +95,32 @@ describe('integration: install freshness', () => {
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('Installed')));
+  });
+
+  it('retries a server that failed to install, then treats the bundle as current once it installs', () => {
+    const yamlPath = join(repo, 'servers', 'late', 'late.yaml');
+    mkdirSync(join(repo, 'servers', 'late'), { recursive: true });
+    const broken = 'name: late\nversion: 0.1.0\ndescription: late\ntools: []\n'; // no protocol
+    writeFileSync(yamlPath, broken, 'utf8');
+    mkdirSync(join(repo, 'bundles', 'late-bundle'), { recursive: true });
+    writeFileSync(
+      join(repo, 'bundles', 'late-bundle', 'bundle.yaml'),
+      'name: late-bundle\nversion: 1.0.0\ndescription: Late.\ndomain: eng\nservers:\n  - late\n',
+      'utf8',
+    );
+    const install = () =>
+      quiet(() =>
+        runInstall({ args: { bundle: 'late-bundle', harness: 'kiro' }, positional: [] }, repo),
+      );
+
+    const first = install();
+    assert.ok(first.output.some((l) => l.includes('has no protocol field')));
+    // Still failing: the bundle must not count as current just because the server dropped out.
+    assert.ok(install().output.some((l) => l.includes('Installed')));
+
+    writeFileSync(yamlPath, broken + 'protocol: mcp\ntransport: stdio\n', 'utf8');
+    assert.ok(install().output.some((l) => l.includes('server: late')));
+    assert.ok(install().output.some((l) => l.includes('already current')));
   });
 
   it('--update skips current bundles', () => {

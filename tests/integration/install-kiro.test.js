@@ -107,7 +107,7 @@ describe('integration: install (kiro-specific)', () => {
       'utf8',
     );
     const results = quiet(() => installServers(['remote'], repo));
-    assert.deepEqual(results, [{ name: 'remote', files: [] }]);
+    assert.deepEqual(results, { installed: [{ name: 'remote', files: [] }], failed: [] });
     const settings = JSON.parse(readFileSync(TARGETS.mcpSettings, 'utf8'));
     assert.equal(settings.mcpServers.remote.url, 'https://example.test/mcp');
   });
