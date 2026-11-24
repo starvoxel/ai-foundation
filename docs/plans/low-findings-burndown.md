@@ -19,23 +19,23 @@ Clear the 20 open `low` findings (#122–#203) in three reviewable PRs, so they 
 
 Decisions agreed with the human:
 
-| #   | Decision                                                                                               |
-| --- | ------------------------------------------------------------------------------------------------------ |
-| 122 | Document that `project_standards` must be a literal; add a test. No inline resolver (avoids copying `aif config`) |
-| 123 | Remove only Hard rules that loaded steering already states; keep engineer-specific ones                |
-| 125 | Add `gh-api` write patterns: `-X POST`, `--method` before the endpoint, bare `-f`                      |
-| 128 | Move `installContext`/`withScope`/`installBundle` to a shared module; pass a `quiet` flag              |
-| 129 | Kiro HTTP installer records a hash per entry, matching `--check`                                       |
-| 130 | Adapters report skipped vs failed separately; failed servers stay in the bundle entry (own PR)         |
-| 144 | Close as won't-fix: template stays identical to the repo copy                                          |
-| 145 | Test asserting the template script equals `.github/scripts/cleanup-branches.mjs`                       |
-| 173 | Sweep stale `ai-git-sign-*` dirs on start                                                              |
-| 177 | `rm -f` the temp file when `mv` fails                                                                  |
-| 193 | Cluster first, then defer clusters containing an ineligible L finding                                  |
-| 178 | Add a "superseded by cloud-setup-fast-start" note to the brief                                         |
-| 200 | Validated: same-file back-reference, no component named, `aif validate refs` does not flag it. Close  |
-| 203 | Close as won't-fix; pushed commits are never rewritten                                                 |
-| 168, 176, 182, 185, 186, 189 | Add the tests each finding describes                                          |
+| #                            | Decision                                                                                                          |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 122                          | Document that `project_standards` must be a literal; add a test. No inline resolver (avoids copying `aif config`) |
+| 123                          | Remove only Hard rules that loaded steering already states; keep engineer-specific ones                           |
+| 125                          | Add `gh-api` write patterns: `-X POST`, `--method` before the endpoint, bare `-f`                                 |
+| 128                          | Move `installContext`/`withScope`/`installBundle` to a shared module; pass a `quiet` flag                         |
+| 129                          | Kiro HTTP installer records a hash per entry, matching `--check`                                                  |
+| 130                          | Adapters report skipped vs failed separately; failed servers stay in the bundle entry (own PR)                    |
+| 144                          | Close as won't-fix: template stays identical to the repo copy                                                     |
+| 145                          | Test asserting the template script equals `.github/scripts/cleanup-branches.mjs`                                  |
+| 173                          | Sweep stale `ai-git-sign-*` dirs on start                                                                         |
+| 177                          | `rm -f` the temp file when `mv` fails                                                                             |
+| 193                          | Cluster first, then defer clusters containing an ineligible L finding                                             |
+| 178                          | Add a "superseded by cloud-setup-fast-start" note to the brief                                                    |
+| 200                          | Validated: same-file back-reference, no component named, `aif validate refs` does not flag it. Close              |
+| 203                          | Close as won't-fix; pushed commits are never rewritten                                                            |
+| 168, 176, 182, 185, 186, 189 | Add the tests each finding describes                                                                              |
 
 ## Milestones
 
