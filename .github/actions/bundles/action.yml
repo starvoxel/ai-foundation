@@ -43,9 +43,11 @@ runs:
       run: |
         AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
         if [ "$MODE" = "check" ]; then
+          echo "aif bundles: running 'aif install --scope project --check'"
           node "$AIF_ROOT/bin/aif.js" install --scope project --check
           echo "changed=false" >> "$GITHUB_OUTPUT"
         else
+          echo "aif bundles: running 'aif install --scope project --update'"
           node "$AIF_ROOT/bin/aif.js" install --scope project --update
           # aif's own "N updated" count is unreliable at project scope; ask git instead.
           node "$AIF_ROOT/.github/scripts/harness-changes.mjs"

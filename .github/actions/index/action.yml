@@ -37,7 +37,9 @@ runs:
       run: |
         AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
         if [ "$MODE" = "check" ]; then
+          echo "aif index: running 'aif index architecture --check'"
           node "$AIF_ROOT/bin/aif.js" index architecture --check
         else
+          echo "aif index: running 'aif index architecture'"
           node "$AIF_ROOT/bin/aif.js" index architecture
         fi
