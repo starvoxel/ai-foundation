@@ -7,7 +7,7 @@
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import {
   mkdtempSync,
   rmSync,
@@ -16,6 +16,7 @@ import {
   chmodSync,
   existsSync,
   mkdirSync,
+  readdirSync,
   symlinkSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -143,6 +144,29 @@ describe(
       assert.match(second.stdout, /bws 2\.1\.0 already installed, skipped/);
     });
 
+    it('survives two instances running at once: both exit 0, binaries intact, no temp files left', async () => {
+      const env = {
+        PATH: stubs,
+        CLOUD_SETUP_BIN_DIR: bin,
+        CLOUD_SETUP_REPOS_DIR: join(dir, 'home'),
+      };
+      const runAsync = () =>
+        new Promise((done) => {
+          const child = spawn(BASH, [SCRIPT], { env });
+          let stderr = '';
+          child.stderr.on('data', (d) => (stderr += d));
+          child.on('close', (status) => done({ status, stderr }));
+        });
+      const results = await Promise.all([runAsync(), runAsync()]);
+      for (const r of results) {
+        assert.equal(r.status, 0);
+        assert.equal(r.stderr, '');
+      }
+      assert.match(readFileSync(join(bin, 'gh'), 'utf8'), /gh version 2\.102\.0/);
+      assert.match(readFileSync(join(bin, 'bws'), 'utf8'), /bws 2\.1\.0/);
+      assert.deepEqual(readdirSync(bin).sort(), ['bws', 'gh']);
+    });
+
     it('installs nothing and exits 0 on a checksum mismatch', () => {
       const result = run({ STUB_SHA_FAIL: '*' });
       assert.equal(result.status, 0);
@@ -240,6 +264,27 @@ describe(
         const result = run({ AIF_AGENT: 'custom' });
         assert.match(result.stdout, /warning: .*app has no \.claude\/agents\/custom\.md/);
         assert.ok(existsSync(settingsOf('app')));
+      });
+
+      it('reports a write failure on stderr and still exits 0', () => {
+        repo('app');
+        writeFileSync(
+          join(dir, 'home', 'app', '.claude'),
+          'a file, so mkdir -p cannot make it a dir',
+        );
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(result.status, 0);
+        assert.match(result.stderr, /could not write .*app\/\.claude\/settings\.local\.json/);
+        assert.match(result.stderr, /agent override not fully applied/);
+        assert.doesNotMatch(result.stdout, /done$/m);
+      });
+
+      it('handles a repo directory name containing spaces', () => {
+        repo('my app');
+        const result = run({ AIF_AGENT: 'reviewer' });
+        assert.equal(result.status, 0);
+        assert.equal(readFileSync(settingsOf('my app'), 'utf8'), '{"agent":"reviewer"}\n');
+        assert.equal(result.stderr, '');
       });
 
       it('leaves an existing settings.local.json alone', () => {
