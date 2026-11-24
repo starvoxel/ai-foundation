@@ -41,7 +41,7 @@ sequenceDiagram
   end
 ```
 
-Only servers an adapter actually installed are recorded; one it skips (unsupported protocol, or a Kiro stdio server at project scope) gets no entry.
+Only servers an adapter actually installed are recorded; one it skips (unsupported protocol, or a Kiro stdio server at project scope) gets no entry. A server that failed (definition missing, no protocol, an installer returning `false`) gets no entry either, but stays in its bundle's `servers` list, so the bundle is not current and the next install retries it.
 
 A reinstall also releases what the bundle's previous install had and the new one does
 not: files no other bundle owns are deleted (emptied directories too), and servers and
