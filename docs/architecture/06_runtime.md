@@ -6,6 +6,7 @@ tags: [runtime, manifest, freshness, scope]
 key_files:
   - lib/manifest.js
   - lib/commands/install.js
+  - lib/commands/install-core.js
   - lib/commands/uninstall.js
   - lib/source-hashes/io.js
 ---
