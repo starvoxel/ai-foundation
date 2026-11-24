@@ -290,7 +290,7 @@ function dirOf(file) {
  * severity, then size, then age. Then S findings in the same areas (a shared
  * file or parent directory) as the picked ones are added up to `maxSimple`, a
  * separate allowance. Findings that share a file are never split: a cluster is
- * taken whole, and one that exceeds a cap is taken only when it is the first
+ * taken whole, a cluster holding an L finding is deferred whole unless `includeLarge`, and one that exceeds a cap is taken only when it is the first
  * selected. The batch comes back in the same severity, size, age order.
  * @param {ReturnType<typeof buildMap>} map
  * @param {{ max?: number, maxSimple?: number, includeLarge?: boolean }} [options]
@@ -300,8 +300,11 @@ export function planBatch(
   map,
   { max = DEFAULT_MAX, maxSimple = DEFAULT_MAX_SIMPLE, includeLarge = false } = {},
 ) {
-  const eligible = lookup(map, []).filter((e) => includeLarge || effortClass(e) !== 'L');
-  const clusters = clusterByFile(eligible).map((c) => [...c].sort(compareEntries));
+  // Cluster first, then defer any cluster holding an ineligible L finding: dropping the L
+  // before clustering would let a neighbour sharing its file be batched alone.
+  const clusters = clusterByFile(lookup(map, []))
+    .filter((c) => includeLarge || c.every((e) => effortClass(e) !== 'L'))
+    .map((c) => [...c].sort(compareEntries));
   const ordered = [...clusters].sort((a, b) => compareEntries(a[0], b[0]));
 
   const picked = [];
