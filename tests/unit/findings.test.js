@@ -247,6 +247,16 @@ describe('unit: findings batch', () => {
     assert.deepEqual(numbers(planBatch(map, { includeLarge: true, max: 1 })), [[1]]);
   });
 
+  it('defers a finding that shares a file with an ineligible L finding', () => {
+    const map = buildMap([
+      withEffort(1, 'a/x.js', 'L', 'high'),
+      withEffort(2, 'a/x.js', 'S', 'low'),
+      withEffort(3, 'b/y.js', 'M'),
+    ]);
+    assert.deepEqual(numbers(planBatch(map)), [[3]]);
+    assert.deepEqual(numbers(planBatch(map, { includeLarge: true })), [[1, 2], [3]]);
+  });
+
   it('takes M severity first then oldest, up to max', () => {
     const map = buildMap([
       withEffort(1, 'a/1.js', 'M', 'low'),
