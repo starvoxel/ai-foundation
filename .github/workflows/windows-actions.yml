@@ -1,0 +1,40 @@
+name: Windows actions check
+
+# Manual only: run it from the Actions tab (or `gh workflow run`) after changing
+# .github/actions/, to check that the composite actions work on a Windows runner,
+# where `shell: bash` is Git Bash and `github.action_path` has backslashes.
+# It never runs on push or pull_request, so it is not a required check and
+# costs nothing per change. Not covered here: `bundles` in `update` mode.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-actions:
+    name: Run the composite actions on Windows
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      # Keep checked-out files byte-identical to the repo (LF), as ci.yml does.
+      - name: Disable CRLF conversion
+        run: git config --global core.autocrlf false
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # `index` needs full history to compute staleness.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22.23.4"
+
+      - name: Index (check)
+        uses: ./.github/actions/index
+
+      - name: Bundles (check)
+        uses: ./.github/actions/bundles
