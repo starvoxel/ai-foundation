@@ -1,6 +1,6 @@
 ---
 name: javascript_base
-version: 1.0.3
+version: 1.0.4
 description: Core JavaScript language conventions for all JS projects
 tags: [javascript]
 depends_on: []
@@ -20,7 +20,7 @@ Style basis: this standard follows the widely-adopted [Airbnb JavaScript Style G
 | ---------------- | ----------------------------------------------------------------------------------------------- |
 | Language version | Modern ECMAScript (ES2022+) — no transpilation assumed unless a project standard says otherwise |
 | Module system    | ES Modules (`import`/`export`) — see `javascript_node` for runtime resolution details           |
-| Type system      | Plain JavaScript. See `typescript_base` (future) for typed projects                             |
+| Type system      | Plain JavaScript. See `typescript_base` for typed projects                                      |
 
 ---
 

@@ -1,0 +1,45 @@
+name: AIF architecture index
+description: Run `aif index architecture` in the calling repository, to validate (check) or generate the arc42 index.
+
+inputs:
+  mode:
+    description: "`check` validates the arc42 docs without writing (fails on stale docs or broken links); `generate` writes the index."
+    required: false
+    default: check
+
+runs:
+  using: composite
+  steps:
+    - name: Validate mode
+      shell: bash
+      env:
+        MODE: ${{ inputs.mode }}
+      run: |
+        case "$MODE" in
+          check | generate) echo "aif index: mode=$MODE" ;;
+          *) echo "::error::index: unknown mode '$MODE' (expected check or generate)"; exit 1 ;;
+        esac
+
+    - name: Install aif dependencies
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        # This action lives at <root>/.github/actions/index.
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        cd "$AIF_ROOT" && npm ci --omit=dev
+
+    - name: Run aif index architecture
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        MODE: ${{ inputs.mode }}
+      run: |
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        if [ "$MODE" = "check" ]; then
+          echo "aif index: running 'aif index architecture --check'"
+          node "$AIF_ROOT/bin/aif.js" index architecture --check
+        else
+          echo "aif index: running 'aif index architecture'"
+          node "$AIF_ROOT/bin/aif.js" index architecture
+        fi

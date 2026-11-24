@@ -333,4 +333,105 @@ describe('integration: check-version-bumps.mjs', () => {
       assert.match(stdout, /content changed but version stayed at '1\.0\.0'/);
     });
   });
+
+  describe('still checks look-alike .github paths', () => {
+    it('fails a versioned file under projects/_template/.github/ that changes without a bump', () => {
+      // Only a leading `.github/` is skipped; a nested `.github` directory is ordinary content.
+      const path = join('projects', '_template', '.github', 'x.yml');
+      mkdirSync(join(repo, 'projects', '_template', '.github'), { recursive: true });
+      writeFileSync(join(repo, path), 'name: x\nversion: 1.0.0\nnote: a\n', 'utf8');
+      commit(repo, 'add template workflow');
+      publishBranch(repo, 'main');
+
+      runGit(repo, ['checkout', '-q', '-b', 'feature']);
+      writeFileSync(join(repo, path), 'name: x\nversion: 1.0.0\nnote: b\n', 'utf8');
+      commit(repo, 'edit without bump');
+      publishBranch(repo, 'feature');
+
+      const { code, stdout } = runCheck(repo, ['auto-parent', 'feature']);
+      assert.equal(code, 1);
+      assert.match(stdout, /content changed but version stayed at '1\.0\.0'/);
+    });
+  });
+
+  describe("package.json's version moves with shipped content", () => {
+    /** Write package.json (and optionally a dependency) at `version`. */
+    function writePackage(version, dependency = '1.0.0') {
+      writeFileSync(
+        join(repo, 'package.json'),
+        `${JSON.stringify({ name: 'p', version, dependencies: { dep: dependency } }, null, 2)}\n`,
+        'utf8',
+      );
+    }
+
+    /** Commit a package.json on main, then branch off `feature`. */
+    function startFeature() {
+      writePackage('1.0.0');
+      mkdirSync(join(repo, 'lib'), { recursive: true });
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 1;\n', 'utf8');
+      commit(repo, 'add package.json and lib');
+      publishBranch(repo, 'main');
+      runGit(repo, ['checkout', '-q', '-b', 'feature']);
+    }
+
+    /** Commit, publish and run the check on `feature`. */
+    function finishAndCheck() {
+      commit(repo, 'change');
+      publishBranch(repo, 'feature');
+      return runCheck(repo, ['auto-parent', 'feature']);
+    }
+
+    it('fails a shipped-content change that leaves the version alone', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      const { code, stdout } = finishAndCheck();
+      assert.equal(code, 1);
+      assert.match(
+        stdout,
+        /package\.json: shipped content changed \(lib\/x\.js\) but version stayed at '1\.0\.0'/,
+      );
+    });
+
+    it('passes when the version is bumped with the shipped change', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      writePackage('1.1.0');
+      assert.equal(finishAndCheck().code, 0);
+    });
+
+    it('fails when the version goes backwards', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      writePackage('0.9.0');
+      const { code, stdout } = finishAndCheck();
+      assert.equal(code, 1);
+      assert.match(stdout, /version went backwards \('1\.0\.0' -> '0\.9\.0'\)/);
+    });
+
+    it('passes docs-only, tests-only and .github-only changes', () => {
+      startFeature();
+      mkdirSync(join(repo, 'docs'));
+      mkdirSync(join(repo, 'tests'));
+      mkdirSync(join(repo, '.github'));
+      writeFileSync(join(repo, 'docs', 'a.txt'), 'a\n', 'utf8');
+      writeFileSync(join(repo, 'tests', 'a.test.js'), '// a\n', 'utf8');
+      writeFileSync(join(repo, '.github', 'a.txt'), 'a\n', 'utf8');
+      assert.equal(finishAndCheck().code, 0);
+    });
+
+    it('passes a dependency-only change (the shape of a Dependabot PR)', () => {
+      startFeature();
+      mkdirSync(join(repo, 'servers', 'gmail'), { recursive: true });
+      writePackage('1.0.0', '1.0.1');
+      writeFileSync(join(repo, 'servers', 'gmail', 'package.json'), '{"name":"g"}\n', 'utf8');
+      writeFileSync(join(repo, 'servers', 'gmail', 'package-lock.json'), '{}\n', 'utf8');
+      assert.equal(finishAndCheck().code, 0);
+    });
+
+    it('fails when a shipped file is deleted without a bump', () => {
+      startFeature();
+      rmSync(join(repo, 'lib', 'x.js'));
+      assert.equal(finishAndCheck().code, 1);
+    });
+  });
 });

@@ -1,0 +1,57 @@
+name: Release
+
+# Tags `v<version>` and creates a GitHub Release whenever a push to `main`
+# carries a `package.json` version that has no tag yet. CI's version-bump check
+# (.github/scripts/check-version-bumps.mjs) requires a version bump with every
+# change to shipped content, so this is one release per merged change. Consumers
+# pin the actions in .github/actions/ to the tagged commit's SHA and let
+# Dependabot's github-actions ecosystem bump it.
+#
+# This workflow runs after the merge, so `main`'s required checks have already
+# gated the commit; it never changes, waits on or bypasses them. The decision
+# logic is .github/scripts/release-tag.mjs.
+#
+# Security notes:
+#  - `contents: write` is granted to this one job only; the workflow default is none.
+#  - No third-party action beyond checkout; the release is made with the
+#    preinstalled `gh` and the job's own token.
+#  - The tag comes from a semver-validated version and reaches the shell through
+#    an environment variable, never inline `${{ }}`.
+on:
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+# One release run at a time, none cancelled, so a second merge never races the first for a tag.
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Tag and release
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # All tags are needed to see whether this version is already released.
+          fetch-depth: 0
+          # Nothing here pushes with git; the release is created through the API.
+          persist-credentials: false
+
+      - name: Decide
+        id: decide
+        run: node .github/scripts/release-tag.mjs
+
+      - name: Create tag and release
+        if: steps.decide.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.decide.outputs.tag }}
+        run: gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --generate-notes

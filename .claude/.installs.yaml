@@ -9,9 +9,21 @@ bundles:
       - path: .claude/standards/csharp_base.md
         hash: sha256:064b85fa03d352f7a16a5d03d1613aacd78fb6ce26979786520d8632279e79e2
       - path: .claude/standards/javascript_base.md
-        hash: sha256:6444f0429b8d9c5f4b1eae79aacde6f74ef1bf752f147267e3f2cf46d5c7a699
+        hash: sha256:fd32b4759c5b88995919adfa8fe42bf91942ee2b528cc169f2cc654720613845
       - path: .claude/standards/javascript_node.md
         hash: sha256:9f434037ea7037207cbf34dd5d82cbaefbdb2db9c9984a4c7200436b969ce15d
+      - path: .claude/standards/typescript_base.md
+        hash: sha256:362a7396a03eea5082205a8a44378a11eaa455017ef91db311cf324ae6f1c952
+      - path: .claude/standards/typescript_electron.md
+        hash: sha256:ba994fc5ce3132a4a1ac084fb8b1709cf3796be12ddd691933825a91f379390a
+      - path: .claude/standards/typescript_node.md
+        hash: sha256:827e3ab8b667b8be6486fe2c288ec59dbb67bc3f9456aa58211d052f8c075eff
+      - path: .claude/standards/typescript_react.md
+        hash: sha256:62d74491636781d978ef160cb513b8df41625677e4eef728fb2815bf6dcc9158
+      - path: .claude/standards/typescript_react_fluentui.md
+        hash: sha256:eb765cd0449f03171ee2dddb1a41712428a12775c4afe27fb79f01e33c82f0f4
+      - path: .claude/standards/typescript_testing.md
+        hash: sha256:d054c56fb674bfb939032f57b823021cce53f367cdee764bb5f9fa60e39cdd2d
       - path: .claude/agents/engineer.md
         hash: sha256:58d6a216b3ccb0ffca7e89ac50a14d802a83c7ccdda8ae6130c71242ebd25b7e
       - path: .claude/agents/engineering-researcher.md
@@ -71,9 +83,9 @@ bundles:
       - path: .claude/skills/review-severity/reference/template.md
         hash: sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5
       - path: .claude/skills/findings/SKILL.md
-        hash: sha256:27983010106ecfd22beb8a51bb0a33fa719741dec7e06585d186ab87664b4678
+        hash: sha256:a38028803600674fa23da196c6ead139c91350ee72b738c0a34bebc5f062460c
       - path: .claude/skills/findings/scripts/findings.js
-        hash: sha256:36720a1d81bb9c4d25e498e923774af5f5b7fbe8e609a83c6a95626df6cf4b57
+        hash: sha256:566fa222b28390da8df62d362a89b3440e267c46325c2b2b3edcde7d5614e9e0
       - path: .claude/skills/code-review/SKILL.md
         hash: sha256:95c98530ed5e5e7984f0a3bfd334e73bbd9e7423a27f48649d1da074e95d67c5
       - path: .claude/skills/ai-component-review/SKILL.md
@@ -111,8 +123,8 @@ bundles:
       skills/pr-stewardship/SKILL.md: sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e
       skills/review-severity/SKILL.md: sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de
       skills/review-severity/reference/template.md: sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5
-      skills/findings/SKILL.md: sha256:27983010106ecfd22beb8a51bb0a33fa719741dec7e06585d186ab87664b4678
-      skills/findings/scripts/findings.js: sha256:36720a1d81bb9c4d25e498e923774af5f5b7fbe8e609a83c6a95626df6cf4b57
+      skills/findings/SKILL.md: sha256:a38028803600674fa23da196c6ead139c91350ee72b738c0a34bebc5f062460c
+      skills/findings/scripts/findings.js: sha256:566fa222b28390da8df62d362a89b3440e267c46325c2b2b3edcde7d5614e9e0
       skills/code-review/SKILL.md: sha256:95c98530ed5e5e7984f0a3bfd334e73bbd9e7423a27f48649d1da074e95d67c5
       skills/ai-component-review/SKILL.md: sha256:66c5f91534f16572bd5c493c988d4a4eb0c777c764ee5bf01e72762b91ef5963
 servers: {}
