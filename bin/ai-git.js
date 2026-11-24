@@ -41,6 +41,8 @@ import {
   mkdtempSync,
   writeFileSync,
   rmSync,
+  readdirSync,
+  lstatSync,
 } from 'node:fs';
 import { resolve, join, delimiter } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -55,6 +57,8 @@ import {
   findRemoteName,
   buildAuthConfigArgs,
   isDoctorCommand,
+  SIGNING_DIR_PREFIX,
+  selectStaleSigningDirs,
   buildDoctorReport,
   DOCTOR_TOOLS,
   DOCTOR_PROBE_ENV,
@@ -115,13 +119,42 @@ function findAiConfig() {
 // --- Command execution ---
 
 /**
+ * Remove signing temp directories a killed run left behind (SIGINT/SIGTERM skips `finally`).
+ * Only real directories we own that are older than the stale threshold; never throws.
+ * @returns {void}
+ */
+function sweepStaleSigningDirs() {
+  try {
+    const base = tmpdir();
+    const uid = typeof process.getuid === 'function' ? process.getuid() : null;
+    const entries = [];
+    for (const name of readdirSync(base)) {
+      if (!name.startsWith(SIGNING_DIR_PREFIX)) continue;
+      try {
+        const st = lstatSync(join(base, name));
+        if (!st.isDirectory()) continue;
+        // No uid on Windows, where the temp dir is per-user already.
+        entries.push({ name, mtimeMs: st.mtimeMs, ownedByUs: uid === null || st.uid === uid });
+      } catch {
+        // Vanished or unreadable: not ours to clean.
+      }
+    }
+    for (const name of selectStaleSigningDirs(entries, Date.now())) {
+      rmSync(join(base, name), { recursive: true, force: true });
+    }
+  } catch {
+    // Best effort: a failed sweep must never block a commit.
+  }
+}
+
+/**
  * Write the signing key to a private temp file for git to read.
  * @param {string} keyText - Normalised private key
  * @returns {{ dir: string, path: string }}
  */
 function writeTempKey(keyText) {
   // mkdtemp creates the directory 0700 on POSIX; the key file is 0600.
-  const dir = mkdtempSync(join(tmpdir(), 'ai-git-sign-'));
+  const dir = mkdtempSync(join(tmpdir(), SIGNING_DIR_PREFIX));
   const path = join(dir, 'key');
   writeFileSync(path, keyText, { mode: 0o600 });
   return { dir, path };
@@ -199,6 +232,7 @@ function runGit(args, identity, signing = null) {
   // that is removed afterwards, so nothing is persisted in .git/config.
   let keyDir = null;
   if (signing) {
+    sweepStaleSigningDirs();
     const prepared = prepareSigning(signing.keyEnvName, signing.cause);
     if (prepared.path) {
       keyDir = prepared.dir;
