@@ -1,0 +1,54 @@
+name: AIF project bundles
+description: Check a project's committed AIF install for drift, or refresh the bundles its manifest already records.
+
+inputs:
+  mode:
+    description: "`check` reports drift as a warning and never fails on it; `update` refreshes the bundles already recorded in the project manifest (it never installs new ones) and sets the `changed` output."
+    required: false
+    default: check
+
+outputs:
+  changed:
+    description: "`true` when `update` left uncommitted changes in the harness directories (`.claude/`, `.kiro/`), otherwise `false`. Always `false` in `check` mode."
+    value: ${{ steps.run.outputs.changed }}
+
+runs:
+  using: composite
+  steps:
+    - name: Validate mode
+      shell: bash
+      env:
+        MODE: ${{ inputs.mode }}
+      run: |
+        case "$MODE" in
+          check | update) echo "aif bundles: mode=$MODE" ;;
+          *) echo "::error::bundles: unknown mode '$MODE' (expected check or update)"; exit 1 ;;
+        esac
+
+    - name: Install aif dependencies
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        # This action lives at <root>/.github/actions/bundles.
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        cd "$AIF_ROOT" && npm ci --omit=dev
+
+    - name: Run aif install
+      id: run
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        MODE: ${{ inputs.mode }}
+      run: |
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        if [ "$MODE" = "check" ]; then
+          echo "aif bundles: running 'aif install --scope project --check'"
+          node "$AIF_ROOT/bin/aif.js" install --scope project --check
+          echo "changed=false" >> "$GITHUB_OUTPUT"
+        else
+          echo "aif bundles: running 'aif install --scope project --update'"
+          node "$AIF_ROOT/bin/aif.js" install --scope project --update
+          # aif's own "N updated" count is unreliable at project scope; ask git instead.
+          node "$AIF_ROOT/.github/scripts/harness-changes.mjs"
+        fi

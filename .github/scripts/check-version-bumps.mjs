@@ -11,6 +11,12 @@
  * and their `version` keys belong to other tools (e.g. `version: 2` in
  * `dependabot.yml` is Dependabot's schema version and cannot be bumped).
  *
+ * A change to shipped content (agents, skills, steering, standards, servers,
+ * bundles, projects, bin, lib) must also raise `package.json`'s `version`, so the
+ * release workflow tags one release per merged change. Dependency manifests
+ * (`package.json`, `package-lock.json`) do not count, which keeps Dependabot PRs
+ * exempt. The rule lives in version-bump-logic.mjs.
+ *
  * Usage:
  *   node check-version-bumps.mjs sha <baseSha> [headRef]
  *     Diff explicitly against <baseSha>. If <baseSha> is empty or the
@@ -31,6 +37,8 @@
 import { execFileSync } from 'node:child_process';
 import { extname } from 'node:path';
 import YAML from 'yaml';
+
+import { isOlder, needsPackageBump, packageBumpError } from './version-bump-logic.mjs';
 
 const [mode, modeArg, headRef = 'HEAD'] = process.argv.slice(2);
 
@@ -130,22 +138,6 @@ function readAtRef(ref, path) {
   }
 }
 
-function isOlder(oldV, newV) {
-  const parse = (v) =>
-    String(v)
-      .split(/[.+-]/)
-      .map((n) => (Number.isNaN(Number(n)) ? 0 : Number(n)));
-  const a = parse(oldV);
-  const b = parse(newV);
-  for (let i = 0; i < Math.max(a.length, b.length); i++) {
-    const x = a[i] ?? 0;
-    const y = b[i] ?? 0;
-    if (y > x) return true;
-    if (y < x) return false;
-  }
-  return false; // equal
-}
-
 const diffOutput = git(['diff', '--name-status', `${baseSha}...${headRef}`]).trim();
 
 if (!diffOutput) {
@@ -192,11 +184,23 @@ for (const line of diffOutput.split('\n')) {
   }
 }
 
+// Shipped content changed: package.json's version must move too, so the release
+// workflow tags one release per merged change (see version-bump-logic.mjs).
+const changedPaths = diffOutput.split('\n').flatMap((line) => line.split('\t').slice(1));
+if (needsPackageBump(changedPaths)) {
+  const packageError = packageBumpError({
+    changedPaths,
+    baseJson: readAtRef(baseSha, 'package.json'),
+    headJson: readAtRef(headRef, 'package.json'),
+  });
+  if (packageError) errors.push(packageError);
+}
+
 if (errors.length > 0) {
   console.log(`✗ version-bump check (${errors.length} error(s), ${checked} file(s) checked)`);
   for (const err of errors) console.log(`    ${err}`);
   console.log(
-    '\nBump the `version` field when changing a versioned component (agent, skill, steering, standard, bundle, or server definition).',
+    "\nBump the `version` field when changing a versioned component (agent, skill, steering, standard, bundle, or server definition), and `package.json`'s version when changing shipped content (agents, skills, steering, standards, servers, bundles, projects, bin, lib).",
   );
   process.exit(1);
 }
