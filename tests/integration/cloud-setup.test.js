@@ -18,6 +18,7 @@ import {
   mkdirSync,
   readdirSync,
   symlinkSync,
+  unlinkSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
@@ -165,6 +166,15 @@ describe(
       assert.match(readFileSync(join(bin, 'gh'), 'utf8'), /gh version 2\.102\.0/);
       assert.match(readFileSync(join(bin, 'bws'), 'utf8'), /bws 2\.1\.0/);
       assert.deepEqual(readdirSync(bin).sort(), ['bws', 'gh']);
+    });
+
+    it('leaves no temp file in the bin dir when the final rename fails', () => {
+      unlinkSync(join(stubs, 'mv'));
+      stub('mv', 'exit 1');
+      const result = run();
+      assert.equal(result.status, 0);
+      assert.match(result.stderr, /gh 2\.102\.0: install failed/);
+      assert.deepEqual(readdirSync(bin), []);
     });
 
     it('installs nothing and exits 0 on a checksum mismatch', () => {
