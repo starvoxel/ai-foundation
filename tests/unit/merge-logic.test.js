@@ -22,6 +22,7 @@ const {
   QUEUE_TIMEOUT_MS,
   REFUSALS,
   applyVersion,
+  classifyBotCommit,
   bumpLevelFromLabels,
   decideAuthorization,
   decideMerge,
@@ -745,6 +746,42 @@ describe('waiting for checks', () => {
   it('has a line for each reason a wait is dropped', () => {
     for (const code of ['queue-expired', 'queue-head-moved', 'queue-lost']) {
       assert.ok(describeRefusal([code])[0].includes('`/merge`'), code);
+    }
+  });
+});
+
+describe('classifyBotCommit', () => {
+  const update = {
+    message: 'Merge main into feat/x [skip ci]',
+    authorLogin: 'app[bot]',
+    parents: ['a', 'b'],
+    files: ['lib/y.js'],
+  };
+  const version = {
+    message: 'Set the version to 0.5.5 [skip ci]',
+    authorLogin: 'app[bot]',
+    parents: ['a'],
+    files: ['package.json', 'package-lock.json'],
+  };
+
+  it('recognises the bot update and version commits', () => {
+    assert.equal(classifyBotCommit(update, 'feat/x', 'main'), 'update');
+    assert.equal(classifyBotCommit(version, 'feat/x', 'main'), 'version');
+  });
+
+  it('rejects a non-bot author, another message, the wrong shape or an extra file', () => {
+    for (const [commit, branch] of [
+      [{ ...update, authorLogin: 'jo' }, 'feat/x'],
+      [{ ...version, authorLogin: 'jo' }, 'feat/x'],
+      [update, 'other'],
+      [{ ...update, message: 'Merge main into feat/x' }, 'feat/x'],
+      [{ ...update, parents: ['a'] }, 'feat/x'],
+      [{ ...version, message: 'Set the version to 1.2 [skip ci]' }, 'feat/x'],
+      [{ ...version, parents: ['a', 'b'] }, 'feat/x'],
+      [{ ...version, files: ['package.json', 'lib/x.js'] }, 'feat/x'],
+      [{ ...version, files: [] }, 'feat/x'],
+    ]) {
+      assert.equal(classifyBotCommit(commit, branch, 'main'), null);
     }
   });
 });

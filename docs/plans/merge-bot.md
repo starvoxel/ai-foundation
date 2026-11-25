@@ -90,6 +90,8 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 - A pending `/merge` waits for checks instead of being refused, for up to 4 hours (human, 2026-11-25). The wait is the label plus a bot-written marker; removing the label cancels it. Wake-ups reuse the `merge` concurrency group, and GitHub keeps only one pending run per group, so a wake-up can replace a `/merge` comment run still pending behind a running merge; comment again if the bot stays silent.
 
+- A retry after a merge that failed part-way is gated on the commit beneath the bot's own `[skip ci]` commits, each verified as the bot's (author, exact message, version-only diff or an update from `main`), so the user need not push a commit to get CI on a head the bot made (human, 2026-11-25).
+
 ## Open questions
 
 - The App's own check runs: if a required check is an Actions job, does the ruleset accept bypass-merge of a head with a bot commit and no check results? Test in milestone 3; the research could not confirm it.
