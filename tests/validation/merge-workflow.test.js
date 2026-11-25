@@ -24,9 +24,24 @@ const workflow = YAML.parse(text);
 const job = workflow.jobs.merge;
 
 describe('.github/workflows/merge.yml', () => {
-  it('triggers only on created issue comments, never pull_request_target', () => {
-    assert.deepEqual(Object.keys(workflow.on), ['issue_comment']);
+  it('triggers only on created issue comments and finished CI runs, never pull_request_target', () => {
+    assert.deepEqual(Object.keys(workflow.on), ['issue_comment', 'workflow_run']);
     assert.deepEqual(workflow.on.issue_comment.types, ['created']);
+    assert.deepEqual(workflow.on.workflow_run.workflows, ['CI']);
+    assert.deepEqual(workflow.on.workflow_run.types, ['completed']);
+  });
+
+  it('wakes on a finished pull-request CI run only, and passes the event name, not its payload', () => {
+    assert.match(job.if, /github\.event_name == 'workflow_run'/);
+    assert.match(job.if, /github\.event\.workflow_run\.event == 'pull_request'/);
+    const decide = job.steps.find((step) => step.run?.includes('merge.mjs'));
+    assert.equal(decide.env.EVENT_NAME, '${{ github.event_name }}');
+    assert.ok(
+      !Object.values(decide.env).some((value) =>
+        String(value).includes('github.event.workflow_run'),
+      ),
+      'the wake-up must not read the workflow_run payload',
+    );
   });
 
   it('grants nothing by default and only read plus pull-request comments to the job', () => {
@@ -39,6 +54,7 @@ describe('.github/workflows/merge.yml', () => {
   });
 
   it('only runs for a PR comment that mentions /merge', () => {
+    assert.match(job.if, /github\.event_name == 'issue_comment'/);
     assert.match(job.if, /github\.event\.issue\.pull_request/);
     assert.match(job.if, /\/merge/);
   });

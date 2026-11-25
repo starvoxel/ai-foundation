@@ -23,9 +23,9 @@ const REPO = 'o/r';
 const b64 = (/** @type {string} */ text) => Buffer.from(text).toString('base64');
 
 /** A fake API over a table of canned responses keyed by `METHOD path`; records every call. */
-function fakeApi(overrides = {}) {
+function fakeApi(overrides = {}, head = 'abc') {
   const calls = [];
-  const responses = {
+  const base = {
     'GET /repos/o/r/collaborators/jo/permission': { permission: 'write' },
     'GET /repos/o/r/pulls/7': {
       state: 'open',
@@ -54,8 +54,18 @@ function fakeApi(overrides = {}) {
     'GET /repos/o/r/contents/package.json?ref=base': { content: b64('{"version":"0.5.2"}') },
     'GET /repos/o/r/contents/package.json?ref=abc': { content: b64('{"version":"0.5.2"}') },
     'POST /repos/o/r/issues/7/comments': {},
-    ...overrides,
   };
+  // Re-key the fixture to another head SHA, for tests that need a full-length one.
+  const rekeyed =
+    head === 'abc'
+      ? base
+      : Object.fromEntries(
+          Object.entries(base).map(([key, value]) => [
+            key.replaceAll('abc', head),
+            JSON.parse(JSON.stringify(value).replaceAll('abc', head)),
+          ]),
+        );
+  const responses = { ...rekeyed, ...overrides };
   const counts = {};
   const api = async (method, path, body) => {
     calls.push({ method, path, body });
@@ -664,5 +674,233 @@ describe('createApi', () => {
   it('returns the parsed body on success and null on 204', async () => {
     assert.deepEqual(await createApi('t', reply(200, 'OK', { a: 1 }))('GET', '/x'), { a: 1 });
     assert.equal(await createApi('t', reply(204, 'No Content'))('GET', '/x'), null);
+  });
+});
+
+const H = 'a'.repeat(40);
+const pendingRuns = {
+  [`GET /repos/o/r/commits/${H}/check-runs?per_page=100&page=1`]: {
+    check_runs: [{ name: 'Validate', status: 'in_progress', conclusion: null }],
+  },
+};
+const NOW = 1_700_000_000_000;
+const HOUR = 3_600_000;
+const marker = (at = NOW - HOUR, sha = H, login = 'jo') =>
+  `<!-- merge-queued login=${login} sha=${sha} at=${at} -->`;
+const botComment = (body) => ({ user: { type: 'Bot', login: 'app[bot]' }, body });
+const wakeEnv = () => ({ GITHUB_REPOSITORY: REPO, EVENT_NAME: 'workflow_run', DRY_RUN: 'false' });
+const QUEUE_LIST = 'GET /repos/o/r/issues?labels=merge-queued&state=open&per_page=100&page=1';
+const COMMENT_LIST = 'GET /repos/o/r/issues/7/comments?per_page=100&page=1';
+const LABEL_DELETE = 'DELETE /repos/o/r/issues/7/labels/merge-queued';
+
+const queueApi = (responses) => fakeApi(responses, H);
+
+/** Responses for a waiting PR 7 whose marker names head `abc` (the fake pads it to 40 hex digits). */
+function queueResponses(overrides = {}) {
+  return liveResponses({
+    [QUEUE_LIST]: [{ number: 7, pull_request: {} }, { number: 9 }],
+    [COMMENT_LIST]: [botComment(marker())],
+    [LABEL_DELETE]: null,
+    'POST /repos/o/r/merges': { sha: 'upd1', parents: [{ sha: H }, { sha: 'maintip' }] },
+    ...overrides,
+  });
+}
+
+describe('run, waiting for checks', () => {
+  it('queues a /merge whose only problem is a running check, recording who, which head and when', async () => {
+    const { api, calls } = fakeApi({ ...pendingRuns, 'POST /repos/o/r/issues/7/labels': {} }, H);
+    const result = await run({ env: liveEnv(), api, log: quiet, now: () => NOW });
+    assert.equal(result, 'queued');
+    const label = calls.find((call) => call.path === '/repos/o/r/issues/7/labels');
+    assert.deepEqual(label.body, { labels: ['merge-queued'] });
+    const body = posted(calls).find((call) => call.path.endsWith('/comments')).body.body;
+    assert.match(body, /^\*\*Waiting for checks\*\*\n/);
+    assert.match(body, /for up to 4 hours/);
+    assert.ok(body.endsWith(`<!-- merge-queued login=jo sha=${H} at=${NOW} -->`));
+    assert.deepEqual(mutations(calls), []);
+  });
+
+  it('does not queue when anything besides a running check is wrong', async () => {
+    const { api, calls } = fakeApi(
+      {
+        [`GET /repos/o/r/commits/${H}/check-runs?per_page=100&page=1`]: {
+          check_runs: [
+            { name: 'Validate', status: 'completed', conclusion: 'failure' },
+            { name: 'Other', status: 'in_progress', conclusion: null },
+          ],
+        },
+      },
+      H,
+    );
+    const result = await run({ env: liveEnv(), api, log: quiet, now: () => NOW });
+    assert.equal(result, 'refused');
+    assert.ok(!calls.some((call) => call.path.endsWith('/labels')));
+  });
+
+  it('does not queue in dry-run mode', async () => {
+    const { api, calls } = fakeApi(pendingRuns, H);
+    const result = await run({ env: env(), api, log: quiet, now: () => NOW });
+    assert.equal(result, 'refused');
+    assert.ok(!calls.some((call) => call.path.endsWith('/labels')));
+  });
+
+  it('ignores the wake-up entirely in dry-run mode', async () => {
+    const { api, calls } = fakeApi();
+    const result = await run({
+      env: { ...wakeEnv(), DRY_RUN: 'true' },
+      api,
+      log: quiet,
+      now: () => NOW,
+    });
+    assert.equal(result, 'ignored');
+    assert.deepEqual(calls, []);
+  });
+
+  it('merges a waiting PR once its checks pass, dropping the label first, and skips non-PRs', async () => {
+    const { api, calls } = queueApi(queueResponses());
+    const result = await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.equal(result, 'queue-checked');
+    assert.ok(idx(calls, LABEL_DELETE) < idx(calls, 'PUT /repos/o/r/pulls/7/merge'));
+    assert.ok(idx(calls, 'PUT /repos/o/r/pulls/7/merge') > 0);
+    assert.ok(!calls.some((call) => call.path.includes('/issues/9/')));
+    const last = posted(calls).at(-1).body.body;
+    assert.match(last, /^\*\*Merge successful\*\*/);
+  });
+
+  it('keeps waiting, silently, while checks are still running', async () => {
+    const { api, calls } = queueApi(queueResponses(pendingRuns));
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.deepEqual(mutations(calls), []);
+    assert.deepEqual(posted(calls), []);
+  });
+
+  it('drops the wait and says why when a check failed', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({
+        [`GET /repos/o/r/commits/${H}/check-runs?per_page=100&page=1`]: {
+          check_runs: [{ name: 'Validate', status: 'completed', conclusion: 'failure' }],
+        },
+      }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.ok(names(calls).includes(LABEL_DELETE));
+    assert.equal(
+      posted(calls).at(-1).body.body,
+      '**Merge failed**\nA required check failed. Fix it and try again.',
+    );
+    assert.deepEqual(
+      mutations(calls).map((c) => c.method),
+      ['DELETE'],
+    );
+  });
+
+  it('drops a wait older than four hours without looking at the PR', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({ [COMMENT_LIST]: [botComment(marker(NOW - 4 * HOUR - 1))] }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.match(posted(calls).at(-1).body.body, /did not finish within 4 hours/);
+    assert.ok(!names(calls).includes('GET /repos/o/r/pulls/7'));
+    assert.ok(names(calls).includes(LABEL_DELETE));
+  });
+
+  it('still waits at exactly four hours', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({ ...pendingRuns, [COMMENT_LIST]: [botComment(marker(NOW - 4 * HOUR))] }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.deepEqual(mutations(calls), []);
+  });
+
+  it('drops the wait when the head moved since the request', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({ [COMMENT_LIST]: [botComment(marker(NOW - HOUR, 'b'.repeat(40)))] }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.match(posted(calls).at(-1).body.body, /branch changed while waiting/);
+    assert.ok(!names(calls).includes('PUT /repos/o/r/pulls/7/merge'));
+  });
+
+  it('drops the wait when the requester lost write access', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({
+        'GET /repos/o/r/collaborators/jo/permission': { permission: 'read' },
+      }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.match(posted(calls).at(-1).body.body, /write access/);
+    assert.ok(!names(calls).includes('PUT /repos/o/r/pulls/7/merge'));
+  });
+
+  it('trusts only a marker written by a bot', async () => {
+    const forged = { user: { type: 'User', login: 'mallory' }, body: marker() };
+    const { api, calls } = queueApi(queueResponses({ [COMMENT_LIST]: [forged] }));
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.match(posted(calls).at(-1).body.body, /could not be found/);
+    assert.ok(!names(calls).includes('PUT /repos/o/r/pulls/7/merge'));
+  });
+
+  it('uses the latest marker when there are several', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({
+        ...pendingRuns,
+        [COMMENT_LIST]: [botComment(marker(NOW - 9 * HOUR)), botComment(marker(NOW - HOUR))],
+      }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.deepEqual(mutations(calls), []);
+  });
+
+  it('quietly drops the label of a PR that is no longer open', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({
+        'GET /repos/o/r/pulls/7': {
+          state: 'closed',
+          draft: false,
+          mergeable: false,
+          head: { sha: H, ref: 'feat/x', repo: { full_name: REPO } },
+          base: { ref: 'main', repo: { full_name: REPO, default_branch: 'main' } },
+          user: { login: 'jo' },
+          labels: [],
+        },
+      }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+    assert.deepEqual(posted(calls), []);
+    assert.ok(names(calls).includes(LABEL_DELETE));
+  });
+
+  it('tolerates the label already being gone', async () => {
+    const { api } = queueApi(
+      queueResponses({
+        ...pendingRuns,
+        [COMMENT_LIST]: [],
+        [LABEL_DELETE]: httpError(404),
+      }),
+    );
+    await run({ env: wakeEnv(), api, log: quiet, now: () => NOW });
+  });
+
+  it('keeps settling the other waiting PRs when one merge fails, then fails the job', async () => {
+    const { api, calls } = queueApi(
+      queueResponses({
+        [QUEUE_LIST]: [
+          { number: 7, pull_request: {} },
+          { number: 8, pull_request: {} },
+        ],
+        'PUT /repos/o/r/pulls/7/merge': httpError(500, 'boom'),
+        'GET /repos/o/r/issues/8/comments?per_page=100&page=1': [],
+        'DELETE /repos/o/r/issues/8/labels/merge-queued': null,
+        'POST /repos/o/r/issues/8/comments': {},
+      }),
+    );
+    await assert.rejects(run({ env: wakeEnv(), api, log: quiet, now: () => NOW }), /500/);
+    assert.ok(names(calls).includes('DELETE /repos/o/r/issues/8/labels/merge-queued'));
+    assert.match(
+      posted(calls).find(
+        (call) => call.path === '/repos/o/r/issues/7/comments' && /Error 500/.test(call.body.body),
+      ).body.body,
+      /Merge failed/,
+    );
   });
 });
