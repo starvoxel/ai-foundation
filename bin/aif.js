@@ -27,6 +27,7 @@ const SHORT_FLAG_ALIASES = {
   h: 'help',
   B: 'bundle',
   H: 'harness',
+  I: 'integration',
 };
 
 /**
@@ -123,6 +124,8 @@ Commands:
 
 Options:
   -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only)
+  -I, --integration <n> Project integration to install: checks, update, hooks, session-start, all
+                        (comma-separated; project scope only)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
   --scope <scope>       project (default: this project, to commit) or global (home directory)
   --update              Update all installed bundles that are stale
