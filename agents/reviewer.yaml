@@ -1,6 +1,6 @@
 ---
 name: "reviewer"
-version: "1.0.1"
+version: "1.0.2"
 domain: "engineering"
 description: "Independent review agent — reviews a diff in a fresh context for correctness, security, and standards, and returns a severity-ranked report."
 
@@ -73,3 +73,8 @@ blocked_commands:
   - "ai-git commit *"
   - "ai-git add *"
   - "ai-git gh-api * --method *"
+  - "ai-git gh-api --method *"
+  - "ai-git gh-api * -X *"
+  - "ai-git gh-api -X *"
+  - "ai-git gh-api * -f *"
+  - "ai-git gh-api -f *"

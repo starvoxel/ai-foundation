@@ -308,6 +308,30 @@ describe('integration: check-version-bumps.mjs', () => {
       assert.equal(code, 0);
       assert.doesNotMatch(stdout, /content changed but version stayed/);
     });
+
+    it('still checks a look-alike path such as projects/_template/.github/x.yml', () => {
+      const path = join(repo, 'projects', '_template', '.github');
+      const write = (description) => {
+        mkdirSync(path, { recursive: true });
+        writeFileSync(
+          join(path, 'x.yml'),
+          `name: x\nversion: 1.0.0\ndescription: ${description}\n`,
+          'utf8',
+        );
+      };
+      write('first');
+      commit(repo, 'add look-alike file');
+      publishBranch(repo, 'main');
+
+      runGit(repo, ['checkout', '-q', '-b', 'feature']);
+      write('changed, forgot to bump');
+      commit(repo, 'edit look-alike file without bump');
+      publishBranch(repo, 'feature');
+
+      const { code, stdout } = runCheck(repo, ['auto-parent', 'feature']);
+      assert.equal(code, 1);
+      assert.match(stdout, /content changed but version stayed at '1\.0\.0'/);
+    });
   });
 
   describe('still checks look-alike .github paths', () => {

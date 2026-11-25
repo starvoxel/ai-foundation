@@ -21,6 +21,8 @@ import {
   needsSigning,
   normalizePrivateKey,
   buildSigningConfigArgs,
+  selectStaleSigningDirs,
+  STALE_SIGNING_DIR_MS,
   describeSigningFailure,
   isDoctorCommand,
   buildDoctorReport,
@@ -516,6 +518,22 @@ describe('unit: ai-git', () => {
               /not a valid private key/.test(err.message) && !err.message.includes('hunter2'),
           );
         }
+      });
+    });
+
+    describe('selectStaleSigningDirs', () => {
+      const now = 10 * STALE_SIGNING_DIR_MS;
+      const dir = (name, ageMs, ownedByUs = true) => ({ name, mtimeMs: now - ageMs, ownedByUs });
+
+      it('picks only old, owned ai-git-sign-* directories', () => {
+        const entries = [
+          dir('ai-git-sign-old', STALE_SIGNING_DIR_MS + 1),
+          dir('ai-git-sign-fresh', 1000),
+          dir('ai-git-sign-edge', STALE_SIGNING_DIR_MS),
+          dir('ai-git-sign-theirs', STALE_SIGNING_DIR_MS * 2, false),
+          dir('other-old', STALE_SIGNING_DIR_MS * 2),
+        ];
+        assert.deepEqual(selectStaleSigningDirs(entries, now), ['ai-git-sign-old']);
       });
     });
 
