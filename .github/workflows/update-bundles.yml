@@ -45,10 +45,17 @@ jobs:
     name: Update AIF bundles
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # A schedule run and a manual run must not interleave their close, delete and push steps.
+    concurrency:
+      group: aif-update-bundles
+      cancel-in-progress: false
     steps:
+      # The default branch, whatever ref triggered the run, so the update PR never carries
+      # unrelated commits from a branch someone dispatched the workflow on.
       - name: Check out
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ github.event.repository.default_branch }}
           persist-credentials: false
 
       - name: Set up Node.js
@@ -76,18 +83,33 @@ jobs:
       # then opens a new one from the current state of the default branch, so it never goes stale.
       # With nothing to update, the old pull request is closed and none is opened.
       - name: Replace update PR
+        shell: bash
         env:
           GH_TOKEN: ${{ env.AIF_UPDATE_TOKEN }}
           CHANGED: ${{ steps.bundles.outputs.changed }}
           BASE: ${{ github.event.repository.default_branch }}
+          OWNER: ${{ github.repository_owner }}
         run: |
           branch="aif/update-bundles"
-          # Checkout kept no credentials; give git the token for the pushes only.
+          # Checkout kept no credentials; give git the token for the pushes only, and mask the
+          # derived header, which the runner would not recognise as the token.
           auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
-          for number in $(gh pr list --head "$branch" --state open --json number --jq '.[].number'); do
+          echo "::add-mask::$auth"
+          # Own-repository pull requests only: a fork can use the same branch name.
+          open="$(gh pr list --head "$branch" --state open --json number,headRepositoryOwner \
+            --jq ".[] | select(.headRepositoryOwner.login == \"$OWNER\") | .number")"
+          for number in $open; do
             gh pr close "$number" --delete-branch --comment "Replaced by the next run of the AIF update workflow."
           done
-          git -c http.extraheader="$auth" push origin --delete "$branch" 2>/dev/null || true
+          # Exit 0: the branch exists, delete it. Exit 2: it does not. Anything else is a real error.
+          status=0
+          git -c http.extraheader="$auth" ls-remote --exit-code --heads origin "$branch" >/dev/null || status=$?
+          if [ "$status" = 0 ]; then
+            git -c http.extraheader="$auth" push origin --delete "$branch"
+          elif [ "$status" != 2 ]; then
+            echo "::error::Could not look up branch $branch (git exit $status)"
+            exit 1
+          fi
           if [ "$CHANGED" != "true" ]; then
             echo "The installed bundles are current."
             exit 0

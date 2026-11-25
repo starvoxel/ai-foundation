@@ -32,15 +32,30 @@ describe('.github/workflows/update-bundles.yml', () => {
     assert.equal(call.secrets?.BWS_ACCESS_TOKEN?.required, true);
   });
 
-  it('holds read-only contents permission at the top level', () => {
+  it('holds read-only contents permission and no job widens it', () => {
     assert.deepEqual(workflow.permissions, { contents: 'read' });
+    for (const [name, job] of Object.entries(workflow.jobs)) {
+      for (const [scope, level] of Object.entries(job.permissions ?? {})) {
+        assert.equal(level, 'read', `job "${name}" widens ${scope} to ${level}`);
+      }
+    }
+  });
+
+  it('runs one update at a time without cancelling a run in progress', () => {
+    for (const [name, job] of Object.entries(workflow.jobs)) {
+      assert.ok(job.concurrency?.group, `job "${name}" needs a concurrency group`);
+      assert.equal(job.concurrency['cancel-in-progress'], false);
+    }
   });
 
   it('pins every action to a full commit SHA with a release comment', () => {
-    const uses = text.split('\n').filter((line) => /^\s*uses:/.test(line));
-    assert.ok(uses.length > 0);
-    for (const line of uses) {
-      assert.match(line, /@[0-9a-f]{40} # v\d+\.\d+\.\d+\s*$/, `unpinned: ${line.trim()}`);
+    const used = steps.filter((step) => 'uses' in step);
+    assert.ok(used.length > 0);
+    for (const step of used) {
+      assert.match(step.uses, /^[^@]+@[0-9a-f]{40}$/, `unpinned: ${step.uses}`);
+      // The comment is not part of the parsed value, so look for it in the text of the file.
+      const commented = new RegExp(`uses: ${step.uses} # v\\d+\\.\\d+\\.\\d+\\s*$`, 'm');
+      assert.match(text, commented, `no release comment on ${step.uses}`);
     }
   });
 
@@ -59,7 +74,25 @@ describe('.github/workflows/update-bundles.yml', () => {
   });
 
   it('fetches the token after the bundles action, which runs npm ci', () => {
-    const names = steps.map((step) => step.name);
-    assert.ok(names.indexOf('Get update token') > names.indexOf('Update AIF bundles'));
+    const bundles = steps.findIndex((step) => step.id === 'bundles');
+    const token = steps.findIndex((step) =>
+      String(step.uses ?? '').startsWith('bitwarden/sm-action@'),
+    );
+    assert.ok(bundles >= 0, 'the bundles step must have id: bundles');
+    assert.ok(token >= 0, 'the token must come from bitwarden/sm-action');
+    assert.ok(token > bundles, 'the token must be fetched after the bundles action');
+  });
+
+  it('sets `shell: bash` on every run step', () => {
+    const runSteps = steps.filter((step) => 'run' in step);
+    assert.ok(runSteps.length > 0);
+    for (const step of runSteps) {
+      assert.equal(step.shell, 'bash', `step "${step.name}" must set shell: bash`);
+    }
+  });
+
+  it('checks out the default branch, not whichever ref triggered the run', () => {
+    const checkout = steps.find((step) => String(step.uses ?? '').startsWith('actions/checkout@'));
+    assert.match(checkout.with.ref, /default_branch/);
   });
 });
