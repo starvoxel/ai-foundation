@@ -13,7 +13,8 @@
  *
  * A change to shipped content (agents, skills, steering, standards, servers,
  * bundles, projects, bin, lib) must also raise `package.json`'s `version`, so the
- * release workflow tags one release per merged change. Dependency manifests
+ * release workflow tags one release per merged change, unless VERSION_POLICY=bot: then the
+ * `/merge` bot sets the version at merge and a PR must leave it alone. Dependency manifests
  * (`package.json`, `package-lock.json`) do not count, which keeps Dependabot PRs
  * exempt. The rule lives in version-bump-logic.mjs.
  *
@@ -42,6 +43,7 @@ import {
   isOlder,
   needsPackageBump,
   packageBumpError,
+  packageVersionEditError,
   pickParentRef,
 } from './version-bump-logic.mjs';
 
@@ -193,21 +195,30 @@ for (const line of diffOutput.split('\n')) {
 
 // Shipped content changed: package.json's version must move too, so the release
 // workflow tags one release per merged change (see version-bump-logic.mjs).
+//
+// With VERSION_POLICY=bot the `/merge` bot assigns the version when it merges, so a PR must not edit it
+// (the rule below flips). A push to `main` (`sha` mode) always keeps the original rule: the merge the bot
+// makes carries both the shipped change and the new version.
 const changedPaths = diffOutput.split('\n').flatMap((line) => line.split('\t').slice(1));
-if (needsPackageBump(changedPaths)) {
-  const packageError = packageBumpError({
-    changedPaths,
-    baseJson: readAtRef(baseSha, 'package.json'),
-    headJson: readAtRef(headRef, 'package.json'),
-  });
+const botOwnsVersion = process.env.VERSION_POLICY === 'bot' && mode === 'auto-parent';
+const baseJson = readAtRef(baseSha, 'package.json');
+const headJson = readAtRef(headRef, 'package.json');
+if (botOwnsVersion) {
+  const editError = packageVersionEditError({ baseJson, headJson });
+  if (editError) errors.push(editError);
+} else if (needsPackageBump(changedPaths)) {
+  const packageError = packageBumpError({ changedPaths, baseJson, headJson });
   if (packageError) errors.push(packageError);
 }
 
 if (errors.length > 0) {
   console.log(`✗ version-bump check (${errors.length} error(s), ${checked} file(s) checked)`);
   for (const err of errors) console.log(`    ${err}`);
+  const packageHint = botOwnsVersion
+    ? "Leave `package.json`'s version alone: the /merge bot sets it when it merges."
+    : "and `package.json`'s version when changing shipped content (agents, skills, steering, standards, servers, bundles, projects, bin, lib).";
   console.log(
-    "\nBump the `version` field when changing a versioned component (agent, skill, steering, standard, bundle, or server definition), and `package.json`'s version when changing shipped content (agents, skills, steering, standards, servers, bundles, projects, bin, lib).",
+    `\nBump the \`version\` field when changing a versioned component (agent, skill, steering, standard, bundle, or server definition)${botOwnsVersion ? '. ' : ', '}${packageHint}`,
   );
   process.exit(1);
 }
