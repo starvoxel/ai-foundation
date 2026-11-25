@@ -28,7 +28,7 @@ describe('lib/manifest', () => {
   describe('readManifest()', () => {
     it('returns a normalized empty manifest when file does not exist', () => {
       const result = readManifest(repo);
-      assert.deepEqual(result, { bundles: {}, servers: {}, hooks: {} });
+      assert.deepEqual(result, { bundles: {}, servers: {}, hooks: {}, integrations: {} });
     });
 
     it('reads and parses existing YAML manifest', () => {
@@ -36,6 +36,7 @@ describe('lib/manifest', () => {
         bundles: { engineering_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       writeManifest(repo, data);
 
@@ -50,6 +51,7 @@ describe('lib/manifest', () => {
         bundles: { test_kiro: { version: '0.1.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       });
 
       const content = readFileSync(manifestPath(repo), 'utf8');
@@ -61,11 +63,13 @@ describe('lib/manifest', () => {
         bundles: { first: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       });
       writeManifest(repo, {
         bundles: { second: { version: '2.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       });
 
       const result = readManifest(repo);
