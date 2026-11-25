@@ -32,6 +32,7 @@ const {
   UNSUPPORTED_REPLY,
   classifyComment,
   renderDryRun,
+  renderRefusal,
   requiredChecksFromRules,
   toGateInput,
   firstParentIs,
@@ -616,5 +617,15 @@ describe('firstParentIs', () => {
     assert.equal(firstParentIs(undefined, 'a'), false);
     assert.equal(firstParentIs(null, 'a'), false);
     assert.equal(firstParentIs([null], 'a'), false);
+  });
+});
+
+describe('renderRefusal', () => {
+  it('says it refused and changed nothing, and lists the reasons', () => {
+    const text = renderRefusal(['draft', 'label-missing'], { pullNumber: 7, headSha: 'abc' });
+    assert.match(text, /^\*\*\/merge refused\*\* for #7 at `abc`\. Nothing was changed\./);
+    assert.match(text, /- The PR is a draft\./);
+    assert.match(text, /- The PR changes shipped content but has no/);
+    assert.doesNotMatch(text, /dry run/i);
   });
 });
