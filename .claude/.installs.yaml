@@ -51,7 +51,7 @@ bundles:
       - path: .claude/rules/engineering-document-types.md
         hash: sha256:baa7b77c12787592e975d446cbd2a0e4e4c8269f65222e0a85c2ce1e2d9daa18
       - path: .claude/rules/engineering-git-workflow.md
-        hash: sha256:f33669759b4674ed101455767444eaf1debba3c6f146a86bcb42d09a098efe06
+        hash: sha256:15a382c3caa855f7b9a5ba0788b0e1a8ac383508d9874c0004c017da542d5b74
       - path: .claude/skills/oversight/SKILL.md
         hash: sha256:f00c66fc150b81d7be35ad0d9a1aad2af3b9a59a3a3bac08887184441fd122af
       - path: .claude/skills/oversight/scripts/resolve.js
@@ -77,7 +77,7 @@ bundles:
       - path: .claude/skills/subagent-prompting/reference/briefs.md
         hash: sha256:38c9dea5aba8c65b0b8df4cd6459cb1c0a007df6ee2df6ec52f1d4290cfc6a4f
       - path: .claude/skills/pr-stewardship/SKILL.md
-        hash: sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e
+        hash: sha256:d4672ac53f11572873dbe10793478a87625f7eb226c460cd6d5744e452db06e2
       - path: .claude/skills/review-severity/SKILL.md
         hash: sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de
       - path: .claude/skills/review-severity/reference/template.md
@@ -107,7 +107,7 @@ bundles:
       steering/engineering/core.md: sha256:495a1a12248a8436be9638556c2a76fa00294d049260c3ab98bb26593365791f
       steering/engineering/cross-platform.md: sha256:a6926903e434b7512608db7177e6333cdce7b6cb4e6e64317d507620d09bf9cd
       steering/engineering/document-types.md: sha256:ae7b8438cd36163f3e36b5dc7b043cdb746eab6534d496be8b5686dbb630f01e
-      steering/engineering/git-workflow.md: sha256:8458a583cd7c09f4afebb6cd0d7dba28dd6b23e368538f130b0c56b4f8d03f4b
+      steering/engineering/git-workflow.md: sha256:aea9a8bfeee146a630639f7586938b93e723e7e75630c364f831dc0de987551b
       skills/oversight/SKILL.md: sha256:f00c66fc150b81d7be35ad0d9a1aad2af3b9a59a3a3bac08887184441fd122af
       skills/oversight/scripts/resolve.js: sha256:8d7cdc8fb52032ae51e662202a9e3dd036851d2cc9ad23395c745016cfff4169
       skills/test-execution/SKILL.md: sha256:aa43c0d6df7752b9bbbd327c97d4de766f22dc565461ffdae29fd769e90e2a21
@@ -120,7 +120,7 @@ bundles:
       skills/pr-authoring/SKILL.md: sha256:a22b70aee9ffbe68ce556ced343077650c3ece9bae8ad84c1e43a2683b7a3e2b
       skills/subagent-prompting/SKILL.md: sha256:9020e2cd4e33e4200d940c5d1da3b6932717a54afe3a01de8af697b3d5c0fde8
       skills/subagent-prompting/reference/briefs.md: sha256:38c9dea5aba8c65b0b8df4cd6459cb1c0a007df6ee2df6ec52f1d4290cfc6a4f
-      skills/pr-stewardship/SKILL.md: sha256:0d7d426c6959892fe3d872efcd2d98f2b6da48d79828c189ae432cd37080f61e
+      skills/pr-stewardship/SKILL.md: sha256:d4672ac53f11572873dbe10793478a87625f7eb226c460cd6d5744e452db06e2
       skills/review-severity/SKILL.md: sha256:c161f349247beca19689b10bb93689fcddd06433faf52ef238484ba6f45ac5de
       skills/review-severity/reference/template.md: sha256:b6cb1e9955531159c56ca1cb036ddc34987d38721668f4a8ebdde5620b62b1e5
       skills/findings/SKILL.md: sha256:a38028803600674fa23da196c6ead139c91350ee72b738c0a34bebc5f062460c

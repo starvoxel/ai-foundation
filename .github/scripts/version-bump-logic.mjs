@@ -87,7 +87,7 @@ export function needsPackageBump(changedPaths) {
  * @param {string} json
  * @returns {string|undefined}
  */
-function readVersion(json) {
+export function readVersion(json) {
   try {
     const version = JSON.parse(json)?.version;
     return typeof version === 'string' ? version : undefined;
