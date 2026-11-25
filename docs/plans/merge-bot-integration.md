@@ -28,7 +28,7 @@ The `/merge` bot ([merge-bot.md](merge-bot.md)) runs only in ai-foundation, from
 
 ### 1. Version handling opt-in
 
-- Does: `merge-logic.mjs` and `merge.mjs` take the version-bearing directories as input (`VERSION_PATHS`); empty disables labels, version reads and writes, and the hand-edit check. ai-foundation's `merge.yml` sets its current list.
+- Does: `merge-logic.mjs` and `merge.mjs` take the version-bearing directories as input (`VERSION_PATHS`, required: a missing setting is an error, so it is never read as "no versions"); empty disables labels, version reads and writes, and the hand-edit check. ai-foundation's `merge.yml` sets its current list.
 - Acceptance criteria: with an empty list a PR touching any file needs no label, produces no version commit and no `Version bumped` line, and merges after the gate; with ai-foundation's list every existing behaviour is unchanged.
 - Verified by: unit tests for both modes; `merge.yml`'s validation test pins the explicit list.
 
