@@ -25,9 +25,11 @@
 import { pathToFileURL } from 'node:url';
 
 import {
+  BOT_COMMIT_MAX,
   QUEUE_LABEL,
   UNSUPPORTED_REPLY,
   applyVersion,
+  classifyBotCommit,
   classifyComment,
   decideAuthorization,
   decideMerge,
@@ -60,6 +62,10 @@ const SETTLE_WAIT_MS = 2000;
 /** A merge refused with 405 is retried, since mergeability can still be settling. */
 const MERGE_ATTEMPTS = 3;
 const MERGE_RETRY_WAIT_MS = 3000;
+
+/** A stacked PR is merged through the asynchronous endpoint, which is polled until it settles. */
+const ASYNC_POLLS = 30;
+const ASYNC_POLL_WAIT_MS = 4000;
 
 /** The longest part of GitHub's error message that is kept, so a comment stays short. */
 const MAX_ERROR_DETAIL = 300;
@@ -257,8 +263,49 @@ async function waitForMergeable(api, repo, number, sleep, log) {
 }
 
 /**
+ * Merge a PR that sits in a stack through GitHub's asynchronous merge endpoint, pinned to `head`, and
+ * poll until it settles. GitHub merges every PR below it in the stack first. The endpoint is not in the
+ * usual client libraries; its request and result shapes come from user reports, so an unexpected
+ * result is an error rather than a guess.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {number} number
+ * @param {string} head - The head SHA the merge is pinned to
+ * @param {(ms: number) => Promise<void>} sleep
+ * @param {(line: string) => void} log
+ * @returns {Promise<void>}
+ * @throws {Error} When the merge fails, is not merged directly, or does not settle in time
+ */
+async function mergeStacked(api, repo, number, head, sleep, log) {
+  const base = `/repos/${repo}/pulls/${number}/merge-async`;
+  const started = await api('PUT', base, { sha: head, merge_method: 'merge' });
+  if (started?.merged === true || started?.status === 'merged') return;
+  const id = started?.details?.uuid;
+  if (typeof id !== 'string' || id === '') {
+    throw new Error('The asynchronous merge did not return a request id');
+  }
+  log(`merging stacked #${number} asynchronously (${id})`);
+  for (let attempt = 1; attempt <= ASYNC_POLLS; attempt++) {
+    await sleep(ASYNC_POLL_WAIT_MS);
+    const state = await api('GET', `${base}/${encodeURIComponent(id)}`);
+    if (state?.status === 'merged') return;
+    if (state?.status === 'failed') {
+      const reason = state.details?.message ?? state.details?.reason ?? 'no reason given';
+      throw new Error(
+        `The asynchronous merge failed: ${String(reason).slice(0, MAX_ERROR_DETAIL)}`,
+      );
+    }
+    if (state?.status === 'enqueued') {
+      throw new Error('The asynchronous merge was queued instead of merged');
+    }
+  }
+  throw new Error('The asynchronous merge did not finish in time');
+}
+
+/**
  * Merge the PR at exactly `head`, retrying a 405 a couple of times because it can mean mergeability is
- * still being computed. Any other error, and the last 405, is thrown with GitHub's message.
+ * still being computed. A 403 saying the PR is stacked switches to the asynchronous endpoint. Any other
+ * error, and the last 405, is thrown with GitHub's message.
  * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
  * @param {string} repo
  * @param {number} number
@@ -277,6 +324,10 @@ async function mergeWithRetry(api, repo, number, head, sleep, log) {
       });
       return;
     } catch (err) {
+      if (err.status === 403 && /stacked/i.test(err.detail ?? '')) {
+        log(`#${number} is in a stack; using the asynchronous merge`);
+        return mergeStacked(api, repo, number, head, sleep, log);
+      }
       if (err.status !== 405 || attempt >= MERGE_ATTEMPTS) throw err;
       log(`merge of #${number} refused (attempt ${attempt}/${MERGE_ATTEMPTS}); retrying`);
       await sleep(MERGE_RETRY_WAIT_MS);
@@ -361,6 +412,48 @@ async function mergeLive({
 }
 
 /**
+ * The commit whose checks and version the gate reads: the branch head, unless the bot's own commits
+ * (the update from `main` and the version commit) sit on top of it, as after a merge that failed
+ * part-way. Those carry `[skip ci]`, so the checks ran on the commit beneath them. Each bot commit is
+ * verified: the exact message, a bot author, a version-only diff, and an update whose second parent is
+ * already in `main`. Anything else stops the walk there, which leaves the head without checks and so
+ * refuses the merge.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {string} headSha
+ * @param {string} branch
+ * @param {string} defaultBranch
+ * @returns {Promise<string>} `headSha` itself when it is not a bot commit
+ */
+async function findTestedHead(api, repo, headSha, branch, defaultBranch) {
+  let sha = headSha;
+  for (let step = 0; step < BOT_COMMIT_MAX; step++) {
+    const commit = await api('GET', `/repos/${repo}/commits/${sha}`);
+    const parents = (commit.parents ?? []).map((/** @type {{ sha: string }} */ p) => p.sha);
+    const kind = classifyBotCommit(
+      {
+        message: commit.commit?.message ?? '',
+        authorLogin: commit.author?.login ?? '',
+        parents,
+        files: (commit.files ?? []).map((/** @type {{ filename: string }} */ f) => f.filename),
+      },
+      branch,
+      defaultBranch,
+    );
+    if (kind === null) return sha;
+    if (kind === 'update') {
+      const fromMain = await api(
+        'GET',
+        `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${parents[1]}`,
+      );
+      if (fromMain.ahead_by !== 0) return headSha;
+    }
+    sha = parents[0];
+  }
+  return headSha;
+}
+
+/**
  * Read everything the gate needs about a PR from the API and decide. Reads only; never writes.
  * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
  * @param {string} repo
@@ -372,16 +465,20 @@ async function gather(api, repo, number, sleep) {
   const pull = await fetchPull(api, repo, number, sleep);
   const defaultBranch = pull.base?.repo?.default_branch ?? 'main';
   const headSha = pull.head.sha;
+  const testedSha = await findTestedHead(api, repo, headSha, pull.head.ref, defaultBranch);
+  const compareWith = (/** @type {string} */ sha) =>
+    api('GET', `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${sha}`);
   const [files, checkRuns, rules, comparison, mainJson] = await Promise.all([
     paginate(api, `/repos/${repo}/pulls/${number}/files`),
-    paginate(api, `/repos/${repo}/commits/${headSha}/check-runs`, 'check_runs'),
+    paginate(api, `/repos/${repo}/commits/${testedSha}/check-runs`, 'check_runs'),
     api('GET', `/repos/${repo}/rules/branches/${encodeURIComponent(defaultBranch)}`),
-    api('GET', `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${headSha}`),
+    compareWith(headSha),
     readPackageJson(api, repo, defaultBranch),
   ]);
+  const testedComparison = testedSha === headSha ? comparison : await compareWith(testedSha);
   const [mergeBaseJson, headJson] = await Promise.all([
-    readPackageJson(api, repo, comparison.merge_base_commit.sha),
-    readPackageJson(api, repo, headSha),
+    readPackageJson(api, repo, testedComparison.merge_base_commit.sha),
+    readPackageJson(api, repo, testedSha),
   ]);
 
   const input = toGateInput({

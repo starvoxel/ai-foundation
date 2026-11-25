@@ -523,3 +523,32 @@ export function versionCommitMessage(version) {
 export function firstParentIs(parents, sha) {
   return Array.isArray(parents) && parents.length > 0 && parents[0]?.sha === sha;
 }
+
+/** The most bot commits the gate looks past at the top of a branch: the update and the version commit. */
+export const BOT_COMMIT_MAX = 4;
+
+/**
+ * Whether a commit is one the merge bot makes: authored by a bot account, with the bot's exact message,
+ * and the shape it always has (the update merges two parents, the version commit changes only the
+ * version files on one parent). A failed merge leaves such commits on top of a head whose checks ran,
+ * and they carry no checks of their own. Pure.
+ * @param {{ message: string, authorLogin: string, parents: string[], files: string[] }} commit
+ * @param {string} branch - The PR branch
+ * @param {string} defaultBranch - The branch the bot merges into it
+ * @returns {'update'|'version'|null} Which bot commit it is, or null for any other commit
+ */
+export function classifyBotCommit(commit, branch, defaultBranch) {
+  if (!commit.authorLogin.endsWith('[bot]')) return null;
+  const subject = commit.message.split('\n')[0];
+  if (subject === updateCommitMessage(branch, defaultBranch) && commit.parents.length === 2) {
+    return 'update';
+  }
+  if (
+    /^Set the version to \d+\.\d+\.\d+ \[skip ci\]$/.test(subject) &&
+    commit.parents.length === 1 &&
+    isVersionOnlyPaths(commit.files)
+  ) {
+    return 'version';
+  }
+  return null;
+}
