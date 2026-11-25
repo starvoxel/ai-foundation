@@ -26,15 +26,17 @@ const MODE_ACTIONS = ['index', 'bundles'];
 const ALL_ACTIONS = readdirSync(ACTIONS_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name);
-// `merge` takes inputs and pins a third-party action; merge-action.test.js covers it.
-const actionNames = ALL_ACTIONS.filter((name) => name !== 'merge');
+// `merge` and `cleanup-branches` take inputs; merge-action.test.js and
+// cleanup-branches-action.test.js cover them.
+const OWN_TESTS = ['merge', 'cleanup-branches'];
+const actionNames = ALL_ACTIONS.filter((name) => !OWN_TESTS.includes(name));
 
 describe('.github/actions', () => {
   it('contains the index, bundles and checks actions', () => {
     assert.ok(actionNames.includes('index'));
     assert.ok(actionNames.includes('bundles'));
     assert.ok(actionNames.includes('checks'));
-    assert.ok(ALL_ACTIONS.includes('merge'));
+    for (const name of OWN_TESTS) assert.ok(ALL_ACTIONS.includes(name), name);
   });
 
   for (const name of actionNames) {

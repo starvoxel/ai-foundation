@@ -1,0 +1,88 @@
+name: AIF branch cleanup
+description: Sort a repository's branches into Active, Stale and Archive, close Stale PRs and delete Archive branches, from the pinned ai-foundation checkout.
+
+# The rules are in .github/scripts/cleanup-branches.mjs, read from this action's own checkout (the
+# pinned release), never from the repository being cleaned. Every input is optional: empty means
+# the script's default. A caller normally passes each one from a repository or organisation
+# variable `CLEANUP_*` (see the README), so tuning needs no code change.
+
+inputs:
+  enforce:
+    description: "'false' makes a sweep report only. Anything else deletes Archive branches and closes Stale PRs."
+    required: false
+    default: "true"
+  dry-run:
+    description: "'true' forces report only, whatever `enforce` says."
+    required: false
+    default: "false"
+  branches:
+    description: Branches to delete instead of the sweep, space or comma separated. The default branch, protected branches and branches with an open PR are refused.
+    required: false
+    default: ""
+  protected-branches:
+    description: Space-separated branch names that are never touched. The default branch is always protected. List long-lived branches here, including orphans such as gh-pages.
+    required: false
+    default: ""
+  ai-branch-prefixes:
+    description: "Space-separated prefixes of AI session branches. Default: copilot/ kiro/ claude/ ccr- ai/"
+    required: false
+    default: ""
+  throwaway-words:
+    description: Space-separated regular expressions, each matching one whole name segment that marks a throwaway branch. Replaces the defaults (test, validate, verify and spike, with their variations).
+    required: false
+    default: ""
+  keep-empty-branches:
+    description: "'false' lets any empty branch age out. Default keeps one unless it is an AI or throwaway branch."
+    required: false
+    default: "true"
+  keep-unrelated-branches:
+    description: "'false' lets a branch with unrelated history age out. Default keeps one unless it is a throwaway branch."
+    required: false
+    default: "true"
+  active-days:
+    description: A branch active within this many days is Active. Default 14.
+    required: false
+    default: ""
+  archive-days:
+    description: A branch older than this many days is Archive. Default 30.
+    required: false
+    default: ""
+  active-branches:
+    description: The most recently active N branches count as Active whatever their age. Default 5.
+    required: false
+    default: ""
+  archive-branches:
+    description: The most recently active N branches count as at least Stale whatever their age. Default 15.
+    required: false
+    default: ""
+  token:
+    description: Token with contents write and pull-requests write.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run branch cleanup
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        GH_TOKEN: ${{ inputs.token }}
+        REPO: ${{ github.repository }}
+        ENFORCE: ${{ inputs.enforce || 'true' }}
+        DRY_RUN: ${{ inputs.dry-run }}
+        BRANCHES: ${{ inputs.branches }}
+        PROTECTED_BRANCHES: ${{ inputs.protected-branches }}
+        AI_BRANCH_PREFIXES: ${{ inputs.ai-branch-prefixes }}
+        THROWAWAY_WORDS: ${{ inputs.throwaway-words }}
+        KEEP_EMPTY_BRANCHES: ${{ inputs.keep-empty-branches }}
+        KEEP_UNRELATED_BRANCHES: ${{ inputs.keep-unrelated-branches }}
+        ACTIVE_DAYS: ${{ inputs.active-days }}
+        ARCHIVE_DAYS: ${{ inputs.archive-days }}
+        ACTIVE_BRANCHES: ${{ inputs.active-branches }}
+        ARCHIVE_BRANCHES: ${{ inputs.archive-branches }}
+      run: |
+        # This action lives at <root>/.github/actions/cleanup-branches. The script reads the
+        # project short code from .aiconfig.json in the working directory.
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        node "$AIF_ROOT/.github/scripts/cleanup-branches.mjs"
