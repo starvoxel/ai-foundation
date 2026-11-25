@@ -1,0 +1,60 @@
+# Follow-up: parallel PRs, protected main, tag per merge
+
+Date: 2026-11-25. Web content treated as data. `aif` unavailable (no shell): path from `/home/user/ai-foundation/.aiconfig.json` `paths.research` = `docs/research`. Extends `/home/user/folio/knowledge/research/version-numbering-parallel-prs.md` (not repeated). Fetch failures: `docs.github.com` and `nx.dev` do not resolve in this session (network allowlist); `github/docs` raw files were used instead, but their shared includes (bypass steps) did not render, so some GitHub claims rest on search-result snippets of docs.github.com, marked below.
+
+## Question
+
+How do larger projects stop unrelated parallel PRs colliding on version numbers, with a protected main and a tag per merge?
+
+## Options
+
+| Approach | Number assigned | Collision avoided by | Tag per merge | Needs push to protected main | Source |
+|---|---|---|---|---|---|
+| Tag-derived (setuptools-scm, hatch-vcs, Go, axion-release) | Computed from latest tag + distance; nothing committed | No version in any PR | Tags are the source of truth | No | [setuptools-scm usage](https://raw.githubusercontent.com/pypa/setuptools-scm/main/docs/usage.md): next = last numeric component + 1, `.dev<distance>` between tags |
+| Commit-derived tag job (mathieudutour/anothrNick tag actions, semantic-release) | Latest tag + bump from commit messages | Serialised job | Yes | No (tag only) | [mathieudutour](https://raw.githubusercontent.com/mathieudutour/github-tag-action/master/README.md), [anothrNick](https://raw.githubusercontent.com/anothrNick/github-tag-action/master/README.md) |
+| Release PR (release-plz, release-please, Changesets) | Bot in aggregate PR | One rolling PR; per-PR changeset files | No: one per release PR | Via PR | [release-plz workflow](https://raw.githubusercontent.com/release-plz/release-plz/main/.github/workflows/release-plz.yml), [changesets/action](https://raw.githubusercontent.com/changesets/action/main/README.md) (`push-git-tags` optional) |
+| Plan files (Nx version plans, Rush change files) | At release run | Unique per-PR files | Per release | At release | Earlier brief; nx.dev unreachable now |
+| Commit-and-push (semantic-release/git, python-semantic-release) | CI, then commits version file | Serialised job | Yes | Yes: needs bypass or admin PAT | [semantic-release/git](https://raw.githubusercontent.com/semantic-release/git/master/README.md), [PSR docs](https://raw.githubusercontent.com/python-semantic-release/python-semantic-release/master/docs/configuration/automatic-releases/github-actions.rst) |
+| Changelog tools (cocogitto, git-cliff, Release Drafter) | `cog bump` makes version commit + tag; git-cliff and Drafter only compute/draft | n/a | cocogitto yes; others not shown | cocogitto yes | [cocogitto](https://raw.githubusercontent.com/cocogitto/cocogitto/main/README.md); [Drafter](https://raw.githubusercontent.com/release-drafter/release-drafter/master/README.md): tag-template for draft, creation timing undocumented |
+
+## Races and serialisation
+
+- A tag job must be serialised: mathieudutour states "Concurrent runs targeting the same version stream should be serialized with workflow `concurrency`" ([README](https://raw.githubusercontent.com/mathieudutour/github-tag-action/master/README.md)). PSR's example sets a concurrency group with `cancel-in-progress: false` to "prevent race conditions of more than one release job" ([PSR docs](https://raw.githubusercontent.com/python-semantic-release/python-semantic-release/master/docs/configuration/automatic-releases/github-actions.rst)). release-plz uses `cancel-in-progress: false` on the PR job and omits a group on the release job because cancelling "we can't risk to skip a release" ([workflow](https://raw.githubusercontent.com/release-plz/release-plz/main/.github/workflows/release-plz.yml)).
+- anothrNick will not re-tag a HEAD that is already tagged; it does not mention races ([README](https://raw.githubusercontent.com/anothrNick/github-tag-action/master/README.md)).
+- semantic-release's own release workflow defines no concurrency ([release.yml](https://raw.githubusercontent.com/semantic-release/semantic-release/master/.github/workflows/release.yml)).
+- Merge queue: the queue merges FIFO and builds temporary `gh-readonly-queue/...` branches; "Build concurrency" bounds parallel `merge_group` runs ([merge-queue docs source](https://raw.githubusercontent.com/github/docs/main/content/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/managing-a-merge-queue.md)). It orders merges but does not serialise post-merge `push` workflows.
+- Inference: tag the merged commit's own SHA, not "latest main", so a delayed job cannot tag a later commit. A concurrency group holds only one running and one pending run (not verified here; the docs page did not render), so a middle run can be dropped. A tag-per-merge job should therefore compute the version from the full tag list and tag every untagged first-parent commit since the last tag, or accept that skipped merges share a tag.
+
+## GitHub specifics
+
+| Question | Answer | Source |
+|---|---|---|
+| `GITHUB_TOKEN` events trigger workflows? | No: "events triggered by the `GITHUB_TOKEN` will not create a new workflow run" | [reusable](https://raw.githubusercontent.com/github/docs/main/data/reusables/actions/actions-do-not-trigger-workflows.md) |
+| Bot PRs trigger required checks? | Not with `GITHUB_TOKEN` (same rule). Use an App token or PAT | [github_token concept](https://raw.githubusercontent.com/github/docs/main/content/actions/concepts/security/github_token.md); release-plz mints an App token "so that PRs and tags ... can trigger actions workflows" |
+| Tag push by `GITHUB_TOKEN` under tag ruleset? | Restrict creations: "only users with bypass permissions can create branches or tags" matching. So it needs a bypass actor. Whether the built-in Actions identity can be one: unverified | [available-rules source](https://raw.githubusercontent.com/github/docs/main/content/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets.md) |
+| Bypass actor = GitHub App? | Yes: roles, teams, or GitHub Apps (docs.github.com via search snippet; raw source did not render the step) | [available rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets) |
+| App token vs PAT | App token: 1-hour, repo- and permission-scoped, masked, revoked post-step | [create-github-app-token](https://raw.githubusercontent.com/actions/create-github-app-token/main/README.md) |
+| Bypass for tags only, checks kept | A tag ruleset is separate from the branch ruleset, so the App can bypass only tag creation. Inference | n/a |
+
+A bypass actor cannot be limited to skipping only status checks on a branch ([discussion 43460](https://github.com/orgs/community/discussions/43460)); a tag-only ruleset sidesteps this because no push to main occurs.
+
+## Dependabot and bare tags
+
+Verified from source: no Release object is required. `PackageDetailsFetcher` lists tags via `git_commit_checker` and makes no Releases API call ([package_details_fetcher.rb](https://raw.githubusercontent.com/dependabot/dependabot-core/main/github_actions/lib/dependabot/github_actions/package/package_details_fetcher.rb)). `GitCommitChecker` takes tags from `tags_for_upload_pack` and picks the highest allowed version; Releases only matter for the prerelease flag and cooldown dates ([git_commit_checker.rb](https://raw.githubusercontent.com/dependabot/dependabot-core/main/common/lib/dependabot/git_commit_checker.rb)). Tags must parse as versions, and a pin of `v1.2.3` is matched at three-segment precision ([update_checker.rb](https://raw.githubusercontent.com/dependabot/dependabot-core/main/github_actions/lib/dependabot/github_actions/update_checker.rb)). Prerelease-looking tags are skipped.
+
+## Real tag-per-merge workflows
+
+Direct tag-per-merge workflow files were not found in this pass; the sources above are the tools' docs and their own workflows. Closest: [release-plz](https://raw.githubusercontent.com/release-plz/release-plz/main/.github/workflows/release-plz.yml) (tag on release-PR merge, App token), [semantic-release](https://raw.githubusercontent.com/semantic-release/semantic-release/master/.github/workflows/release.yml) (tags on push to branch, `GITHUB_TOKEN`, `contents: write`). Gap against the "3-5 repos" ask.
+
+## Recommendation
+
+Extends the earlier brief: no `package.json` edits in PRs; a post-merge workflow on main with a concurrency group (`cancel-in-progress: false`) computes next = latest tag + bump level and pushes `vX.Y.Z` using a short-lived GitHub App token, with the App as bypass actor on a tag-only ruleset (restrict creations/updates/deletions). Because an App token is used, the tag also triggers downstream workflows. Dependabot will see these bare tags. Test the dropped-pending-run case before relying on it.
+
+## Unverified
+
+- Whether `GITHUB_TOKEN` (github-actions identity) can be a ruleset bypass actor or push tags under restrict-creations.
+- GitHub App as bypass actor: only from a search snippet of docs.github.com, not the raw page.
+- Concurrency group semantics (one pending run, replacement) and merge-queue/`push` ordering.
+- Lerna, Rush tag behaviour, Knope, Kubernetes, cargo-release, Go module versions, axion-release, git-cliff `--bump`, Nx version plans (nx.dev unreachable), hatch-vcs (404): not fetched or 404.
+- Node tag-derived version pattern (no primary source found).
+- 3-5 real tag-per-merge repos: not delivered.
