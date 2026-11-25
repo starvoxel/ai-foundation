@@ -26,13 +26,19 @@ const {
   describeRefusal,
   evaluateGate,
   formatAudit,
+  isBotCommenter,
   isVersionOnlyPaths,
   nextVersion,
-  parseCommand,
+  UNSUPPORTED_REPLY,
+  classifyComment,
   renderDryRun,
+  renderRefusal,
   requiredChecksFromRules,
   toGateInput,
+  firstParentIs,
+  updateCommitMessage,
   verifyVersionOnly,
+  versionCommitMessage,
 } = await import(LOGIC);
 
 /** A PR that passes every gate; tests override one field to break it. */
@@ -60,22 +66,51 @@ function gateInput(overrides = {}) {
   };
 }
 
-describe('parseCommand', () => {
+describe('classifyComment', () => {
   it('accepts exactly /merge, ignoring surrounding whitespace', () => {
-    assert.equal(parseCommand('/merge'), true);
-    assert.equal(parseCommand('  /merge\n'), true);
+    assert.equal(classifyComment('/merge'), 'merge');
+    assert.equal(classifyComment('  /merge\n'), 'merge');
   });
 
-  it('rejects other text, extra words and an empty string', () => {
-    assert.equal(parseCommand('/merge now'), false);
-    assert.equal(parseCommand('please /merge'), false);
-    assert.equal(parseCommand('/MERGE'), false);
-    assert.equal(parseCommand(''), false);
+  it('flags /merge followed by more text as unsupported', () => {
+    assert.equal(classifyComment('/merge now'), 'unsupported');
+    assert.equal(classifyComment('/merge\nplease'), 'unsupported');
+    assert.equal(classifyComment('/merge @everyone'), 'unsupported');
   });
 
-  it('rejects a non-string body', () => {
-    assert.equal(parseCommand(undefined), false);
-    assert.equal(parseCommand(null), false);
+  it('leaves prose, other words and other cases alone', () => {
+    assert.equal(classifyComment('please /merge'), 'none');
+    assert.equal(classifyComment('/merged'), 'none');
+    assert.equal(classifyComment('/mergefoo bar'), 'none');
+    assert.equal(classifyComment('/MERGE'), 'none');
+    assert.equal(classifyComment('**/merge dry run** for #7'), 'none');
+    assert.equal(classifyComment(''), 'none');
+  });
+
+  it('treats a non-string body as not ours', () => {
+    assert.equal(classifyComment(undefined), 'none');
+    assert.equal(classifyComment(null), 'none');
+  });
+});
+
+describe('isBotCommenter', () => {
+  it('flags the Bot type and any login containing [bot]', () => {
+    assert.equal(isBotCommenter('anything', 'Bot'), true);
+    assert.equal(isBotCommenter('github-actions[bot]', 'User'), true);
+    assert.equal(isBotCommenter('x[bot]y', 'User'), true);
+  });
+
+  it('lets an ordinary user through, including a login that merely says bot', () => {
+    assert.equal(isBotCommenter('jo', 'User'), false);
+    assert.equal(isBotCommenter('starvoxel-bot', 'User'), false);
+    assert.equal(isBotCommenter('', ''), false);
+  });
+});
+
+describe('UNSUPPORTED_REPLY', () => {
+  it('names the supported command and echoes nothing from the comment', () => {
+    assert.match(UNSUPPORTED_REPLY, /Comment exactly `\/merge`/);
+    assert.doesNotMatch(UNSUPPORTED_REPLY, /@/);
   });
 });
 
@@ -561,5 +596,36 @@ describe('renderDryRun', () => {
   it('lists the refusal reasons', () => {
     const text = renderDryRun({ action: 'refuse', reasons: ['draft'] }, context);
     assert.match(text, /Would refuse:\n- The PR is a draft\./);
+  });
+});
+
+describe('commit messages', () => {
+  it('skip CI on the bot commits and name what they do', () => {
+    assert.equal(updateCommitMessage('feat/x', 'main'), 'Merge main into feat/x [skip ci]');
+    assert.equal(versionCommitMessage('0.6.0'), 'Set the version to 0.6.0 [skip ci]');
+  });
+});
+
+describe('firstParentIs', () => {
+  it('is true only when the first parent matches', () => {
+    assert.equal(firstParentIs([{ sha: 'a' }, { sha: 'b' }], 'a'), true);
+    assert.equal(firstParentIs([{ sha: 'b' }, { sha: 'a' }], 'a'), false);
+  });
+
+  it('is false for no parents or a malformed value', () => {
+    assert.equal(firstParentIs([], 'a'), false);
+    assert.equal(firstParentIs(undefined, 'a'), false);
+    assert.equal(firstParentIs(null, 'a'), false);
+    assert.equal(firstParentIs([null], 'a'), false);
+  });
+});
+
+describe('renderRefusal', () => {
+  it('says it refused and changed nothing, and lists the reasons', () => {
+    const text = renderRefusal(['draft', 'label-missing'], { pullNumber: 7, headSha: 'abc' });
+    assert.match(text, /^\*\*\/merge refused\*\* for #7 at `abc`\. Nothing was changed\./);
+    assert.match(text, /- The PR is a draft\./);
+    assert.match(text, /- The PR changes shipped content but has no/);
+    assert.doesNotMatch(text, /dry run/i);
   });
 });
