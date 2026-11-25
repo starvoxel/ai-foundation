@@ -19,19 +19,23 @@ const LOGIC = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/merge-logic.mjs'),
 ).href;
 const {
+  REFUSALS,
   applyVersion,
   bumpLevelFromLabels,
   decideAuthorization,
   decideMerge,
   describeRefusal,
   evaluateGate,
-  formatAudit,
   isBotCommenter,
   isVersionOnlyPaths,
   nextVersion,
   UNSUPPORTED_REPLY,
   classifyComment,
+  renderApiFailure,
   renderDryRun,
+  renderFailure,
+  renderRefusal,
+  renderSuccess,
   requiredChecksFromRules,
   toGateInput,
   firstParentIs,
@@ -108,7 +112,7 @@ describe('isBotCommenter', () => {
 
 describe('UNSUPPORTED_REPLY', () => {
   it('names the supported command and echoes nothing from the comment', () => {
-    assert.match(UNSUPPORTED_REPLY, /Comment exactly `\/merge`/);
+    assert.equal(UNSUPPORTED_REPLY, 'Unsupported command. Comment exactly `/merge`.');
     assert.doesNotMatch(UNSUPPORTED_REPLY, /@/);
   });
 });
@@ -360,13 +364,26 @@ describe('decideMerge', () => {
 });
 
 describe('describeRefusal', () => {
-  it('lists one line per reason and passes unknown codes through', () => {
-    const text = describeRefusal(['draft', 'mystery']);
-    assert.equal(text, '- The PR is a draft.\n- mystery');
+  it('gives one line per reason and passes unknown codes through', () => {
+    assert.deepEqual(describeRefusal(['draft', 'mystery']), [
+      'The PR is a draft. Mark it ready for review and try again.',
+      'mystery',
+    ]);
   });
 
-  it('returns an empty string for no reasons', () => {
-    assert.equal(describeRefusal([]), '');
+  it('does not repeat a line that several reasons share', () => {
+    assert.deepEqual(describeRefusal(['draft', 'draft']), [REFUSALS.draft]);
+  });
+
+  it('returns no lines for no reasons', () => {
+    assert.deepEqual(describeRefusal([]), []);
+  });
+
+  it('keeps every reason a single short line that says what to do', () => {
+    for (const [code, line] of Object.entries(REFUSALS)) {
+      assert.ok(line.length > 0 && line.length < 120, `${code} is empty or too long`);
+      assert.ok(!line.includes('\n'), `${code} spans lines`);
+    }
   });
 });
 
@@ -457,24 +474,85 @@ describe('applyVersion and verifyVersionOnly', () => {
   });
 });
 
-describe('formatAudit', () => {
-  const base = { commenter: 'jo', headSha: 'abc123', checks: ['Validate', 'Test'] };
-
-  it('names the commenter, versions, head, branch state and checks', () => {
-    const line = formatAudit({
-      ...base,
-      bump: { level: 'minor', from: '0.5.4', to: '0.6.0' },
-      updatedBranch: true,
-    });
+describe('renderSuccess', () => {
+  it('says the version change and that main was merged to the branch', () => {
     assert.equal(
-      line,
-      'Merged by /merge from @jo: 0.5.4 -> 0.6.0 (minor); gated head abc123; branch updated from main; checks: Validate, Test.',
+      renderSuccess({ bump: { from: '0.5.4', to: '0.6.0' }, updatedBranch: true }),
+      '**Merge successful**\nVersion bumped from v0.5.4 -> v0.6.0\n`main` merged to branch',
     );
   });
 
-  it('says so when no version changed and the branch was current', () => {
-    const line = formatAudit({ ...base, bump: null, updatedBranch: false });
-    assert.match(line, /no version change; gated head abc123; branch up to date/);
+  it('leaves out the branch line when main was not merged in', () => {
+    assert.equal(
+      renderSuccess({ bump: { from: '0.5.4', to: '0.5.5' }, updatedBranch: false }),
+      '**Merge successful**\nVersion bumped from v0.5.4 -> v0.5.5',
+    );
+  });
+
+  it('says there was no version change', () => {
+    assert.equal(
+      renderSuccess({ bump: null, updatedBranch: false }),
+      '**Merge successful**\nNo version change',
+    );
+  });
+
+  it('names no person, commit or check', () => {
+    const text = renderSuccess({ bump: { from: '0.5.4', to: '0.5.5' }, updatedBranch: true });
+    assert.doesNotMatch(text, /@|[0-9a-f]{7,}|checks:/);
+  });
+});
+
+describe('renderFailure and renderRefusal', () => {
+  it('puts the lines under the heading', () => {
+    assert.equal(renderFailure(['a', 'b']), '**Merge failed**\na\nb');
+  });
+
+  it('turns refusal reasons into their lines', () => {
+    assert.equal(
+      renderRefusal(['draft', 'label-missing']),
+      '**Merge failed**\nThe PR is a draft. Mark it ready for review and try again.\nAdd a `bump:patch`, `bump:minor` or `bump:major` label and try again.',
+    );
+  });
+
+  it('says which kind of check problem it is', () => {
+    assert.match(
+      renderRefusal(['check-pending']),
+      /Not all checks have finished\. Try again once all are done\./,
+    );
+    assert.match(
+      renderRefusal(['check-failed']),
+      /A required check failed\. Fix it and try again\./,
+    );
+    assert.match(renderRefusal(['check-missing']), /have not run on this commit\. Push a commit/);
+  });
+});
+
+describe('renderApiFailure', () => {
+  const hint = 'Try again. If the branch was just updated, push a commit so the checks run on it.';
+
+  it("shows GitHub's status and its own message", () => {
+    assert.equal(
+      renderApiFailure({
+        message: 'GitHub PUT /x failed: 405 Method Not Allowed',
+        status: 405,
+        detail: 'Pull Request is not mergeable',
+      }),
+      `**Merge failed**\nError 405: Pull Request is not mergeable\n${hint}`,
+    );
+  });
+
+  it("falls back to the call's own message when GitHub gave none", () => {
+    assert.match(
+      renderApiFailure({ message: 'GitHub GET /x failed: 500 Server Error', status: 500 }),
+      /^\*\*Merge failed\*\*\nError 500: GitHub GET \/x failed: 500 Server Error\n/,
+    );
+  });
+
+  it('shows only the message for an error that did not come from the API', () => {
+    assert.equal(
+      renderApiFailure({ message: 'The branch moved while merging' }),
+      `**Merge failed**\nError: The branch moved while merging\n${hint}`,
+    );
   });
 });
 
@@ -574,27 +652,29 @@ describe('toGateInput', () => {
 });
 
 describe('renderDryRun', () => {
-  const context = { pullNumber: 7, headSha: 'abc123' };
-
-  it('says what would be merged and that nothing was done', () => {
-    const text = renderDryRun(
-      { action: 'merge', bump: { level: 'patch', from: '0.5.4', to: '0.5.5' }, updateBranch: true },
-      context,
+  it('says what would happen, in the conditional', () => {
+    assert.equal(
+      renderDryRun({
+        action: 'merge',
+        bump: { level: 'patch', from: '0.5.4', to: '0.5.5' },
+        updateBranch: true,
+      }),
+      '**Dry run: would merge**\nVersion would be bumped from v0.5.4 -> v0.5.5\n`main` would be merged to branch',
     );
-    assert.match(text, /dry run\*\* for #7 at `abc123`\. Nothing was pushed or merged/);
-    assert.match(text, /Version: 0\.5\.4 -> 0\.5\.5 \(patch\)/);
-    assert.match(text, /merge `main` into the branch first/);
   });
 
   it('says so when no version changes and the branch is current', () => {
-    const text = renderDryRun({ action: 'merge', bump: null, updateBranch: false }, context);
-    assert.match(text, /no version change/);
-    assert.match(text, /branch is up to date/);
+    assert.equal(
+      renderDryRun({ action: 'merge', bump: null, updateBranch: false }),
+      '**Dry run: would merge**\nNo version change',
+    );
   });
 
-  it('lists the refusal reasons', () => {
-    const text = renderDryRun({ action: 'refuse', reasons: ['draft'] }, context);
-    assert.match(text, /Would refuse:\n- The PR is a draft\./);
+  it('lists the refusal lines', () => {
+    assert.equal(
+      renderDryRun({ action: 'refuse', reasons: ['draft'] }),
+      '**Dry run: would fail**\nThe PR is a draft. Mark it ready for review and try again.',
+    );
   });
 });
 

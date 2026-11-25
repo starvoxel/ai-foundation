@@ -204,7 +204,13 @@ const botOwnsVersion = process.env.VERSION_POLICY === 'bot' && mode === 'auto-pa
 const baseJson = readAtRef(baseSha, 'package.json');
 const headJson = readAtRef(headRef, 'package.json');
 if (botOwnsVersion) {
-  const editError = packageVersionEditError({ baseJson, headJson });
+  // Compare with the version where the branch forked, not the parent's tip: a PR that is merely behind
+  // after a release has not edited the version, and the bot's own gate compares the same way.
+  const forkPoint = git(['merge-base', baseSha, headRef]).trim();
+  const editError = packageVersionEditError({
+    baseJson: readAtRef(forkPoint, 'package.json'),
+    headJson,
+  });
   if (editError) errors.push(editError);
 } else if (needsPackageBump(changedPaths)) {
   const packageError = packageBumpError({ changedPaths, baseJson, headJson });
