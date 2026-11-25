@@ -15,7 +15,7 @@
  * it pushes nothing and merges nothing, and refuses to run with DRY_RUN other than `true`.
  *
  * Input (environment): GITHUB_TOKEN, GITHUB_REPOSITORY (`owner/repo`), PR_NUMBER, COMMENT_BODY,
- * COMMENTER_LOGIN, COMMENTER_TYPE, AI_LOGINS (comma-separated), DRY_RUN.
+ * COMMENTER_LOGIN, COMMENTER_TYPE, DRY_RUN.
  *
  * The comment body reaches this script only through the environment and is matched exactly; the
  * script never runs PR code.
@@ -123,7 +123,7 @@ async function fetchPull(api, repo, number, sleep) {
  *   api: (method: string, path: string, body?: unknown) => Promise<any>,
  *   log?: (line: string) => void, sleep?: (ms: number) => Promise<void> }} io - Injectable I/O
  * @returns {Promise<'ignored'|'refused'|'would-merge'>} What happened, for the caller and tests
- * @throws {Error} When DRY_RUN is not `true` (live mode is not built), AI_LOGINS is empty, or on an API failure
+ * @throws {Error} When DRY_RUN is not `true` (live mode is not built), or on an API failure
  */
 export async function run({
   env,
@@ -138,10 +138,6 @@ export async function run({
   const number = Number(env.PR_NUMBER);
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !Number.isInteger(number) || number < 1) {
     throw new Error(`Bad repository '${repo}' or PR number '${env.PR_NUMBER}'`);
-  }
-  const aiLogins = (env.AI_LOGINS ?? '').split(',').filter(Boolean);
-  if (aiLogins.length === 0) {
-    throw new Error('AI_LOGINS is not set: the AI identity cannot be told apart, so nothing runs');
   }
   const comment = (/** @type {string} */ text) =>
     api('POST', `/repos/${repo}/issues/${number}/comments`, { body: text });
@@ -158,9 +154,7 @@ export async function run({
   );
   const auth = decideAuthorization({
     commenterType: env.COMMENTER_TYPE ?? '',
-    commenterLogin: login,
     permission: access?.permission ?? 'none',
-    aiLogins,
   });
   if ('reason' in auth) {
     log(`refused: @${login} may not merge #${number} (${auth.reason})`);

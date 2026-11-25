@@ -61,5 +61,5 @@ If the PR is green and mergeable there is nothing to report. Otherwise say what 
 - **CI is still running** — report pending, not failed
 - **Green and waiting only on a human reviewer** — say so once and do not nudge
 - **A suspected flaky failure** — rerun once; a second failure is real
-- **The PR is green and ready to merge** — report it; never comment `/merge`. That comment is the human's merge decision, and the merge bot refuses an AI identity
+- **The PR is green and ready to merge** — report it; never comment `/merge`. That comment is the human's merge decision, and nothing but this rule stops an agent posting it
 - **The PR was opened by someone else** — it is still drivable the same way

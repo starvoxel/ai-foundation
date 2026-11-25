@@ -70,7 +70,6 @@ const env = (overrides = {}) => ({
   COMMENT_BODY: '/merge',
   COMMENTER_LOGIN: 'jo',
   COMMENTER_TYPE: 'User',
-  AI_LOGINS: 'ai-bot-user',
   DRY_RUN: 'true',
   ...overrides,
 });
@@ -108,16 +107,18 @@ describe('run', () => {
     assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
   });
 
-  it('refuses the AI identity and a bot commenter', async () => {
-    for (const overrides of [{ COMMENTER_LOGIN: 'ai-bot-user' }, { COMMENTER_TYPE: 'Bot' }]) {
-      const { api, calls } = fakeApi({
-        'GET /repos/o/r/collaborators/ai-bot-user/permission': { permission: 'admin' },
-      });
-      const result = await run({ env: env(overrides), api, log: quiet });
-      assert.equal(result, 'refused');
-      assert.equal(posted(calls).length, 1);
-      assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
-    }
+  it('refuses a bot commenter even with admin access, and does not read the PR', async () => {
+    const { api, calls } = fakeApi({
+      'GET /repos/o/r/collaborators/a-bot/permission': { permission: 'admin' },
+    });
+    const result = await run({
+      env: env({ COMMENTER_LOGIN: 'a-bot', COMMENTER_TYPE: 'Bot' }),
+      api,
+      log: quiet,
+    });
+    assert.equal(result, 'refused');
+    assert.match(posted(calls)[0].body.body, /commenter is a bot/);
+    assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
   });
 
   it('refuses a draft PR with a pending check, listing both reasons', async () => {
@@ -153,15 +154,6 @@ describe('run', () => {
   it('refuses live mode, since only the dry run is built', async () => {
     const { api, calls } = fakeApi();
     await assert.rejects(run({ env: env({ DRY_RUN: 'false' }), api, log: quiet }), /dry-run only/);
-    assert.deepEqual(calls, []);
-  });
-
-  it('refuses to run when the AI identity list is empty', async () => {
-    const { api, calls } = fakeApi();
-    await assert.rejects(
-      run({ env: env({ AI_LOGINS: '' }), api, log: quiet }),
-      /AI_LOGINS is not set/,
-    );
     assert.deepEqual(calls, []);
   });
 

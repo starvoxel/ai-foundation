@@ -95,13 +95,6 @@ describe('decideAuthorization', () => {
     });
   });
 
-  it('refuses the AI identity even when it is a User with write access', () => {
-    assert.deepEqual(decideAuthorization({ ...human, commenterLogin: 'ai', aiLogins: ['ai'] }), {
-      ok: false,
-      reason: 'ai-identity',
-    });
-  });
-
   it('refuses read, triage and unknown permissions', () => {
     for (const permission of ['read', 'triage', 'none', '', undefined]) {
       assert.deepEqual(decideAuthorization({ ...human, permission }), {

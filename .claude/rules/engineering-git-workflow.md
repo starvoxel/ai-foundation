@@ -39,7 +39,7 @@ All agents, in every repository.
 
 **Rationale:** The PR is the human's review point, and rewriting pushed commits invalidates CI results and review context.
 
-**Exceptions:** The merge bot (`docs/plans/merge-bot.md`) merges a PR when a human comments `/merge` and its gate passes; that comment is the human's merge decision. No agent, including the AI identity, may post it. Branch names are free-form but should describe the work.
+**Exceptions:** The merge bot (`docs/plans/merge-bot.md`) merges a PR when a human comments `/merge` and its gate passes; that comment is the human's merge decision. No agent may post it; the bot cannot tell an agent from the human whose account it acts as, so this rule is the only guard. Branch names are free-form but should describe the work.
 
 ---
 

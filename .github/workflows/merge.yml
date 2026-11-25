@@ -49,6 +49,5 @@ jobs:
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENTER_LOGIN: ${{ github.event.comment.user.login }}
           COMMENTER_TYPE: ${{ github.event.comment.user.type }}
-          AI_LOGINS: ${{ vars.AI_LOGINS }}
           DRY_RUN: "true"
         run: node .github/scripts/merge.mjs

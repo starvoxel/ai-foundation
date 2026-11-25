@@ -36,7 +36,6 @@ const VERSION_FILES = ['package.json', 'package-lock.json'];
 export const REFUSALS = {
   'not-a-command': 'The comment is not exactly `/merge`.',
   'bot-commenter': 'Only a human may trigger a merge; the commenter is a bot.',
-  'ai-identity': 'Only a human may trigger a merge; the commenter is the AI identity.',
   'no-write-permission': 'The commenter does not have write permission on this repository.',
   'not-open': 'The PR is not open.',
   draft: 'The PR is a draft.',
@@ -64,14 +63,13 @@ export function parseCommand(body) {
 }
 
 /**
- * Whether the commenter may trigger a merge: a human with write access. Pure.
- * @param {{ commenterType: string, commenterLogin: string, permission: string, aiLogins?: string[] }} input -
+ * Whether the commenter may trigger a merge: a non-bot account with write access. Whether the account is a person or an agent acting as one cannot be told from here. Pure.
+ * @param {{ commenterType: string, permission: string }} input -
  *   `commenterType` is the API user type (`User`, `Bot`, ...); `permission` the repo permission level
  * @returns {{ ok: true } | { ok: false, reason: string }}
  */
-export function decideAuthorization({ commenterType, commenterLogin, permission, aiLogins = [] }) {
+export function decideAuthorization({ commenterType, permission }) {
   if (commenterType !== 'User') return { ok: false, reason: 'bot-commenter' };
-  if (aiLogins.includes(commenterLogin)) return { ok: false, reason: 'ai-identity' };
   if (!WRITE_PERMISSIONS.has(permission)) return { ok: false, reason: 'no-write-permission' };
   return { ok: true };
 }
