@@ -96,9 +96,6 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           BEFORE_SHA: ${{ github.event.before }}
-          # `bot` once the /merge bot is live (repository variable MERGE_BOT_LIVE): the bot then sets
-          # package.json's version when it merges, and a PR must not edit it.
-          VERSION_POLICY: ${{ vars.MERGE_BOT_LIVE == 'true' && 'bot' || 'hand' }}
         run: |
           code_changed=true
           base=""
@@ -161,6 +158,9 @@ jobs:
           REF_NAME: ${{ github.ref_name }}
           HEAD_REF: ${{ github.head_ref }}
           BEFORE_SHA: ${{ github.event.before }}
+          # `bot` once the /merge bot is live (repository variable MERGE_BOT_LIVE): the bot then sets
+          # package.json's version when it merges, and a PR must not edit it.
+          VERSION_POLICY: ${{ vars.MERGE_BOT_LIVE == 'true' && 'bot' || 'hand' }}
         run: |
           if [ "$EVENT_NAME" = "push" ] && [ "$REF_NAME" = "main" ]; then
             node .github/scripts/check-version-bumps.mjs sha "$BEFORE_SHA"
