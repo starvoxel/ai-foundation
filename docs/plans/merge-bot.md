@@ -92,6 +92,8 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 - A PR in a GitHub stack cannot be merged through the usual merge endpoint (403 "Merging stacked PRs via this endpoint is not supported"), so the bot falls back to `PUT /pulls/{n}/merge-async` and polls it. The endpoint's shape comes from user reports, not GitHub's own docs, which the researcher could not read; the first real stacked merge is the test (2026-11-25).
 
+- A retry after a merge that failed part-way is gated on the commit beneath the bot's own `[skip ci]` commits, each verified as the bot's (author, exact message, version-only diff or an update from `main`), so the user need not push a commit to get CI on a head the bot made (human, 2026-11-25).
+
 ## Open questions
 
 - The App's own check runs: if a required check is an Actions job, does the ruleset accept bypass-merge of a head with a bot commit and no check results? Test in milestone 3; the research could not confirm it.

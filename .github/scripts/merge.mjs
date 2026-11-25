@@ -25,9 +25,11 @@
 import { pathToFileURL } from 'node:url';
 
 import {
+  BOT_COMMIT_MAX,
   QUEUE_LABEL,
   UNSUPPORTED_REPLY,
   applyVersion,
+  classifyBotCommit,
   classifyComment,
   decideAuthorization,
   decideMerge,
@@ -410,6 +412,48 @@ async function mergeLive({
 }
 
 /**
+ * The commit whose checks and version the gate reads: the branch head, unless the bot's own commits
+ * (the update from `main` and the version commit) sit on top of it, as after a merge that failed
+ * part-way. Those carry `[skip ci]`, so the checks ran on the commit beneath them. Each bot commit is
+ * verified: the exact message, a bot author, a version-only diff, and an update whose second parent is
+ * already in `main`. Anything else stops the walk there, which leaves the head without checks and so
+ * refuses the merge.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {string} headSha
+ * @param {string} branch
+ * @param {string} defaultBranch
+ * @returns {Promise<string>} `headSha` itself when it is not a bot commit
+ */
+async function findTestedHead(api, repo, headSha, branch, defaultBranch) {
+  let sha = headSha;
+  for (let step = 0; step < BOT_COMMIT_MAX; step++) {
+    const commit = await api('GET', `/repos/${repo}/commits/${sha}`);
+    const parents = (commit.parents ?? []).map((/** @type {{ sha: string }} */ p) => p.sha);
+    const kind = classifyBotCommit(
+      {
+        message: commit.commit?.message ?? '',
+        authorLogin: commit.author?.login ?? '',
+        parents,
+        files: (commit.files ?? []).map((/** @type {{ filename: string }} */ f) => f.filename),
+      },
+      branch,
+      defaultBranch,
+    );
+    if (kind === null) return sha;
+    if (kind === 'update') {
+      const fromMain = await api(
+        'GET',
+        `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${parents[1]}`,
+      );
+      if (fromMain.ahead_by !== 0) return headSha;
+    }
+    sha = parents[0];
+  }
+  return headSha;
+}
+
+/**
  * Read everything the gate needs about a PR from the API and decide. Reads only; never writes.
  * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
  * @param {string} repo
@@ -421,16 +465,20 @@ async function gather(api, repo, number, sleep) {
   const pull = await fetchPull(api, repo, number, sleep);
   const defaultBranch = pull.base?.repo?.default_branch ?? 'main';
   const headSha = pull.head.sha;
+  const testedSha = await findTestedHead(api, repo, headSha, pull.head.ref, defaultBranch);
+  const compareWith = (/** @type {string} */ sha) =>
+    api('GET', `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${sha}`);
   const [files, checkRuns, rules, comparison, mainJson] = await Promise.all([
     paginate(api, `/repos/${repo}/pulls/${number}/files`),
-    paginate(api, `/repos/${repo}/commits/${headSha}/check-runs`, 'check_runs'),
+    paginate(api, `/repos/${repo}/commits/${testedSha}/check-runs`, 'check_runs'),
     api('GET', `/repos/${repo}/rules/branches/${encodeURIComponent(defaultBranch)}`),
-    api('GET', `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${headSha}`),
+    compareWith(headSha),
     readPackageJson(api, repo, defaultBranch),
   ]);
+  const testedComparison = testedSha === headSha ? comparison : await compareWith(testedSha);
   const [mergeBaseJson, headJson] = await Promise.all([
-    readPackageJson(api, repo, comparison.merge_base_commit.sha),
-    readPackageJson(api, repo, headSha),
+    readPackageJson(api, repo, testedComparison.merge_base_commit.sha),
+    readPackageJson(api, repo, testedSha),
   ]);
 
   const input = toGateInput({
