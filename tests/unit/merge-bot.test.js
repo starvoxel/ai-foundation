@@ -17,7 +17,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const SCRIPT = pathToFileURL(resolve(import.meta.dirname, '../../.github/scripts/merge.mjs')).href;
-const { paginate, run } = await import(SCRIPT);
+const { createApi, paginate, run } = await import(SCRIPT);
 
 const REPO = 'o/r';
 const b64 = (/** @type {string} */ text) => Buffer.from(text).toString('base64');
@@ -489,5 +489,61 @@ describe('run, live', () => {
     });
     assert.equal(result, 'ignored');
     assert.deepEqual(calls, []);
+  });
+});
+
+describe('createApi', () => {
+  const reply = (status, statusText, body) => async () => ({
+    ok: status < 400,
+    status,
+    statusText,
+    json: async () => {
+      if (body === undefined) throw new SyntaxError('no body');
+      return body;
+    },
+  });
+
+  it("puts GitHub's own message in the error, with the status", async () => {
+    const api = createApi(
+      't0k',
+      reply(405, 'Method Not Allowed', {
+        message: 'Required status check "Validate" is expected.',
+      }),
+    );
+    await assert.rejects(api('PUT', '/repos/o/r/pulls/7/merge', {}), (err) => {
+      assert.equal(err.status, 405);
+      assert.match(
+        err.message,
+        /PUT \/repos\/o\/r\/pulls\/7\/merge failed: 405 Method Not Allowed: Required status check/,
+      );
+      return true;
+    });
+  });
+
+  it('falls back to the status text when there is no readable message', async () => {
+    for (const body of [undefined, {}, { message: 5 }, null]) {
+      const api = createApi('t0k', reply(500, 'Server Error', body));
+      await assert.rejects(api('GET', '/x'), /^Error: GitHub GET \/x failed: 500 Server Error$/);
+    }
+  });
+
+  it('shortens a very long message', async () => {
+    const api = createApi('t0k', reply(422, 'Unprocessable', { message: 'x'.repeat(1000) }));
+    await assert.rejects(api('GET', '/x'), (err) => err.message.length < 400);
+  });
+
+  it('never puts the token in an error, and sends it only as a header', async () => {
+    let sent;
+    const api = createApi('s3cret', async (url, init) => {
+      sent = init;
+      return reply(403, 'Forbidden', { message: 'nope' })();
+    });
+    await assert.rejects(api('GET', '/x'), (err) => !err.message.includes('s3cret'));
+    assert.equal(sent.headers.Authorization, 'Bearer s3cret');
+  });
+
+  it('returns the parsed body on success and null on 204', async () => {
+    assert.deepEqual(await createApi('t', reply(200, 'OK', { a: 1 }))('GET', '/x'), { a: 1 });
+    assert.equal(await createApi('t', reply(204, 'No Content'))('GET', '/x'), null);
   });
 });

@@ -48,15 +48,21 @@ const PAGE_SIZE = 100;
 const MERGEABLE_TRIES = 3;
 const MERGEABLE_WAIT_MS = 2000;
 
+/** The longest part of GitHub's error message that is kept, so a comment stays short. */
+const MAX_ERROR_DETAIL = 300;
+
 /**
  * A GitHub REST call. `fetch` is global in Node 22. The token is sent only as a header and never logged.
+ * A failed call's error carries GitHub's own `message`, since the status text alone (for example a bare
+ * `405 Method Not Allowed` on a merge) does not say what blocked it.
  * @param {string} token
+ * @param {typeof fetch} [fetchImpl] - Injectable for tests
  * @returns {(method: string, path: string, body?: unknown) => Promise<any>}
  * @throws {Error} From the returned function, on a non-2xx response
  */
-export function createApi(token) {
+export function createApi(token, fetchImpl = fetch) {
   return async (method, path, body) => {
-    const response = await fetch(`${API}${path}`, {
+    const response = await fetchImpl(`${API}${path}`, {
       method,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -67,9 +73,13 @@ export function createApi(token) {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!response.ok) {
+      /** @type {{ message?: unknown } | null} */
+      const data = await response.json().catch(() => null);
+      const detail =
+        typeof data?.message === 'string' ? data.message.slice(0, MAX_ERROR_DETAIL) : '';
       /** @type {Error & { status?: number }} */
       const err = new Error(
-        `GitHub ${method} ${path} failed: ${response.status} ${response.statusText}`,
+        `GitHub ${method} ${path} failed: ${response.status} ${response.statusText}${detail ? `: ${detail}` : ''}`,
       );
       err.status = response.status;
       throw err;
