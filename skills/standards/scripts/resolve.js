@@ -22,7 +22,8 @@
  * ./.claude/standards and ./.kiro/standards, then ~/.claude/standards and
  * ~/.kiro/standards; the first directory holding a name wins. The project's
  * own override file (`project_standards`, default ./project-standards.md) is
- * listed last when it exists; it need not.
+ * listed last when it exists; it need not. The value is a literal path: this
+ * zero-dependency script does not resolve `{key.path}` references.
  */
 
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
