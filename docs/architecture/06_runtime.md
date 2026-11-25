@@ -7,6 +7,7 @@ key_files:
   - lib/manifest.js
   - lib/commands/install.js
   - lib/commands/uninstall.js
+  - lib/project-root.js
   - lib/source-hashes/io.js
 ---
 
@@ -65,7 +66,7 @@ JSON and needs no shared external asset.
 
 ## Install scope
 
-A global install (the default) writes under the home directory and records it in `.installs.yaml` at the ai-foundation root, with absolute paths. A project install (`--scope project`) writes under `<project>/.claude/` or `.kiro/` and records it in that directory's own `.installs.yaml`, with project-relative paths, so the files and the manifest are committed together. The repo's `.gitignore` ignores `.installs.yaml` except those two.
+A project install (the default) writes under `<project>/.claude/` or `.kiro/` and records it in that directory's own `.installs.yaml`, with project-relative paths, so the files and the manifest are committed together. A global install (`--scope global`) writes under the home directory and records it in `.installs.yaml` at the ai-foundation root, with absolute paths. Project scope writes into the current directory, so `install`, `uninstall` and `status` refuse it where there is neither a `.aiconfig.json` nor a `.git` (`lib/project-root.js`), and the message names `--scope global`. The repo's `.gitignore` ignores `.installs.yaml` except those two.
 
 Committing the install is what lets a session's primary agent exist before Claude Code starts: the SessionStart hook runs only after the agent is resolved, so an agent a hook installed would apply from the next session; the hook therefore installs no bundles. Verified locally with headless Claude Code 2.1.310: a committed project agent named by `agent` in the project's `.claude/settings.json` ran as primary on the first turn and outranked a user agent of the same name.
 
