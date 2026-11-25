@@ -132,7 +132,7 @@ describe('integration: install -I', () => {
       const before = read('.aif/.installs.yaml');
       const mtime = statSync(join(project, '.githooks', 'refresh-index')).mtimeMs;
       const { output } = run({ integration: 'all' });
-      assert.equal(output.match(/already current/g).length, 8);
+      assert.equal(output.match(/already current/g).length, 9);
       assert.doesNotMatch(output, /new file|updated|⚠/);
       assert.equal(read('.aif/.installs.yaml'), before);
       assert.equal(statSync(join(project, '.githooks', 'refresh-index')).mtimeMs, mtime);
@@ -229,7 +229,10 @@ describe('integration: install -I', () => {
       run({ integration: 'all' });
       const { code, output } = run({ check: true });
       assert.equal(code, 0);
-      assert.match(output, /✓ integrations \(checks, update, hooks, session-start\): current/);
+      assert.match(
+        output,
+        /✓ integrations \(checks, update, merge, hooks, session-start\): current/,
+      );
     });
 
     it('reports a missing file and never fails', () => {
@@ -254,7 +257,7 @@ describe('integration: install -I', () => {
     it('lists integrations that exist but are not installed', () => {
       run({ integration: 'hooks' });
       const { output } = run({ check: true });
-      assert.match(output, /available, not installed: checks, update, session-start/);
+      assert.match(output, /available, not installed: checks, update, merge, session-start/);
     });
 
     it('says nothing about integrations in a project that has none', () => {

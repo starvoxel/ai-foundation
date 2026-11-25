@@ -36,8 +36,14 @@ describe('registry', () => {
     integration.files.map((file) => ({ name, file })),
   );
 
-  it('offers checks, update, hooks and session-start', () => {
-    assert.deepEqual([...INTEGRATION_NAMES].sort(), ['checks', 'hooks', 'session-start', 'update']);
+  it('offers checks, update, merge, hooks and session-start', () => {
+    assert.deepEqual([...INTEGRATION_NAMES].sort(), [
+      'checks',
+      'hooks',
+      'merge',
+      'session-start',
+      'update',
+    ]);
   });
 
   it('has a template on disk for every file', () => {
@@ -301,5 +307,23 @@ describe('carryPins', () => {
     assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v0.7.0')), aif(a, 'v0.7.0'));
     assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v0.10.0')), aif(a, 'v0.10.0'));
     assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v1.0.0')), aif(a, 'v1.0.0'));
+  });
+});
+
+describe('the merge integration', () => {
+  it('installs one pinned workflow that Dependabot owns', () => {
+    assert.deepEqual(INTEGRATIONS.merge.files, [
+      {
+        target: '.github/workflows/aif-merge.yml',
+        source: 'lib/integrations/assets/aif-merge.yml',
+        pinned: true,
+      },
+    ]);
+    assert.deepEqual(INTEGRATIONS.merge.snippets, ['dependabot']);
+  });
+
+  it('is part of all', () => {
+    assert.ok(expandIntegrationNames('all').names.includes('merge'));
+    assert.deepEqual(expandIntegrationNames('merge'), { names: ['merge'], unknown: [] });
   });
 });

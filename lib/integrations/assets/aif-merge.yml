@@ -1,0 +1,49 @@
+name: AIF merge
+
+# The `/merge` bot: a person with write access comments `/merge` on a pull request and the bot merges
+# it once every required check is green, waiting for checks that are still running. Installed by
+# `aif install -I merge`; the logic is ai-foundation's `merge` action, whose pin below is bumped by
+# Dependabot's github-actions ecosystem.
+#
+# Until the repository variable MERGE_BOT_LIVE is `true` this is a dry run: it only comments what it
+# would do. To go live, install the GitHub App on the repository, set the variable MERGE_APP_CLIENT_ID
+# and the secret MERGE_APP_PRIVATE_KEY, and make the App the only bypass actor of the rulesets that
+# require status checks (the README of the `merge` action lists the steps).
+#
+# Two lines are yours to edit: `workflows: [CI]` must name this repository's CI workflow, and
+# `version-paths` lists the directories whose changes need a `bump:patch|minor|major` label and a
+# version commit (empty: no versioned releases).
+on:
+  issue_comment:
+    types: [created]
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions: {}
+
+# One run at a time, none cancelled, so two merge requests never race.
+concurrency:
+  group: merge
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    name: Merge
+    if: >-
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/merge'))
+      || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: write
+    steps:
+      - name: Merge bot
+        uses: starvoxel/ai-foundation/.github/actions/merge@{{AIF_SHA}} # {{AIF_VERSION}}
+        with:
+          live: ${{ vars.MERGE_BOT_LIVE }}
+          app-client-id: ${{ vars.MERGE_APP_CLIENT_ID }}
+          app-private-key: ${{ secrets.MERGE_APP_PRIVATE_KEY }}
+          version-paths: ""
