@@ -80,4 +80,26 @@ describe('.github/actions', () => {
     const readme = readFileSync(join(ACTIONS_DIR, 'index', 'README.md'), 'utf8');
     assert.match(readme, /fetch-depth: 0/);
   });
+
+  describe('checks step order', () => {
+    const { steps } = YAML.parse(
+      readFileSync(join(ACTIONS_DIR, 'checks', 'action.yml'), 'utf8'),
+    ).runs;
+    const run = (pattern) => steps.findIndex((step) => pattern.test(step.run ?? ''));
+
+    it('installs, then checks the index, then checks drift', () => {
+      const install = run(/npm ci/);
+      const index = run(/index architecture --check/);
+      const drift = run(/install --scope project --check/);
+      assert.ok(install >= 0 && index > install && drift > index);
+    });
+
+    it('runs the drift check after a failed index check, but not after a failed install', () => {
+      const drift = steps[run(/install --scope project --check/)];
+      const install = steps[run(/npm ci/)];
+      assert.match(drift.if, /!cancelled\(\)/);
+      assert.match(drift.if, new RegExp(`steps\\.${install.id}\\.outcome == 'success'`));
+      assert.equal(steps[run(/index architecture --check/)].if, undefined);
+    });
+  });
 });
