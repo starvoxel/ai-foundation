@@ -57,4 +57,4 @@ The `/merge` bot ([merge-bot.md](merge-bot.md)) runs only in ai-foundation, from
 
 ## Open questions
 
-- Whether `github.action_path` keeps the scripts' relative imports intact on a runner (it should, the `checks` action relies on the same layout). Confirm in milestone 2 with a test run before building on it.
+- Whether `github.action_path` keeps the scripts' relative imports intact on a runner. Run from another directory with the action's relative path, the script starts and imports cleanly (2026-11-25); the first real run in a consumer repository confirms it.
