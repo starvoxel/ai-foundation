@@ -19,8 +19,16 @@ import { pathToFileURL } from 'node:url';
 const MODULE = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/version-bump-logic.mjs'),
 ).href;
-const { SHIPPED_DIRS, isOlder, needsPackageBump, packageBumpError, pickParentRef, shippedChanges } =
-  await import(MODULE);
+const {
+  SHIPPED_DIRS,
+  isOlder,
+  needsPackageBump,
+  packageBumpError,
+  packageVersionEditError,
+  pickParentRef,
+  readVersion,
+  shippedChanges,
+} = await import(MODULE);
 
 const pkg = (version) => JSON.stringify({ name: 'p', version });
 
@@ -141,6 +149,35 @@ describe('packageBumpError', () => {
       packageBumpError({ changedPaths, baseJson: '{ not json', headJson: pkg('1.0.0') }),
       null,
     );
+  });
+});
+
+describe('packageVersionEditError', () => {
+  it('reports a changed version, naming both values and the bot', () => {
+    const error = packageVersionEditError({ baseJson: pkg('1.0.0'), headJson: pkg('1.0.1') });
+    assert.match(error, /'1\.0\.0' -> '1\.0\.1'/);
+    assert.match(error, /\/merge bot sets it/);
+  });
+
+  it('returns null when the version is unchanged, even with other changes', () => {
+    const head = JSON.stringify({ name: 'p', version: '1.0.0', dependencies: { x: '2' } });
+    assert.equal(packageVersionEditError({ baseJson: pkg('1.0.0'), headJson: head }), null);
+  });
+
+  it('returns null when either side is missing or unreadable', () => {
+    assert.equal(packageVersionEditError({ baseJson: null, headJson: pkg('1.0.0') }), null);
+    assert.equal(packageVersionEditError({ baseJson: pkg('1.0.0'), headJson: null }), null);
+    assert.equal(packageVersionEditError({ baseJson: 'not json', headJson: pkg('1.0.0') }), null);
+    assert.equal(packageVersionEditError({ baseJson: '{}', headJson: pkg('1.0.0') }), null);
+  });
+});
+
+describe('readVersion', () => {
+  it('reads a string version and nothing else', () => {
+    assert.equal(readVersion(pkg('1.2.3')), '1.2.3');
+    assert.equal(readVersion('{"version":5}'), undefined);
+    assert.equal(readVersion('not json'), undefined);
+    assert.equal(readVersion('{}'), undefined);
   });
 });
 

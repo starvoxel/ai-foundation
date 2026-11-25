@@ -1,17 +1,24 @@
 name: Merge
 
-# Dry run of the `/merge` bot (docs/plans/merge-bot.md). When a person comments `/merge` on a PR,
-# this checks the PR the way the live bot will and replies with what it would do. It pushes
-# nothing and merges nothing; the live mode, the GitHub App and the ruleset bypass come in the
-# plan's last milestone. The decisions are in .github/scripts/merge-logic.mjs.
+# The `/merge` bot (docs/plans/merge-bot.md). When a person comments `/merge` on a PR, this checks the
+# PR and either replies with what it would do (dry run, the default) or merges it. The decisions are
+# in .github/scripts/merge-logic.mjs.
+#
+# Live mode is off until the repository variable MERGE_BOT_LIVE is `true`. It also needs the variable
+# MERGE_APP_CLIENT_ID and the secret MERGE_APP_PRIVATE_KEY of a GitHub App with contents, pull
+# requests and checks permissions, and the App as the only bypass actor of the main ruleset: the bot
+# merges after verifying every required check on the head itself, and its own commits skip CI.
 #
 # Security notes:
 #  - `issue_comment` runs the workflow file and scripts from the default branch, never from the
 #    PR, and the script reads only API data: PR code is never checked out or run.
 #  - The comment, commenter and PR number reach the script through environment variables, never
 #    inline `${{ }}` in a shell, and the comment must be exactly `/merge`.
-#  - The job token is scoped to read the repo and comment on the PR; the script refuses to run
-#    unless DRY_RUN is `true`.
+#  - Dry run uses the job token, scoped to read the repo and comment on the PR. Live mode uses a
+#    short-lived App installation token for this repository only, created in the job and never
+#    stored.
+#  - The App token also makes the bot's own comments trigger this workflow; the script ignores any
+#    bot commenter, so that cannot loop.
 on:
   issue_comment:
     types: [created]
@@ -24,8 +31,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  dry-run:
-    name: Merge dry run
+  merge:
+    name: Merge
     if: github.event.issue.pull_request && contains(github.event.comment.body, '/merge')
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -41,13 +48,21 @@ jobs:
           sparse-checkout: .github/scripts
           persist-credentials: false
 
+      - name: Create the merge bot token
+        id: app
+        if: vars.MERGE_BOT_LIVE == 'true'
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.MERGE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.MERGE_APP_PRIVATE_KEY }}
+
       - name: Decide
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ steps.app.outputs.token || github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.issue.number }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENTER_LOGIN: ${{ github.event.comment.user.login }}
           COMMENTER_TYPE: ${{ github.event.comment.user.type }}
-          DRY_RUN: "true"
+          DRY_RUN: ${{ vars.MERGE_BOT_LIVE == 'true' && 'false' || 'true' }}
         run: node .github/scripts/merge.mjs
