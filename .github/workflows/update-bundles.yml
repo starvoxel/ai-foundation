@@ -1,0 +1,103 @@
+name: Update AIF bundles
+
+# Reusable workflow: refreshes a project's committed AIF install (.claude/, .kiro/) and replaces the
+# one open update pull request with a fresh one when anything changed. It only updates bundles
+# already recorded in the project manifest and never installs new ones. The caller supplies the
+# schedule and the permissions; see docs/architecture/05_07_ci_actions_and_release.md.
+#
+# The token that pushes the branch and opens the pull request lives in Bitwarden Secrets Manager:
+# the caller passes the machine-account access token as the secret BWS_ACCESS_TOKEN and the ID of
+# the Bitwarden secret as the input token-secret-id. A pull request opened with the default
+# GITHUB_TOKEN would not start the caller's required checks, so a Bitwarden-held token is used.
+#
+# Security notes:
+#  - Every action is pinned to a full commit SHA with its release in a comment. The bundles action
+#    is this repository's own, pinned to a release; Dependabot bumps the pin.
+#  - The token is fetched after the bundles action, which runs npm ci, so no dependency code sees it.
+#  - Checkout keeps no credentials; git gets the token for the pushes only.
+on:
+  workflow_call:
+    inputs:
+      token-secret-id:
+        description: ID of the Bitwarden secret holding the token that pushes the branch and opens the pull request (an ID, not the token).
+        type: string
+        required: true
+      cloud-region:
+        description: Bitwarden cloud region, us or eu.
+        type: string
+        required: false
+        default: us
+      node-version:
+        description: Node version for setup-node; 22.23.4 is the oldest aif supports.
+        type: string
+        required: false
+        default: "22.23.4"
+    secrets:
+      BWS_ACCESS_TOKEN:
+        description: Bitwarden Secrets Manager machine-account access token, able to read only the one secret.
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    name: Update AIF bundles
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      # A local `./` path here would resolve in the caller's checkout, so the action is referenced
+      # by repository and pinned to a release.
+      - name: Update AIF bundles
+        id: bundles
+        uses: starvoxel/ai-foundation/.github/actions/bundles@de134ebd32cb0d544cdd8955cd5a0eec1acafbe6 # v0.4.0
+        with:
+          mode: update
+
+      - name: Get update token
+        uses: bitwarden/sm-action@1238aae8fc64b212641190a9227c8a734ab1a793 # v3.0.1
+        with:
+          access_token: ${{ secrets.BWS_ACCESS_TOKEN }}
+          cloud_region: ${{ inputs.cloud-region }}
+          secrets: |
+            ${{ inputs.token-secret-id }} > AIF_UPDATE_TOKEN
+
+      # One branch, one pull request. Every run closes the open update pull request and its branch,
+      # then opens a new one from the current state of the default branch, so it never goes stale.
+      # With nothing to update, the old pull request is closed and none is opened.
+      - name: Replace update PR
+        env:
+          GH_TOKEN: ${{ env.AIF_UPDATE_TOKEN }}
+          CHANGED: ${{ steps.bundles.outputs.changed }}
+          BASE: ${{ github.event.repository.default_branch }}
+        run: |
+          branch="aif/update-bundles"
+          # Checkout kept no credentials; give git the token for the pushes only.
+          auth="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          for number in $(gh pr list --head "$branch" --state open --json number --jq '.[].number'); do
+            gh pr close "$number" --delete-branch --comment "Replaced by the next run of the AIF update workflow."
+          done
+          git -c http.extraheader="$auth" push origin --delete "$branch" 2>/dev/null || true
+          if [ "$CHANGED" != "true" ]; then
+            echo "The installed bundles are current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add .claude .kiro 2>/dev/null || git add .claude
+          git commit -m "Update the installed AIF bundles"
+          git -c http.extraheader="$auth" push origin "$branch"
+          gh pr create --base "$BASE" --head "$branch" \
+            --title "Update the installed AIF bundles" \
+            --body "Refreshes the committed project install to the pinned ai-foundation release. Opened by the AIF update workflow."
