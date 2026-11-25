@@ -1,0 +1,3 @@
+projects/_template/.githooks/* text eol=lf
+projects/_template/scripts/*.sh text eol=lf
+lib/integrations/assets/* text eol=lf

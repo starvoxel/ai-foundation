@@ -15,6 +15,9 @@ import {
   INTEGRATIONS,
   INTEGRATION_NAMES,
   SNIPPETS,
+  carryPins,
+  isIntegration,
+  normalizeEol,
   describeDrift,
   expandIntegrationNames,
   normalizePins,
@@ -210,5 +213,82 @@ describe('refreshedByUpdate', () => {
   it('refreshes files without pins and leaves workflow files to Dependabot', () => {
     assert.equal(refreshedByUpdate({ target: 'a', source: 'a' }), true);
     assert.equal(refreshedByUpdate({ target: 'a', source: 'a', pinned: true }), false);
+  });
+});
+
+describe('names on the prototype chain are not integrations', () => {
+  it('isIntegration accepts only registered names', () => {
+    assert.equal(isIntegration('hooks'), true);
+    for (const name of ['constructor', 'toString', '__proto__', 'hasOwnProperty', '', 'nope']) {
+      assert.equal(isIntegration(name), false, name);
+    }
+    assert.equal(isIntegration(undefined), false);
+    assert.equal(isIntegration(['hooks']), false);
+  });
+
+  it('expandIntegrationNames reports them as unknown instead of accepting them', () => {
+    assert.deepEqual(expandIntegrationNames('constructor,toString,hooks'), {
+      names: ['hooks'],
+      unknown: ['constructor', 'toString'],
+    });
+  });
+});
+
+describe('line endings', () => {
+  it('normalizeEol turns CRLF into LF and leaves a lone CR alone', () => {
+    assert.equal(normalizeEol('a\r\nb\r\n'), 'a\nb\n');
+    assert.equal(normalizeEol('a\rb'), 'a\rb');
+  });
+
+  it('pinlessHash is equal for LF and CRLF copies of one file', () => {
+    assert.equal(pinlessHash('#!/bin/sh\necho hi\n'), pinlessHash('#!/bin/sh\r\necho hi\r\n'));
+    assert.notEqual(pinlessHash('a\n'), pinlessHash('b\n'));
+  });
+
+  it('planFile calls a CRLF copy of the template current, not modified', () => {
+    const desired = 'a\nb\n';
+    const plan = planFile({ desired, onDisk: 'a\r\nb\r\n', recorded: pinlessHash(desired) });
+    assert.equal(plan.action, 'current');
+  });
+
+  it('describeDrift reports a CRLF copy of the template as no drift', () => {
+    const desired = 'a\nb\n';
+    const drift = describeDrift({ desired, onDisk: 'a\r\nb\r\n', recorded: pinlessHash(desired) });
+    assert.equal(drift, null);
+  });
+});
+
+describe('carryPins', () => {
+  const checkout = (sha, version) => `      - uses: actions/checkout@${sha} # ${version}`;
+  const aif = (sha, version) =>
+    `        uses: starvoxel/ai-foundation/.github/actions/checks@${sha} # ${version}`;
+  const [a, b, c] = ['a', 'b', 'c'].map((ch) => ch.repeat(40));
+
+  it('keeps the pins a file already has when the template is rewritten', () => {
+    const desired = ['name: v2', checkout(a, 'v7.0.1'), aif(a, 'v0.6.0')].join('\n');
+    const onDisk = ['name: v1', checkout(b, 'v7.1.0'), aif(c, 'v0.9.0')].join('\n');
+    assert.equal(
+      carryPins(desired, onDisk),
+      ['name: v2', checkout(b, 'v7.1.0'), aif(c, 'v0.9.0')].join('\n'),
+    );
+  });
+
+  it('gives a new uses: line the freshly rendered pin', () => {
+    const desired = [checkout(a, 'v7.0.1'), '      - uses: actions/new@' + b + ' # v1.0.0'].join(
+      '\n',
+    );
+    const onDisk = checkout(c, 'v7.2.0');
+    assert.equal(
+      carryPins(desired, onDisk),
+      [checkout(c, 'v7.2.0'), '      - uses: actions/new@' + b + ' # v1.0.0'].join('\n'),
+    );
+  });
+
+  it('leaves everything that is not a pinned uses: line alone', () => {
+    assert.equal(carryPins('name: x\nrun: echo\n', 'name: y\n'), 'name: x\nrun: echo\n');
+  });
+
+  it('writes LF even when the template had CRLF', () => {
+    assert.ok(!carryPins('a\r\nb\r\n', 'x\n').includes('\r'));
   });
 });

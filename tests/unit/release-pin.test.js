@@ -22,6 +22,18 @@ describe('pickLatestTag', () => {
     assert.equal(pickLatestTag(['legacy/process-v1', 'v0.5.0-rc1', 'latest', 'v0.4.0']), 'v0.4.0');
   });
 
+  it('never returns a tag that could be read as a git option', () => {
+    const hostile = [
+      '--upload-pack=x',
+      '-rf',
+      'v1.0.0 --force',
+      'v1.0.0\n--output=x',
+      '$(touch x)',
+    ];
+    assert.equal(pickLatestTag(hostile), null);
+    assert.equal(pickLatestTag([...hostile, 'v0.3.0']), 'v0.3.0');
+  });
+
   it('tolerates blank lines and trailing whitespace from git output', () => {
     assert.equal(pickLatestTag(['', 'v0.4.0  ', '']), 'v0.4.0');
   });
