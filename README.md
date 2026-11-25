@@ -118,7 +118,7 @@ The v1 process (tag `legacy/process-v1`) had `software-engineer`, `engineering-m
 | `agent-authoring`, `skill-authoring`, `steering-authoring`, `bundle-authoring`, `server-authoring` | `component-authoring` (`ai-engineering` bundle)       |
 | ADRs                                                                                               | arc42 sections only                                   |
 
-1. In this repo run `aif install --update`. A reinstall removes the agents, skills and rules the bundle no longer ships (and servers and hooks nothing else uses), so a managed install upgrades cleanly.
+1. In this repo run `aif install --scope global --update` (project scope is the default, so the global install needs the flag). A reinstall removes the agents, skills and rules the bundle no longer ships (and servers and hooks nothing else uses), so a managed install upgrades cleanly.
 2. Files from installs the manifest never tracked are left alone: delete retired entries by hand from `~/.claude/{agents,skills,rules}` (or `~/.kiro`).
 3. In each project, drop `paths.features`, `paths.decisions`, `paths.worktrees` and `orchestration` from `.aiconfig.json`, add `paths.product` and `oversight`, and copy `.githooks/`, `scripts/session-start.sh` and `.claude/settings.json` from `projects/_template/`. Plans become one `plans/{name}.md` each instead of `plans/features/{id}/`.
 

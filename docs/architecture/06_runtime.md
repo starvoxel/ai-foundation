@@ -70,7 +70,7 @@ A project install (the default) writes under `<project>/.claude/` or `.kiro/` an
 
 Committing the install is what lets a session's primary agent exist before Claude Code starts: the SessionStart hook runs only after the agent is resolved, so an agent a hook installed would apply from the next session; the hook therefore installs no bundles. Verified locally with headless Claude Code 2.1.310: a committed project agent named by `agent` in the project's `.claude/settings.json` ran as primary on the first turn and outranked a user agent of the same name.
 
-The two scopes keep separate manifests and never share a file. `aif install --skip-project` keeps a global install from duplicating a bundle the project carries; that matters because Claude Code ranks a personal skill above a project skill of the same name (research brief `docs/research/project-scope-harness-locations.md`).
+The two scopes keep separate manifests and never share a file. `aif install --scope global --skip-project` keeps a global install from duplicating a bundle the project carries; that matters because Claude Code ranks a personal skill above a project skill of the same name (research brief `docs/research/project-scope-harness-locations.md`).
 
 Drift: `aif install --scope project --check` reinstalls the recorded bundles into a temporary project and compares the files with the committed ones; in MCP settings files, only aif's own server entries count. It never fails; CI reports drift as a warning.
 
