@@ -511,6 +511,34 @@ describe('integration: check-version-bumps.mjs', () => {
       assert.equal(finishAndCheck({}).code, 1);
     });
 
+    it('passes a PR that is behind main after a release but never touched the version', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      commit(repo, 'shipped change, no version edit');
+      publishBranch(repo, 'feature');
+      runGit(repo, ['checkout', '-q', 'main']);
+      writePackage('1.1.0');
+      commit(repo, 'release moves the version on main');
+      publishBranch(repo, 'main');
+      runGit(repo, ['checkout', '-q', 'feature']);
+      assert.equal(runCheck(repo, ['auto-parent', 'feature'], bot).code, 0);
+    });
+
+    it('still fails a PR that edits the version while behind main', () => {
+      startFeature();
+      writePackage('1.0.5');
+      commit(repo, 'hand-edited version');
+      publishBranch(repo, 'feature');
+      runGit(repo, ['checkout', '-q', 'main']);
+      writePackage('1.1.0');
+      commit(repo, 'release moves the version on main');
+      publishBranch(repo, 'main');
+      runGit(repo, ['checkout', '-q', 'feature']);
+      const { code, stdout } = runCheck(repo, ['auto-parent', 'feature'], bot);
+      assert.equal(code, 1);
+      assert.match(stdout, /version changed \('1\.0\.0' -> '1\.0\.5'\)/);
+    });
+
     it('keeps the original rule for a push to main, where the bot merge carries the bump', () => {
       writePackage('1.0.0');
       mkdirSync(join(repo, 'lib'), { recursive: true });

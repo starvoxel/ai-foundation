@@ -36,6 +36,7 @@ import {
   isVersionOnlyPaths,
   nextVersion,
   renderDryRun,
+  renderRefusal,
   requiredChecksFromRules,
   toGateInput,
   updateCommitMessage,
@@ -47,16 +48,28 @@ const API = 'https://api.github.com';
 const PAGE_SIZE = 100;
 const MERGEABLE_TRIES = 3;
 const MERGEABLE_WAIT_MS = 2000;
+/** After the bot moves the branch GitHub recomputes mergeability; wait for it before merging. */
+const SETTLE_TRIES = 10;
+const SETTLE_WAIT_MS = 2000;
+/** A merge refused with 405 is retried, since mergeability can still be settling. */
+const MERGE_ATTEMPTS = 3;
+const MERGE_RETRY_WAIT_MS = 3000;
+
+/** The longest part of GitHub's error message that is kept, so a comment stays short. */
+const MAX_ERROR_DETAIL = 300;
 
 /**
  * A GitHub REST call. `fetch` is global in Node 22. The token is sent only as a header and never logged.
+ * A failed call's error carries GitHub's own `message`, since the status text alone (for example a bare
+ * `405 Method Not Allowed` on a merge) does not say what blocked it.
  * @param {string} token
+ * @param {typeof fetch} [fetchImpl] - Injectable for tests
  * @returns {(method: string, path: string, body?: unknown) => Promise<any>}
  * @throws {Error} From the returned function, on a non-2xx response
  */
-export function createApi(token) {
+export function createApi(token, fetchImpl = fetch) {
   return async (method, path, body) => {
-    const response = await fetch(`${API}${path}`, {
+    const response = await fetchImpl(`${API}${path}`, {
       method,
       headers: {
         Authorization: `Bearer ${token}`,
@@ -67,9 +80,13 @@ export function createApi(token) {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!response.ok) {
+      /** @type {{ message?: unknown } | null} */
+      const data = await response.json().catch(() => null);
+      const detail =
+        typeof data?.message === 'string' ? data.message.slice(0, MAX_ERROR_DETAIL) : '';
       /** @type {Error & { status?: number }} */
       const err = new Error(
-        `GitHub ${method} ${path} failed: ${response.status} ${response.statusText}`,
+        `GitHub ${method} ${path} failed: ${response.status} ${response.statusText}${detail ? `: ${detail}` : ''}`,
       );
       err.status = response.status;
       throw err;
@@ -214,13 +231,60 @@ async function commitVersion(api, repo, branch, headSha, version) {
 }
 
 /**
+ * Wait until GitHub has computed the PR's mergeability, which it does asynchronously after a commit.
+ * Gives up quietly after a while: the merge call itself then decides.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {number} number
+ * @param {(ms: number) => Promise<void>} sleep
+ * @param {(line: string) => void} log
+ * @returns {Promise<void>}
+ */
+async function waitForMergeable(api, repo, number, sleep, log) {
+  for (let attempt = 1; attempt <= SETTLE_TRIES; attempt++) {
+    const pull = await api('GET', `/repos/${repo}/pulls/${number}`);
+    if (pull.mergeable !== null) return;
+    log(`waiting for GitHub to compute mergeability of #${number} (${attempt}/${SETTLE_TRIES})`);
+    await sleep(SETTLE_WAIT_MS);
+  }
+}
+
+/**
+ * Merge the PR at exactly `head`, retrying a 405 a couple of times because it can mean mergeability is
+ * still being computed. Any other error, and the last 405, is thrown with GitHub's message.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {number} number
+ * @param {string} head - The head SHA the merge is pinned to
+ * @param {(ms: number) => Promise<void>} sleep
+ * @param {(line: string) => void} log
+ * @returns {Promise<void>}
+ * @throws {Error} When the merge is refused on every attempt or fails for another reason
+ */
+async function mergeWithRetry(api, repo, number, head, sleep, log) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await api('PUT', `/repos/${repo}/pulls/${number}/merge`, {
+        sha: head,
+        merge_method: 'merge',
+      });
+      return;
+    } catch (err) {
+      if (err.status !== 405 || attempt >= MERGE_ATTEMPTS) throw err;
+      log(`merge of #${number} refused (attempt ${attempt}/${MERGE_ATTEMPTS}); retrying`);
+      await sleep(MERGE_RETRY_WAIT_MS);
+    }
+  }
+}
+
+/**
  * The live half of `/merge`: re-check the head, merge `main` into the branch when behind, commit the
  * version, and merge. The workflow's `merge` concurrency group serialises runs, and `main`'s version
  * is read again here so the number is assigned against `main` as it is now.
  * @param {{ api: (method: string, path: string, body?: unknown) => Promise<any>, repo: string,
  *   number: number, pull: any, defaultBranch: string, decision: { bump: { level: string, from: string, to: string } | null,
  *   updateBranch: boolean }, headSha: string, login: string, checks: string[], log: (line: string) => void,
- *   comment: (text: string) => Promise<any> }} input
+ *   comment: (text: string) => Promise<any>, sleep: (ms: number) => Promise<void> }} input
  * @returns {Promise<'merged'|'refused'>}
  * @throws {Error} When an API call fails; the caller reports it
  */
@@ -236,6 +300,7 @@ async function mergeLive({
   checks,
   log,
   comment,
+  sleep,
 }) {
   const branch = pull.head.ref;
   const fresh = await api('GET', `/repos/${repo}/pulls/${number}`);
@@ -282,7 +347,8 @@ async function mergeLive({
     log(`version ${bump.from} -> ${bump.to}: ${head}`);
   }
 
-  await api('PUT', `/repos/${repo}/pulls/${number}/merge`, { sha: head, merge_method: 'merge' });
+  await waitForMergeable(api, repo, number, sleep, log);
+  await mergeWithRetry(api, repo, number, head, sleep, log);
   log(`merged: #${number} at ${head} requested by @${login}`);
   await comment(
     formatAudit({
@@ -385,7 +451,12 @@ export async function run({
 
   log(`${decision.action}: #${number} at ${headSha} requested by @${login}`);
   if (decision.action === 'refuse') {
-    await comment(renderDryRun(decision, { pullNumber: number, headSha }));
+    const context = { pullNumber: number, headSha };
+    await comment(
+      env.DRY_RUN === 'true'
+        ? renderDryRun(decision, context)
+        : renderRefusal(decision.reasons, context),
+    );
     return 'refused';
   }
   if (env.DRY_RUN === 'true') {
@@ -405,10 +476,11 @@ export async function run({
       checks: input.requiredChecks,
       log,
       comment,
+      sleep,
     });
   } catch (err) {
     await comment(
-      `/merge failed: ${err.message}\n\nCheck the workflow run, then comment \`/merge\` again.`,
+      `/merge failed: ${err.message}\n\nCheck the workflow run. If the branch was already updated, push a commit so CI runs on it, then comment \`/merge\` again.`,
     );
     throw err;
   }
