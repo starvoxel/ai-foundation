@@ -124,7 +124,7 @@ Commands:
 Options:
   -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
-  --scope <scope>       global (default, home directory) or project (this project, to commit)
+  --scope <scope>       project (default: this project, to commit) or global (home directory)
   --update              Update all installed bundles that are stale
   --check               Verify without writing (index command); with install --scope project,
                         report drift in the committed install
@@ -140,14 +140,15 @@ Init Options:
   --cloud-steps         Only print the steps to set up a Claude Code cloud environment (no scaffolding, no --name)
 
 Examples:
-  aif install --bundle engineering --harness kiro
-  aif install -B engineering -H kiro
+  aif install --bundle engineering --harness claude
+  aif install -B engineering -H claude
   aif install --bundle engineering,product --harness kiro
   aif install --update
-  aif install --scope project -B engineering -H claude
-  aif install --scope project --check
+  aif install --check
+  aif install --scope global -B engineering -H kiro
   aif uninstall --bundle engineering --harness kiro
   aif status
+  aif status --scope global
   aif list bundles
   aif validate
   aif validate schema

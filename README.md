@@ -49,17 +49,18 @@ For details on component types, field requirements, and loading rules, see [`AGE
 The `aif` CLI manages installation, validation, and project scaffolding.
 
 ```bash
-# Install/manage bundles
-aif install --bundle engineering --harness kiro
+# Install/manage bundles: project scope is the default, so these write this project's
+# .claude/ (or .kiro/), to commit. Run them from the project root.
+aif install -B engineering -H claude
 aif install --update
-aif uninstall --bundle engineering --harness kiro
+aif install --check   # report drift in the committed install; never fails
+aif uninstall -B engineering -H claude
 aif status
 
-# Project scope: install into this project's .claude/ (or .kiro/), to commit
-aif install --scope project -B engineering -H claude
-aif install --scope project --update
-aif install --scope project --check   # report drift in the committed install; never fails
-aif status --scope project
+# Global scope: install for your user (~/.claude/, ~/.kiro/) instead
+aif install --scope global -B engineering -H kiro
+aif install --scope global --update
+aif status --scope global
 aif list bundles|agents|skills|servers
 
 # Validation
@@ -93,10 +94,12 @@ Installs are copies (transformed per-harness), tracked by a manifest for clean u
 
 #### Install scope
 
-| Scope              | Writes to                                                                      | Manifest                                                     |
-| ------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| `global` (default) | `~/.claude/`, `~/.claude.json`; `~/.kiro/`                                     | `.installs.yaml` in the ai-foundation root, absolute paths   |
-| `project`          | `<project>/.claude/`, `<project>/.mcp.json`; `<project>/.kiro/` (from the cwd) | `.claude/.installs.yaml` or `.kiro/.installs.yaml`, relative |
+| Scope               | Writes to                                                                      | Manifest                                                     |
+| ------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------ |
+| `project` (default) | `<project>/.claude/`, `<project>/.mcp.json`; `<project>/.kiro/` (from the cwd) | `.claude/.installs.yaml` or `.kiro/.installs.yaml`, relative |
+| `global`            | `~/.claude/`, `~/.claude.json`; `~/.kiro/`                                     | `.installs.yaml` in the ai-foundation root, absolute paths   |
+
+Project scope needs a project: run it where there is a `.aiconfig.json` or a `.git`, or it stops and suggests `--scope global`.
 
 Commit a project-scope install. It is how a project's agents exist before a session starts, so `"agent"` in `.claude/settings.json` takes effect from the first turn, including in a fresh cloud session. Project scope always reinstalls (the output is committed, so adapter changes must reach it), and writes no machine-specific path. A stdio MCP server is committed without `node_modules` and installs its own dependencies on first start (`npm install --omit=dev --ignore-scripts`, so that start needs network and must finish within Claude Code's 30-second connect timeout, or the server is unavailable for that session); Kiro skips stdio servers. The committed `block-command` hook runs bare `node`, so `node` must be on the hook shell's PATH. Bundles with `default: true` in `bundle.yaml` (today `engineering`) are what `aif init --with-default-bundles` installs. CI runs `--check` as a warning-only step. Kiro's project locations are unverified (arc42 §11). Where each harness reads project files: `docs/research/project-scope-harness-locations.md`.
 
@@ -115,7 +118,7 @@ The v1 process (tag `legacy/process-v1`) had `software-engineer`, `engineering-m
 | `agent-authoring`, `skill-authoring`, `steering-authoring`, `bundle-authoring`, `server-authoring` | `component-authoring` (`ai-engineering` bundle)       |
 | ADRs                                                                                               | arc42 sections only                                   |
 
-1. In this repo run `aif install --update`. A reinstall removes the agents, skills and rules the bundle no longer ships (and servers and hooks nothing else uses), so a managed install upgrades cleanly.
+1. In this repo run `aif install --scope global --update` (project scope is the default, so the global install needs the flag). A reinstall removes the agents, skills and rules the bundle no longer ships (and servers and hooks nothing else uses), so a managed install upgrades cleanly.
 2. Files from installs the manifest never tracked are left alone: delete retired entries by hand from `~/.claude/{agents,skills,rules}` (or `~/.kiro`).
 3. In each project, drop `paths.features`, `paths.decisions`, `paths.worktrees` and `orchestration` from `.aiconfig.json`, add `paths.product` and `oversight`, and copy `.githooks/`, `scripts/session-start.sh` and `.claude/settings.json` from `projects/_template/`. Plans become one `plans/{name}.md` each instead of `plans/features/{id}/`.
 

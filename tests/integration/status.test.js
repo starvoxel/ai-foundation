@@ -74,17 +74,24 @@ describe('integration: status command', () => {
   }
 
   it('reports nothing when no installs exist', () => {
-    const { code, output } = captureLog(() => runStatus({ args: {}, positional: [] }, repo));
+    const { code, output } = captureLog(() =>
+      runStatus({ args: { scope: 'global' }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
     assert.ok(output.includes('Nothing installed'));
   });
 
   it('reports installed bundle with file counts', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
-    const { code, output } = captureLog(() => runStatus({ args: {}, positional: [] }, repo));
+    const { code, output } = captureLog(() =>
+      runStatus({ args: { scope: 'global' }, positional: [] }, repo),
+    );
     assert.equal(code, 0);
     assert.ok(output.includes('test-bundle'));
     assert.ok(output.includes('kiro'));

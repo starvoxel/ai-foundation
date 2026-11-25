@@ -93,7 +93,10 @@ describe('integration: standards installation', () => {
 
   it('install copies standards files to harness standards directory', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     assert.ok(existsSync(join(TARGETS.standards, 'typescript-node.md')));
@@ -104,7 +107,10 @@ describe('integration: standards installation', () => {
 
   it('installed standards content matches source', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const installed = readFileSync(join(TARGETS.standards, 'typescript-node.md'), 'utf8');

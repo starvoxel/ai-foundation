@@ -61,40 +61,58 @@ describe('integration: uninstall (kiro-specific)', () => {
 
   it('deletes agent JSON from Kiro target', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     const agentPath = join(TARGETS.agents, 'test-agent.json');
     assert.ok(existsSync(agentPath), 'precondition: file exists');
 
     quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.ok(!existsSync(agentPath));
   });
 
   it('deletes steering files from Kiro target', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     const steeringPath = join(TARGETS.steering, 'global-core.md');
     assert.ok(existsSync(steeringPath), 'precondition: file exists');
 
     quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.ok(!existsSync(steeringPath));
   });
 
   it('handles already-deleted target files gracefully', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const agentPath = join(TARGETS.agents, 'test-agent.json');
     if (existsSync(agentPath)) unlinkSync(agentPath);
 
     const code = quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.equal(code, 0);
   });

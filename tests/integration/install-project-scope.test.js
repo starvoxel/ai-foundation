@@ -102,6 +102,8 @@ describe('integration: install --scope project', () => {
       }),
     );
     project = mkdtempSync(join(tmpdir(), 'aif-project-'));
+    // A directory only counts as a project with a marker (project-root.js).
+    writeFileSync(join(project, '.aiconfig.json'), '{}\n');
     claudeBefore = { ...CLAUDE_TARGETS };
     kiroBefore = { ...KIRO_TARGETS };
   });
@@ -180,7 +182,9 @@ describe('integration: install --scope project', () => {
       runStatus({ args: { scope: 'project' }, positional: [] }, repo, project),
     );
     assert.ok(project_.output.includes('eng → claude'));
-    const global = capture(() => runStatus({ args: {}, positional: [] }, repo, project));
+    const global = capture(() =>
+      runStatus({ args: { scope: 'global' }, positional: [] }, repo, project),
+    );
     assert.ok(global.output.includes('Nothing installed at global scope'));
   });
 
@@ -208,7 +212,7 @@ describe('integration: install --scope project', () => {
 
   it('--check is refused outside project scope', () => {
     const { code } = capture(() =>
-      runInstall({ args: { check: true }, positional: [] }, repo, project),
+      runInstall({ args: { check: true, scope: 'global' }, positional: [] }, repo, project),
     );
     assert.equal(code, 1);
   });
@@ -217,7 +221,10 @@ describe('integration: install --scope project', () => {
     install({ bundle: 'eng', harness: 'claude' });
     const { code, output } = capture(() =>
       runInstall(
-        { args: { bundle: 'eng', harness: 'claude', 'skip-project': true }, positional: [] },
+        {
+          args: { bundle: 'eng', harness: 'claude', 'skip-project': true, scope: 'global' },
+          positional: [],
+        },
         repo,
         project,
       ),

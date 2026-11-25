@@ -64,7 +64,10 @@ describe('integration: install (kiro-specific)', () => {
 
   it('transforms agents to JSON with mapped tools and resources', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const agentPath = join(TARGETS.agents, 'test-agent.json');
@@ -79,7 +82,10 @@ describe('integration: install (kiro-specific)', () => {
 
   it('flattens steering paths and installs to Kiro steering dir', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // steering/global/core.md → global-core.md
@@ -90,7 +96,10 @@ describe('integration: install (kiro-specific)', () => {
 
   it('installs skill files to Kiro skills dir', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const skillFile = join(TARGETS.skills, 'test-skill', 'SKILL.md');

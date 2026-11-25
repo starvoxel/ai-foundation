@@ -57,7 +57,7 @@ describe('integration: uninstall (files shared across bundles)', () => {
   }
 
   const run = (fn, bundle) =>
-    quiet(() => fn({ args: { bundle, harness: 'claude' }, positional: [] }, repo));
+    quiet(() => fn({ args: { bundle, harness: 'claude', scope: 'global' }, positional: [] }, repo));
   const rulePath = () => join(TARGETS.rules, 'eng-rules.md');
 
   it('keeps a file both bundles installed until the last owner uninstalls', () => {
