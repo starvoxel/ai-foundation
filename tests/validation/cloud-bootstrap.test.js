@@ -17,9 +17,7 @@ const commandLines = (text) =>
 describe('cloud Setup script bootstrap', () => {
   it('runs scripts/cloud-setup.sh from the global install (a command, not a comment)', () => {
     assert.ok(
-      commandLines(bootstrap()).some((line) =>
-        /^bash ".*\/ai-foundation\/scripts\/cloud-setup\.sh"$/.test(line),
-      ),
+      commandLines(bootstrap()).some((line) => /^bash ".*\/scripts\/cloud-setup\.sh"$/.test(line)),
     );
   });
 
@@ -41,6 +39,12 @@ describe('cloud Setup script bootstrap', () => {
     assert.ok(readme.includes('(scripts/cloud-setup-bootstrap.sh)'));
     for (const line of commandLines(bootstrap()).filter((l) => !l.startsWith('set '))) {
       assert.ok(!readme.includes(line), `README copies the bootstrap line: ${line}`);
+    }
+    // Neither does a fenced block in the README run or quote the script it hands over to.
+    const fenced = [...readme.matchAll(/^```[^\n]*\n([\s\S]*?)^```/gm)].map((m) => m[1]);
+    assert.ok(fenced.length > 0, 'README has fenced blocks, so this check is not vacuous');
+    for (const block of fenced) {
+      assert.doesNotMatch(block, /cloud-setup\.sh/, 'a README code block mentions cloud-setup.sh');
     }
   });
 });

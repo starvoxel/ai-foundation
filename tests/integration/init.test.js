@@ -160,6 +160,37 @@ describe('integration: init command', () => {
     );
   });
 
+  it('prints no cloud setup steps when the --with-default-bundles install fails', async () => {
+    // A file where the install needs the .claude/skills directory makes the install fail.
+    mkdirSync(join(workDir, 'blocked', '.claude'), { recursive: true });
+    writeFileSync(join(workDir, 'blocked', '.claude', 'skills'), 'not a directory');
+    const output = [];
+    const origLog = console.log;
+    console.log = (...args) => output.push(args.join(' '));
+    let code;
+    try {
+      code = await runInit({
+        args: { name: 'blocked', force: true, 'with-default-bundles': true },
+        positional: [],
+      });
+    } catch {
+      code = 'threw'; // the install may throw or return non-zero; either way no steps print
+    } finally {
+      console.log = origLog;
+    }
+    assert.notEqual(code, 0);
+    assert.doesNotMatch(output.join('\n'), /Cloud setup/);
+  });
+
+  it('scaffolds the cleanup-branches script identical to this repo copy', async () => {
+    await quiet(() => runInit({ args: { name: 'cleanup' }, positional: [] }));
+    const root = join(import.meta.dirname, '..', '..');
+    assert.equal(
+      readFileSync(join(workDir, 'cleanup', '.github', 'scripts', 'cleanup-branches.mjs'), 'utf8'),
+      readFileSync(join(root, '.github', 'scripts', 'cleanup-branches.mjs'), 'utf8'),
+    );
+  });
+
   it('prints no cloud setup steps when init fails', async () => {
     const { code, output } = await quiet(() =>
       runInit({ args: { name: 'bad/name' }, positional: [] }),

@@ -58,7 +58,11 @@ extract_zip() {
 # run never sees a half-written binary.
 place() {
   local tmp="$BIN_DIR/.$2.$$"
-  install -m 0755 "$1" "$tmp" && mv -f "$tmp" "$BIN_DIR/$2"
+  if install -m 0755 "$1" "$tmp" && mv -f "$tmp" "$BIN_DIR/$2"; then
+    return 0
+  fi
+  rm -f "$tmp"
+  return 1
 }
 
 # provision <tool> <version> <url> <sha256> <archive-name> <extract-fn>
