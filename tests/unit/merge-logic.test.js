@@ -29,6 +29,9 @@ const {
   isVersionOnlyPaths,
   nextVersion,
   parseCommand,
+  renderDryRun,
+  requiredChecksFromRules,
+  toGateInput,
   verifyVersionOnly,
 } = await import(LOGIC);
 
@@ -445,5 +448,125 @@ describe('formatAudit', () => {
   it('says so when no version changed and the branch was current', () => {
     const line = formatAudit({ ...base, bump: null, updatedBranch: false });
     assert.match(line, /no version change; gated head abc123; branch up to date/);
+  });
+});
+
+describe('evaluateGate with no required checks', () => {
+  it('refuses rather than passing vacuously', () => {
+    const gate = evaluateGate(gateInput({ requiredChecks: [], checks: [] }));
+    assert.deepEqual(gate.reasons, ['checks-unknown']);
+  });
+});
+
+describe('requiredChecksFromRules', () => {
+  it('collects the required status check names, without repeats', () => {
+    const rules = [
+      { type: 'deletion' },
+      {
+        type: 'required_status_checks',
+        parameters: { required_status_checks: [{ context: 'Validate' }, { context: 'Test' }] },
+      },
+      {
+        type: 'required_status_checks',
+        parameters: { required_status_checks: [{ context: 'Test' }] },
+      },
+    ];
+    assert.deepEqual(requiredChecksFromRules(rules), ['Validate', 'Test']);
+  });
+
+  it('returns nothing for rules without status checks or an unexpected shape', () => {
+    assert.deepEqual(requiredChecksFromRules([{ type: 'deletion' }]), []);
+    assert.deepEqual(requiredChecksFromRules([{ type: 'required_status_checks' }]), []);
+    assert.deepEqual(requiredChecksFromRules(null), []);
+    assert.deepEqual(requiredChecksFromRules({}), []);
+    assert.deepEqual(
+      requiredChecksFromRules([
+        {
+          type: 'required_status_checks',
+          parameters: { required_status_checks: [{ context: 5 }, null] },
+        },
+      ]),
+      [],
+    );
+  });
+});
+
+describe('toGateInput', () => {
+  const pull = {
+    state: 'open',
+    draft: false,
+    mergeable: true,
+    head: { sha: 'abc', repo: { full_name: 'o/r' } },
+    base: { ref: 'main', repo: { full_name: 'o/r' } },
+    user: { login: 'jo' },
+    labels: [{ name: 'bump:minor' }],
+  };
+  const data = {
+    pull,
+    files: [{ filename: 'lib/x.js' }],
+    checkRuns: [{ name: 'Validate', status: 'completed', conclusion: 'success', id: 1 }],
+    requiredChecks: ['Validate'],
+    mergeBaseJson: '{"version":"0.5.2"}',
+    headJson: '{"version":"0.5.2"}',
+    defaultBranch: 'main',
+  };
+
+  it('maps the API payloads onto the gate input', () => {
+    assert.deepEqual(toGateInput(data), {
+      pr: {
+        state: 'open',
+        draft: false,
+        headRepo: 'o/r',
+        baseRepo: 'o/r',
+        baseRef: 'main',
+        authorLogin: 'jo',
+        mergeable: true,
+        labels: ['bump:minor'],
+      },
+      defaultBranch: 'main',
+      changedPaths: ['lib/x.js'],
+      requiredChecks: ['Validate'],
+      checks: [{ name: 'Validate', status: 'completed', conclusion: 'success' }],
+      versions: { mergeBase: '0.5.2', head: '0.5.2' },
+    });
+  });
+
+  it('keeps an unknown mergeable state as null and tolerates a missing fork repo', () => {
+    const input = toGateInput({
+      ...data,
+      pull: { ...pull, mergeable: null, head: { sha: 'abc', repo: null } },
+    });
+    assert.equal(input.pr.mergeable, null);
+    assert.equal(input.pr.headRepo, '');
+  });
+
+  it('reads no version from a missing or unreadable package.json', () => {
+    const input = toGateInput({ ...data, mergeBaseJson: null, headJson: 'not json' });
+    assert.deepEqual(input.versions, { mergeBase: undefined, head: undefined });
+  });
+});
+
+describe('renderDryRun', () => {
+  const context = { pullNumber: 7, headSha: 'abc123' };
+
+  it('says what would be merged and that nothing was done', () => {
+    const text = renderDryRun(
+      { action: 'merge', bump: { level: 'patch', from: '0.5.4', to: '0.5.5' }, updateBranch: true },
+      context,
+    );
+    assert.match(text, /dry run\*\* for #7 at `abc123`\. Nothing was pushed or merged/);
+    assert.match(text, /Version: 0\.5\.4 -> 0\.5\.5 \(patch\)/);
+    assert.match(text, /merge `main` into the branch first/);
+  });
+
+  it('says so when no version changes and the branch is current', () => {
+    const text = renderDryRun({ action: 'merge', bump: null, updateBranch: false }, context);
+    assert.match(text, /no version change/);
+    assert.match(text, /branch is up to date/);
+  });
+
+  it('lists the refusal reasons', () => {
+    const text = renderDryRun({ action: 'refuse', reasons: ['draft'] }, context);
+    assert.match(text, /Would refuse:\n- The PR is a draft\./);
   });
 });

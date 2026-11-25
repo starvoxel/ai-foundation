@@ -15,7 +15,7 @@
 
 import { isDeepStrictEqual } from 'node:util';
 
-import { needsPackageBump } from './version-bump-logic.mjs';
+import { needsPackageBump, readVersion } from './version-bump-logic.mjs';
 
 /** Bump levels a `bump:*` label can name, in increasing size. */
 export const LEVELS = ['patch', 'minor', 'major'];
@@ -48,6 +48,7 @@ export const REFUSALS = {
   'label-multiple': 'The PR has more than one `bump:*` label.',
   'label-unknown': 'The PR has a `bump:*` label that is not patch, minor or major.',
   'version-hand-edited': 'The PR edits the package version; the bot owns it. Revert that edit.',
+  'checks-unknown': 'The required checks could not be determined, so nothing can be verified.',
   'check-missing': 'A required check has not reported on the head commit.',
   'check-pending': 'A required check is still running on the head commit.',
   'check-failed': 'A required check did not pass on the head commit.',
@@ -163,6 +164,7 @@ export function evaluateGate(input) {
     reasons.push(labelled.error);
   }
 
+  if (requiredChecks.length === 0) reasons.push('checks-unknown');
   reasons.push(...checkReasons(requiredChecks, checks));
   const bumps = needsPackageBump(changedPaths);
   return { ok: reasons.length === 0, reasons, level: bumps ? level : null };
@@ -283,4 +285,83 @@ export function formatAudit({ commenter, bump, headSha, checks, updatedBranch })
   const version = bump ? `${bump.from} -> ${bump.to} (${bump.level})` : 'no version change';
   const update = updatedBranch ? 'branch updated from main' : 'branch up to date';
   return `Merged by /merge from @${commenter}: ${version}; gated head ${headSha}; ${update}; checks: ${checks.join(', ')}.`;
+}
+
+/**
+ * Names of the required status checks in a branch's rules (the `rules/branches/{branch}` API
+ * response). Pure.
+ * @param {unknown} rules - The API response
+ * @returns {string[]} Check names; empty when none are found or the shape is unexpected
+ */
+export function requiredChecksFromRules(rules) {
+  if (!Array.isArray(rules)) return [];
+  const names = [];
+  for (const rule of rules) {
+    if (rule?.type !== 'required_status_checks') continue;
+    for (const check of rule.parameters?.required_status_checks ?? []) {
+      if (typeof check?.context === 'string') names.push(check.context);
+    }
+  }
+  return [...new Set(names)];
+}
+
+/**
+ * Build the gate input from GitHub API payloads. Pure.
+ * @param {{ pull: any, files: Array<{ filename: string }>, checkRuns: any[], requiredChecks: string[],
+ *   mergeBaseJson: string|null, headJson: string|null, defaultBranch: string }} data
+ * @returns {GateInput}
+ */
+export function toGateInput({
+  pull,
+  files,
+  checkRuns,
+  requiredChecks,
+  mergeBaseJson,
+  headJson,
+  defaultBranch,
+}) {
+  return {
+    pr: {
+      state: pull.state,
+      draft: Boolean(pull.draft),
+      headRepo: pull.head?.repo?.full_name ?? '',
+      baseRepo: pull.base?.repo?.full_name ?? '',
+      baseRef: pull.base?.ref ?? '',
+      authorLogin: pull.user?.login ?? '',
+      mergeable: typeof pull.mergeable === 'boolean' ? pull.mergeable : null,
+      labels: (pull.labels ?? []).map((/** @type {{ name: string }} */ label) => label.name),
+    },
+    defaultBranch,
+    changedPaths: files.map((file) => file.filename),
+    requiredChecks,
+    checks: checkRuns.map((run) => ({
+      name: run.name,
+      status: run.status,
+      conclusion: run.conclusion ?? null,
+    })),
+    versions: {
+      mergeBase: mergeBaseJson === null ? undefined : readVersion(mergeBaseJson),
+      head: headJson === null ? undefined : readVersion(headJson),
+    },
+  };
+}
+
+/**
+ * The comment a dry run posts: what the bot would do, and that it did nothing. Pure.
+ * @param {ReturnType<typeof decideMerge>} decision
+ * @param {{ pullNumber: number, headSha: string }} context
+ * @returns {string}
+ */
+export function renderDryRun(decision, { pullNumber, headSha }) {
+  const head = `**/merge dry run** for #${pullNumber} at \`${headSha}\`. Nothing was pushed or merged.`;
+  if (decision.action === 'refuse') {
+    return `${head}\n\nWould refuse:\n${describeRefusal(decision.reasons)}`;
+  }
+  const version = decision.bump
+    ? `${decision.bump.from} -> ${decision.bump.to} (${decision.bump.level})`
+    : 'no version change';
+  const update = decision.updateBranch
+    ? 'merge `main` into the branch first'
+    : 'branch is up to date';
+  return `${head}\n\nWould merge:\n- Version: ${version}\n- Branch: ${update}`;
 }
