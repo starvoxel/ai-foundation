@@ -16,6 +16,7 @@ import {
 } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
+import YAML from 'yaml';
 
 import { printCloudSetupSteps, runInit } from '../../lib/commands/init.js';
 
@@ -63,6 +64,27 @@ describe('integration: init command', () => {
     await quiet(() => runInit({ args: { name: 'plain' }, positional: [] }));
     assert.ok(!existsSync(join(workDir, 'plain', '.claude', '.installs.yaml')));
     assert.ok(!existsSync(join(workDir, 'plain', '.claude', 'agents')));
+  });
+
+  it('records the template hooks and session script as installed integrations', async () => {
+    const { code } = await quiet(() => runInit({ args: { name: 'integrated' }, positional: [] }));
+    assert.equal(code, 0);
+    const manifest = YAML.parse(
+      readFileSync(join(workDir, 'integrated', '.aif', '.installs.yaml'), 'utf8'),
+    );
+    assert.ok(manifest.integrations.hooks.files.some((f) => f.path === '.githooks/commit-msg'));
+    assert.ok(manifest.integrations['session-start']);
+  });
+
+  it('installs the workflow integrations when a release tag exists, and says how otherwise', async () => {
+    const { output } = await quiet(() => runInit({ args: { name: 'workflows' }, positional: [] }));
+    const written = existsSync(
+      join(workDir, 'workflows', '.github', 'workflows', 'aif-checks.yml'),
+    );
+    assert.ok(
+      written || output.some((line) => line.includes('aif install -I checks,update')),
+      'either the workflows were written or the output says how to install them',
+    );
   });
 
   it('installs the default bundles at project scope with --with-default-bundles', async () => {
