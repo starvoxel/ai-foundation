@@ -1,6 +1,6 @@
 {
   "name": "ai-foundation",
-  "version": "0.6.2",
+  "version": "0.6.1",
   "private": true,
   "description": "Portable, harness-agnostic framework for AI-assisted software development",
   "type": "module",
