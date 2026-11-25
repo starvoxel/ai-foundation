@@ -1,10 +1,10 @@
 # Plan: AIF project integrations
 
-| Field       | Value      |
-| ----------- | ---------- |
-| Status      | Draft      |
-| Approved by | Pending    |
-| Created     | 2026-11-24 |
+| Field       | Value                             |
+| ----------- | --------------------------------- |
+| Status      | Approved                          |
+| Approved by | jeremysmellie@gmail.com (in chat) |
+| Created     | 2026-11-24                        |
 
 ## Goal
 
