@@ -555,7 +555,12 @@ describe('run, live', () => {
     const result = await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} });
     assert.equal(result, 'merged');
     const start = calls.find((call) => call.path.endsWith('/merge-async'));
-    assert.deepEqual(start.body, { sha: 'commit1', merge_method: 'merge' });
+    assert.deepEqual(start.body, {
+      sha: 'commit1',
+      merge_method: 'merge',
+      merge_action: 'direct_merge',
+      bypass_rules: true,
+    });
     assert.equal(calls.filter((call) => call.path.endsWith('/merge')).length, 1);
     assert.match(posted(calls).at(-1).body.body, /^\*\*Merge successful\*\*/);
   });
