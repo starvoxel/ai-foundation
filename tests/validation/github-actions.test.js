@@ -23,15 +23,18 @@ import YAML from 'yaml';
 const ACTIONS_DIR = resolve(import.meta.dirname, '../../.github/actions');
 // Actions that take a `mode`; `checks` runs both checks and takes no input.
 const MODE_ACTIONS = ['index', 'bundles'];
-const actionNames = readdirSync(ACTIONS_DIR, { withFileTypes: true })
+const ALL_ACTIONS = readdirSync(ACTIONS_DIR, { withFileTypes: true })
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name);
+// `merge` takes inputs and pins a third-party action; merge-action.test.js covers it.
+const actionNames = ALL_ACTIONS.filter((name) => name !== 'merge');
 
 describe('.github/actions', () => {
   it('contains the index, bundles and checks actions', () => {
     assert.ok(actionNames.includes('index'));
     assert.ok(actionNames.includes('bundles'));
     assert.ok(actionNames.includes('checks'));
+    assert.ok(ALL_ACTIONS.includes('merge'));
   });
 
   for (const name of actionNames) {

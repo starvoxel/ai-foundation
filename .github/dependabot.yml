@@ -47,7 +47,10 @@ updates:
           - minor
 
   - package-ecosystem: github-actions
-    directory: /
+    # The workflows, plus the composite actions that pin third-party actions of their own.
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: weekly
     open-pull-requests-limit: 5

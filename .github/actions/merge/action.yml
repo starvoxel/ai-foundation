@@ -1,0 +1,53 @@
+name: AIF merge bot
+description: Run the /merge bot for the calling repository, a dry run unless live, from the pinned ai-foundation checkout.
+
+# The bot's decisions are in .github/scripts/merge-logic.mjs and its API calls in merge.mjs, both read
+# from this action's own checkout (the pinned release), never from the pull request. See
+# docs/plans/merge-bot.md and docs/plans/merge-bot-integration.md.
+
+inputs:
+  live:
+    description: "'true' to merge for real, using a GitHub App token; anything else is a dry run that only comments."
+    required: false
+    default: "false"
+  app-client-id:
+    description: Client ID of the GitHub App that merges. Needed only when live.
+    required: false
+    default: ""
+  app-private-key:
+    description: Private key of that App, from a secret. Needed only when live.
+    required: false
+    default: ""
+  version-paths:
+    description: Comma-separated directories whose changes need a bump label and a version commit. Empty for a project without versioned releases.
+    required: false
+    default: ""
+
+runs:
+  using: composite
+  steps:
+    - name: Create the merge bot token
+      id: app
+      if: ${{ inputs.live == 'true' }}
+      uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+      with:
+        client-id: ${{ inputs.app-client-id }}
+        private-key: ${{ inputs.app-private-key }}
+
+    - name: Decide
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+        GITHUB_TOKEN: ${{ steps.app.outputs.token || github.token }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        EVENT_NAME: ${{ github.event_name }}
+        PR_NUMBER: ${{ github.event.issue.number }}
+        COMMENT_BODY: ${{ github.event.comment.body }}
+        COMMENTER_LOGIN: ${{ github.event.comment.user.login }}
+        COMMENTER_TYPE: ${{ github.event.comment.user.type }}
+        DRY_RUN: ${{ inputs.live == 'true' && 'false' || 'true' }}
+        VERSION_PATHS: ${{ inputs.version-paths }}
+      run: |
+        # This action lives at <root>/.github/actions/merge.
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        node "$AIF_ROOT/.github/scripts/merge.mjs"
