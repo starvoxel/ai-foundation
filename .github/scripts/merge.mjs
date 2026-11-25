@@ -15,7 +15,8 @@
  * it pushes nothing and merges nothing, and refuses to run with DRY_RUN other than `true`.
  *
  * Input (environment): GITHUB_TOKEN, GITHUB_REPOSITORY (`owner/repo`), PR_NUMBER, COMMENT_BODY,
- * COMMENTER_LOGIN, COMMENTER_TYPE, DRY_RUN.
+ * COMMENTER_LOGIN, COMMENTER_TYPE, DRY_RUN, and EVENT_NAME (`workflow_run` makes it settle the PRs
+ * waiting for checks instead of handling a comment; no other input is read then).
  *
  * The comment body reaches this script only through the environment and is matched exactly; the
  * script never runs PR code.
@@ -24,6 +25,7 @@
 import { pathToFileURL } from 'node:url';
 
 import {
+  QUEUE_LABEL,
   UNSUPPORTED_REPLY,
   applyVersion,
   classifyComment,
@@ -32,6 +34,10 @@ import {
   firstParentIs,
   isBotCommenter,
   isVersionOnlyPaths,
+  isWaitingOnly,
+  parseQueueMarker,
+  queueExpired,
+  renderQueued,
   nextVersion,
   renderApiFailure,
   renderDryRun,
@@ -355,11 +361,171 @@ async function mergeLive({
 }
 
 /**
+ * Read everything the gate needs about a PR from the API and decide. Reads only; never writes.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {number} number
+ * @param {(ms: number) => Promise<void>} sleep
+ * @returns {Promise<{ pull: any, defaultBranch: string, headSha: string, decision: ReturnType<typeof decideMerge> }>}
+ */
+async function gather(api, repo, number, sleep) {
+  const pull = await fetchPull(api, repo, number, sleep);
+  const defaultBranch = pull.base?.repo?.default_branch ?? 'main';
+  const headSha = pull.head.sha;
+  const [files, checkRuns, rules, comparison, mainJson] = await Promise.all([
+    paginate(api, `/repos/${repo}/pulls/${number}/files`),
+    paginate(api, `/repos/${repo}/commits/${headSha}/check-runs`, 'check_runs'),
+    api('GET', `/repos/${repo}/rules/branches/${encodeURIComponent(defaultBranch)}`),
+    api('GET', `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${headSha}`),
+    readPackageJson(api, repo, defaultBranch),
+  ]);
+  const [mergeBaseJson, headJson] = await Promise.all([
+    readPackageJson(api, repo, comparison.merge_base_commit.sha),
+    readPackageJson(api, repo, headSha),
+  ]);
+
+  const input = toGateInput({
+    pull,
+    files,
+    checkRuns,
+    requiredChecks: requiredChecksFromRules(rules),
+    mergeBaseJson,
+    headJson,
+    defaultBranch,
+  });
+  const mainVersion = JSON.parse(mainJson ?? '{}').version ?? '';
+  const decision = decideMerge({ ...input, mainVersion, behind: comparison.behind_by > 0 });
+  return { pull, defaultBranch, headSha, decision };
+}
+
+/**
+ * Remove the waiting label; a label that is already gone is fine.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {number} number
+ * @returns {Promise<void>}
+ */
+async function dropQueueLabel(api, repo, number) {
+  try {
+    await api(
+      'DELETE',
+      `/repos/${repo}/issues/${number}/labels/${encodeURIComponent(QUEUE_LABEL)}`,
+    );
+  } catch (err) {
+    if (err.status !== 404) throw err;
+  }
+}
+
+/**
+ * Handle one PR that is waiting for checks: drop the wait when it is stale, changed or no longer
+ * allowed, keep waiting while checks run, and merge when the gate now passes. The wait is trusted only
+ * through the label plus a marker comment written by a bot, and the requester is authorised again.
+ * @param {{ api: (method: string, path: string, body?: unknown) => Promise<any>, repo: string,
+ *   number: number, log: (line: string) => void, sleep: (ms: number) => Promise<void>,
+ *   now: () => number }} io
+ * @returns {Promise<void>}
+ * @throws {Error} When the live merge fails; it has been reported on the PR
+ */
+async function processQueued({ api, repo, number, log, sleep, now }) {
+  const comment = (/** @type {string} */ text) =>
+    api('POST', `/repos/${repo}/issues/${number}/comments`, { body: text });
+  const cancel = async (/** @type {string} */ code) => {
+    await dropQueueLabel(api, repo, number);
+    await comment(renderRefusal([code]));
+    log(`cancelled: waiting merge of #${number} (${code})`);
+  };
+
+  const comments = await paginate(api, `/repos/${repo}/issues/${number}/comments`);
+  const request = comments
+    .filter((c) => c.user?.type === 'Bot' || String(c.user?.login ?? '').includes('[bot]'))
+    .map((c) => parseQueueMarker(c.body))
+    .filter((marker) => marker !== null)
+    .pop();
+  if (!request) return cancel('queue-lost');
+  if (queueExpired(request.at, now())) return cancel('queue-expired');
+
+  const { pull, defaultBranch, headSha, decision } = await gather(api, repo, number, sleep);
+  if (pull.state !== 'open') {
+    await dropQueueLabel(api, repo, number);
+    log(`dropped: waiting merge of #${number}, the PR is no longer open`);
+    return;
+  }
+  if (headSha !== request.sha) return cancel('queue-head-moved');
+
+  const access = await api(
+    'GET',
+    `/repos/${repo}/collaborators/${encodeURIComponent(request.login)}/permission`,
+  );
+  const auth = decideAuthorization({
+    commenterType: 'User',
+    permission: access?.permission ?? 'none',
+  });
+  if ('reason' in auth) return cancel(auth.reason);
+
+  if (decision.action === 'refuse') {
+    if (isWaitingOnly(decision.reasons)) {
+      log(`waiting: #${number} still has checks running`);
+      return;
+    }
+    await dropQueueLabel(api, repo, number);
+    await comment(renderRefusal(decision.reasons));
+    log(`refused: waiting merge of #${number} (${decision.reasons.join(', ')})`);
+    return;
+  }
+
+  await dropQueueLabel(api, repo, number);
+  try {
+    await mergeLive({
+      api,
+      repo,
+      number,
+      pull,
+      defaultBranch,
+      decision,
+      headSha,
+      login: request.login,
+      log,
+      comment,
+      sleep,
+    });
+  } catch (err) {
+    await comment(renderApiFailure(err));
+    throw err;
+  }
+}
+
+/**
+ * The wake-up after a CI run: look at every open PR still waiting and settle each. One PR's failure
+ * does not stop the others; the first failure is thrown at the end so the job shows red.
+ * @param {{ repo: string, api: (method: string, path: string, body?: unknown) => Promise<any>,
+ *   log: (line: string) => void, sleep: (ms: number) => Promise<void>, now: () => number }} io
+ * @returns {Promise<void>}
+ * @throws {Error} The first live-merge failure
+ */
+async function runQueue({ repo, api, log, sleep, now }) {
+  const items = await paginate(
+    api,
+    `/repos/${repo}/issues?labels=${encodeURIComponent(QUEUE_LABEL)}&state=open`,
+  );
+  const waiting = items.filter((item) => item.pull_request).map((item) => item.number);
+  log(`queue: ${waiting.length} PR(s) waiting for checks`);
+  let failure = null;
+  for (const number of waiting) {
+    try {
+      await processQueued({ api, repo, number, log, sleep, now });
+    } catch (err) {
+      failure ??= err;
+    }
+  }
+  if (failure) throw failure;
+}
+
+/**
  * Handle one `/merge` comment: authorize, gather, decide, then report (dry run) or merge (live).
  * @param {{ env: Record<string, string|undefined>,
  *   api: (method: string, path: string, body?: unknown) => Promise<any>,
- *   log?: (line: string) => void, sleep?: (ms: number) => Promise<void> }} io - Injectable I/O
- * @returns {Promise<'ignored'|'unsupported'|'refused'|'would-merge'|'merged'>} What happened, for the caller and tests
+ *   log?: (line: string) => void, sleep?: (ms: number) => Promise<void>, now?: () => number }} io - Injectable I/O
+ * @returns {Promise<'ignored'|'unsupported'|'refused'|'would-merge'|'queued'|'merged'|'queue-checked'>} What happened, for the caller and tests
  * @throws {Error} When DRY_RUN is neither `true` nor `false`, or on an API failure
  */
 export async function run({
@@ -367,11 +533,21 @@ export async function run({
   api,
   log = console.log,
   sleep = (ms) => new Promise((done) => setTimeout(done, ms)),
+  now = Date.now,
 }) {
   if (env.DRY_RUN !== 'true' && env.DRY_RUN !== 'false') {
     throw new Error(`DRY_RUN must be 'true' or 'false', not '${env.DRY_RUN}'`);
   }
   const repo = env.GITHUB_REPOSITORY ?? '';
+  if (env.EVENT_NAME === 'workflow_run') {
+    if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) throw new Error(`Bad repository '${repo}'`);
+    if (env.DRY_RUN === 'true') {
+      log('ignored: nothing waits in dry-run mode');
+      return 'ignored';
+    }
+    await runQueue({ repo, api, log, sleep, now });
+    return 'queue-checked';
+  }
   const number = Number(env.PR_NUMBER);
   if (!/^[\w.-]+\/[\w.-]+$/.test(repo) || !Number.isInteger(number) || number < 1) {
     throw new Error(`Bad repository '${repo}' or PR number '${env.PR_NUMBER}'`);
@@ -414,34 +590,15 @@ export async function run({
     return 'unsupported';
   }
 
-  const pull = await fetchPull(api, repo, number, sleep);
-  const defaultBranch = pull.base?.repo?.default_branch ?? 'main';
-  const headSha = pull.head.sha;
-  const [files, checkRuns, rules, comparison, mainJson] = await Promise.all([
-    paginate(api, `/repos/${repo}/pulls/${number}/files`),
-    paginate(api, `/repos/${repo}/commits/${headSha}/check-runs`, 'check_runs'),
-    api('GET', `/repos/${repo}/rules/branches/${encodeURIComponent(defaultBranch)}`),
-    api('GET', `/repos/${repo}/compare/${encodeURIComponent(defaultBranch)}...${headSha}`),
-    readPackageJson(api, repo, defaultBranch),
-  ]);
-  const [mergeBaseJson, headJson] = await Promise.all([
-    readPackageJson(api, repo, comparison.merge_base_commit.sha),
-    readPackageJson(api, repo, headSha),
-  ]);
-
-  const input = toGateInput({
-    pull,
-    files,
-    checkRuns,
-    requiredChecks: requiredChecksFromRules(rules),
-    mergeBaseJson,
-    headJson,
-    defaultBranch,
-  });
-  const mainVersion = JSON.parse(mainJson ?? '{}').version ?? '';
-  const decision = decideMerge({ ...input, mainVersion, behind: comparison.behind_by > 0 });
+  const { pull, defaultBranch, headSha, decision } = await gather(api, repo, number, sleep);
 
   log(`${decision.action}: #${number} at ${headSha} requested by @${login}`);
+  if (decision.action === 'refuse' && env.DRY_RUN === 'false' && isWaitingOnly(decision.reasons)) {
+    await api('POST', `/repos/${repo}/issues/${number}/labels`, { labels: [QUEUE_LABEL] });
+    await comment(renderQueued({ login, sha: headSha, at: now() }));
+    log(`queued: #${number} at ${headSha} requested by @${login}`);
+    return 'queued';
+  }
   if (decision.action === 'refuse') {
     await comment(
       env.DRY_RUN === 'true' ? renderDryRun(decision) : renderRefusal(decision.reasons),

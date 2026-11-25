@@ -54,7 +54,65 @@ export const REFUSALS = {
     'Required checks have not run on this commit. Push a commit so they run, then try again.',
   'check-pending': 'Not all checks have finished. Try again once all are done.',
   'check-failed': 'A required check failed. Fix it and try again.',
+  'queue-expired': 'Checks did not finish within 4 hours. Comment `/merge` to try again.',
+  'queue-head-moved': 'The branch changed while waiting. Comment `/merge` to try again.',
+  'queue-lost': 'The waiting merge request could not be found. Comment `/merge` to try again.',
 };
+
+/** The label that marks a PR waiting for its checks. Removing it cancels the wait. */
+export const QUEUE_LABEL = 'merge-queued';
+
+/** How long a `/merge` waits for checks before it is dropped. */
+export const QUEUE_TIMEOUT_MS = 4 * 60 * 60 * 1000;
+
+const MARKER = /<!-- merge-queued login=([A-Za-z0-9-]{1,39}) sha=([0-9a-f]{40}) at=(\d{10,15}) -->/;
+
+/**
+ * Whether a refusal only means "not yet": some required check is still running and nothing else is
+ * wrong. A check that has not started counts as waiting when another one is running. Pure.
+ * @param {string[]} reasons - Refusal reason codes
+ * @returns {boolean}
+ */
+export function isWaitingOnly(reasons) {
+  return (
+    reasons.includes('check-pending') &&
+    reasons.every((code) => code === 'check-pending' || code === 'check-missing')
+  );
+}
+
+/**
+ * The comment that records a waiting `/merge`: who asked, for which head, and when. The hidden marker is
+ * what the wake-up run trusts, together with the label. Pure.
+ * @param {{ login: string, sha: string, at: number }} request - `at` is epoch milliseconds
+ * @returns {string}
+ */
+export function renderQueued({ login, sha, at }) {
+  return [
+    '**Waiting for checks**',
+    `Will merge when they pass, for up to 4 hours. Remove the \`${QUEUE_LABEL}\` label to cancel.`,
+    `<!-- merge-queued login=${login} sha=${sha} at=${at} -->`,
+  ].join('\n');
+}
+
+/**
+ * Read the marker out of a comment body. Pure.
+ * @param {string} body
+ * @returns {{ login: string, sha: string, at: number } | null} null when absent or malformed
+ */
+export function parseQueueMarker(body) {
+  const match = MARKER.exec(body ?? '');
+  return match ? { login: match[1], sha: match[2], at: Number(match[3]) } : null;
+}
+
+/**
+ * Whether a waiting request has outlived its timeout. Pure.
+ * @param {number} at - When it was queued, epoch milliseconds
+ * @param {number} now - Epoch milliseconds
+ * @returns {boolean}
+ */
+export function queueExpired(at, now) {
+  return now - at > QUEUE_TIMEOUT_MS;
+}
 
 /** The reply to a comment that starts with `/merge` but is not exactly it. It never echoes the comment. */
 export const UNSUPPORTED_REPLY = 'Unsupported command. Comment exactly `/merge`.';

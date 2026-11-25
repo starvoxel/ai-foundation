@@ -19,6 +19,7 @@ const LOGIC = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/merge-logic.mjs'),
 ).href;
 const {
+  QUEUE_TIMEOUT_MS,
   REFUSALS,
   applyVersion,
   bumpLevelFromLabels,
@@ -28,6 +29,10 @@ const {
   evaluateGate,
   isBotCommenter,
   isVersionOnlyPaths,
+  isWaitingOnly,
+  parseQueueMarker,
+  queueExpired,
+  renderQueued,
   nextVersion,
   UNSUPPORTED_REPLY,
   classifyComment,
@@ -696,5 +701,50 @@ describe('firstParentIs', () => {
     assert.equal(firstParentIs(undefined, 'a'), false);
     assert.equal(firstParentIs(null, 'a'), false);
     assert.equal(firstParentIs([null], 'a'), false);
+  });
+});
+
+describe('waiting for checks', () => {
+  const sha = 'a'.repeat(40);
+
+  it('waits only when a check is running and nothing else is wrong', () => {
+    assert.equal(isWaitingOnly(['check-pending']), true);
+    assert.equal(isWaitingOnly(['check-pending', 'check-missing']), true);
+    assert.equal(isWaitingOnly(['check-missing']), false);
+    assert.equal(isWaitingOnly(['check-pending', 'check-failed']), false);
+    assert.equal(isWaitingOnly(['check-pending', 'draft']), false);
+    assert.equal(isWaitingOnly([]), false);
+  });
+
+  it('round-trips the request marker through a comment', () => {
+    const body = renderQueued({ login: 'jo-smith', sha, at: 1_700_000_000_000 });
+    assert.match(body, /^\*\*Waiting for checks\*\*\n/);
+    assert.deepEqual(parseQueueMarker(body), { login: 'jo-smith', sha, at: 1_700_000_000_000 });
+  });
+
+  it('rejects a malformed or missing marker', () => {
+    for (const body of [
+      '',
+      'no marker here',
+      `<!-- merge-queued login=jo sha=abc at=1700000000000 -->`,
+      `<!-- merge-queued login=j o sha=${sha} at=1700000000000 -->`,
+      `<!-- merge-queued login=jo sha=${sha} at=soon -->`,
+    ]) {
+      assert.equal(parseQueueMarker(body), null);
+    }
+    assert.equal(parseQueueMarker(undefined), null);
+  });
+
+  it('expires strictly after four hours', () => {
+    const at = 1_000_000;
+    assert.equal(QUEUE_TIMEOUT_MS, 4 * 60 * 60 * 1000);
+    assert.equal(queueExpired(at, at + QUEUE_TIMEOUT_MS), false);
+    assert.equal(queueExpired(at, at + QUEUE_TIMEOUT_MS + 1), true);
+  });
+
+  it('has a line for each reason a wait is dropped', () => {
+    for (const code of ['queue-expired', 'queue-head-moved', 'queue-lost']) {
+      assert.ok(describeRefusal([code])[0].includes('`/merge`'), code);
+    }
   });
 });
