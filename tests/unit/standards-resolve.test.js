@@ -101,4 +101,11 @@ describe('unit: project standards override', () => {
     );
     assert.equal(projectOverridePath({ project_standards: '' }), resolve('project-standards.md'));
   });
+
+  it('treats the value as a literal path: {key.path} references are not resolved', () => {
+    assert.equal(
+      projectOverridePath({ project_standards: '{paths.knowledge}/ours.md' }),
+      resolve('{paths.knowledge}/ours.md'),
+    );
+  });
 });
