@@ -62,6 +62,12 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 - Acceptance criteria: a test PR ends merged with one version commit; `release.yml` tags the version; a moved head aborts; a PR behind `main` is updated, versioned and merged with no conflict; two PRs merged back to back get distinct versions.
 - Verified by: throwaway PRs, then the first real PR watched.
 
+### 5. Wait for checks
+
+- Does: a live `/merge` whose only problem is a running required check adds the `merge-queued` label and a marker comment (requester, head SHA, time) and waits; `merge.yml` also triggers on a finished `pull_request` CI run, lists the labelled PRs, and settles each through the same gate and merge path.
+- Acceptance criteria: waits only when a check is running and nothing else is wrong; merges once green; drops the wait after 4 hours, when the head moved, the requester lost write access, the PR closed or the label was removed; a marker not written by a bot is ignored; one PR's failure does not stop the others; dry-run mode never queues; the wake-up reads no event payload.
+- Verified by: `npm run test:unit`, `npm run test:validation`, then a real PR commented while CI runs.
+
 ## Requirements
 
 - Security: the workflow runs from `main` and never checks out or executes PR code; comment text reaches scripts only through environment variables and an exact match; actions pinned by SHA; the App key is a secret, with least-privilege permissions; the bypass is the App only. Only a human-type account with write access can trigger it; an agent never posts `/merge` (the steering rule, not a check, enforces that).
@@ -81,6 +87,8 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 - CI does not require a `bump:*` label: a label change would re-run all of CI, and the bot already refuses a shipped change without one. CI only forbids a PR editing the version once the bot is live (built 2026-11-25; reverse if a label check in CI is wanted).
 - The bot's commits carry `[skip ci]` so no runner time is spent re-testing a version-only commit; `main`'s own CI and `release.yml` still run on the merge (built 2026-11-25; the skip behaviour is unverified until the first live merge).
 - The App-token action is `actions/create-github-app-token` v3.3.0, pinned to the SHA in `docs/research/create-github-app-token-pin.md`; the SHA is from a researcher brief and not independently verified (2026-11-25).
+
+- A pending `/merge` waits for checks instead of being refused, for up to 4 hours (human, 2026-11-25). The wait is the label plus a bot-written marker; removing the label cancels it. Wake-ups reuse the `merge` concurrency group, and GitHub keeps only one pending run per group, so a wake-up can replace a `/merge` comment run still pending behind a running merge; comment again if the bot stays silent.
 
 ## Open questions
 

@@ -32,34 +32,90 @@ const PASSING_CONCLUSIONS = new Set(['success', 'skipped', 'neutral']);
 /** The only files the bot's version commit may touch. */
 const VERSION_FILES = ['package.json', 'package-lock.json'];
 
-/** Reason codes a refusal carries, each with the text shown to the commenter. */
+/** Reason codes a refusal carries, each with the line shown to the commenter: what is wrong and what to do. */
 export const REFUSALS = {
-  'not-a-command': 'The comment is not exactly `/merge`.',
-  'bot-commenter': 'Only a human may trigger a merge; the commenter is a bot.',
-  'no-write-permission': 'The commenter does not have write permission on this repository.',
+  'not-a-command': 'Comment exactly `/merge`.',
+  'bot-commenter': 'Bots cannot trigger a merge.',
+  'no-write-permission': 'You need write access to merge this PR.',
   'not-open': 'The PR is not open.',
-  draft: 'The PR is a draft.',
-  fork: 'The PR is from a fork.',
-  'base-not-main': 'The PR does not target the default branch; retarget it before merging.',
+  draft: 'The PR is a draft. Mark it ready for review and try again.',
+  fork: 'PRs from forks cannot be merged this way.',
+  'base-not-main': 'The PR does not target `main`. Retarget it and try again.',
   dependabot: 'Dependabot PRs are merged by their own workflow.',
-  'not-mergeable': 'GitHub reports the PR as not mergeable (conflicts or a blocked state).',
-  'label-missing': 'The PR changes shipped content but has no `bump:patch|minor|major` label.',
-  'label-multiple': 'The PR has more than one `bump:*` label.',
-  'label-unknown': 'The PR has a `bump:*` label that is not patch, minor or major.',
-  'version-hand-edited': 'The PR edits the package version; the bot owns it. Revert that edit.',
-  'checks-unknown': 'The required checks could not be determined, so nothing can be verified.',
-  'head-moved':
-    'The PR head changed after the checks were read; nothing was changed. Comment `/merge` again.',
-  'update-conflict':
-    'Merging `main` into the branch conflicts; resolve it on the branch and comment `/merge` again.',
-  'check-missing': 'A required check has not reported on the head commit.',
-  'check-pending': 'A required check is still running on the head commit.',
-  'check-failed': 'A required check did not pass on the head commit.',
+  'not-mergeable': 'GitHub says the PR is not mergeable. Resolve any conflicts and try again.',
+  'label-missing': 'Add a `bump:patch`, `bump:minor` or `bump:major` label and try again.',
+  'label-multiple': 'Use only one `bump:` label and try again.',
+  'label-unknown': 'Use `bump:patch`, `bump:minor` or `bump:major` and try again.',
+  'version-hand-edited': 'Revert the change to the package version. The bot sets it.',
+  'checks-unknown': 'Could not read the required checks. Try again.',
+  'head-moved': 'The branch changed while merging. Try again.',
+  'update-conflict': 'Merging `main` into the branch conflicts. Resolve it and try again.',
+  'check-missing':
+    'Required checks have not run on this commit. Push a commit so they run, then try again.',
+  'check-pending': 'Not all checks have finished. Try again once all are done.',
+  'check-failed': 'A required check failed. Fix it and try again.',
+  'queue-expired': 'Checks did not finish within 4 hours. Comment `/merge` to try again.',
+  'queue-head-moved': 'The branch changed while waiting. Comment `/merge` to try again.',
+  'queue-lost': 'The waiting merge request could not be found. Comment `/merge` to try again.',
 };
 
+/** The label that marks a PR waiting for its checks. Removing it cancels the wait. */
+export const QUEUE_LABEL = 'merge-queued';
+
+/** How long a `/merge` waits for checks before it is dropped. */
+export const QUEUE_TIMEOUT_MS = 4 * 60 * 60 * 1000;
+
+const MARKER = /<!-- merge-queued login=([A-Za-z0-9-]{1,39}) sha=([0-9a-f]{40}) at=(\d{10,15}) -->/;
+
+/**
+ * Whether a refusal only means "not yet": some required check is still running and nothing else is
+ * wrong. A check that has not started counts as waiting when another one is running. Pure.
+ * @param {string[]} reasons - Refusal reason codes
+ * @returns {boolean}
+ */
+export function isWaitingOnly(reasons) {
+  return (
+    reasons.includes('check-pending') &&
+    reasons.every((code) => code === 'check-pending' || code === 'check-missing')
+  );
+}
+
+/**
+ * The comment that records a waiting `/merge`: who asked, for which head, and when. The hidden marker is
+ * what the wake-up run trusts, together with the label. Pure.
+ * @param {{ login: string, sha: string, at: number }} request - `at` is epoch milliseconds
+ * @returns {string}
+ */
+export function renderQueued({ login, sha, at }) {
+  return [
+    '**Waiting for checks**',
+    `Will merge when they pass, for up to 4 hours. Remove the \`${QUEUE_LABEL}\` label to cancel.`,
+    `<!-- merge-queued login=${login} sha=${sha} at=${at} -->`,
+  ].join('\n');
+}
+
+/**
+ * Read the marker out of a comment body. Pure.
+ * @param {string} body
+ * @returns {{ login: string, sha: string, at: number } | null} null when absent or malformed
+ */
+export function parseQueueMarker(body) {
+  const match = MARKER.exec(body ?? '');
+  return match ? { login: match[1], sha: match[2], at: Number(match[3]) } : null;
+}
+
+/**
+ * Whether a waiting request has outlived its timeout. Pure.
+ * @param {number} at - When it was queued, epoch milliseconds
+ * @param {number} now - Epoch milliseconds
+ * @returns {boolean}
+ */
+export function queueExpired(at, now) {
+  return now - at > QUEUE_TIMEOUT_MS;
+}
+
 /** The reply to a comment that starts with `/merge` but is not exactly it. It never echoes the comment. */
-export const UNSUPPORTED_REPLY =
-  'That command is not supported. Comment exactly `/merge`, with nothing after it.';
+export const UNSUPPORTED_REPLY = 'Unsupported command. Comment exactly `/merge`.';
 
 /**
  * Classify a comment: the merge command, a near miss, or not ours. A comment is ours only when its
@@ -216,12 +272,13 @@ export function decideMerge(input) {
 }
 
 /**
- * Text for a refusal, one line per reason. Unknown codes are shown as-is. Pure.
+ * The lines for a refusal: one per reason, without repeats, since several reasons share a line. Unknown
+ * codes are shown as-is. Pure.
  * @param {string[]} reasons
- * @returns {string}
+ * @returns {string[]}
  */
 export function describeRefusal(reasons) {
-  return reasons.map((code) => `- ${REFUSALS[code] ?? code}`).join('\n');
+  return [...new Set(reasons.map((code) => REFUSALS[code] ?? code))];
 }
 
 /**
@@ -298,18 +355,6 @@ export function verifyVersionOnly(before, after, version) {
 }
 
 /**
- * One audit line for the PR comment after a merge. Pure.
- * @param {{ commenter: string, bump: { level: string, from: string, to: string } | null,
- *   headSha: string, checks: string[], updatedBranch: boolean }} input
- * @returns {string}
- */
-export function formatAudit({ commenter, bump, headSha, checks, updatedBranch }) {
-  const version = bump ? `${bump.from} -> ${bump.to} (${bump.level})` : 'no version change';
-  const update = updatedBranch ? 'branch updated from main' : 'branch up to date';
-  return `Merged by /merge from @${commenter}: ${version}; gated head ${headSha}; ${update}; checks: ${checks.join(', ')}.`;
-}
-
-/**
  * Names of the required status checks in a branch's rules (the `rules/branches/{branch}` API
  * response). Pure.
  * @param {unknown} rules - The API response
@@ -369,33 +414,83 @@ export function toGateInput({
 }
 
 /**
- * The comment a dry run posts: what the bot would do, and that it did nothing. Pure.
- * @param {ReturnType<typeof decideMerge>} decision
- * @param {{ pullNumber: number, headSha: string }} context
+ * A version with the `v` prefix the comments use. Pure.
+ * @param {string} version - Plain `x.y.z`
  * @returns {string}
  */
-export function renderDryRun(decision, { pullNumber, headSha }) {
-  const head = `**/merge dry run** for #${pullNumber} at \`${headSha}\`. Nothing was pushed or merged.`;
-  if (decision.action === 'refuse') {
-    return `${head}\n\nWould refuse:\n${describeRefusal(decision.reasons)}`;
-  }
-  const version = decision.bump
-    ? `${decision.bump.from} -> ${decision.bump.to} (${decision.bump.level})`
-    : 'no version change';
-  const update = decision.updateBranch
-    ? 'merge `main` into the branch first'
-    : 'branch is up to date';
-  return `${head}\n\nWould merge:\n- Version: ${version}\n- Branch: ${update}`;
+function tag(version) {
+  return `v${version}`;
 }
 
 /**
- * The comment for a refused live `/merge`: what was refused and why, and that nothing was changed. Pure.
- * @param {string[]} reasons - Refusal reason codes
- * @param {{ pullNumber: number, headSha: string }} context
+ * The lines that say what a merge changed or would change: the version, and whether `main` was merged
+ * into the branch. Pure.
+ * @param {{ bump: { from: string, to: string } | null, updatedBranch: boolean }} what
+ * @param {boolean} done - `true` for a merge that happened, `false` for a dry run
+ * @returns {string[]}
+ */
+function changeLines({ bump, updatedBranch }, done) {
+  const version = bump
+    ? `${done ? 'Version bumped from' : 'Version would be bumped from'} ${tag(bump.from)} -> ${tag(bump.to)}`
+    : 'No version change';
+  const lines = [version];
+  if (updatedBranch)
+    lines.push(done ? '`main` merged to branch' : '`main` would be merged to branch');
+  return lines;
+}
+
+/**
+ * The comment for a merge that went through. Pure.
+ * @param {{ bump: { from: string, to: string } | null, updatedBranch: boolean }} what
  * @returns {string}
  */
-export function renderRefusal(reasons, { pullNumber, headSha }) {
-  return `**/merge refused** for #${pullNumber} at \`${headSha}\`. Nothing was changed.\n\n${describeRefusal(reasons)}`;
+export function renderSuccess(what) {
+  return ['**Merge successful**', ...changeLines(what, true)].join('\n');
+}
+
+/**
+ * The comment for a merge that did not go through. Pure.
+ * @param {string[]} lines - What went wrong and what to do, one per line
+ * @returns {string}
+ */
+export function renderFailure(lines) {
+  return ['**Merge failed**', ...lines].join('\n');
+}
+
+/**
+ * The comment for a refused live `/merge`. Pure.
+ * @param {string[]} reasons - Refusal reason codes
+ * @returns {string}
+ */
+export function renderRefusal(reasons) {
+  return renderFailure(describeRefusal(reasons));
+}
+
+/**
+ * The comment for a merge that failed on an API call: GitHub's status and message, then what to try.
+ * An error that did not come from the API has no status and shows only its message. Pure.
+ * @param {{ message: string, status?: number, detail?: string }} err - `detail` is GitHub's own message
+ * @returns {string}
+ */
+export function renderApiFailure({ message, status, detail }) {
+  const error = status ? `Error ${status}: ${detail || message}` : `Error: ${message}`;
+  return renderFailure([
+    error,
+    'Try again. If the branch was just updated, push a commit so the checks run on it.',
+  ]);
+}
+
+/**
+ * The comment a dry run posts: what the bot would do. Nothing was changed. Pure.
+ * @param {ReturnType<typeof decideMerge>} decision
+ * @returns {string}
+ */
+export function renderDryRun(decision) {
+  if (decision.action === 'refuse') {
+    return ['**Dry run: would fail**', ...describeRefusal(decision.reasons)].join('\n');
+  }
+  const what = { bump: decision.bump, updatedBranch: decision.updateBranch };
+  return ['**Dry run: would merge**', ...changeLines(what, false)].join('\n');
 }
 
 /**
