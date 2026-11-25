@@ -12,7 +12,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 ## Scope
 
-- In: `bump:patch|minor|breaking` PR labels; `/merge` comment workflow; pure decision logic and an API-only I/O wrapper; a changed version check; GitHub App and ruleset setup (human steps, documented); amending the two steering rules this breaks; 05_07 arc42 update.
+- In: `bump:patch|minor|major` PR labels; `/merge` comment workflow; pure decision logic and an API-only I/O wrapper; a changed version check; GitHub App and ruleset setup (human steps, documented); amending the two steering rules this breaks; 05_07 arc42 update.
 - Out: tagging or releasing by the bot; changing `release.yml` (it tags the merge push as today); Dependabot PRs (exempt, unchanged); a merge queue; semver tooling such as Changesets.
 
 ## Approach
@@ -21,7 +21,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 1. Parse the comment: exactly `/merge`, nothing else.
 2. Authorize: commenter is a human (not a bot, not the AI identity) with write permission. Else log and reply with the reason.
-3. Gate: PR is open, non-draft, same-repo, targets `main`, mergeable, not Dependabot, has exactly one `bump:*` label (`breaking` bumps the minor while below 1.0, the major from 1.0) if it changes shipped content paths, and **every required check is green on the exact head SHA**. A stacked PR is refused until it is retargeted to `main`.
+3. Gate: PR is open, non-draft, same-repo, targets `main`, mergeable, not Dependabot, has exactly one `bump:*` label (`major` bumps the minor while below 1.0, the major from 1.0) if it changes shipped content paths, and **every required check is green on the exact head SHA**. A stacked PR is refused until it is retargeted to `main`.
 4. Inside the `merge` concurrency group (`cancel-in-progress: false`): re-read `main`, compute `next = main's version + level`, re-read the head SHA and abort if it moved.
 5. Commit only the version fields of `package.json` and `package-lock.json` through the Git Data API, never checking out PR code. Verify the commit's diff touches nothing else.
 6. Merge with the API `sha` set to the new head and the repo's existing merge-commit method. The merge push triggers `main` CI and `release.yml`, which tags `v<next>` unchanged.
@@ -39,7 +39,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 ### 1. Pure logic and tests
 
-- Does: `merge-logic.mjs` with unit tests (parse, authorize, gate, version math incl. `breaking` below and from 1.0, diff verifier).
+- Does: `merge-logic.mjs` with unit tests (parse, authorize, gate, version math incl. `major` below and from 1.0, diff verifier).
 - Acceptance criteria: every refusal path (bot commenter, no write permission, red or pending check, stale head, missing or duplicate label, stacked PR, extra files in the diff) returns a distinct reason; version math matches the label table.
 - Verified by: `npm run test:unit`.
 
@@ -68,7 +68,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 ## Decisions
 
-- Labels are `bump:patch|minor|breaking`; `breaking` bumps the minor below 1.0 (human, 2026-11-25).
+- Labels are `bump:patch|minor|major`; `major` bumps the minor below 1.0 and the major from 1.0 (human, 2026-11-25; replaces an earlier `bump:breaking` label).
 - Transition: open PRs with hand bumps (#218, #219, #221, #222) have them stripped and get a `bump:*` label, then go through `/merge`; no dual-mode check (human, 2026-11-25).
 
 ## Open questions
