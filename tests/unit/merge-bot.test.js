@@ -472,12 +472,114 @@ describe('run, live', () => {
     assert.ok(!names(calls).includes('PUT /repos/o/r/pulls/7/merge'));
   });
 
-  it('reports a failed merge on the PR and exits non-zero', async () => {
+  it('reports a merge that is refused every time, after retrying, with the recovery hint', async () => {
     const { api, calls } = fakeApi(
       liveResponses({ 'PUT /repos/o/r/pulls/7/merge': httpError(405) }),
     );
-    await assert.rejects(run({ env: liveEnv(), api, log: quiet }), /HTTP 405/);
-    assert.match(posted(calls).at(-1).body.body, /merge failed: HTTP 405/);
+    const sleeps = [];
+    await assert.rejects(
+      run({ env: liveEnv(), api, log: quiet, sleep: async (ms) => sleeps.push(ms) }),
+      /HTTP 405/,
+    );
+    assert.equal(calls.filter((call) => call.method === 'PUT').length, 3);
+    assert.deepEqual(sleeps, [3000, 3000]);
+    const failure = posted(calls).at(-1).body.body;
+    assert.match(failure, /merge failed: HTTP 405/);
+    assert.match(failure, /push a commit so CI runs on it/);
+  });
+
+  it('does not retry an error other than 405', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({ 'PUT /repos/o/r/pulls/7/merge': httpError(409) }),
+    );
+    const sleeps = [];
+    await assert.rejects(
+      run({ env: liveEnv(), api, log: quiet, sleep: async (ms) => sleeps.push(ms) }),
+      /HTTP 409/,
+    );
+    assert.equal(calls.filter((call) => call.method === 'PUT').length, 1);
+    assert.deepEqual(sleeps, []);
+  });
+
+  it('merges when a 405 clears on a retry', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': (n) => (n < 3 ? httpError(405) : { merged: true }),
+      }),
+    );
+    const result = await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} });
+    assert.equal(result, 'merged');
+    assert.equal(calls.filter((call) => call.method === 'PUT').length, 3);
+    assert.match(posted(calls).at(-1).body.body, /Merged by \/merge/);
+  });
+
+  it('waits for GitHub to compute mergeability before merging', async () => {
+    const ready = {
+      state: 'open',
+      draft: false,
+      mergeable: true,
+      head: { sha: 'abc', ref: 'feat/x', repo: { full_name: REPO } },
+      base: { ref: 'main', repo: { full_name: REPO, default_branch: 'main' } },
+      user: { login: 'jo' },
+      labels: [{ name: 'bump:patch' }],
+    };
+    // Reads 1 (gate) and 2 (head check) are normal; the next two come back still computing.
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'GET /repos/o/r/pulls/7': (n) =>
+          n === 3 || n === 4 ? { ...ready, mergeable: null } : ready,
+      }),
+    );
+    const sleeps = [];
+    const result = await run({
+      env: liveEnv(),
+      api,
+      log: quiet,
+      sleep: async (ms) => sleeps.push(ms),
+    });
+    assert.equal(result, 'merged');
+    assert.deepEqual(sleeps, [2000, 2000]);
+    const reads = names(calls).filter((name) => name === 'GET /repos/o/r/pulls/7').length;
+    assert.equal(reads, 5);
+    assert.ok(
+      idx(calls, 'PUT /repos/o/r/pulls/7/merge') >
+        idx(calls, 'PATCH /repos/o/r/git/refs/heads/feat/x'),
+    );
+  });
+
+  it('merges anyway when mergeability never settles, and lets GitHub decide', async () => {
+    const stuck = {
+      state: 'open',
+      draft: false,
+      mergeable: true,
+      head: { sha: 'abc', ref: 'feat/x', repo: { full_name: REPO } },
+      base: { ref: 'main', repo: { full_name: REPO, default_branch: 'main' } },
+      user: { login: 'jo' },
+      labels: [{ name: 'bump:patch' }],
+    };
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'GET /repos/o/r/pulls/7': (n) => (n <= 2 ? stuck : { ...stuck, mergeable: null }),
+      }),
+    );
+    const sleeps = [];
+    await run({ env: liveEnv(), api, log: quiet, sleep: async (ms) => sleeps.push(ms) });
+    assert.equal(sleeps.length, 10);
+    assert.equal(calls.filter((call) => call.method === 'PUT').length, 1);
+  });
+
+  it('heads a live refusal as a refusal, not a dry run', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'GET /repos/o/r/commits/abc/check-runs?per_page=100&page=1': {
+          check_runs: [{ name: 'Validate', status: 'completed', conclusion: 'failure' }],
+        },
+      }),
+    );
+    await run({ env: liveEnv(), api, log: quiet });
+    const text = posted(calls)[0].body.body;
+    assert.match(text, /\*\*\/merge refused\*\* for #7 at `abc`\. Nothing was changed\./);
+    assert.doesNotMatch(text, /dry run/);
   });
 
   it('never replies to a bot in live mode either, and makes no call', async () => {

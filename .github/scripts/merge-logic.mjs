@@ -389,6 +389,16 @@ export function renderDryRun(decision, { pullNumber, headSha }) {
 }
 
 /**
+ * The comment for a refused live `/merge`: what was refused and why, and that nothing was changed. Pure.
+ * @param {string[]} reasons - Refusal reason codes
+ * @param {{ pullNumber: number, headSha: string }} context
+ * @returns {string}
+ */
+export function renderRefusal(reasons, { pullNumber, headSha }) {
+  return `**/merge refused** for #${pullNumber} at \`${headSha}\`. Nothing was changed.\n\n${describeRefusal(reasons)}`;
+}
+
+/**
  * Message for the commit that merges the default branch into a PR branch. `[skip ci]` keeps the
  * runners idle: the bot has already verified the PR and merges it straight after. Pure.
  * @param {string} branch - The PR branch
