@@ -1,10 +1,10 @@
 # Plan: Merge bot as a project integration
 
-| Field       | Value      |
-| ----------- | ---------- |
-| Status      | Draft      |
-| Approved by |            |
-| Created     | 2026-11-25 |
+| Field       | Value                             |
+| ----------- | --------------------------------- |
+| Status      | Approved                          |
+| Approved by | jeremysmellie@gmail.com (in chat) |
+| Created     | 2026-11-25                        |
 
 ## Goal
 
