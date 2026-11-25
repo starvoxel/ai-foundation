@@ -1,0 +1,54 @@
+name: Merge
+
+# Dry run of the `/merge` bot (docs/plans/merge-bot.md). When a person comments `/merge` on a PR,
+# this checks the PR the way the live bot will and replies with what it would do. It pushes
+# nothing and merges nothing; the live mode, the GitHub App and the ruleset bypass come in the
+# plan's last milestone. The decisions are in .github/scripts/merge-logic.mjs.
+#
+# Security notes:
+#  - `issue_comment` runs the workflow file and scripts from the default branch, never from the
+#    PR, and the script reads only API data: PR code is never checked out or run.
+#  - The comment, commenter and PR number reach the script through environment variables, never
+#    inline `${{ }}` in a shell, and the comment must be exactly `/merge`.
+#  - The job token is scoped to read the repo and comment on the PR; the script refuses to run
+#    unless DRY_RUN is `true`.
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+# One run at a time, none cancelled, so two merge requests never race for the same version.
+concurrency:
+  group: merge
+  cancel-in-progress: false
+
+jobs:
+  dry-run:
+    name: Merge dry run
+    if: github.event.issue.pull_request && contains(github.event.comment.body, '/merge')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      checks: read
+      pull-requests: write
+    steps:
+      - name: Checkout the scripts from the default branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          sparse-checkout: .github/scripts
+          persist-credentials: false
+
+      - name: Decide
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+          COMMENTER_LOGIN: ${{ github.event.comment.user.login }}
+          COMMENTER_TYPE: ${{ github.event.comment.user.type }}
+          AI_LOGINS: ${{ vars.AI_LOGINS }}
+          DRY_RUN: "true"
+        run: node .github/scripts/merge.mjs
