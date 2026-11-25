@@ -263,6 +263,26 @@ describe('integration: check-version-bumps.mjs', () => {
     });
   });
 
+  describe("auto-parent mode — unrelated open branch sharing main's tip", () => {
+    it('keeps main as the parent on a tie, not an unrelated open branch with a higher version', () => {
+      // An unrelated open PR, cut from the same main tip, already at a higher version.
+      runGit(repo, ['checkout', '-q', '-b', 'aaa-unrelated']);
+      writeDoc(repo, '2.0.0', 'unrelated work');
+      commit(repo, 'unrelated bumps far ahead');
+      publishBranch(repo, 'aaa-unrelated');
+
+      runGit(repo, ['checkout', '-q', 'main']);
+      runGit(repo, ['checkout', '-q', '-b', 'feature']);
+      writeDoc(repo, '1.1.0', 'feature content');
+      commit(repo, 'feature bumps past main');
+      publishBranch(repo, 'feature');
+
+      const { code, stdout } = runCheck(repo, ['auto-parent', 'feature']);
+      assert.equal(code, 0, stdout);
+      assert.match(stdout, /Detected parent branch: refs\/remotes\/origin\/main/);
+    });
+  });
+
   describe('covers non-Markdown versioned files too', () => {
     it('fails a branch that changes a .yaml file without bumping its version', () => {
       runGit(repo, ['checkout', '-q', '-b', 'feature']);
