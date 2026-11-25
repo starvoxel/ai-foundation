@@ -86,8 +86,12 @@ function setUpRepo() {
   return root;
 }
 
-function runCheck(cwd, args) {
-  const result = spawnSync('node', [SCRIPT_PATH, ...args], { cwd, encoding: 'utf8' });
+function runCheck(cwd, args, env = {}) {
+  const result = spawnSync('node', [SCRIPT_PATH, ...args], {
+    cwd,
+    encoding: 'utf8',
+    env: { ...process.env, ...env },
+  });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
@@ -452,6 +456,73 @@ describe('integration: check-version-bumps.mjs', () => {
       startFeature();
       rmSync(join(repo, 'lib', 'x.js'));
       assert.equal(finishAndCheck().code, 1);
+    });
+  });
+
+  describe('VERSION_POLICY=bot (the /merge bot sets the version)', () => {
+    const bot = { VERSION_POLICY: 'bot' };
+
+    function writePackage(version) {
+      writeFileSync(
+        join(repo, 'package.json'),
+        `${JSON.stringify({ name: 'p', version }, null, 2)}\n`,
+        'utf8',
+      );
+    }
+
+    /** Commit a package.json and lib file on main, then branch off `feature`. */
+    function startFeature() {
+      writePackage('1.0.0');
+      mkdirSync(join(repo, 'lib'), { recursive: true });
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 1;\n', 'utf8');
+      commit(repo, 'add package.json and lib');
+      publishBranch(repo, 'main');
+      runGit(repo, ['checkout', '-q', '-b', 'feature']);
+    }
+
+    function finishAndCheck(env) {
+      commit(repo, 'change');
+      publishBranch(repo, 'feature');
+      return runCheck(repo, ['auto-parent', 'feature'], env);
+    }
+
+    it('passes a shipped change that leaves the version alone', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      assert.equal(finishAndCheck(bot).code, 0);
+    });
+
+    it('fails a PR that edits the version, and says the bot sets it', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      writePackage('1.0.1');
+      const { code, stdout } = finishAndCheck(bot);
+      assert.equal(code, 1);
+      assert.match(
+        stdout,
+        /version changed \('1\.0\.0' -> '1\.0\.1'\), but the \/merge bot sets it/,
+      );
+      assert.match(stdout, /Leave `package\.json`'s version alone/);
+    });
+
+    it('still requires the bump without the policy, so nothing changes until it is switched on', () => {
+      startFeature();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      assert.equal(finishAndCheck({}).code, 1);
+    });
+
+    it('keeps the original rule for a push to main, where the bot merge carries the bump', () => {
+      writePackage('1.0.0');
+      mkdirSync(join(repo, 'lib'), { recursive: true });
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 1;\n', 'utf8');
+      commit(repo, 'base');
+      const before = runGit(repo, ['rev-parse', 'HEAD']).stdout.trim();
+      writeFileSync(join(repo, 'lib', 'x.js'), 'export const x = 2;\n', 'utf8');
+      commit(repo, 'shipped change without a bump');
+      assert.equal(runCheck(repo, ['sha', before], bot).code, 1);
+      writePackage('1.0.1');
+      commit(repo, 'bump');
+      assert.equal(runCheck(repo, ['sha', before], bot).code, 0);
     });
   });
 });
