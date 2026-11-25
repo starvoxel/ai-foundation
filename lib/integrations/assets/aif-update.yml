@@ -1,0 +1,26 @@
+name: AIF bundle update
+
+# Refreshes the committed ai-foundation install and replaces the one open update pull request with
+# a fresh one when anything changed. Installed by `aif install -I update`; the logic is
+# ai-foundation's reusable workflow, whose pin below is bumped by Dependabot.
+#
+# Set in the repository's Actions settings: the secret BWS_ACCESS_TOKEN (a Bitwarden Secrets Manager
+# machine account that can read only one secret) and the variables AIF_UPDATE_TOKEN_SECRET_ID (the
+# Bitwarden secret's ID, not the token) and, off the US cloud, BWS_CLOUD_REGION.
+on:
+  schedule:
+    - cron: 47 5 * * *
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  update:
+    name: Update AIF bundles
+    uses: starvoxel/ai-foundation/.github/workflows/update-bundles.yml@{{AIF_SHA}} # {{AIF_VERSION}}
+    with:
+      token-secret-id: ${{ vars.AIF_UPDATE_TOKEN_SECRET_ID }}
+      cloud-region: ${{ vars.BWS_CLOUD_REGION || 'us' }}
+    secrets:
+      BWS_ACCESS_TOKEN: ${{ secrets.BWS_ACCESS_TOKEN }}

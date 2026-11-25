@@ -36,15 +36,26 @@ describe('unit: manifest', () => {
         bundles: { engineering_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       });
     });
 
     it('returns a normalized empty manifest for empty YAML', () => {
-      assert.deepEqual(parseManifest(''), { bundles: {}, servers: {}, hooks: {} });
+      assert.deepEqual(parseManifest(''), {
+        bundles: {},
+        servers: {},
+        hooks: {},
+        integrations: {},
+      });
     });
 
     it('returns a normalized empty manifest for null-producing YAML', () => {
-      assert.deepEqual(parseManifest('---\n'), { bundles: {}, servers: {}, hooks: {} });
+      assert.deepEqual(parseManifest('---\n'), {
+        bundles: {},
+        servers: {},
+        hooks: {},
+        integrations: {},
+      });
     });
   });
 
@@ -54,6 +65,7 @@ describe('unit: manifest', () => {
         bundles: { test_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       const result = serializeManifest(data);
       assert.ok(result.includes('bundles'));
@@ -72,6 +84,7 @@ describe('unit: manifest', () => {
           git_kiro: { files: [], installedBy: ['a'] },
         },
         hooks: {},
+        integrations: {},
       };
       const roundtripped = parseManifest(serializeManifest(data));
       assert.deepEqual(roundtripped, data);
@@ -88,6 +101,7 @@ describe('unit: manifest', () => {
         git_kiro: { files: [], installedBy: ['engineering'] },
       },
       hooks: {},
+      integrations: {},
     };
 
     it('returns the entry for an existing key in the bundles section', () => {
@@ -127,6 +141,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       const entry = { version: '2.0.0', files: [] };
       const result = setSectionEntry(existing, 'bundles', 'b_kiro', entry);
@@ -139,6 +154,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       const updated = { version: '1.1.0', files: [{ path: '/x', hash: 'y' }] };
       const result = setSectionEntry(existing, 'bundles', 'a_kiro', updated);
@@ -150,6 +166,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       const result = setSectionEntry(existing, 'servers', 'git_kiro', {
         files: [],
@@ -164,6 +181,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       setSectionEntry(existing, 'bundles', 'b_kiro', { version: '2.0.0', files: [] });
       assert.equal(existing.bundles.b_kiro, undefined);
@@ -179,6 +197,7 @@ describe('unit: manifest', () => {
         },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       const result = removeSectionEntry(manifest, 'bundles', 'a_kiro');
       assert.equal(result.removed, true);
@@ -191,6 +210,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       const result = removeSectionEntry(manifest, 'bundles', 'nonexistent');
       assert.equal(result.removed, false);
@@ -207,6 +227,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: {},
         hooks: {},
+        integrations: {},
       };
       removeSectionEntry(manifest, 'bundles', 'a_kiro');
       assert.ok('a_kiro' in manifest.bundles);
@@ -217,6 +238,7 @@ describe('unit: manifest', () => {
         bundles: { a_kiro: { version: '1.0.0', files: [] } },
         servers: { git_kiro: { files: [], installedBy: [] } },
         hooks: {},
+        integrations: {},
       };
       const result = removeSectionEntry(manifest, 'servers', 'git_kiro');
       assert.equal(result.removed, true);
@@ -273,6 +295,7 @@ describe('unit: manifest', () => {
       bundles: { a_claude: entry('/x/old', '/x/kept', '/x/shared'), b_claude: entry('/x/shared') },
       servers: {},
       hooks: {},
+      integrations: {},
     };
 
     it('lists previously installed paths the new install no longer writes', () => {
@@ -294,6 +317,7 @@ describe('unit: manifest', () => {
       bundles: { a_claude: entry('/x/own', '/x/shared'), b_claude: entry('/x/shared') },
       servers: {},
       hooks: {},
+      integrations: {},
     };
 
     it('separates exclusively owned paths from paths another bundle lists', () => {

@@ -27,6 +27,7 @@ const SHORT_FLAG_ALIASES = {
   h: 'help',
   B: 'bundle',
   H: 'harness',
+  I: 'integration',
 };
 
 /**
@@ -123,12 +124,17 @@ Commands:
 
 Options:
   -B, --bundle <name>   Bundle to install/uninstall (comma-separated for multiple, install only)
+  -I, --integration <n> Project integration to install: checks, update, hooks, session-start, all
+                        (comma-separated; project scope only)
   -H, --harness <name>  Target harness (${HARNESSES.join(', ')})
   --scope <scope>       project (default: this project, to commit) or global (home directory)
   --update              Update all installed bundles that are stale
   --check               Verify without writing (index command); with install --scope project,
                         report drift in the committed install
   --skip-project        install --scope global: skip bundles this project installs at project scope
+  --force               install -I: overwrite an integration file you have edited
+  --pin <sha>           install -I, init: commit to pin workflows to (with --pin-version <vX.Y.Z>);
+                        default: the latest release tag in this ai-foundation checkout
   -h, --help            Show this help message
 
 Init Options:
@@ -145,6 +151,8 @@ Examples:
   aif install --bundle engineering,product --harness kiro
   aif install --update
   aif install --check
+  aif install -I all
+  aif install -I checks,hooks
   aif install --scope global -B engineering -H kiro
   aif uninstall --bundle engineering --harness kiro
   aif status

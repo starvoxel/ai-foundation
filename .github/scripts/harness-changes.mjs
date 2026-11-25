@@ -9,8 +9,10 @@
 // ------------------------------
 
 /**
- * Reports whether a project's harness directories (`.claude/`, `.kiro/`) have
- * uncommitted changes, for .github/actions/bundles. `aif install --update`
+ * Reports whether the files `aif install --update` refreshes (the harness
+ * directories `.claude/` and `.kiro/`, plus the integration manifest and the
+ * integration files that carry no pins) have uncommitted changes, for
+ * .github/actions/bundles. `aif install --update`
  * cannot say: at project scope it always reports "1 updated", changed or not.
  * `git status --porcelain` on the directories is the reliable signal.
  *
@@ -22,6 +24,7 @@ import { execFileSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
+import { refreshedPaths } from '../../lib/integrations.js';
 import { PROJECT_HARNESS_DIRS } from '../../lib/scope.js';
 
 /**
@@ -34,15 +37,16 @@ export function hasChanges(porcelain) {
 }
 
 /**
- * Project-relative harness directories a project-scope install writes into.
+ * Project-relative paths `aif install --update` may change: the harness
+ * directories and the unpinned integration files.
  * @returns {string[]}
  */
-export function harnessDirs() {
-  return Object.values(PROJECT_HARNESS_DIRS);
+export function watchedPaths() {
+  return [...Object.values(PROJECT_HARNESS_DIRS), ...refreshedPaths()];
 }
 
 /**
- * Run `git status --porcelain` limited to the harness directories.
+ * Run `git status --porcelain` limited to the watched paths.
  * @param {string[]} dirs - Pathspecs, relative to the current directory
  * @returns {string}
  */
@@ -51,13 +55,13 @@ function gitStatus(dirs) {
 }
 
 /**
- * Detect harness changes, log the verdict, publish it.
+ * Detect changes in the watched paths, log the verdict, publish it.
  * @param {NodeJS.ProcessEnv} env - Process environment
  * @param {{ status?: (dirs: string[]) => string, log?: (line: string) => void }} [io] - Injectable I/O
- * @returns {boolean} true when any harness directory has changes
+ * @returns {boolean} true when any watched path has changes
  */
 export function run(env, { status = gitStatus, log = console.log } = {}) {
-  const dirs = harnessDirs();
+  const dirs = watchedPaths();
   const changed = hasChanges(status(dirs));
   log(`bundles: ${dirs.join(', ')} ${changed ? 'have changes' : 'are unchanged'}`);
   if (env.GITHUB_OUTPUT) appendFileSync(env.GITHUB_OUTPUT, `changed=${changed}\n`);

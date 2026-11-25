@@ -117,7 +117,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git switch -C "$branch"
-          git add .claude .kiro 2>/dev/null || git add .claude
+          # Exactly what `aif install --update` may change (refreshedPaths() in lib/integrations.js
+          # and the harness directories); workflow files are never rewritten by it.
+          for path in .claude .kiro .aif .githooks/commit-msg .githooks/post-checkout .githooks/post-merge .githooks/post-rewrite .githooks/refresh-index scripts/session-start.sh; do
+            if [ -e "$path" ]; then git add -- "$path"; fi
+          done
           git commit -m "Update the installed AIF bundles"
           git -c http.extraheader="$auth" push origin "$branch"
           gh pr create --base "$BASE" --head "$branch" \

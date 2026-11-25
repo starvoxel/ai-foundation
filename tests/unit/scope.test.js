@@ -84,13 +84,19 @@ describe('stored manifest paths', () => {
         bundles: {},
         servers: {},
         hooks: {},
+        integrations: {},
       },
     );
   });
 });
 
 describe('splitProjectInstalled', () => {
-  const projectManifest = { bundles: { engineering_claude: {} }, servers: {}, hooks: {} };
+  const projectManifest = {
+    bundles: { engineering_claude: {} },
+    servers: {},
+    hooks: {},
+    integrations: {},
+  };
 
   it('skips bundles the project installs for the same harness', () => {
     assert.deepEqual(
