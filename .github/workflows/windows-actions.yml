@@ -4,7 +4,7 @@ name: Windows actions check
 # .github/actions/, to check that the composite actions work on a Windows runner,
 # where `shell: bash` is Git Bash and `github.action_path` has backslashes.
 # It never runs on push or pull_request, so it is not a required check and
-# costs nothing per change. Not covered here: `bundles` in `update` mode.
+# costs nothing per change. Not covered here: `bundles` in `update` mode and the reusable update workflow.
 on:
   workflow_dispatch:
 
@@ -38,3 +38,6 @@ jobs:
 
       - name: Bundles (check)
         uses: ./.github/actions/bundles
+
+      - name: Checks
+        uses: ./.github/actions/checks
