@@ -9,8 +9,8 @@
  *
  *   Mandatory  default branch, protected branches, branches not forked from
  *              the default branch (unrelated history) unless their name marks
- *              them as throwaway tests (project short code + test/valid/verif).
- *                                                                      -> keep
+ *              them as throwaway tests (see isThrowawayTestName) or
+ *              KEEP_UNRELATED_BRANCHES is "false".                     -> keep
  *   Archive    merged by a PR whose head was exactly this tip; or a
  *              `push-check/` branch the default branch already contains;
  *              or last activity older than ARCHIVE_DAYS and outside the
@@ -30,7 +30,8 @@
  * "Last activity" is the date of the branch's last commit. An empty branch (no
  * commits of its own) is kept as Mandatory, with two exceptions: AI session
  * branches (AI_BRANCH_PREFIXES, e.g. `claude/`), which are often created and
- * never used, and throwaway test branches. For those, last activity is when the
+ * never used, and throwaway test branches; KEEP_EMPTY_BRANCHES="false" makes
+ * every empty branch an exception. For those, last activity is when the
  * branch was created, from the repository activity log (falling back to the
  * date of the commit it points at), so an unused one goes Active, Stale,
  * Archive like any other.
@@ -50,8 +51,14 @@
  *                            (default: "copilot/ kiro/ claude/ ccr- ai/")
  *   PROJECT_SHORTCODE        e.g. AIF; defaults to .aiconfig.json's
  *                            project_shortname (else project_name). Without
- *                            one, no branch counts as a throwaway test, so
- *                            every unrelated-history branch is kept.
+ *                            one, only the whole-word test names count (see
+ *                            isThrowawayTestName).
+ *   KEEP_EMPTY_BRANCHES      "false": an empty branch ages out whatever its
+ *                            name. Default "true" (kept unless AI or test).
+ *   KEEP_UNRELATED_BRANCHES  "false": an unrelated-history branch ages out
+ *                            like any other. Default "true" (kept unless a
+ *                            throwaway test; list real orphans such as
+ *                            gh-pages in PROTECTED_BRANCHES).
  *   ACTIVE_DAYS (14), ARCHIVE_DAYS (30)
  *   ACTIVE_BRANCHES (5), ARCHIVE_BRANCHES (15)
  *   GITHUB_STEP_SUMMARY      file the Markdown report is appended to
@@ -83,6 +90,8 @@ export const STALE_LABEL = 'stale';
  * @property {string[]} protectedBranches
  * @property {string} shortcode  Project short code; '' when unknown.
  * @property {string[]} aiPrefixes  Branch name prefixes used by AI sessions, e.g. 'claude/'.
+ * @property {boolean} [keepEmpty]  Keep empty branches that are not AI or test branches; unset counts as true.
+ * @property {boolean} [keepUnrelated]  Keep unrelated-history branches that are not test branches; unset counts as true.
  * @property {number} activeDays
  * @property {number} archiveDays
  * @property {number} [activeBranches]  The most recently active branches are Active whatever their age.
@@ -91,16 +100,23 @@ export const STALE_LABEL = 'stale';
  * @typedef {{category: 'Mandatory'|'Archive'|'Active'|'Stale', reason: string}} Verdict
  */
 
+/** A whole name segment that is a test, validate or verify word or a variation. */
+const TEST_WORD = /^(test(s|ing|ed)?|valid(ate[sd]?|ating|ation)?|verif(y|ies|ied|ying|ication))$/i;
+
 /**
- * A throwaway test branch is named with the project short code and a test,
- * validation or verification word (`AIF-test/ping`, `AIF-010-verification`).
- * Unrelated-history branches named like this are not exempt from cleanup;
- * long-lived ones (`docs`, `agent-testing`) carry no short code.
+ * A throwaway test branch has a whole segment (split on anything that is not a
+ * letter or digit) that is a test, validate or verify word or a variation
+ * (`test/x`, `spike/verify-import`, `validation`), so `latest` and `contest`
+ * do not count. With a project short code, any test, valid or verif text in a
+ * name that also carries the code counts too (`AIF-010-verification`,
+ * `aif_retest`). Long-lived branches such as `agent-testing` must be listed in
+ * PROTECTED_BRANCHES, which is checked first.
  *
  * @param {string} name
  * @param {string} shortcode
  */
 export function isThrowawayTestName(name, shortcode) {
+  if (name.split(/[^a-z0-9]+/i).some((part) => TEST_WORD.test(part))) return true;
   if (!shortcode) return false;
   const escaped = shortcode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const hasShortcode = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(name);
@@ -111,16 +127,29 @@ export function isThrowawayTestName(name, shortcode) {
  * Whether an empty branch (no commits of its own) goes through the age-out
  * flow instead of being kept: AI session branches (`claude/…`, `ccr-…`,
  * `copilot/…`, `kiro/…`, `ai/…`), which are created and then often never
- * used, and throwaway test branches. Any other empty branch is kept.
+ * used, and throwaway test branches. Any other empty branch is kept, unless
+ * `keepEmpty` is false.
  *
  * @param {string} name
- * @param {Pick<Config, 'aiPrefixes' | 'shortcode'>} cfg
+ * @param {Pick<Config, 'aiPrefixes' | 'shortcode' | 'keepEmpty'>} cfg
  */
 export function agesWhenEmpty(name, cfg) {
   return (
+    cfg.keepEmpty === false ||
     cfg.aiPrefixes.some((prefix) => name.startsWith(prefix)) ||
     isThrowawayTestName(name, cfg.shortcode)
   );
+}
+
+/**
+ * Whether an unrelated-history branch is kept outright: not when
+ * `keepUnrelated` is false or its name marks it as a throwaway test.
+ *
+ * @param {string} name
+ * @param {Pick<Config, 'shortcode' | 'keepUnrelated'>} cfg
+ */
+function keepsUnrelated(name, cfg) {
+  return cfg.keepUnrelated !== false && !isThrowawayTestName(name, cfg.shortcode);
 }
 
 /**
@@ -148,7 +177,7 @@ export function rankBranches(facts, cfg) {
   const eligible = facts.filter((f) => {
     if (f.error || f.merged || !f.lastCommit) return false;
     if (f.name === cfg.defaultBranch || cfg.protectedBranches.includes(f.name)) return false;
-    if (f.ahead === null) return isThrowawayTestName(f.name, cfg.shortcode);
+    if (f.ahead === null) return !keepsUnrelated(f.name, cfg);
     if (f.ahead === 0) return !f.name.startsWith('push-check/') && agesWhenEmpty(f.name, cfg);
     return true;
   });
@@ -176,7 +205,7 @@ export function classify(f, cfg, now) {
     return { category: 'Mandatory', reason: 'protected branch' };
   }
   if (f.merged) return { category: 'Archive', reason: 'merged by a PR' };
-  if (f.ahead === null && !isThrowawayTestName(f.name, cfg.shortcode)) {
+  if (f.ahead === null && keepsUnrelated(f.name, cfg)) {
     return {
       category: 'Mandatory',
       reason: 'not forked from the default branch (unrelated history)',
@@ -663,6 +692,8 @@ export async function run(
     archiveDays: Number(env.ARCHIVE_DAYS ?? 30),
     activeBranches: Number(env.ACTIVE_BRANCHES ?? 5),
     archiveBranches: Number(env.ARCHIVE_BRANCHES ?? 15),
+    keepEmpty: env.KEEP_EMPTY_BRANCHES !== 'false',
+    keepUnrelated: env.KEEP_UNRELATED_BRANCHES !== 'false',
   };
   const dryRun = env.DRY_RUN === 'true';
   const names = parseBranchList(env.BRANCHES);

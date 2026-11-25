@@ -42,14 +42,18 @@ env:
   DRY_RUN: ${{ inputs.dry_run }}
   BRANCHES: ${{ inputs.branches }}
   # Never touched, and never deleted by an explicit list. The default branch is
-  # always protected too. Branches with unrelated history are also kept unless
-  # their name has the project short code and a test/valid/verif word (the
-  # script reads the short code from .aiconfig.json). Edit this list as needed.
+  # always protected too. List long-lived branches here, including any orphan
+  # (unrelated-history) branch such as gh-pages. Edit this list as needed.
   PROTECTED_BRANCHES: "cloud-sandbox agent-testing docs"
   # Branches AI sessions create, which are often never used. An empty one
-  # (no commits of its own) of these, or a throwaway test branch, ages out from
-  # its creation date; any other empty branch is kept.
+  # (no commits of its own) of these, or a throwaway test branch (a name with a
+  # whole test, validate or verify word, or the project short code and one),
+  # ages out from its creation date.
   AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ccr- ai/"
+  # "true": any other empty branch, and any branch with unrelated history that is
+  # not a throwaway test, is kept for ever. "false": it ages out like any other.
+  KEEP_EMPTY_BRANCHES: "true"
+  KEEP_UNRELATED_BRANCHES: "true"
   # A branch is Active under ACTIVE_DAYS, Stale up to ARCHIVE_DAYS, then Archive.
   # The ACTIVE_BRANCHES / ARCHIVE_BRANCHES most recently active branches count
   # as Active / at least Stale whatever their age, so a quiet repo keeps its

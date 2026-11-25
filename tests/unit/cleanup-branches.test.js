@@ -208,10 +208,34 @@ describe('classify', () => {
       /unrelated history/,
     ],
     [
-      'a test name without the short code is kept (agent-testing style)',
-      { name: 'e-test/20261001-002928', ahead: null, lastCommit: daysAgo(300) },
+      'a name that only contains a test word inside another word is kept',
+      { name: 'latest/20261001-002928', ahead: null, lastCommit: daysAgo(300) },
       'Mandatory',
       /unrelated history/,
+    ],
+    [
+      'unrelated history with a whole test word and no short code ages out',
+      { name: 'spike/verify-import', ahead: null, lastCommit: daysAgo(30) },
+      'Archive',
+      /30d/,
+    ],
+    [
+      'keepUnrelated false: an unrelated branch ages out like any other',
+      { name: 'scratch', ahead: null, lastCommit: daysAgo(30), cfg: { keepUnrelated: false } },
+      'Archive',
+      /30d/,
+    ],
+    [
+      'keepEmpty false: an empty branch with any name ages out from its creation date',
+      { name: 'docs/old-plan', ahead: 0, createdAt: daysAgo(20), cfg: { keepEmpty: false } },
+      'Archive',
+      /created 20d ago/,
+    ],
+    [
+      'an empty test-word branch with no short code ages out',
+      { name: 'test/ping', ahead: 0, createdAt: daysAgo(20) },
+      'Archive',
+      /created 20d ago/,
     ],
     [
       'the short code without a test word is kept',
@@ -234,7 +258,8 @@ describe('classify', () => {
   ];
   for (const [title, overrides, category, reason] of cases) {
     it(title, () => {
-      const verdict = classify(facts(overrides), CFG, NOW);
+      const { cfg = {}, ...branchFacts } = overrides;
+      const verdict = classify(facts(branchFacts), { ...CFG, ...cfg }, NOW);
       assert.equal(verdict.category, category);
       assert.match(verdict.reason, reason);
     });
@@ -270,29 +295,42 @@ describe('agesWhenEmpty', () => {
 });
 
 describe('isThrowawayTestName', () => {
-  it('needs both the short code and a test, validation or verification word', () => {
-    for (const n of ['AIF-test/ping', 'AIF-010-verification', 'aif_validation', 'x/AIF/tests']) {
-      assert.equal(isThrowawayTestName(n, 'AIF'), true, n);
-    }
+  it('matches a whole test, validate or verify word, or a variation, with no short code', () => {
     for (const n of [
+      'test',
+      'test/ping',
+      'spike/verify-import',
       'e-test/1',
       'agent-testing',
+      'x_validation_y',
+      'fix.validate',
+      'tested',
+      'verification',
+      'verifies',
+      'Test-Run',
+    ]) {
+      assert.equal(isThrowawayTestName(n, ''), true, n);
+    }
+  });
+  it('does not match a test word inside another word', () => {
+    for (const n of [
+      'latest',
+      'contest/x',
+      'attestation',
+      'invalid-input',
       'docs',
       'AIF-010/work',
-      'waif-test/x',
-      'AIFtest',
     ]) {
       assert.equal(isThrowawayTestName(n, 'AIF'), false, n);
     }
   });
-  it('is never true without a short code, so unrelated branches are kept', () => {
-    assert.equal(isThrowawayTestName('AIF-test/ping', ''), false);
-    const v = classify(
-      facts({ name: 'AIF-test/ping', ahead: null, lastCommit: daysAgo(300) }),
-      { ...CFG, shortcode: '' },
-      NOW,
-    );
-    assert.equal(v.category, 'Mandatory');
+  it('with the short code, also matches test, valid or verif text in the same name', () => {
+    for (const n of ['AIF-010-verif', 'aif_retest', 'x/AIF/retests']) {
+      assert.equal(isThrowawayTestName(n, 'AIF'), true, n);
+      assert.equal(isThrowawayTestName(n, ''), false, n);
+    }
+    assert.equal(isThrowawayTestName('waif-retest/x', 'AIF'), false);
+    assert.equal(isThrowawayTestName('AIFretest', 'AIF'), false);
   });
 });
 
@@ -425,7 +463,7 @@ const WORLD = () => ({
     branch('claude/unused-failed', 'sha_failed', 40, 0, { activityFails: true }),
     branch('push-check/done', 'sha_pc', 3, 0),
     branch('AIF-test/20261001-002928', 'sha_etest', 30, null),
-    branch('e-test/legacy', 'sha_legacy', 90, null),
+    branch('latest/legacy', 'sha_legacy', 90, null),
   ],
   openPrs: [
     { number: 10, ref: 'AIF-1/work', createdAt: daysAgo(1) },
@@ -468,7 +506,7 @@ describe('runSweep', () => {
       'claude/unused-failed': 'Archive',
       'push-check/done': 'Archive',
       'AIF-test/20261001-002928': 'Archive',
-      'e-test/legacy': 'Mandatory',
+      'latest/legacy': 'Mandatory',
       main: 'Mandatory',
     });
   });
@@ -600,6 +638,23 @@ describe('run', () => {
       ['deleted', 'REFUSED'],
     );
     assert.equal(failed, true);
+  });
+
+  it('keeps empty and unrelated branches unless KEEP_EMPTY_BRANCHES / KEEP_UNRELATED_BRANCHES is "false"', async () => {
+    const cat = async (extra) => {
+      const { rows } = await run(
+        { ...env, ACTIVE_BRANCHES: '0', ARCHIVE_BRANCHES: '0', ...extra },
+        fakeApi(WORLD()),
+        { now: NOW },
+      );
+      return Object.fromEntries(rows.map((r) => [r.name, r.category]));
+    };
+    const kept = await cat({});
+    assert.equal(kept['AIF-1/idle'], 'Mandatory');
+    assert.equal(kept['latest/legacy'], 'Mandatory');
+    const dropped = await cat({ KEEP_EMPTY_BRANCHES: 'false', KEEP_UNRELATED_BRANCHES: 'false' });
+    assert.equal(dropped['AIF-1/idle'], 'Archive');
+    assert.equal(dropped['latest/legacy'], 'Archive');
   });
 
   it('requires REPO', async () => {
