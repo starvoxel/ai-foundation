@@ -57,6 +57,10 @@ aif install --check   # report drift in the committed install; never fails
 aif uninstall -B engineering -H claude
 aif status
 
+# Project integrations: git hooks, session script and CI workflows (project scope only)
+aif install -I all             # or -I checks,update,hooks,session-start
+aif install -I hooks --force   # overwrite an integration file you edited
+
 # Global scope: install for your user (~/.claude/, ~/.kiro/) instead
 aif install --scope global -B engineering -H kiro
 aif install --scope global --update
@@ -91,6 +95,16 @@ aif config paths.research --abs    # print an absolute path (for paths.* keys)
 | Copilot     | Planned   |
 
 Installs are copies (transformed per-harness), tracked by a manifest for clean uninstall and update detection. The manifest records a hash of each installed source, so `aif status` and `aif install --update` can tell what changed and reinstall only that.
+
+#### Project integrations
+
+Every project that uses ai-foundation wants the same files: git hooks that rebuild the architecture index and warn on undocumented `key_files` changes, a session-start script, and two CI workflows. `aif install -I <name>` writes them (`checks`, `update`, `hooks`, `session-start`, or `all`); `aif init` installs all four. They are recorded in `.aif/.installs.yaml`.
+
+- A second run changes nothing. A file you edited is never overwritten without `--force`.
+- The workflows are thin callers of AIF's actions, pinned to the latest release tag in your ai-foundation checkout (`--pin <sha> --pin-version <vX.Y.Z>` overrides). Dependabot bumps the pins; a bumped pin is not an edit. A bare `aif install --update` refreshes only the hooks and the session script; re-run `-I <name>` to refresh a workflow.
+- `dependabot.yml`, `ci.yml` and `.claude/settings.json` are yours: the command prints what to add.
+
+Details: `docs/architecture/05_08_project_integrations.md`.
 
 #### Install scope
 

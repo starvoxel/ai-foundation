@@ -137,6 +137,7 @@ cut across that boundary and hide it.
 - **§5.06 Skill scripts** (`05_06_skill_scripts.md`) — the zero-dependency
   scripts that ship inside skills (oversight, standards, findings).
 - **§5.07 CI actions and release** (`05_07_ci_actions_and_release.md`) — the reusable composite GitHub Actions consumers run `aif` with, and the release workflow that tags the versions they pin.
+- **§5.08 Project integrations** (`05_08_project_integrations.md`) — the git hooks, session script and CI workflows `aif install -I` writes into a project, and how they are kept current.
 
 Entry points and MCP servers stay at this level — each block in those two groups
 is a single, thin, single-purpose module; a further whitebox wouldn't add
