@@ -48,18 +48,42 @@ export const REFUSALS = {
   'label-unknown': 'The PR has a `bump:*` label that is not patch, minor or major.',
   'version-hand-edited': 'The PR edits the package version; the bot owns it. Revert that edit.',
   'checks-unknown': 'The required checks could not be determined, so nothing can be verified.',
+  'head-moved':
+    'The PR head changed after the checks were read; nothing was changed. Comment `/merge` again.',
+  'update-conflict':
+    'Merging `main` into the branch conflicts; resolve it on the branch and comment `/merge` again.',
   'check-missing': 'A required check has not reported on the head commit.',
   'check-pending': 'A required check is still running on the head commit.',
   'check-failed': 'A required check did not pass on the head commit.',
 };
 
+/** The reply to a comment that starts with `/merge` but is not exactly it. It never echoes the comment. */
+export const UNSUPPORTED_REPLY =
+  'That command is not supported. Comment exactly `/merge`, with nothing after it.';
+
 /**
- * Whether a comment body is exactly the merge command. Pure.
+ * Classify a comment: the merge command, a near miss, or not ours. A comment is ours only when its
+ * first word is exactly `/merge`, so prose that merely mentions the command, and words such as
+ * `/merged`, are left alone. Pure.
  * @param {unknown} body - The comment text
- * @returns {boolean}
+ * @returns {'merge' | 'unsupported' | 'none'} `merge` for exactly `/merge`, `unsupported` for `/merge`
+ *   followed by more text, `none` otherwise
  */
-export function parseCommand(body) {
-  return typeof body === 'string' && body.trim() === '/merge';
+export function classifyComment(body) {
+  if (typeof body !== 'string') return 'none';
+  const text = body.trim();
+  if (text === '/merge') return 'merge';
+  return /^\/merge\s/.test(text) ? 'unsupported' : 'none';
+}
+
+/**
+ * Whether a commenter is a bot account, which the bot never answers. Pure.
+ * @param {string} login - The commenter's login
+ * @param {string} type - The API user type (`User`, `Bot`, ...)
+ * @returns {boolean} true for the `Bot` type or any login containing `[bot]`
+ */
+export function isBotCommenter(login, type) {
+  return type === 'Bot' || login.includes('[bot]');
 }
 
 /**
@@ -362,4 +386,45 @@ export function renderDryRun(decision, { pullNumber, headSha }) {
     ? 'merge `main` into the branch first'
     : 'branch is up to date';
   return `${head}\n\nWould merge:\n- Version: ${version}\n- Branch: ${update}`;
+}
+
+/**
+ * The comment for a refused live `/merge`: what was refused and why, and that nothing was changed. Pure.
+ * @param {string[]} reasons - Refusal reason codes
+ * @param {{ pullNumber: number, headSha: string }} context
+ * @returns {string}
+ */
+export function renderRefusal(reasons, { pullNumber, headSha }) {
+  return `**/merge refused** for #${pullNumber} at \`${headSha}\`. Nothing was changed.\n\n${describeRefusal(reasons)}`;
+}
+
+/**
+ * Message for the commit that merges the default branch into a PR branch. `[skip ci]` keeps the
+ * runners idle: the bot has already verified the PR and merges it straight after. Pure.
+ * @param {string} branch - The PR branch
+ * @param {string} defaultBranch - The branch merged into it
+ * @returns {string}
+ */
+export function updateCommitMessage(branch, defaultBranch) {
+  return `Merge ${defaultBranch} into ${branch} [skip ci]`;
+}
+
+/**
+ * Message for the bot's version commit. See {@link updateCommitMessage} for `[skip ci]`. Pure.
+ * @param {string} version - Plain `x.y.z`
+ * @returns {string}
+ */
+export function versionCommitMessage(version) {
+  return `Set the version to ${version} [skip ci]`;
+}
+
+/**
+ * Whether the first parent of a commit is `sha`, i.e. the commit was made on top of the head that was
+ * checked and not on top of something pushed since. Pure.
+ * @param {Array<{ sha: string }>|undefined} parents - The commit's parents
+ * @param {string} sha - The expected first parent
+ * @returns {boolean}
+ */
+export function firstParentIs(parents, sha) {
+  return Array.isArray(parents) && parents.length > 0 && parents[0]?.sha === sha;
 }
