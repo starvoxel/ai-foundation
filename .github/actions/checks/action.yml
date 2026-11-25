@@ -1,0 +1,36 @@
+name: AIF project checks
+description: Run both AIF checks in the calling repository, the arc42 index check and the committed-install drift check.
+
+runs:
+  using: composite
+  steps:
+    - name: Install aif dependencies
+      id: deps
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        # This action lives at <root>/.github/actions/checks.
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        cd "$AIF_ROOT" && npm ci --omit=dev
+
+    - name: Check the architecture index
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        echo "aif checks: running 'aif index architecture --check'"
+        node "$AIF_ROOT/bin/aif.js" index architecture --check
+
+    # Runs even when the index check failed, so one run reports both, but not when the install
+    # failed: without dependencies it would only add a second, confusing error.
+    - name: Check the installed bundles for drift
+      if: ${{ !cancelled() && steps.deps.outcome == 'success' }}
+      shell: bash
+      env:
+        ACTION_PATH: ${{ github.action_path }}
+      run: |
+        AIF_ROOT="$(cd "$ACTION_PATH/../../.." && pwd)"
+        echo "aif checks: running 'aif install --scope project --check'"
+        node "$AIF_ROOT/bin/aif.js" install --scope project --check
