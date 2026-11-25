@@ -24,15 +24,23 @@
 import { pathToFileURL } from 'node:url';
 
 import {
-  decideAuthorization,
+  UNSUPPORTED_REPLY,
+  applyVersion,
   classifyComment,
+  decideAuthorization,
   decideMerge,
   describeRefusal,
+  firstParentIs,
+  formatAudit,
   isBotCommenter,
-  UNSUPPORTED_REPLY,
+  isVersionOnlyPaths,
+  nextVersion,
   renderDryRun,
   requiredChecksFromRules,
   toGateInput,
+  updateCommitMessage,
+  verifyVersionOnly,
+  versionCommitMessage,
 } from './merge-logic.mjs';
 
 const API = 'https://api.github.com';
@@ -59,7 +67,12 @@ export function createApi(token) {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
     if (!response.ok) {
-      throw new Error(`GitHub ${method} ${path} failed: ${response.status} ${response.statusText}`);
+      /** @type {Error & { status?: number }} */
+      const err = new Error(
+        `GitHub ${method} ${path} failed: ${response.status} ${response.statusText}`,
+      );
+      err.status = response.status;
+      throw err;
     }
     return response.status === 204 ? null : response.json();
   };
@@ -119,13 +132,177 @@ async function fetchPull(api, repo, number, sleep) {
   return pull;
 }
 
+/** The version files the bot may rewrite, in the order it reads them. */
+const VERSION_FILES = ['package.json', 'package-lock.json'];
+
 /**
- * Handle one `/merge` comment: authorize, gather, decide, report. Dry run only.
+ * Encode a branch name for a ref path, keeping its `/` separators.
+ * @param {string} branch
+ * @returns {string}
+ */
+function refPath(branch) {
+  return branch.split('/').map(encodeURIComponent).join('/');
+}
+
+/**
+ * Read a file's text at a commit through the blob API, which has no size limit, or null if the file
+ * does not exist there.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {string} path
+ * @param {string} ref
+ * @returns {Promise<{ sha: string, text: string }|null>}
+ */
+async function readFileAt(api, repo, path, ref) {
+  let file;
+  try {
+    file = await api('GET', `/repos/${repo}/contents/${path}?ref=${encodeURIComponent(ref)}`);
+  } catch (err) {
+    if (err.status === 404) return null;
+    throw err;
+  }
+  const blob = await api('GET', `/repos/${repo}/git/blobs/${file.sha}`);
+  return { sha: file.sha, text: Buffer.from(blob.content, 'base64').toString('utf8') };
+}
+
+/**
+ * Commit the new version on top of `headSha` through the Git Data API, never checking out PR code.
+ * Each file is rewritten by `applyVersion` and verified to differ only in its version fields, and the
+ * branch ref moves forward without force, so a push made since `headSha` makes it fail.
+ * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
+ * @param {string} repo
+ * @param {string} branch - The PR branch
+ * @param {string} headSha - The head the commit is built on
+ * @param {string} version - Plain `x.y.z`
+ * @returns {Promise<string>} The new head SHA
+ * @throws {Error} When a rewritten file differs by more than its version, or the ref cannot advance
+ */
+async function commitVersion(api, repo, branch, headSha, version) {
+  const parent = await api('GET', `/repos/${repo}/git/commits/${headSha}`);
+  const entries = [];
+  for (const path of VERSION_FILES) {
+    const before = await readFileAt(api, repo, path, headSha);
+    if (before === null) continue;
+    const after = applyVersion(before.text, version);
+    const check = verifyVersionOnly(before.text, after, version);
+    if ('reason' in check) throw new Error(`${path}: ${check.reason}`);
+    if (after === before.text) continue;
+    const blob = await api('POST', `/repos/${repo}/git/blobs`, {
+      content: after,
+      encoding: 'utf-8',
+    });
+    entries.push({ path, mode: '100644', type: 'blob', sha: blob.sha });
+  }
+  if (entries.length === 0) return headSha;
+  if (!isVersionOnlyPaths(entries.map((entry) => entry.path))) {
+    throw new Error('The version commit would touch a file other than the version files');
+  }
+  const tree = await api('POST', `/repos/${repo}/git/trees`, {
+    base_tree: parent.tree.sha,
+    tree: entries,
+  });
+  const commit = await api('POST', `/repos/${repo}/git/commits`, {
+    message: versionCommitMessage(version),
+    tree: tree.sha,
+    parents: [headSha],
+  });
+  await api('PATCH', `/repos/${repo}/git/refs/heads/${refPath(branch)}`, {
+    sha: commit.sha,
+    force: false,
+  });
+  return commit.sha;
+}
+
+/**
+ * The live half of `/merge`: re-check the head, merge `main` into the branch when behind, commit the
+ * version, and merge. The workflow's `merge` concurrency group serialises runs, and `main`'s version
+ * is read again here so the number is assigned against `main` as it is now.
+ * @param {{ api: (method: string, path: string, body?: unknown) => Promise<any>, repo: string,
+ *   number: number, pull: any, defaultBranch: string, decision: { bump: { level: string, from: string, to: string } | null,
+ *   updateBranch: boolean }, headSha: string, login: string, checks: string[], log: (line: string) => void,
+ *   comment: (text: string) => Promise<any> }} input
+ * @returns {Promise<'merged'|'refused'>}
+ * @throws {Error} When an API call fails; the caller reports it
+ */
+async function mergeLive({
+  api,
+  repo,
+  number,
+  pull,
+  defaultBranch,
+  decision,
+  headSha,
+  login,
+  checks,
+  log,
+  comment,
+}) {
+  const branch = pull.head.ref;
+  const fresh = await api('GET', `/repos/${repo}/pulls/${number}`);
+  if (fresh.head.sha !== headSha) {
+    log(`refused: #${number} head moved from ${headSha} to ${fresh.head.sha}`);
+    await comment(`/merge refused:\n${describeRefusal(['head-moved'])}`);
+    return 'refused';
+  }
+
+  let head = headSha;
+  let updated = false;
+  if (decision.updateBranch) {
+    let merged;
+    try {
+      merged = await api('POST', `/repos/${repo}/merges`, {
+        base: branch,
+        head: defaultBranch,
+        commit_message: updateCommitMessage(branch, defaultBranch),
+      });
+    } catch (err) {
+      if (err.status !== 409) throw err;
+      log(`refused: merging ${defaultBranch} into ${branch} conflicts`);
+      await comment(`/merge refused:\n${describeRefusal(['update-conflict'])}`);
+      return 'refused';
+    }
+    if (merged !== null) {
+      if (!firstParentIs(merged.parents, headSha)) {
+        throw new Error(
+          'The branch moved while merging the default branch into it; nothing else was changed',
+        );
+      }
+      head = merged.sha;
+      updated = true;
+      log(`updated ${branch} from ${defaultBranch}: ${head}`);
+    }
+  }
+
+  let bump = decision.bump;
+  if (bump) {
+    const mainFile = await readFileAt(api, repo, 'package.json', defaultBranch);
+    const mainVersion = JSON.parse(mainFile?.text ?? '{}').version ?? '';
+    bump = { level: bump.level, from: mainVersion, to: nextVersion(mainVersion, bump.level) };
+    head = await commitVersion(api, repo, branch, head, bump.to);
+    log(`version ${bump.from} -> ${bump.to}: ${head}`);
+  }
+
+  await api('PUT', `/repos/${repo}/pulls/${number}/merge`, { sha: head, merge_method: 'merge' });
+  log(`merged: #${number} at ${head} requested by @${login}`);
+  await comment(
+    formatAudit({
+      commenter: login,
+      bump,
+      headSha,
+      checks,
+      updatedBranch: updated,
+    }),
+  );
+  return 'merged';
+}
+
+/**
+ * Handle one `/merge` comment: authorize, gather, decide, then report (dry run) or merge (live).
  * @param {{ env: Record<string, string|undefined>,
  *   api: (method: string, path: string, body?: unknown) => Promise<any>,
  *   log?: (line: string) => void, sleep?: (ms: number) => Promise<void> }} io - Injectable I/O
- * @returns {Promise<'ignored'|'unsupported'|'refused'|'would-merge'>} What happened, for the caller and tests
- * @throws {Error} When DRY_RUN is not `true` (live mode is not built), or on an API failure
+ * @returns {Promise<'ignored'|'unsupported'|'refused'|'would-merge'|'merged'>} What happened, for the caller and tests
+ * @throws {Error} When DRY_RUN is neither `true` nor `false`, or on an API failure
  */
 export async function run({
   env,
@@ -133,8 +310,8 @@ export async function run({
   log = console.log,
   sleep = (ms) => new Promise((done) => setTimeout(done, ms)),
 }) {
-  if (env.DRY_RUN !== 'true') {
-    throw new Error('merge.mjs is dry-run only in this version: set DRY_RUN=true');
+  if (env.DRY_RUN !== 'true' && env.DRY_RUN !== 'false') {
+    throw new Error(`DRY_RUN must be 'true' or 'false', not '${env.DRY_RUN}'`);
   }
   const repo = env.GITHUB_REPOSITORY ?? '';
   const number = Number(env.PR_NUMBER);
@@ -207,8 +384,34 @@ export async function run({
   const decision = decideMerge({ ...input, mainVersion, behind: comparison.behind_by > 0 });
 
   log(`${decision.action}: #${number} at ${headSha} requested by @${login}`);
-  await comment(renderDryRun(decision, { pullNumber: number, headSha }));
-  return decision.action === 'refuse' ? 'refused' : 'would-merge';
+  if (decision.action === 'refuse') {
+    await comment(renderDryRun(decision, { pullNumber: number, headSha }));
+    return 'refused';
+  }
+  if (env.DRY_RUN === 'true') {
+    await comment(renderDryRun(decision, { pullNumber: number, headSha }));
+    return 'would-merge';
+  }
+  try {
+    return await mergeLive({
+      api,
+      repo,
+      number,
+      pull,
+      defaultBranch,
+      decision,
+      headSha,
+      login,
+      checks: input.requiredChecks,
+      log,
+      comment,
+    });
+  } catch (err) {
+    await comment(
+      `/merge failed: ${err.message}\n\nCheck the workflow run, then comment \`/merge\` again.`,
+    );
+    throw err;
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
