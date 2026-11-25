@@ -10,9 +10,10 @@ name: AIF merge
 # and the secret MERGE_APP_PRIVATE_KEY, and make the App the only bypass actor of the rulesets that
 # require status checks (the README of the `merge` action lists the steps).
 #
-# Two lines are yours to edit: `workflows: [CI]` must name this repository's CI workflow, and
-# `version-paths` lists the directories whose changes need a `bump:patch|minor|major` label and a
-# version commit (empty: no versioned releases).
+# Two things are yours to edit: `workflows: [CI]` must name this repository's CI workflow, and a
+# project with versioned releases adds `version-paths: lib,src` under `with:` (the directories whose
+# changes need a `bump:patch|minor|major` label and a version commit). Left out, it is empty: no
+# versioned releases, so no labels and no version commits.
 on:
   issue_comment:
     types: [created]
@@ -46,4 +47,3 @@ jobs:
           live: ${{ vars.MERGE_BOT_LIVE }}
           app-client-id: ${{ vars.MERGE_APP_CLIENT_ID }}
           app-private-key: ${{ secrets.MERGE_APP_PRIVATE_KEY }}
-          version-paths: ""

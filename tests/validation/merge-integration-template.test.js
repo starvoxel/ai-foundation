@@ -74,7 +74,9 @@ describe('aif-merge.yml template', () => {
     assert.equal(step.with['app-private-key'], '${{ secrets.MERGE_APP_PRIVATE_KEY }}');
   });
 
-  it('defaults to a project without versioned releases', () => {
-    assert.equal(step.with['version-paths'], '');
+  it('defaults to a project without versioned releases, with no quoted empty value for a formatter to rewrite', () => {
+    assert.ok(!('version-paths' in step.with));
+    assert.ok(!/^\s*version-paths:/m.test(text), 'only a comment may mention it');
+    assert.ok(!text.includes("''") && !text.includes('""'));
   });
 });
