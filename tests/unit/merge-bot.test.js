@@ -53,6 +53,13 @@ function fakeApi(overrides = {}, head = 'abc') {
     },
     'GET /repos/o/r/contents/package.json?ref=base': { content: b64('{"version":"0.5.2"}') },
     'GET /repos/o/r/contents/package.json?ref=abc': { content: b64('{"version":"0.5.2"}') },
+    'GET /repos/o/r/commits/abc': {
+      sha: 'abc',
+      commit: { message: 'Add the feature' },
+      author: { login: 'jo' },
+      parents: [{ sha: 'p0' }],
+      files: [{ filename: 'lib/x.js' }],
+    },
     'POST /repos/o/r/issues/7/comments': {},
   };
   // Re-key the fixture to another head SHA, for tests that need a full-length one.
@@ -529,6 +536,97 @@ describe('run, live', () => {
     assert.deepEqual(sleeps, []);
   });
 
+  const stackedError = httpError(
+    403,
+    'Merging stacked PRs via this endpoint is not supported. Use the asynchronous merge endpoint instead.',
+  );
+  const ASYNC = 'PUT /repos/o/r/pulls/7/merge-async';
+  const POLL = 'GET /repos/o/r/pulls/7/merge-async/u-1';
+
+  it('merges a stacked PR through the asynchronous endpoint, pinned to the new head', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': stackedError,
+        [ASYNC]: { status: 'pending', details: { uuid: 'u-1' } },
+        [POLL]: (n) =>
+          n < 2 ? { status: 'pending' } : { status: 'merged', details: { sha: 'm1' } },
+      }),
+    );
+    const result = await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} });
+    assert.equal(result, 'merged');
+    const start = calls.find((call) => call.path.endsWith('/merge-async'));
+    assert.deepEqual(start.body, { sha: 'commit1', merge_method: 'merge' });
+    assert.equal(calls.filter((call) => call.path.endsWith('/merge')).length, 1);
+    assert.match(posted(calls).at(-1).body.body, /^\*\*Merge successful\*\*/);
+  });
+
+  it('treats an already-merged answer from the asynchronous endpoint as done', async () => {
+    const { api } = fakeApi(
+      liveResponses({ 'PUT /repos/o/r/pulls/7/merge': stackedError, [ASYNC]: { merged: true } }),
+    );
+    assert.equal(await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }), 'merged');
+  });
+
+  it('reports a failed asynchronous merge with its reason, and does not claim success', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': stackedError,
+        [ASYNC]: { status: 'pending', details: { uuid: 'u-1' } },
+        [POLL]: { status: 'failed', details: { message: 'a check failed lower in the stack' } },
+      }),
+    );
+    await assert.rejects(
+      run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }),
+      /failed: a check failed lower in the stack/,
+    );
+    assert.match(
+      posted(calls).at(-1).body.body,
+      /^\*\*Merge failed\*\*\nError: .*lower in the stack/,
+    );
+  });
+
+  it('gives up when the asynchronous merge never settles', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': stackedError,
+        [ASYNC]: { status: 'pending', details: { uuid: 'u-1' } },
+        [POLL]: { status: 'pending' },
+      }),
+    );
+    await assert.rejects(
+      run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }),
+      /did not finish in time/,
+    );
+    assert.equal(calls.filter((call) => call.path.endsWith('/u-1')).length, 30);
+  });
+
+  it('fails clearly when the asynchronous endpoint returns no request id or queues the merge', async () => {
+    for (const [first, poll, pattern] of [
+      [{ status: 'pending' }, null, /request id/],
+      [{ status: 'pending', details: { uuid: 'u-1' } }, { status: 'enqueued' }, /queued/],
+    ]) {
+      const { api } = fakeApi(
+        liveResponses({
+          'PUT /repos/o/r/pulls/7/merge': stackedError,
+          [ASYNC]: first,
+          [POLL]: poll,
+        }),
+      );
+      await assert.rejects(
+        run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }),
+        pattern,
+      );
+    }
+  });
+
+  it('uses the asynchronous endpoint only for the stacked 403, not for another 403', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({ 'PUT /repos/o/r/pulls/7/merge': httpError(403, 'Resource not accessible') }),
+    );
+    await assert.rejects(run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }), /403/);
+    assert.ok(!calls.some((call) => call.path.endsWith('/merge-async')));
+  });
+
   it('merges when a 405 clears on a retry', async () => {
     const { api, calls } = fakeApi(
       liveResponses({
@@ -902,5 +1000,115 @@ describe('run, waiting for checks', () => {
       ).body.body,
       /Merge failed/,
     );
+  });
+});
+
+describe('run, after a failed merge left bot commits on the head', () => {
+  const pull = {
+    state: 'open',
+    draft: false,
+    mergeable: true,
+    head: { sha: 'ver1', ref: 'feat/x', repo: { full_name: REPO } },
+    base: { ref: 'main', repo: { full_name: REPO, default_branch: 'main' } },
+    user: { login: 'jo' },
+    labels: [{ name: 'bump:patch' }],
+  };
+  const botCommit = (message, parents, files, login = 'app[bot]') => ({
+    commit: { message },
+    author: { login },
+    parents: parents.map((sha) => ({ sha })),
+    files: files.map((filename) => ({ filename })),
+  });
+  const VERSION_FILES = ['package.json', 'package-lock.json'];
+  const PRETTY = `${JSON.stringify({ name: 'x', version: '0.5.5' }, null, 2)}\n`;
+
+  /** PR head `ver1` = version commit on update `upd0` on `abc`, whose checks passed; `abc` is the tested head. */
+  function stacked(overrides = {}) {
+    return liveResponses({
+      'GET /repos/o/r/pulls/7': pull,
+      'GET /repos/o/r/commits/ver1': botCommit(
+        'Set the version to 0.5.5 [skip ci]',
+        ['upd0'],
+        VERSION_FILES,
+      ),
+      'GET /repos/o/r/commits/upd0': botCommit(
+        'Merge main into feat/x [skip ci]',
+        ['abc', 'maintip'],
+        ['lib/y.js'],
+      ),
+      'GET /repos/o/r/compare/main...maintip': { ahead_by: 0, behind_by: 0 },
+      'GET /repos/o/r/compare/main...ver1': { merge_base_commit: { sha: 'tip' }, behind_by: 0 },
+      'GET /repos/o/r/commits/ver1/check-runs?per_page=100&page=1': { check_runs: [] },
+      'GET /repos/o/r/contents/package.json?ref=ver1': { sha: 'vb', content: b64(PRETTY) },
+      'GET /repos/o/r/git/commits/ver1': { tree: { sha: 'tree0' } },
+      'GET /repos/o/r/git/blobs/vb': { content: b64(PRETTY) },
+      'GET /repos/o/r/contents/package-lock.json?ref=ver1': httpError(404),
+      ...overrides,
+    });
+  }
+
+  it('gates on the commit beneath them and merges the head as it is, without another version commit', async () => {
+    const { api, calls } = fakeApi(stacked());
+    const result = await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} });
+    assert.equal(result, 'merged');
+    const merge = calls.find((call) => call.method === 'PUT');
+    assert.equal(merge.body.sha, 'ver1');
+    assert.ok(names(calls).includes('GET /repos/o/r/commits/abc/check-runs?per_page=100&page=1'));
+    assert.ok(!calls.some((call) => call.path === '/repos/o/r/git/commits'));
+    assert.ok(!calls.some((call) => call.path === '/repos/o/r/merges'));
+    assert.equal(
+      posted(calls).at(-1).body.body,
+      '**Merge successful**\nVersion bumped from v0.5.4 -> v0.5.5',
+    );
+  });
+
+  it('still refuses when the commit beneath them has a failing check', async () => {
+    const { api, calls } = fakeApi(
+      stacked({
+        'GET /repos/o/r/commits/abc/check-runs?per_page=100&page=1': {
+          check_runs: [{ name: 'Validate', status: 'completed', conclusion: 'failure' }],
+        },
+      }),
+    );
+    assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
+    assert.ok(!calls.some((call) => call.method === 'PUT'));
+  });
+
+  it('does not look past a commit by a person, even with the bot message', async () => {
+    const { api, calls } = fakeApi(
+      stacked({
+        'GET /repos/o/r/commits/ver1': botCommit(
+          'Set the version to 0.5.5 [skip ci]',
+          ['upd0'],
+          VERSION_FILES,
+          'mallory',
+        ),
+      }),
+    );
+    assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
+    assert.match(posted(calls).at(-1).body.body, /Required checks have not run/);
+    assert.ok(!calls.some((call) => call.method === 'PUT'));
+  });
+
+  it('does not look past a version commit that touches another file', async () => {
+    const { api, calls } = fakeApi(
+      stacked({
+        'GET /repos/o/r/commits/ver1': botCommit(
+          'Set the version to 0.5.5 [skip ci]',
+          ['upd0'],
+          [...VERSION_FILES, 'lib/evil.js'],
+        ),
+      }),
+    );
+    assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
+    assert.ok(!calls.some((call) => call.method === 'PUT'));
+  });
+
+  it('does not look past an update whose second parent is not in main', async () => {
+    const { api, calls } = fakeApi(
+      stacked({ 'GET /repos/o/r/compare/main...maintip': { ahead_by: 1, behind_by: 0 } }),
+    );
+    assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
+    assert.ok(!calls.some((call) => call.method === 'PUT'));
   });
 });
