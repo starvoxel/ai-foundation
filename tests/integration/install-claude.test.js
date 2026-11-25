@@ -79,7 +79,10 @@ describe('integration: install (claude-specific)', () => {
 
   it('transforms agents to markdown with Claude Code tool names', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const agentPath = join(TARGETS.agents, 'test-agent.md');
@@ -92,7 +95,10 @@ describe('integration: install (claude-specific)', () => {
 
   it('installs steering as rules in .claude/rules/', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     assert.ok(existsSync(join(TARGETS.rules, 'global-core.md')));
@@ -101,7 +107,10 @@ describe('integration: install (claude-specific)', () => {
 
   it('installs skills as SKILL.md in a per-skill directory under .claude/skills/', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const skillPath = join(TARGETS.skills, 'test-skill', 'SKILL.md');
@@ -114,7 +123,10 @@ describe('integration: install (claude-specific)', () => {
     writeFileSync(join(refDir, 'notes.md'), '# notes\n', 'utf8');
 
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const refPath = join(TARGETS.skills, 'test-skill', 'reference', 'notes.md');
@@ -124,14 +136,20 @@ describe('integration: install (claude-specific)', () => {
 
   it('records manifest and uninstall works', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const manifest = readManifest(repo);
     assert.ok(manifest.bundles['test-bundle_claude']);
 
     quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const after = readManifest(repo);
@@ -141,7 +159,10 @@ describe('integration: install (claude-specific)', () => {
 
   it('installs the shared block-command hook script (bundle has a blocked_commands agent)', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     assert.ok(existsSync(join(TARGETS.scripts, 'block-command', 'logic.js')));
@@ -155,7 +176,10 @@ describe('integration: install (claude-specific)', () => {
 
   it('wires a PreToolUse hook for an agent with blocked_commands', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const agentPath = join(TARGETS.agents, 'blocked-agent.md');
@@ -167,10 +191,16 @@ describe('integration: install (claude-specific)', () => {
 
   it('removes the shared hook script when the last depending bundle is uninstalled', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     assert.ok(!existsSync(join(TARGETS.scripts, 'block-command', 'cli.js')));
@@ -191,10 +221,16 @@ describe('integration: install (claude-specific)', () => {
     );
 
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     quiet(() =>
-      runInstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'other-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     let manifest = readManifest(repo);
@@ -204,7 +240,10 @@ describe('integration: install (claude-specific)', () => {
     ]);
 
     quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'claude' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // Hook script stays installed — other-bundle still depends on it.
@@ -213,7 +252,10 @@ describe('integration: install (claude-specific)', () => {
     assert.deepEqual(manifest.hooks['block-command_claude'].installedBy, ['other-bundle']);
 
     quiet(() =>
-      runUninstall({ args: { bundle: 'other-bundle', harness: 'claude' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'other-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // Now removed — no bundle depends on it anymore.
@@ -257,7 +299,10 @@ describe('integration: install (claude-specific)', () => {
     delete process.env.TEST_HTTP_SERVER_TOKEN;
 
     quiet(() =>
-      runInstall({ args: { bundle: 'http-bundle', harness: 'claude' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'http-bundle', harness: 'claude', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const settings = JSON.parse(readFileSync(TARGETS.mcpSettings, 'utf8'));
@@ -268,7 +313,7 @@ describe('integration: install (claude-specific)', () => {
   });
 
   it('removes what a previous install wrote that the bundle no longer ships', () => {
-    const args = { bundle: 'test-bundle', harness: 'claude' };
+    const args = { bundle: 'test-bundle', harness: 'claude', scope: 'global' };
     quiet(() => runInstall({ args, positional: [] }, repo));
     const retiredAgent = join(TARGETS.agents, 'blocked-agent.md');
     const retiredSkill = join(TARGETS.skills, 'test-skill');

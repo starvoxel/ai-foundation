@@ -68,12 +68,18 @@ describe('integration: install freshness', () => {
 
   it('skips install when bundle is already current', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // Second install should skip
     const { code, output } = quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('already current')));
@@ -81,7 +87,10 @@ describe('integration: install freshness', () => {
 
   it('reinstalls when a source changes after install', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // Modify a source file
@@ -91,7 +100,10 @@ describe('integration: install freshness', () => {
 
     // Now install should proceed (source hashes differ)
     const { code, output } = quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('Installed')));
@@ -99,12 +111,15 @@ describe('integration: install freshness', () => {
 
   it('--update skips current bundles', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // Update should skip
     const { code, output } = quiet(() =>
-      runInstall({ args: { update: true }, positional: [] }, repo),
+      runInstall({ args: { update: true, scope: 'global' }, positional: [] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('already current')));
@@ -113,7 +128,10 @@ describe('integration: install freshness', () => {
 
   it('--update reinstalls stale bundles', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     // Modify a source file
@@ -123,7 +141,7 @@ describe('integration: install freshness', () => {
 
     // Update should reinstall
     const { code, output } = quiet(() =>
-      runInstall({ args: { update: true }, positional: [] }, repo),
+      runInstall({ args: { update: true, scope: 'global' }, positional: [] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('updating')));
@@ -132,7 +150,7 @@ describe('integration: install freshness', () => {
 
   it('--update reports nothing when nothing is installed', () => {
     const { code, output } = quiet(() =>
-      runInstall({ args: { update: true }, positional: [] }, repo),
+      runInstall({ args: { update: true, scope: 'global' }, positional: [] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('Nothing installed')));
@@ -140,7 +158,10 @@ describe('integration: install freshness', () => {
 
   it('stores sourceHashes in the manifest on install', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const manifest = readManifest(repo);
@@ -152,14 +173,17 @@ describe('integration: install freshness', () => {
 
   it('--update reinstalls a bundle that was recorded without source hashes', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     const manifest = readManifest(repo);
     delete manifest.bundles['test-bundle_kiro'].sourceHashes;
     writeManifest(repo, manifest);
 
     const { code, output } = quiet(() =>
-      runInstall({ args: { update: true }, positional: [] }, repo),
+      runInstall({ args: { update: true, scope: 'global' }, positional: [] }, repo),
     );
     assert.equal(code, 0);
     assert.ok(output.some((line) => line.includes('1 updated, 0 current')));
@@ -167,23 +191,29 @@ describe('integration: install freshness', () => {
 
   it('status reports a changed source and flags the bundle', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     const agentPath = join(repo, 'agents', 'test-agent.yaml');
     writeFileSync(agentPath, readFileSync(agentPath, 'utf8') + '\n# modified', 'utf8');
 
-    const { output } = quiet(() => runStatus({ args: {}, positional: [] }, repo));
+    const { output } = quiet(() => runStatus({ args: { scope: 'global' }, positional: [] }, repo));
     assert.ok(output.some((line) => line.includes('Source freshness: 1 changed')));
-    assert.ok(output.some((line) => line.includes('aif install --update')));
+    assert.ok(output.some((line) => line.includes('aif install --scope global --update')));
   });
 
   it('status reports an error, not "current", when a bundle cannot be resolved', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     rmSync(join(repo, 'bundles', 'test-bundle'), { recursive: true, force: true });
 
-    const { output } = quiet(() => runStatus({ args: {}, positional: [] }, repo));
+    const { output } = quiet(() => runStatus({ args: { scope: 'global' }, positional: [] }, repo));
     assert.ok(output.some((line) => line.includes('Source freshness: cannot check')));
   });
 });

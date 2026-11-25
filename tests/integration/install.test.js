@@ -61,32 +61,45 @@ describe('integration: install command', () => {
   }
 
   it('requires --bundle', () => {
-    const code = quiet(() => runInstall({ args: { harness: 'kiro' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runInstall({ args: { harness: 'kiro', scope: 'global' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('requires --harness', () => {
-    const code = quiet(() => runInstall({ args: { bundle: 'test-bundle' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runInstall({ args: { bundle: 'test-bundle', scope: 'global' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('rejects unknown harness', () => {
     const code = quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'bogus' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'bogus', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.equal(code, 1);
   });
 
   it('rejects unknown bundle', () => {
     const code = quiet(() =>
-      runInstall({ args: { bundle: 'nonexistent', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'nonexistent', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.equal(code, 1);
   });
 
   it('records manifest entry with version and file list', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const manifest = readManifest(repo);
@@ -117,7 +130,10 @@ describe('integration: install command', () => {
     it('installs every named bundle', () => {
       const code = quiet(() =>
         runInstall(
-          { args: { bundle: 'test-bundle,second-bundle', harness: 'kiro' }, positional: [] },
+          {
+            args: { bundle: 'test-bundle,second-bundle', harness: 'kiro', scope: 'global' },
+            positional: [],
+          },
           repo,
         ),
       );
@@ -132,7 +148,11 @@ describe('integration: install command', () => {
       const code = quiet(() =>
         runInstall(
           {
-            args: { bundle: ' test-bundle , second-bundle,test-bundle ', harness: 'kiro' },
+            args: {
+              bundle: ' test-bundle , second-bundle,test-bundle ',
+              harness: 'kiro',
+              scope: 'global',
+            },
             positional: [],
           },
           repo,
@@ -148,7 +168,10 @@ describe('integration: install command', () => {
     it('continues past a failing bundle and reports overall failure', () => {
       const code = quiet(() =>
         runInstall(
-          { args: { bundle: 'test-bundle,nonexistent', harness: 'kiro' }, positional: [] },
+          {
+            args: { bundle: 'test-bundle,nonexistent', harness: 'kiro', scope: 'global' },
+            positional: [],
+          },
           repo,
         ),
       );
@@ -161,12 +184,18 @@ describe('integration: install command', () => {
 
     it('skips bundles that are already current and still installs the rest', () => {
       quiet(() =>
-        runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+        runInstall(
+          { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+          repo,
+        ),
       );
 
       const code = quiet(() =>
         runInstall(
-          { args: { bundle: 'test-bundle,second-bundle', harness: 'kiro' }, positional: [] },
+          {
+            args: { bundle: 'test-bundle,second-bundle', harness: 'kiro', scope: 'global' },
+            positional: [],
+          },
           repo,
         ),
       );
@@ -229,30 +258,41 @@ describe('integration: uninstall command', () => {
   }
 
   it('requires --bundle', () => {
-    const code = quiet(() => runUninstall({ args: { harness: 'kiro' }, positional: [] }, repo));
+    const code = quiet(() =>
+      runUninstall({ args: { harness: 'kiro', scope: 'global' }, positional: [] }, repo),
+    );
     assert.equal(code, 1);
   });
 
   it('requires --harness', () => {
     const code = quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle' }, positional: [] }, repo),
+      runUninstall({ args: { bundle: 'test-bundle', scope: 'global' }, positional: [] }, repo),
     );
     assert.equal(code, 1);
   });
 
   it('fails gracefully if bundle not installed', () => {
     const code = quiet(() =>
-      runUninstall({ args: { bundle: 'nonexistent', harness: 'kiro' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'nonexistent', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     assert.equal(code, 1);
   });
 
   it('removes manifest entry after uninstall', () => {
     quiet(() =>
-      runInstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runInstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
     quiet(() =>
-      runUninstall({ args: { bundle: 'test-bundle', harness: 'kiro' }, positional: [] }, repo),
+      runUninstall(
+        { args: { bundle: 'test-bundle', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      ),
     );
 
     const manifest = readManifest(repo);

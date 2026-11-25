@@ -64,7 +64,10 @@ describe('integration: install dropped-tool report and unknown-tool rejection', 
     console.error = (...a) => out.push(a.join(' '));
     let code;
     try {
-      code = runInstall({ args: { bundle: 'b', harness: 'kiro' }, positional: [] }, repo);
+      code = runInstall(
+        { args: { bundle: 'b', harness: 'kiro', scope: 'global' }, positional: [] },
+        repo,
+      );
     } finally {
       console.log = origLog;
       console.error = origErr;
