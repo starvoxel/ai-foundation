@@ -21,7 +21,7 @@ import { pathToFileURL } from 'node:url';
 const SCRIPT = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/harness-changes.mjs'),
 ).href;
-const { hasChanges, harnessDirs, run } = await import(SCRIPT);
+const { hasChanges, watchedPaths, run } = await import(SCRIPT);
 
 describe('hasChanges', () => {
   it('is false for empty or whitespace-only output', () => {
@@ -35,9 +35,23 @@ describe('hasChanges', () => {
   });
 });
 
-describe('harnessDirs', () => {
-  it('lists the project-scope harness directories', () => {
-    assert.deepEqual(harnessDirs(), ['.claude', '.kiro']);
+describe('watchedPaths', () => {
+  it('lists the harness directories, the integrations manifest and the unpinned integration files', () => {
+    assert.deepEqual(watchedPaths(), [
+      '.claude',
+      '.kiro',
+      '.aif',
+      '.githooks/commit-msg',
+      '.githooks/post-checkout',
+      '.githooks/post-merge',
+      '.githooks/post-rewrite',
+      '.githooks/refresh-index',
+      'scripts/session-start.sh',
+    ]);
+  });
+
+  it('never lists a workflow file, which Dependabot owns', () => {
+    for (const path of watchedPaths()) assert.ok(!path.startsWith('.github/'), path);
   });
 });
 
@@ -69,11 +83,11 @@ describe('run', () => {
     }
   }
 
-  it('publishes changed=true and limits git to the harness directories', () => {
+  it('publishes changed=true and limits git to the watched paths', () => {
     const result = runWith(' M .claude/skills/x/SKILL.md\n');
     assert.equal(result.changed, true);
     assert.equal(result.output, 'changed=true\n');
-    assert.deepEqual(result.dirs, [['.claude', '.kiro']]);
+    assert.deepEqual(result.dirs, [watchedPaths()]);
     assert.match(result.logs[0], /have changes/);
   });
 

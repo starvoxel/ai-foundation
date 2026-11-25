@@ -19,6 +19,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import YAML from 'yaml';
 
+import { refreshedPaths } from '../../lib/integrations.js';
+import { PROJECT_HARNESS_DIRS } from '../../lib/scope.js';
+
 const FILE = resolve(import.meta.dirname, '../../.github/workflows/update-bundles.yml');
 const text = readFileSync(FILE, 'utf8');
 const workflow = YAML.parse(text);
@@ -94,5 +97,13 @@ describe('.github/workflows/update-bundles.yml', () => {
   it('checks out the default branch, not whichever ref triggered the run', () => {
     const checkout = steps.find((step) => String(step.uses ?? '').startsWith('actions/checkout@'));
     assert.match(checkout.with.ref, /default_branch/);
+  });
+
+  it('commits exactly the paths `aif install --update` may change, and no workflow file', () => {
+    const script = steps.find((step) => step.name === 'Replace update PR').run;
+    const listed = /for path in ([^;]+); do/.exec(script)[1].trim().split(/\s+/);
+    const expected = [...Object.values(PROJECT_HARNESS_DIRS), ...refreshedPaths()];
+    assert.deepEqual(listed, expected);
+    for (const path of listed) assert.ok(!path.startsWith('.github/'), path);
   });
 });
