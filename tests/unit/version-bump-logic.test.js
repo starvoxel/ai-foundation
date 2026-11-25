@@ -19,9 +19,8 @@ import { pathToFileURL } from 'node:url';
 const MODULE = pathToFileURL(
   resolve(import.meta.dirname, '../../.github/scripts/version-bump-logic.mjs'),
 ).href;
-const { SHIPPED_DIRS, isOlder, needsPackageBump, packageBumpError, shippedChanges } = await import(
-  MODULE
-);
+const { SHIPPED_DIRS, isOlder, needsPackageBump, packageBumpError, pickParentRef, shippedChanges } =
+  await import(MODULE);
 
 const pkg = (version) => JSON.stringify({ name: 'p', version });
 
@@ -142,5 +141,36 @@ describe('packageBumpError', () => {
       packageBumpError({ changedPaths, baseJson: '{ not json', headJson: pkg('1.0.0') }),
       null,
     );
+  });
+});
+
+describe('pickParentRef', () => {
+  const MAIN = 'refs/remotes/origin/main';
+
+  it('picks the candidate with the most recent merge-base', () => {
+    const candidates = [
+      { ref: MAIN, date: 100 },
+      { ref: 'refs/remotes/origin/feature-x', date: 200 },
+    ];
+    assert.equal(pickParentRef(candidates, MAIN), 'refs/remotes/origin/feature-x');
+  });
+
+  it('prefers main on a tie, wherever it sits in the list', () => {
+    const other = { ref: 'refs/remotes/origin/aaa-other', date: 100 };
+    const main = { ref: MAIN, date: 100 };
+    assert.equal(pickParentRef([other, main], MAIN), MAIN);
+    assert.equal(pickParentRef([main, other], MAIN), MAIN);
+  });
+
+  it('keeps the first candidate on a tie that does not involve main', () => {
+    const candidates = [
+      { ref: 'refs/remotes/origin/a', date: 100 },
+      { ref: 'refs/remotes/origin/b', date: 100 },
+    ];
+    assert.equal(pickParentRef(candidates, MAIN), 'refs/remotes/origin/a');
+  });
+
+  it('returns null with no candidates', () => {
+    assert.equal(pickParentRef([], MAIN), null);
   });
 });
