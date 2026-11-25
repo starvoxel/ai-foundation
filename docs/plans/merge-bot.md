@@ -1,10 +1,10 @@
 # Plan: Merge bot
 
-| Field       | Value                             |
-| ----------- | --------------------------------- |
-| Status      | Approved                          |
-| Approved by | jeremysmellie@gmail.com (in chat) |
-| Created     | 2026-11-25                        |
+| Field       | Value      |
+| ----------- | ---------- |
+| Status      | Draft      |
+| Approved by | Pending    |
+| Created     | 2026-11-25 |
 
 ## Goal
 
@@ -22,12 +22,13 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 1. Parse the comment: exactly `/merge`, nothing else.
 2. Authorize: commenter is a human (not a bot, not the AI identity) with write permission. Else log and reply with the reason.
 3. Gate: PR is open, non-draft, same-repo, targets `main`, mergeable, not Dependabot, has exactly one `bump:*` label (`major` bumps the minor while below 1.0, the major from 1.0) if it changes shipped content paths, and **every required check is green on the exact head SHA**. A stacked PR is refused until it is retargeted to `main`.
-4. Inside the `merge` concurrency group (`cancel-in-progress: false`): re-read `main`, compute `next = main's version + level`, re-read the head SHA and abort if it moved.
-5. Commit only the version fields of `package.json` and `package-lock.json` through the Git Data API, never checking out PR code. Verify the commit's diff touches nothing else.
-6. Merge with the API `sha` set to the new head and the repo's existing merge-commit method. The merge push triggers `main` CI and `release.yml`, which tags `v<next>` unchanged.
-7. Comment the audit line: who, level, old and new version, gated head SHA, checks seen.
+4. Inside the `merge` concurrency group: re-read `main`, compute `next = main's version + level`, re-read the head SHA and abort if it moved.
+5. If the head is behind `main`, merge `main` into the PR branch first (the update-branch API; a conflict refuses). Without this, the version commit would conflict with the newer version line another PR already put on `main`. The gate stays tied to the pre-update head.
+6. Commit only the version fields of `package.json` and `package-lock.json` through the Git Data API, never checking out PR code. Verify that commit's diff touches nothing else.
+7. Merge with the API `sha` set to the new head and the repo's existing merge-commit method. The merge push triggers `main` CI and `release.yml`, which tags `v<next>` unchanged.
+8. Comment the audit line: who, level, old and new version, gated head SHA, checks seen.
 
-**Why bypass is acceptable here.** The version commit changes no code, and the bot refuses unless the gate passed on the parent. The ruleset names the App as the only bypass actor ("pull requests" mode); no human or agent gets bypass. Required checks still gate everything else.
+**Why bypass is acceptable here.** The version commit changes no code, and the bot refuses unless the gate passed on the head it started from. Merging `main` into the branch adds no change beyond what GitHub's own merge commit would produce; the combined head has no CI run before it lands, and `main` CI runs after. The ruleset names the App as the only bypass actor ("pull requests" mode); no human or agent gets bypass. Required checks still gate everything else.
 
 **Design for testability.** `merge-logic.mjs` is pure: command parsing, authorization decision, gate evaluation, version math, diff verification. `merge.mjs` is a thin API wrapper. Same split as `version-bump-logic.mjs` / `check-version-bumps.mjs`.
 
@@ -40,7 +41,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 ### 1. Pure logic and tests
 
 - Does: `merge-logic.mjs` with unit tests (parse, authorize, gate, version math incl. `major` below and from 1.0, diff verifier).
-- Acceptance criteria: every refusal path (bot commenter, no write permission, red or pending check, stale head, missing or duplicate label, stacked PR, extra files in the diff) returns a distinct reason; version math matches the label table.
+- Acceptance criteria: every refusal path (bot commenter, no write permission, red or pending check, stale head, missing or duplicate label, stacked PR, extra files in the diff, update-branch conflict) returns a distinct reason; version math matches the label table.
 - Verified by: `npm run test:unit`.
 
 ### 2. Rule and doc amendments
@@ -58,7 +59,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 ### 4. Live merge and ruleset bypass
 
 - Does: enable push and merge; human adds the App as the sole bypass actor.
-- Acceptance criteria: a test PR ends merged with one version commit; `release.yml` tags the version; a moved head aborts; two PRs merged back to back get distinct versions.
+- Acceptance criteria: a test PR ends merged with one version commit; `release.yml` tags the version; a moved head aborts; a PR behind `main` is updated, versioned and merged with no conflict; two PRs merged back to back get distinct versions.
 - Verified by: throwaway PRs, then the first real PR watched.
 
 ## Requirements
