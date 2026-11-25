@@ -1,10 +1,10 @@
 # Plan: Merge bot
 
-| Field       | Value                             |
-| ----------- | --------------------------------- |
-| Status      | Approved                          |
-| Approved by | jeremysmellie@gmail.com (in chat) |
-| Created     | 2026-11-25                        |
+| Field       | Value      |
+| ----------- | ---------- |
+| Status      | Draft      |
+| Approved by | Pending    |
+| Created     | 2026-11-25 |
 
 ## Goal
 
@@ -20,7 +20,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 **Flow.** `issue_comment` workflow runs from the default branch, so PR code never controls it.
 
 1. Parse the comment: exactly `/merge`, nothing else.
-2. Authorize: commenter is a human (not a bot, not the AI identity) with write permission. Else log and reply with the reason.
+2. Authorize: commenter is a human (not a `Bot`-type account) with write permission. The bot cannot tell an agent from a human: agents' API calls run as the human's account, so the steering rule alone forbids an agent posting `/merge`. Else log and reply with the reason.
 3. Gate: PR is open, non-draft, same-repo, targets `main`, mergeable, not Dependabot, has exactly one `bump:*` label (`major` bumps the minor while below 1.0, the major from 1.0) if it changes shipped content paths, and **every required check is green on the exact head SHA**. A stacked PR is refused until it is retargeted to `main`.
 4. Inside the `merge` concurrency group: re-read `main`, compute `next = main's version + level`, re-read the head SHA and abort if it moved.
 5. If the head is behind `main`, merge `main` into the PR branch first (the update-branch API; a conflict refuses). Without this, the version commit would conflict with the newer version line another PR already put on `main`. The gate stays tied to the pre-update head.
@@ -41,7 +41,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 ### 1. Pure logic and tests
 
 - Does: `merge-logic.mjs` with unit tests (parse, authorize, gate, version math incl. `major` below and from 1.0, diff verifier).
-- Acceptance criteria: every refusal path (bot commenter, no write permission, red or pending check, stale head, missing or duplicate label, stacked PR, extra files in the diff, update-branch conflict) returns a distinct reason; version math matches the label table.
+- Acceptance criteria: every refusal path (`Bot`-type commenter, no write permission, red or pending check, stale head, missing or duplicate label, stacked PR, extra files in the diff, update-branch conflict) returns a distinct reason; version math matches the label table.
 - Verified by: `npm run test:unit`.
 
 ### 2. Rule and doc amendments
@@ -50,27 +50,30 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 - Acceptance criteria: exceptions name the bot and the gate; `aif index architecture --check` clean; regenerated rules match.
 - Verified by: `npm test`, review.
 
-### 3. Dry-run workflow and version check
+### 3. Dry-run workflow
 
-- Does: `merge.yml` + `merge.mjs` in dry-run (comments what it would do, pushes and merges nothing); label-based version check; strip hand bumps from the open PRs and label them; human documents the GitHub App setup (permissions: contents, pull requests, checks read; private key as a secret).
+- Does: `merge.yml` + `merge.mjs` in dry-run (comments what it would do, pushes and merges nothing); human documents the GitHub App setup (permissions: contents, pull requests, checks read; private key as a secret).
 - Acceptance criteria: on a test PR, `/merge` posts the computed version and gate result; a non-writer's comment is refused.
 - Verified by: a throwaway PR, `npm run test:integration`.
 
 ### 4. Live merge and ruleset bypass
 
-- Does: enable push and merge; human adds the App as the sole bypass actor.
+- Does: enable push and merge; switch `check-version-bumps.mjs` to the label-based check; create the `bump:*` labels; strip the hand bumps from the open PRs and label them; human adds the App as the sole bypass actor.
 - Acceptance criteria: a test PR ends merged with one version commit; `release.yml` tags the version; a moved head aborts; a PR behind `main` is updated, versioned and merged with no conflict; two PRs merged back to back get distinct versions.
 - Verified by: throwaway PRs, then the first real PR watched.
 
 ## Requirements
 
-- Security: the workflow runs from `main` and never checks out or executes PR code; comment text reaches scripts only through environment variables and an exact match; actions pinned by SHA; the App key is a secret, with least-privilege permissions; the bypass is the App only. Humans only may trigger it; an agent never merges.
+- Security: the workflow runs from `main` and never checks out or executes PR code; comment text reaches scripts only through environment variables and an exact match; actions pinned by SHA; the App key is a secret, with least-privilege permissions; the bypass is the App only. Only a human-type account with write access can trigger it; an agent never posts `/merge` (the steering rule, not a check, enforces that).
 - Logging: every decision (allow or refuse, with the reason code) goes to the job summary and a PR comment; the merge audit line names commenter, versions, head SHA and checks.
 
 ## Decisions
 
 - Labels are `bump:patch|minor|major`; `major` bumps the minor below 1.0 and the major from 1.0 (human, 2026-11-25; replaces an earlier `bump:breaking` label).
 - Transition: open PRs with hand bumps (#218, #219, #221, #222) have them stripped and get a `bump:*` label, then go through `/merge`; no dual-mode check (human, 2026-11-25).
+
+- The AI-identity check is dropped: agents' GitHub API calls run as the human's account, so a login list could not catch them. The steering rule and the `pr-stewardship` note forbid agents from posting `/merge` (human, 2026-11-25).
+- The label-based version check, the `bump:*` labels and the hand-bump stripping move from milestone 3 to milestone 4, since they can only switch on when the bot is live (human, 2026-11-25).
 
 ## Open questions
 
