@@ -348,15 +348,16 @@ describe('isThrowawayTestName', () => {
 });
 
 describe('buildThrowawayWords', () => {
-  it('uses test, validate and verify when the list is unset or empty', () => {
+  it('uses test, validate, verify and spike when the list is unset or empty', () => {
     for (const list of [undefined, '', '   ']) {
       const re = buildThrowawayWords(list);
       assert.equal(re.test('Testing'), true);
       assert.equal(re.test('validation'), true);
       assert.equal(re.test('verify'), true);
-      assert.equal(re.test('spike'), false);
+      assert.equal(re.test('spike'), true);
+      assert.equal(re.test('spiked'), false);
     }
-    assert.equal(DEFAULT_THROWAWAY_WORDS.length, 3);
+    assert.equal(DEFAULT_THROWAWAY_WORDS.length, 4);
   });
   it('replaces the defaults with the listed words, whole segment only', () => {
     const re = buildThrowawayWords('spikes? scratch');
@@ -713,8 +714,25 @@ describe('run', () => {
       );
       return rows.find((r) => r.name === 'spike/slice-tauri').category;
     };
-    assert.equal(await cat({}), 'Mandatory');
-    assert.equal(await cat({ THROWAWAY_WORDS: 'test(s|ing|ed)? spikes?' }), 'Archive');
+    assert.equal(await cat({}), 'Archive');
+    assert.equal(await cat({ THROWAWAY_WORDS: '' }), 'Archive');
+    assert.equal(await cat({ THROWAWAY_WORDS: 'test(s|ing|ed)? scratch' }), 'Mandatory');
+  });
+
+  it('treats blank settings, as an unset Actions variable passes them, as the defaults', async () => {
+    const blank = {
+      AI_BRANCH_PREFIXES: ' ',
+      ACTIVE_DAYS: '',
+      ARCHIVE_DAYS: '',
+      ACTIVE_BRANCHES: '',
+      ARCHIVE_BRANCHES: '',
+      THROWAWAY_WORDS: '',
+      KEEP_EMPTY_BRANCHES: '',
+      KEEP_UNRELATED_BRANCHES: '',
+    };
+    const rows = async (extra) =>
+      (await run({ ...env, ...extra }, fakeApi(WORLD()), { now: NOW })).rows;
+    assert.deepEqual(await rows(blank), await rows({}));
   });
 
   it('requires REPO', async () => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Branch cleanup, run by .github/workflows/cleanup-branches.yml.
+ * Branch cleanup, run by the `cleanup-branches` action (.github/actions/cleanup-branches).
  *
  * Cloud sessions can't delete remote branches, so GitHub does it. Every branch
  * other than the default branch and the protected list is sorted into exactly
@@ -55,8 +55,8 @@
  *                            isThrowawayTestName).
  *   THROWAWAY_WORDS          space-separated regular expressions, each
  *                            matching one whole name segment that marks a
- *                            throwaway test branch (default: test, validate
- *                            and verify with their variations). Replaces the
+ *                            throwaway test branch (default: test, validate,
+ *                            verify and spike, with variations). Replaces the
  *                            defaults, so repeat them to keep them.
  *   KEEP_EMPTY_BRANCHES      "false": an empty branch ages out whatever its
  *                            name. Default "true" (kept unless AI or test).
@@ -114,6 +114,7 @@ export const DEFAULT_THROWAWAY_WORDS = [
   'test(s|ing|ed)?',
   'valid(ate[sd]?|ating|ation)?',
   'verif(y|ies|ied|ying|ication)',
+  'spikes?',
 ];
 
 /**
@@ -706,6 +707,11 @@ function readAiconfigFile() {
   }
 }
 
+/** A setting, or its default when unset or blank (an unset Actions variable is ''). */
+function setting(value, fallback) {
+  return value?.trim() ? value : fallback;
+}
+
 /**
  * @param {Record<string, string|undefined>} env
  * @param {ReturnType<typeof createApi>} api
@@ -724,13 +730,13 @@ export async function run(
     defaultBranch: data.default_branch,
     protectedBranches: (env.PROTECTED_BRANCHES ?? '').split(/\s+/).filter(Boolean),
     shortcode: env.PROJECT_SHORTCODE ?? shortcodeFrom(readAiconfig()),
-    aiPrefixes: (env.AI_BRANCH_PREFIXES ?? 'copilot/ kiro/ claude/ ccr- ai/')
+    aiPrefixes: setting(env.AI_BRANCH_PREFIXES, 'copilot/ kiro/ claude/ ccr- ai/')
       .split(/\s+/)
       .filter(Boolean),
-    activeDays: Number(env.ACTIVE_DAYS ?? 14),
-    archiveDays: Number(env.ARCHIVE_DAYS ?? 30),
-    activeBranches: Number(env.ACTIVE_BRANCHES ?? 5),
-    archiveBranches: Number(env.ARCHIVE_BRANCHES ?? 15),
+    activeDays: Number(setting(env.ACTIVE_DAYS, '14')),
+    archiveDays: Number(setting(env.ARCHIVE_DAYS, '30')),
+    activeBranches: Number(setting(env.ACTIVE_BRANCHES, '5')),
+    archiveBranches: Number(setting(env.ARCHIVE_BRANCHES, '15')),
     throwawayWords: buildThrowawayWords(env.THROWAWAY_WORDS),
     keepEmpty: env.KEEP_EMPTY_BRANCHES !== 'false',
     keepUnrelated: env.KEEP_UNRELATED_BRANCHES !== 'false',
