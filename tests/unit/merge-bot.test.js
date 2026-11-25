@@ -529,6 +529,97 @@ describe('run, live', () => {
     assert.deepEqual(sleeps, []);
   });
 
+  const stackedError = httpError(
+    403,
+    'Merging stacked PRs via this endpoint is not supported. Use the asynchronous merge endpoint instead.',
+  );
+  const ASYNC = 'PUT /repos/o/r/pulls/7/merge-async';
+  const POLL = 'GET /repos/o/r/pulls/7/merge-async/u-1';
+
+  it('merges a stacked PR through the asynchronous endpoint, pinned to the new head', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': stackedError,
+        [ASYNC]: { status: 'pending', details: { uuid: 'u-1' } },
+        [POLL]: (n) =>
+          n < 2 ? { status: 'pending' } : { status: 'merged', details: { sha: 'm1' } },
+      }),
+    );
+    const result = await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} });
+    assert.equal(result, 'merged');
+    const start = calls.find((call) => call.path.endsWith('/merge-async'));
+    assert.deepEqual(start.body, { sha: 'commit1', merge_method: 'merge' });
+    assert.equal(calls.filter((call) => call.path.endsWith('/merge')).length, 1);
+    assert.match(posted(calls).at(-1).body.body, /^\*\*Merge successful\*\*/);
+  });
+
+  it('treats an already-merged answer from the asynchronous endpoint as done', async () => {
+    const { api } = fakeApi(
+      liveResponses({ 'PUT /repos/o/r/pulls/7/merge': stackedError, [ASYNC]: { merged: true } }),
+    );
+    assert.equal(await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }), 'merged');
+  });
+
+  it('reports a failed asynchronous merge with its reason, and does not claim success', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': stackedError,
+        [ASYNC]: { status: 'pending', details: { uuid: 'u-1' } },
+        [POLL]: { status: 'failed', details: { message: 'a check failed lower in the stack' } },
+      }),
+    );
+    await assert.rejects(
+      run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }),
+      /failed: a check failed lower in the stack/,
+    );
+    assert.match(
+      posted(calls).at(-1).body.body,
+      /^\*\*Merge failed\*\*\nError: .*lower in the stack/,
+    );
+  });
+
+  it('gives up when the asynchronous merge never settles', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': stackedError,
+        [ASYNC]: { status: 'pending', details: { uuid: 'u-1' } },
+        [POLL]: { status: 'pending' },
+      }),
+    );
+    await assert.rejects(
+      run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }),
+      /did not finish in time/,
+    );
+    assert.equal(calls.filter((call) => call.path.endsWith('/u-1')).length, 30);
+  });
+
+  it('fails clearly when the asynchronous endpoint returns no request id or queues the merge', async () => {
+    for (const [first, poll, pattern] of [
+      [{ status: 'pending' }, null, /request id/],
+      [{ status: 'pending', details: { uuid: 'u-1' } }, { status: 'enqueued' }, /queued/],
+    ]) {
+      const { api } = fakeApi(
+        liveResponses({
+          'PUT /repos/o/r/pulls/7/merge': stackedError,
+          [ASYNC]: first,
+          [POLL]: poll,
+        }),
+      );
+      await assert.rejects(
+        run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }),
+        pattern,
+      );
+    }
+  });
+
+  it('uses the asynchronous endpoint only for the stacked 403, not for another 403', async () => {
+    const { api, calls } = fakeApi(
+      liveResponses({ 'PUT /repos/o/r/pulls/7/merge': httpError(403, 'Resource not accessible') }),
+    );
+    await assert.rejects(run({ env: liveEnv(), api, log: quiet, sleep: async () => {} }), /403/);
+    assert.ok(!calls.some((call) => call.path.endsWith('/merge-async')));
+  });
+
   it('merges when a 405 clears on a retry', async () => {
     const { api, calls } = fakeApi(
       liveResponses({
