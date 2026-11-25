@@ -266,7 +266,8 @@ async function waitForMergeable(api, repo, number, sleep, log) {
  * Merge a PR that sits in a stack through GitHub's asynchronous merge endpoint, pinned to `head`, and
  * poll until it settles. GitHub merges every PR below it in the stack first. The endpoint is not in the
  * usual client libraries; its request and result shapes come from user reports, so an unexpected
- * result is an error rather than a guess.
+ * result is an error rather than a guess. `bypass_rules` is what lets the bot, a ruleset bypass actor,
+ * merge a head whose last commits carry no checks.
  * @param {(method: string, path: string, body?: unknown) => Promise<any>} api
  * @param {string} repo
  * @param {number} number
@@ -278,7 +279,14 @@ async function waitForMergeable(api, repo, number, sleep, log) {
  */
 async function mergeStacked(api, repo, number, head, sleep, log) {
   const base = `/repos/${repo}/pulls/${number}/merge-async`;
-  const started = await api('PUT', base, { sha: head, merge_method: 'merge' });
+  // The ordinary merge lets the ruleset's bypass actor through on its own; this endpoint needs it asked
+  // for, or the bot's checkless head is refused. Only an actor allowed to bypass gets it.
+  const started = await api('PUT', base, {
+    sha: head,
+    merge_method: 'merge',
+    merge_action: 'direct_merge',
+    bypass_rules: true,
+  });
   if (started?.merged === true || started?.status === 'merged') return;
   const id = started?.details?.uuid;
   if (typeof id !== 'string' || id === '') {
