@@ -25,9 +25,11 @@ import { pathToFileURL } from 'node:url';
 
 import {
   decideAuthorization,
+  classifyComment,
   decideMerge,
   describeRefusal,
-  parseCommand,
+  isBotCommenter,
+  UNSUPPORTED_REPLY,
   renderDryRun,
   requiredChecksFromRules,
   toGateInput,
@@ -122,7 +124,7 @@ async function fetchPull(api, repo, number, sleep) {
  * @param {{ env: Record<string, string|undefined>,
  *   api: (method: string, path: string, body?: unknown) => Promise<any>,
  *   log?: (line: string) => void, sleep?: (ms: number) => Promise<void> }} io - Injectable I/O
- * @returns {Promise<'ignored'|'refused'|'would-merge'>} What happened, for the caller and tests
+ * @returns {Promise<'ignored'|'unsupported'|'refused'|'would-merge'>} What happened, for the caller and tests
  * @throws {Error} When DRY_RUN is not `true` (live mode is not built), or on an API failure
  */
 export async function run({
@@ -142,12 +144,17 @@ export async function run({
   const comment = (/** @type {string} */ text) =>
     api('POST', `/repos/${repo}/issues/${number}/comments`, { body: text });
 
-  if (!parseCommand(env.COMMENT_BODY)) {
-    log(`ignored: comment on #${number} is not exactly /merge`);
+  const login = env.COMMENTER_LOGIN ?? '';
+  if (isBotCommenter(login, env.COMMENTER_TYPE ?? '')) {
+    log(`ignored: comment on #${number} is from a bot`);
+    return 'ignored';
+  }
+  const kind = classifyComment(env.COMMENT_BODY);
+  if (kind === 'none') {
+    log(`ignored: comment on #${number} is not a /merge command`);
     return 'ignored';
   }
 
-  const login = env.COMMENTER_LOGIN ?? '';
   const access = await api(
     'GET',
     `/repos/${repo}/collaborators/${encodeURIComponent(login)}/permission`,
@@ -156,10 +163,20 @@ export async function run({
     commenterType: env.COMMENTER_TYPE ?? '',
     permission: access?.permission ?? 'none',
   });
+  if ('reason' in auth && kind === 'unsupported') {
+    log(`ignored: @${login} may not merge #${number} and sent an unsupported command`);
+    return 'ignored';
+  }
   if ('reason' in auth) {
     log(`refused: @${login} may not merge #${number} (${auth.reason})`);
     await comment(`/merge refused:\n${describeRefusal([auth.reason])}`);
     return 'refused';
+  }
+
+  if (kind === 'unsupported') {
+    log(`unsupported: @${login} sent an unsupported command on #${number}`);
+    await comment(UNSUPPORTED_REPLY);
+    return 'unsupported';
   }
 
   const pull = await fetchPull(api, repo, number, sleep);
