@@ -22,12 +22,13 @@ Every project that uses ai-foundation wants the same integrations: the index and
 - **Default scope becomes `project`** for `install`, `uninstall`, `status` and `--update`/`--check`. Global stays available with an explicit `--scope global`.
 - **Manifest:** integrations are recorded in their own `integrations` section, so `status` and `uninstall` tell them apart from bundles.
 - **Reusable workflow inputs:** the caller passes the Bitwarden secret ID as an explicit input and the access token as an explicit secret, so the design does not depend on whether a called workflow sees the caller's variables.
+- **Version:** the default-scope change is a minor bump (0.x) with a release note. 1.0.0 waits until a project is fully set up on AIF.
 - **Update token:** a Bitwarden-held token as today. A GitHub App is a separate decision; the single named secret means switching later changes no caller.
 
 ## Approach
 
 - **Shared logic lives in AIF.** `.github/workflows/update-bundles.yml` (`workflow_call`) holds what Folio's `aif-update.yml` does today: the bundles action in `update` mode, the Bitwarden token fetch, replacing the single update PR. `.github/actions/checks` runs the `index` and `bundles` (`check`) actions in one step. Both ship in the existing release flow ([05.07](../architecture/05_07_ci_actions_and_release.md)), so consumers get changes through Dependabot.
-- **Default scope.** `DEFAULT_SCOPE` in `lib/scope.js` becomes `project`. Project scope needs a project root, so a project-scope command run where there is none (no `.aiconfig.json` and no git root) fails with a message naming `--scope global`. Every place that relies on the old default (the cloud setup steps, `session-start.sh` in the template, READMEs, tests) is updated in the same milestone. This is a breaking change and ships with a version bump and a release note.
+- **Default scope.** `DEFAULT_SCOPE` in `lib/scope.js` becomes `project`. Project scope needs a project root, so a project-scope command run where there is none (no `.aiconfig.json` and no git root) fails with a message naming `--scope global`. Every place that relies on the old default (the cloud setup steps, `session-start.sh` in the template, READMEs, tests) is updated in the same milestone. This is a breaking change and ships as a minor version bump with a release note.
 - **Integrations.** Each integration is a small set of project files owned wholesale by AIF: a standalone checks workflow, the update caller, `.githooks/`, `scripts/session-start.sh`. They are recorded with hashes so `aif install --update` and `--check` keep them current; the `bundles` action's `changed` output widens to their paths. Pinned `uses:` lines are left to Dependabot. Files shared with the project (`dependabot.yml`, `ci.yml`, `.claude/settings.json`) are never rewritten: the command prints the snippet to add. A user-edited file is not overwritten without `--force`.
 - **Verified.** A pure function takes the file tree and reports what is missing or out of date; `--check` wraps it and adds: `uses:` lines not pinned to a SHA with a version comment, a missing Dependabot `aif` group, and missing workflow inputs.
 
@@ -65,4 +66,3 @@ Every project that uses ai-foundation wants the same integrations: the index and
 ## Open questions
 
 - Names of the default integrations (`checks`, `update`, `hooks`, `session-start`, `all`): the human decides at the start of milestone 3.
-- Whether the default-scope change warrants a major version (0.x to 1.0) or a minor bump with a release note: the human decides at the start of milestone 2.
