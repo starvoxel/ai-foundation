@@ -1,12 +1,12 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, mkdirSync } from 'node:fs';
 
 import { runInstall } from '../../lib/commands/install.js';
-import { TARGETS } from '../../lib/harnesses/kiro.js';
+import { TARGETS, installServers } from '../../lib/harnesses/kiro.js';
 import { createTempRepo, destroyTempRepo } from '../helpers/fixture.js';
 
 describe('integration: install (kiro-specific)', () => {
@@ -104,5 +104,20 @@ describe('integration: install (kiro-specific)', () => {
 
     const skillFile = join(TARGETS.skills, 'test-skill', 'SKILL.md');
     assert.ok(existsSync(skillFile));
+  });
+
+  it('registers an HTTP server without recording a hash of the shared mcp.json', () => {
+    // The whole-file hash read as stale once a project added its own server entry.
+    const dir = join(repo, 'servers', 'remote');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(
+      join(dir, 'remote.yaml'),
+      'name: remote\nversion: 0.1.0\nprotocol: mcp\ntransport: http\nurl: https://example.test/mcp\ndescription: r\ntools: []\n',
+      'utf8',
+    );
+    const results = quiet(() => installServers(['remote'], repo));
+    assert.deepEqual(results, { installed: [{ name: 'remote', files: [] }], failed: [] });
+    const settings = JSON.parse(readFileSync(TARGETS.mcpSettings, 'utf8'));
+    assert.equal(settings.mcpServers.remote.url, 'https://example.test/mcp');
   });
 });
