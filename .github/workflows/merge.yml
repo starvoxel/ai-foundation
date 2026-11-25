@@ -72,6 +72,7 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app.outputs.token || github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
+          VERSION_PATHS: agents,skills,steering,standards,servers,bundles,projects,bin,lib
           PR_NUMBER: ${{ github.event.issue.number }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENTER_LOGIN: ${{ github.event.comment.user.login }}

@@ -56,30 +56,33 @@ export function isOlder(oldV, newV) {
 /**
  * Whether a changed path is shipped content. Pure.
  * @param {string} path - Repo-relative path using `/`
+ * @param {string[]} dirs - Directories whose content ships
  * @returns {boolean}
  */
-function isShipped(path) {
+function isShipped(path, dirs) {
   const base = path.slice(path.lastIndexOf('/') + 1);
   if (DEPENDENCY_FILES.has(base)) return false;
-  return SHIPPED_DIRS.some((dir) => path.startsWith(`${dir}/`));
+  return dirs.some((dir) => path.startsWith(`${dir}/`));
 }
 
 /**
  * Paths among `changedPaths` that are shipped content. Pure.
  * @param {string[]} changedPaths - Repo-relative paths from `git diff --name-status`
+ * @param {string[]} [dirs] - Directories whose content ships; ai-foundation's by default
  * @returns {string[]}
  */
-export function shippedChanges(changedPaths) {
-  return changedPaths.filter(isShipped);
+export function shippedChanges(changedPaths, dirs = SHIPPED_DIRS) {
+  return changedPaths.filter((path) => isShipped(path, dirs));
 }
 
 /**
  * Whether the changed paths require a `package.json` version bump. Pure.
  * @param {string[]} changedPaths
+ * @param {string[]} [dirs] - Directories whose content ships; ai-foundation's by default, empty for none
  * @returns {boolean}
  */
-export function needsPackageBump(changedPaths) {
-  return shippedChanges(changedPaths).length > 0;
+export function needsPackageBump(changedPaths, dirs = SHIPPED_DIRS) {
+  return shippedChanges(changedPaths, dirs).length > 0;
 }
 
 /**

@@ -31,6 +31,7 @@ const {
   isBotCommenter,
   isVersionOnlyPaths,
   isWaitingOnly,
+  parseVersionPaths,
   parseQueueMarker,
   queueExpired,
   renderQueued,
@@ -333,6 +334,7 @@ describe('decideMerge', () => {
       action: 'merge',
       bump: { level: 'patch', from: '0.5.4', to: '0.5.5' },
       updateBranch: false,
+      versioned: true,
     });
   });
 
@@ -348,7 +350,12 @@ describe('decideMerge', () => {
       mainVersion: '0.5.2',
       behind: false,
     });
-    assert.deepEqual(decision, { action: 'merge', bump: null, updateBranch: false });
+    assert.deepEqual(decision, {
+      action: 'merge',
+      bump: null,
+      updateBranch: false,
+      versioned: true,
+    });
   });
 
   it('refuses with the gate reasons', () => {
@@ -783,5 +790,86 @@ describe('classifyBotCommit', () => {
     ]) {
       assert.equal(classifyBotCommit(commit, branch, 'main'), null);
     }
+  });
+});
+
+describe('parseVersionPaths', () => {
+  it('splits, trims, strips slashes and drops empties and repeats', () => {
+    assert.deepEqual(parseVersionPaths(' lib/ , ./src,, lib,apps/web '), [
+      'lib',
+      'src',
+      'apps/web',
+    ]);
+    assert.deepEqual(parseVersionPaths(''), []);
+    assert.deepEqual(parseVersionPaths(' , '), []);
+  });
+
+  it('rejects absolute, parent, and glob entries', () => {
+    for (const bad of ['/lib', 'lib/../x', '..', 'lib/*', 'a?b', 'a{b,c}', 'a\\b']) {
+      assert.throws(() => parseVersionPaths(bad), /plain relative directory/, bad);
+    }
+  });
+});
+
+describe('evaluateGate without versioned releases', () => {
+  const base = {
+    pr: {
+      state: 'open',
+      draft: false,
+      headRepo: 'o/r',
+      baseRepo: 'o/r',
+      baseRef: 'main',
+      authorLogin: 'jo',
+      mergeable: true,
+      labels: [],
+    },
+    defaultBranch: 'main',
+    changedPaths: ['lib/x.js'],
+    requiredChecks: ['Validate'],
+    checks: [{ name: 'Validate', status: 'completed', conclusion: 'success' }],
+    versions: { mergeBase: '1.0.0', head: '2.0.0' },
+  };
+
+  it('needs no label, ignores a changed version, and assigns none', () => {
+    assert.deepEqual(evaluateGate({ ...base, versionPaths: [] }), {
+      ok: true,
+      reasons: [],
+      level: null,
+    });
+  });
+
+  it('keeps every other gate rule', () => {
+    const gate = evaluateGate({ ...base, versionPaths: [], pr: { ...base.pr, draft: true } });
+    assert.deepEqual(gate.reasons, ['draft']);
+  });
+
+  it("defaults to ai-foundation's directories when none are given", () => {
+    const gate = evaluateGate(base);
+    assert.deepEqual(gate.reasons, ['version-hand-edited', 'label-missing']);
+  });
+});
+
+describe('a project without versioned releases', () => {
+  it('reports it in the decision and drops the version line from the comments', () => {
+    const decision = decideMerge({
+      ...gateInput(),
+      versionPaths: [],
+      mainVersion: '',
+      behind: true,
+    });
+    assert.equal(decision.versioned, false);
+    assert.equal(decision.bump, null);
+    assert.equal(
+      renderDryRun(decision),
+      '**Dry run: would merge**\n`main` would be merged to branch',
+    );
+    assert.equal(
+      renderSuccess({ bump: null, updatedBranch: true, versioned: false }),
+      '**Merge successful**\n`main` merged to branch',
+    );
+    assert.equal(
+      renderSuccess({ bump: null, updatedBranch: false, versioned: false }),
+      '**Merge successful**',
+    );
   });
 });

@@ -90,6 +90,14 @@ describe('.github/workflows/merge.yml', () => {
     assert.ok(!('owner' in app.with) && !('repositories' in app.with), 'token must be repo-scoped');
   });
 
+  it("passes ai-foundation's version directories explicitly, since an empty list disables versioning", () => {
+    const decide = job.steps.find((step) => step.run?.includes('merge.mjs'));
+    assert.equal(
+      decide.env.VERSION_PATHS,
+      'agents,skills,steering,standards,servers,bundles,projects,bin,lib',
+    );
+  });
+
   it('uses the App token when there is one and the job token otherwise', () => {
     const decide = job.steps.find((step) => step.run?.includes('merge.mjs'));
     assert.equal(decide.env.GITHUB_TOKEN, '${{ steps.app.outputs.token || github.token }}');
