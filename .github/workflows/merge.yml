@@ -9,6 +9,10 @@ name: Merge
 # requests and checks permissions, and the App as the only bypass actor of the main ruleset: the bot
 # merges after verifying every required check on the head itself, and its own commits skip CI.
 #
+# A `/merge` while required checks are still running adds the `merge-queued` label and waits; each
+# finished CI run settles the waiting PRs, and a wait is dropped after 4 hours, when the branch
+# changes, or when the label is removed.
+#
 # Security notes:
 #  - `issue_comment` runs the workflow file and scripts from the default branch, never from the
 #    PR, and the script reads only API data: PR code is never checked out or run.
@@ -22,6 +26,11 @@ name: Merge
 on:
   issue_comment:
     types: [created]
+  # Wakes the PRs waiting for checks (the `merge-queued` label). The run reads only API data, never
+  # this event's payload: it lists the labelled PRs itself.
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
 
 permissions: {}
 
@@ -33,7 +42,9 @@ concurrency:
 jobs:
   merge:
     name: Merge
-    if: github.event.issue.pull_request && contains(github.event.comment.body, '/merge')
+    if: >-
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request && contains(github.event.comment.body, '/merge'))
+      || (github.event_name == 'workflow_run' && github.event.workflow_run.event == 'pull_request')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -60,6 +71,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app.outputs.token || github.token }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          EVENT_NAME: ${{ github.event_name }}
           PR_NUMBER: ${{ github.event.issue.number }}
           COMMENT_BODY: ${{ github.event.comment.body }}
           COMMENTER_LOGIN: ${{ github.event.comment.user.login }}

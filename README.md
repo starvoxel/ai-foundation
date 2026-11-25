@@ -160,7 +160,7 @@ See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 
 ## Merging with `/merge`
 
-A human with write access comments exactly `/merge` on a PR. The bot checks it (open, not a draft, same repository, targets `main`, mergeable, one `bump:patch|minor|major` label when shipped content changes, no hand-edited version, every required check green on the head), then merges `main` into the branch if it is behind, commits the version (`major` bumps the minor below 1.0), and merges. `release.yml` tags the merge as before. Anything else after `/merge` gets a "not supported" reply, and bots are ignored. An agent never posts `/merge`: the bot cannot tell an agent from the human whose account it acts as, so only `steering/engineering/git-workflow.md` guards that.
+A human with write access comments exactly `/merge` on a PR. The bot checks it (open, not a draft, same repository, targets `main`, mergeable, one `bump:patch|minor|major` label when shipped content changes, no hand-edited version, every required check green on the head), then merges `main` into the branch if it is behind, commits the version (`major` bumps the minor below 1.0), and merges. `release.yml` tags the merge as before. If a required check is still running, the bot comments that it is waiting, adds the `merge-queued` label, and merges once CI finishes green. It gives up after 4 hours, if the branch changes, or if you remove the label. Anything else after `/merge` gets a "not supported" reply, and bots are ignored. An agent never posts `/merge`: the bot cannot tell an agent from the human whose account it acts as, so only `steering/engineering/git-workflow.md` guards that.
 
 It starts as a dry run that only comments what it would do. To turn it on:
 
