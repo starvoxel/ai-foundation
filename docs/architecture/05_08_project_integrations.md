@@ -60,18 +60,20 @@ Folio set up the same integrations by hand: the index and drift checks in CI, a 
 | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | absent                                          | written                                                                                                      |
 | equals the template                             | left alone; recorded if it was not (`adopt`)                                                                 |
-| equals the recorded hash, template has moved on | rewritten with a fresh pin (`template updated`)                                                              |
+| equals the recorded hash, template has moved on | rewritten, keeping the pins already in the file (`template updated`)                                         |
 | anything else                                   | left alone and reported (`modified locally`, or `exists and was not installed by aif`); `--force` overwrites |
 
 A second run therefore changes nothing, and a Dependabot bump to a pin is not an edit.
 
-**`--update` and `--check`.** A bare `aif install --update` refreshes only the files with no pins (hooks, session script) when they are unedited. Workflow files are never rewritten by it, because their pins are Dependabot's and pushing changes under `.github/workflows/` needs a token permission the daily update does not hold; it reports "newer template" and names `aif install -I <name>`. `--check` reports missing, modified-locally and update-available files as a warning, never a failure, and lists shipped integrations the project has not installed.
+**Safety.** A target whose path crosses a symlink is refused (`✗ ... is a symlink; refused`, exit 1), even with `--force`, so a hostile repository cannot point `.githooks` or `.github` somewhere else and have a write follow it. Files are written with LF and compared with CRLF normalised, so a Windows checkout and a Linux one record the same hash. A rewrite keeps the pins already in the file, because Dependabot may have moved them past the release this checkout knows. A file that matches the template but lost its executable bit gets it back; a file the project owns is never given one. The pin comes only from the ai-foundation checkout's own git repository: a copy without a `.git` of its own would read the tags of whatever repository contains it, so it is refused with the `--pin` instruction. An unreadable `.aif/.installs.yaml` stops `-I` and `--update` with a message (`--check` warns); entries it cannot use are ignored, and entries for names this aif does not know are kept, since they may come from a newer aif.
+
+**`--update` and `--check`.** A bare `aif install --update` refreshes only the files with no pins (hooks, session script) when they are unedited. Workflow files are never rewritten by it, because their pins are Dependabot's and pushing changes under `.github/workflows/` needs a token permission the daily update does not hold; it reports "newer template" and names `aif install -I <name>`. A file recorded as installed but deleted is reported, never brought back; `aif install -I <name>` restores it. The recorded version moves only when every file of the integration is on the new template. `--check` reports missing, modified-locally, symlinked and update-available files as a warning, never a failure, and lists shipped integrations the project has not installed.
 
 **Files the project owns.** `dependabot.yml`, `ci.yml` and `.claude/settings.json` are never edited. The installer prints the snippet to add instead.
 
-**Scope.** Project scope only. `-I` with `--scope global` is an error; `-I` with `--update` or `--check` is an error. `aif init` installs all four; without a release tag in the checkout it installs the two that need no pin and says how to add the workflows.
+**Scope.** Project scope only. With `-B` in the same command the integrations are written first; if the bundle half then fails the exit code is non-zero and the integration files stay. `-I` with `--scope global` is an error; `-I` with `--update` or `--check` is an error. `aif init` installs all four; without a release tag in the checkout it installs the two that need no pin and says how to add the workflows.
 
-**The pin.** The latest `vX.Y.Z` tag in the ai-foundation checkout and the commit it points to, or `--pin <sha> --pin-version <vX.Y.Z>`. With neither (no tags, not a git checkout) installing a workflow fails with that instruction and writes nothing.
+**The pin.** The latest `vX.Y.Z` tag in the ai-foundation checkout and the commit it points to, or `--pin <sha> --pin-version <vX.Y.Z>` (`aif init` accepts the same flags). With neither (no tags, not a git checkout) installing a workflow fails with that instruction and writes nothing.
 
 ## Consumers
 

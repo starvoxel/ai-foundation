@@ -100,7 +100,7 @@ Installs are copies (transformed per-harness), tracked by a manifest for clean u
 
 Every project that uses ai-foundation wants the same files: git hooks that rebuild the architecture index and warn on undocumented `key_files` changes, a session-start script, and two CI workflows. `aif install -I <name>` writes them (`checks`, `update`, `hooks`, `session-start`, or `all`); `aif init` installs all four. They are recorded in `.aif/.installs.yaml`.
 
-- A second run changes nothing. A file you edited is never overwritten without `--force`.
+- A second run changes nothing. A file you edited is never overwritten without `--force`, and a target that crosses a symlink is always refused.
 - The workflows are thin callers of AIF's actions, pinned to the latest release tag in your ai-foundation checkout (`--pin <sha> --pin-version <vX.Y.Z>` overrides). Dependabot bumps the pins; a bumped pin is not an edit. A bare `aif install --update` refreshes only the hooks and the session script; re-run `-I <name>` to refresh a workflow.
 - `dependabot.yml`, `ci.yml` and `.claude/settings.json` are yours: the command prints what to add.
 
