@@ -100,14 +100,15 @@ export const STALE_LABEL = 'stale';
  * @typedef {{category: 'Mandatory'|'Archive'|'Active'|'Stale', reason: string}} Verdict
  */
 
-/** A whole name segment that is a test, validate or verify word or a variation. */
-const TEST_WORD = /^(test(s|ing|ed)?|valid(ate[sd]?|ating|ation)?|verif(y|ies|ied|ying|ication))$/i;
+/** A whole name segment that is a test, validate, verify or spike word or a variation. */
+const TEST_WORD =
+  /^(test(s|ing|ed)?|valid(ate[sd]?|ating|ation)?|verif(y|ies|ied|ying|ication)|spikes?)$/i;
 
 /**
  * A throwaway test branch has a whole segment (split on anything that is not a
- * letter or digit) that is a test, validate or verify word or a variation
- * (`test/x`, `spike/verify-import`, `validation`), so `latest` and `contest`
- * do not count. With a project short code, any test, valid or verif text in a
+ * letter or digit) that is a test, validate, verify or spike word or a
+ * variation (`test/x`, `spike/slice-tauri`, `validation`), so `latest` and
+ * `contest` do not count. With a project short code, any test, valid or verif text in a
  * name that also carries the code counts too (`AIF-010-verification`,
  * `aif_retest`). Long-lived branches such as `agent-testing` must be listed in
  * PROTECTED_BRANCHES, which is checked first.

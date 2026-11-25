@@ -220,6 +220,12 @@ describe('classify', () => {
       /30d/,
     ],
     [
+      'an unrelated spike branch ages out',
+      { name: 'spike/slice-tauri', ahead: null, lastCommit: daysAgo(30) },
+      'Archive',
+      /30d/,
+    ],
+    [
       'keepUnrelated false: an unrelated branch ages out like any other',
       { name: 'scratch', ahead: null, lastCommit: daysAgo(30), cfg: { keepUnrelated: false } },
       'Archive',
@@ -300,6 +306,8 @@ describe('isThrowawayTestName', () => {
       'test',
       'test/ping',
       'spike/verify-import',
+      'spike/slice-tauri',
+      'spikes',
       'e-test/1',
       'agent-testing',
       'x_validation_y',
@@ -314,6 +322,8 @@ describe('isThrowawayTestName', () => {
   });
   it('does not match a test word inside another word', () => {
     for (const n of [
+      'spiked',
+      'spikey/x',
       'latest',
       'contest/x',
       'attestation',

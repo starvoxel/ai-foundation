@@ -47,7 +47,7 @@ env:
   PROTECTED_BRANCHES: "cloud-sandbox agent-testing docs"
   # Branches AI sessions create, which are often never used. An empty one
   # (no commits of its own) of these, or a throwaway test branch (a name with a
-  # whole test, validate or verify word, or the project short code and one),
+  # whole test, validate, verify or spike word, or the project short code and one),
   # ages out from its creation date.
   AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ccr- ai/"
   # "true": any other empty branch, and any branch with unrelated history that is
