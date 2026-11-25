@@ -304,7 +304,7 @@ describe('integration: install -I', () => {
       assert.equal(read('.github/workflows/aif-checks.yml'), before);
     });
 
-    it('refreshes a workflow through `-I`, keeping the pin already in the file', () => {
+    it('refreshes a workflow through `-I`, advancing a pin that is older than the release in hand', () => {
       run({ integration: 'checks' });
       writeFileSync(
         join(aif, 'lib/integrations/assets/aif-checks.yml'),
@@ -317,8 +317,7 @@ describe('integration: install -I', () => {
       assert.match(output, /\(template updated\)/);
       const text = read('.github/workflows/aif-checks.yml');
       assert.match(text, /name: AIF checks v2/);
-      assert.match(text, new RegExp(`@${PIN.pin} # v0.6.0`), 'the pin in the file is kept');
-      assert.doesNotMatch(text, new RegExp(NEWER_PIN.pin));
+      assert.match(text, new RegExp(`@${NEWER_PIN.pin} # v0.7.0`), 'an older pin is advanced');
     });
 
     it('does nothing in a project with no integrations', () => {
@@ -409,6 +408,52 @@ describe('integration: install -I', () => {
         assert.equal(run({ integration: 'hooks' }).code, 0);
       });
     });
+  });
+
+  describe('the manifest itself must not be written through a symlink', () => {
+    const withOutside = (body) => {
+      const outside = mkdtempSync(join(tmpdir(), 'aif-outside-'));
+      try {
+        body(outside);
+      } finally {
+        rmSync(outside, { recursive: true, force: true });
+      }
+    };
+
+    it('refuses a symlinked .aif directory, writing nothing outside', { skip: noSymlinks }, () => {
+      withOutside((outside) => {
+        symlinkSync(outside, join(project, '.aif'), 'dir');
+        for (const args of [{ integration: 'hooks' }, { update: true }]) {
+          const { code, output } = run(args);
+          assert.equal(code, 1);
+          assert.match(output, /\.aif is a symlink; refused/);
+        }
+        assert.deepEqual(readdirSync(outside), []);
+        assert.match(run({ check: true }).output, /\.aif is a symlink/);
+      });
+    });
+
+    it(
+      'refuses a symlinked manifest file, leaving its target untouched',
+      { skip: noSymlinks },
+      () => {
+        withOutside((outside) => {
+          const victim = join(outside, 'bashrc');
+          writeFileSync(victim, 'precious\n');
+          mkdirSync(join(project, '.aif'));
+          symlinkSync(victim, join(project, '.aif', '.installs.yaml'));
+          const { code, output } = run({ integration: 'hooks' });
+          assert.equal(code, 1);
+          assert.match(output, /\.aif\/\.installs\.yaml is a symlink; refused/);
+          assert.equal(readFileSync(victim, 'utf8'), 'precious\n');
+          assert.equal(
+            existsSync(join(project, '.githooks')),
+            false,
+            'nothing was installed either',
+          );
+        });
+      },
+    );
   });
 
   describe('line endings', () => {
@@ -526,6 +571,30 @@ describe('integration: install -I', () => {
       assert.match(output, /refresh-index \(already current; executable bit restored\)/);
       assert.ok(statSync(hook).mode & 0o100);
     });
+
+    it(
+      'adds execute only where the file is readable, never widening access',
+      { skip: noExecBit },
+      () => {
+        run({ integration: 'hooks' });
+        const hook = join(project, '.githooks', 'refresh-index');
+        chmodSync(hook, 0o600);
+        run({ integration: 'hooks' });
+        assert.equal(statSync(hook).mode & 0o777, 0o700);
+      },
+    );
+
+    it(
+      'does not re-enable a hook someone disabled, when run as --update',
+      { skip: noExecBit },
+      () => {
+        run({ integration: 'hooks' });
+        const hook = join(project, '.githooks', 'refresh-index');
+        chmodSync(hook, 0o644);
+        run({ update: true });
+        assert.equal(statSync(hook).mode & 0o111, 0);
+      },
+    );
 
     it('never changes the mode of a file it did not install', { skip: noExecBit }, () => {
       mkdirSync(join(project, 'scripts'));

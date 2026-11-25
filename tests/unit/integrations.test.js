@@ -291,4 +291,15 @@ describe('carryPins', () => {
   it('writes LF even when the template had CRLF', () => {
     assert.ok(!carryPins('a\r\nb\r\n', 'x\n').includes('\r'));
   });
+
+  it('advances a pin that is older than the one rendered for this release', () => {
+    const desired = aif(b, 'v0.7.0');
+    assert.equal(carryPins(desired, aif(a, 'v0.6.0')), aif(b, 'v0.7.0'));
+  });
+
+  it('keeps a pin equal to or newer than the rendered one, never moving it backwards', () => {
+    assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v0.7.0')), aif(a, 'v0.7.0'));
+    assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v0.10.0')), aif(a, 'v0.10.0'));
+    assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v1.0.0')), aif(a, 'v1.0.0'));
+  });
 });
