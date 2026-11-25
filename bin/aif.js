@@ -132,6 +132,9 @@ Options:
   --check               Verify without writing (index command); with install --scope project,
                         report drift in the committed install
   --skip-project        install --scope global: skip bundles this project installs at project scope
+  --force               install -I: overwrite an integration file you have edited
+  --pin <sha>           install -I, init: commit to pin workflows to (with --pin-version <vX.Y.Z>);
+                        default: the latest release tag in this ai-foundation checkout
   -h, --help            Show this help message
 
 Init Options:
@@ -148,6 +151,8 @@ Examples:
   aif install --bundle engineering,product --harness kiro
   aif install --update
   aif install --check
+  aif install -I all
+  aif install -I checks,hooks
   aif install --scope global -B engineering -H kiro
   aif uninstall --bundle engineering --harness kiro
   aif status
