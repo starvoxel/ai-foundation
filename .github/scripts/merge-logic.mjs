@@ -15,7 +15,7 @@
 
 import { isDeepStrictEqual } from 'node:util';
 
-import { needsPackageBump, readVersion } from './version-bump-logic.mjs';
+import { SHIPPED_DIRS, needsPackageBump, readVersion } from './version-bump-logic.mjs';
 
 /** Bump levels a `bump:*` label can name, in increasing size. */
 export const LEVELS = ['patch', 'minor', 'major'];
@@ -214,6 +214,8 @@ function checkReasons(requiredChecks, checks) {
  * @property {Array<{ name: string, status: string, conclusion: string|null }>} checks - Check runs on the head commit
  * @property {{ mergeBase?: string, head?: string }} versions - `package.json` version at the merge base and at the PR head
  * @property {string[]} [dependabotLogins] - Author logins treated as Dependabot
+ * @property {string[]} [versionPaths] - Directories whose changes need a `bump:*` label and a version
+ *   commit; ai-foundation's by default, empty when the project has no versioned releases
  */
 
 /**
@@ -224,6 +226,7 @@ function checkReasons(requiredChecks, checks) {
 export function evaluateGate(input) {
   const { pr, defaultBranch, changedPaths, requiredChecks, checks, versions } = input;
   const dependabotLogins = input.dependabotLogins ?? ['dependabot[bot]'];
+  const versionPaths = input.versionPaths ?? SHIPPED_DIRS;
   const reasons = [];
 
   if (pr.state !== 'open') reasons.push('not-open');
@@ -232,19 +235,22 @@ export function evaluateGate(input) {
   if (pr.baseRef !== defaultBranch) reasons.push('base-not-main');
   if (dependabotLogins.includes(pr.authorLogin)) reasons.push('dependabot');
   if (pr.mergeable !== true) reasons.push('not-mergeable');
-  if (versions.head !== versions.mergeBase) reasons.push('version-hand-edited');
+  const versioned = versionPaths.length > 0;
+  if (versioned && versions.head !== versions.mergeBase) reasons.push('version-hand-edited');
 
   let level = null;
-  const labelled = bumpLevelFromLabels(pr.labels);
-  if ('level' in labelled) {
-    level = labelled.level;
-  } else if (labelled.error !== 'label-missing' || needsPackageBump(changedPaths)) {
-    reasons.push(labelled.error);
+  if (versioned) {
+    const labelled = bumpLevelFromLabels(pr.labels);
+    if ('level' in labelled) {
+      level = labelled.level;
+    } else if (labelled.error !== 'label-missing' || needsPackageBump(changedPaths, versionPaths)) {
+      reasons.push(labelled.error);
+    }
   }
 
   if (requiredChecks.length === 0) reasons.push('checks-unknown');
   reasons.push(...checkReasons(requiredChecks, checks));
-  const bumps = needsPackageBump(changedPaths);
+  const bumps = versioned && needsPackageBump(changedPaths, versionPaths);
   return { ok: reasons.length === 0, reasons, level: bumps ? level : null };
 }
 
@@ -254,7 +260,8 @@ export function evaluateGate(input) {
  * @param {GateInput & { mainVersion: string, behind: boolean }} input - `mainVersion` is `main`'s current
  *   version; `behind` is whether the PR head lacks `main`'s tip
  * @returns {{ action: 'refuse', reasons: string[] } |
- *   { action: 'merge', bump: { level: string, from: string, to: string } | null, updateBranch: boolean }}
+ *   { action: 'merge', bump: { level: string, from: string, to: string } | null, updateBranch: boolean,
+ *     versioned: boolean }}
  * @throws {Error} When `mainVersion` is not plain `x.y.z` and a bump is needed
  */
 export function decideMerge(input) {
@@ -268,7 +275,12 @@ export function decideMerge(input) {
           from: input.mainVersion,
           to: nextVersion(input.mainVersion, gate.level),
         };
-  return { action: 'merge', bump, updateBranch: input.behind };
+  return {
+    action: 'merge',
+    bump,
+    updateBranch: input.behind,
+    versioned: (input.versionPaths ?? SHIPPED_DIRS).length > 0,
+  };
 }
 
 /**
@@ -425,15 +437,16 @@ function tag(version) {
 /**
  * The lines that say what a merge changed or would change: the version, and whether `main` was merged
  * into the branch. Pure.
- * @param {{ bump: { from: string, to: string } | null, updatedBranch: boolean }} what
+ * @param {{ bump: { from: string, to: string } | null, updatedBranch: boolean, versioned?: boolean }} what
  * @param {boolean} done - `true` for a merge that happened, `false` for a dry run
  * @returns {string[]}
  */
-function changeLines({ bump, updatedBranch }, done) {
+function changeLines({ bump, updatedBranch, versioned }, done) {
   const version = bump
     ? `${done ? 'Version bumped from' : 'Version would be bumped from'} ${tag(bump.from)} -> ${tag(bump.to)}`
     : 'No version change';
-  const lines = [version];
+  // A project without versioned releases has no version to report.
+  const lines = versioned === false ? [] : [version];
   if (updatedBranch)
     lines.push(done ? '`main` merged to branch' : '`main` would be merged to branch');
   return lines;
@@ -441,7 +454,7 @@ function changeLines({ bump, updatedBranch }, done) {
 
 /**
  * The comment for a merge that went through. Pure.
- * @param {{ bump: { from: string, to: string } | null, updatedBranch: boolean }} what
+ * @param {{ bump: { from: string, to: string } | null, updatedBranch: boolean, versioned?: boolean }} what
  * @returns {string}
  */
 export function renderSuccess(what) {
@@ -489,7 +502,11 @@ export function renderDryRun(decision) {
   if (decision.action === 'refuse') {
     return ['**Dry run: would fail**', ...describeRefusal(decision.reasons)].join('\n');
   }
-  const what = { bump: decision.bump, updatedBranch: decision.updateBranch };
+  const what = {
+    bump: decision.bump,
+    updatedBranch: decision.updateBranch,
+    versioned: decision.versioned,
+  };
   return ['**Dry run: would merge**', ...changeLines(what, false)].join('\n');
 }
 
@@ -551,4 +568,27 @@ export function classifyBotCommit(commit, branch, defaultBranch) {
     return 'version';
   }
   return null;
+}
+
+/**
+ * Read the `VERSION_PATHS` setting: a comma-separated list of directories whose changes need a version
+ * bump. Empty means the project has no versioned releases. Pure.
+ * @param {string} text
+ * @returns {string[]} Directory names without surrounding slashes
+ * @throws {Error} When an entry is absolute, climbs out with `..`, or has a glob character
+ */
+export function parseVersionPaths(text) {
+  const dirs = [];
+  for (const raw of text.split(',')) {
+    const dir = raw
+      .trim()
+      .replace(/^\.\/+/, '')
+      .replace(/\/+$/, '');
+    if (dir === '') continue;
+    if (dir.startsWith('/') || dir.split('/').includes('..') || /[*?[\]{}\\]/.test(dir)) {
+      throw new Error(`VERSION_PATHS entry '${raw.trim()}' must be a plain relative directory`);
+    }
+    dirs.push(dir);
+  }
+  return [...new Set(dirs)];
 }

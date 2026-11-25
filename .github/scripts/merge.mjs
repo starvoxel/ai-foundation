@@ -15,7 +15,8 @@
  * it pushes nothing and merges nothing, and refuses to run with DRY_RUN other than `true`.
  *
  * Input (environment): GITHUB_TOKEN, GITHUB_REPOSITORY (`owner/repo`), PR_NUMBER, COMMENT_BODY,
- * COMMENTER_LOGIN, COMMENTER_TYPE, DRY_RUN, and EVENT_NAME (`workflow_run` makes it settle the PRs
+ * COMMENTER_LOGIN, COMMENTER_TYPE, DRY_RUN, VERSION_PATHS (comma-separated directories whose changes
+ * need a version bump; empty for a project without versioned releases), and EVENT_NAME (`workflow_run` makes it settle the PRs
  * waiting for checks instead of handling a comment; no other input is read then).
  *
  * The comment body reaches this script only through the environment and is matched exactly; the
@@ -41,6 +42,7 @@ import {
   queueExpired,
   renderQueued,
   nextVersion,
+  parseVersionPaths,
   renderApiFailure,
   renderDryRun,
   renderRefusal,
@@ -349,7 +351,7 @@ async function mergeWithRetry(api, repo, number, head, sleep, log) {
  * is read again here so the number is assigned against `main` as it is now.
  * @param {{ api: (method: string, path: string, body?: unknown) => Promise<any>, repo: string,
  *   number: number, pull: any, defaultBranch: string, decision: { bump: { level: string, from: string, to: string } | null,
- *   updateBranch: boolean }, headSha: string, login: string, log: (line: string) => void,
+ *   updateBranch: boolean, versioned: boolean }, headSha: string, login: string, log: (line: string) => void,
  *   comment: (text: string) => Promise<any>, sleep: (ms: number) => Promise<void> }} input
  * @returns {Promise<'merged'|'refused'>}
  * @throws {Error} When an API call fails; the caller reports it
@@ -415,7 +417,7 @@ async function mergeLive({
   await waitForMergeable(api, repo, number, sleep, log);
   await mergeWithRetry(api, repo, number, head, sleep, log);
   log(`merged: #${number} at ${head} requested by @${login}`);
-  await comment(renderSuccess({ bump, updatedBranch: updated }));
+  await comment(renderSuccess({ bump, updatedBranch: updated, versioned: decision.versioned }));
   return 'merged';
 }
 
@@ -467,9 +469,10 @@ async function findTestedHead(api, repo, headSha, branch, defaultBranch) {
  * @param {string} repo
  * @param {number} number
  * @param {(ms: number) => Promise<void>} sleep
+ * @param {string[]} versionPaths - Directories whose changes need a version bump; empty for none
  * @returns {Promise<{ pull: any, defaultBranch: string, headSha: string, decision: ReturnType<typeof decideMerge> }>}
  */
-async function gather(api, repo, number, sleep) {
+async function gather(api, repo, number, sleep, versionPaths) {
   const pull = await fetchPull(api, repo, number, sleep);
   const defaultBranch = pull.base?.repo?.default_branch ?? 'main';
   const headSha = pull.head.sha;
@@ -499,7 +502,12 @@ async function gather(api, repo, number, sleep) {
     defaultBranch,
   });
   const mainVersion = JSON.parse(mainJson ?? '{}').version ?? '';
-  const decision = decideMerge({ ...input, mainVersion, behind: comparison.behind_by > 0 });
+  const decision = decideMerge({
+    ...input,
+    versionPaths,
+    mainVersion,
+    behind: comparison.behind_by > 0,
+  });
   return { pull, defaultBranch, headSha, decision };
 }
 
@@ -527,11 +535,11 @@ async function dropQueueLabel(api, repo, number) {
  * through the label plus a marker comment written by a bot, and the requester is authorised again.
  * @param {{ api: (method: string, path: string, body?: unknown) => Promise<any>, repo: string,
  *   number: number, log: (line: string) => void, sleep: (ms: number) => Promise<void>,
- *   now: () => number }} io
+ *   now: () => number, versionPaths: string[] }} io
  * @returns {Promise<void>}
  * @throws {Error} When the live merge fails; it has been reported on the PR
  */
-async function processQueued({ api, repo, number, log, sleep, now }) {
+async function processQueued({ api, repo, number, log, sleep, now, versionPaths }) {
   const comment = (/** @type {string} */ text) =>
     api('POST', `/repos/${repo}/issues/${number}/comments`, { body: text });
   const cancel = async (/** @type {string} */ code) => {
@@ -549,7 +557,13 @@ async function processQueued({ api, repo, number, log, sleep, now }) {
   if (!request) return cancel('queue-lost');
   if (queueExpired(request.at, now())) return cancel('queue-expired');
 
-  const { pull, defaultBranch, headSha, decision } = await gather(api, repo, number, sleep);
+  const { pull, defaultBranch, headSha, decision } = await gather(
+    api,
+    repo,
+    number,
+    sleep,
+    versionPaths,
+  );
   if (pull.state !== 'open') {
     await dropQueueLabel(api, repo, number);
     log(`dropped: waiting merge of #${number}, the PR is no longer open`);
@@ -603,11 +617,12 @@ async function processQueued({ api, repo, number, log, sleep, now }) {
  * The wake-up after a CI run: look at every open PR still waiting and settle each. One PR's failure
  * does not stop the others; the first failure is thrown at the end so the job shows red.
  * @param {{ repo: string, api: (method: string, path: string, body?: unknown) => Promise<any>,
- *   log: (line: string) => void, sleep: (ms: number) => Promise<void>, now: () => number }} io
+ *   log: (line: string) => void, sleep: (ms: number) => Promise<void>, now: () => number,
+ *   versionPaths: string[] }} io
  * @returns {Promise<void>}
  * @throws {Error} The first live-merge failure
  */
-async function runQueue({ repo, api, log, sleep, now }) {
+async function runQueue({ repo, api, log, sleep, now, versionPaths }) {
   const items = await paginate(
     api,
     `/repos/${repo}/issues?labels=${encodeURIComponent(QUEUE_LABEL)}&state=open`,
@@ -617,7 +632,7 @@ async function runQueue({ repo, api, log, sleep, now }) {
   let failure = null;
   for (const number of waiting) {
     try {
-      await processQueued({ api, repo, number, log, sleep, now });
+      await processQueued({ api, repo, number, log, sleep, now, versionPaths });
     } catch (err) {
       failure ??= err;
     }
@@ -643,6 +658,10 @@ export async function run({
   if (env.DRY_RUN !== 'true' && env.DRY_RUN !== 'false') {
     throw new Error(`DRY_RUN must be 'true' or 'false', not '${env.DRY_RUN}'`);
   }
+  if (env.VERSION_PATHS === undefined) {
+    throw new Error("VERSION_PATHS must be set; use '' for a project without versioned releases");
+  }
+  const versionPaths = parseVersionPaths(env.VERSION_PATHS);
   const repo = env.GITHUB_REPOSITORY ?? '';
   if (env.EVENT_NAME === 'workflow_run') {
     if (!/^[\w.-]+\/[\w.-]+$/.test(repo)) throw new Error(`Bad repository '${repo}'`);
@@ -650,7 +669,7 @@ export async function run({
       log('ignored: nothing waits in dry-run mode');
       return 'ignored';
     }
-    await runQueue({ repo, api, log, sleep, now });
+    await runQueue({ repo, api, log, sleep, now, versionPaths });
     return 'queue-checked';
   }
   const number = Number(env.PR_NUMBER);
@@ -695,7 +714,13 @@ export async function run({
     return 'unsupported';
   }
 
-  const { pull, defaultBranch, headSha, decision } = await gather(api, repo, number, sleep);
+  const { pull, defaultBranch, headSha, decision } = await gather(
+    api,
+    repo,
+    number,
+    sleep,
+    versionPaths,
+  );
 
   log(`${decision.action}: #${number} at ${headSha} requested by @${login}`);
   if (decision.action === 'refuse' && env.DRY_RUN === 'false' && isWaitingOnly(decision.reasons)) {

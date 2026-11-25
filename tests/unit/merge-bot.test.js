@@ -94,6 +94,7 @@ const env = (overrides = {}) => ({
   COMMENTER_LOGIN: 'jo',
   COMMENTER_TYPE: 'User',
   DRY_RUN: 'true',
+  VERSION_PATHS: 'agents,skills,steering,standards,servers,bundles,projects,bin,lib',
   ...overrides,
 });
 
@@ -791,7 +792,12 @@ const HOUR = 3_600_000;
 const marker = (at = NOW - HOUR, sha = H, login = 'jo') =>
   `<!-- merge-queued login=${login} sha=${sha} at=${at} -->`;
 const botComment = (body) => ({ user: { type: 'Bot', login: 'app[bot]' }, body });
-const wakeEnv = () => ({ GITHUB_REPOSITORY: REPO, EVENT_NAME: 'workflow_run', DRY_RUN: 'false' });
+const wakeEnv = () => ({
+  GITHUB_REPOSITORY: REPO,
+  EVENT_NAME: 'workflow_run',
+  DRY_RUN: 'false',
+  VERSION_PATHS: 'lib',
+});
 const QUEUE_LIST = 'GET /repos/o/r/issues?labels=merge-queued&state=open&per_page=100&page=1';
 const COMMENT_LIST = 'GET /repos/o/r/issues/7/comments?per_page=100&page=1';
 const LABEL_DELETE = 'DELETE /repos/o/r/issues/7/labels/merge-queued';
@@ -1115,5 +1121,89 @@ describe('run, after a failed merge left bot commits on the head', () => {
     );
     assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
     assert.ok(!calls.some((call) => call.method === 'PUT'));
+  });
+});
+
+describe('run, a project without versioned releases', () => {
+  const noVersions = { VERSION_PATHS: '' };
+  // A PR with no bump label, touching shipped-looking paths and a package.json whose version moved.
+  const plainPr = {
+    'GET /repos/o/r/pulls/7': {
+      state: 'open',
+      draft: false,
+      mergeable: true,
+      head: { sha: 'abc', ref: 'feat/x', repo: { full_name: REPO } },
+      base: { ref: 'main', repo: { full_name: REPO, default_branch: 'main' } },
+      user: { login: 'jo' },
+      labels: [],
+    },
+    'GET /repos/o/r/contents/package.json?ref=abc': { content: b64('{"version":"9.9.9"}') },
+  };
+
+  it('requires no label and ignores a changed version, in a dry run', async () => {
+    const { api, calls } = fakeApi(plainPr);
+    const result = await run({ env: env(noVersions), api, log: quiet });
+    assert.equal(result, 'would-merge');
+    assert.equal(
+      posted(calls).at(-1).body.body,
+      '**Dry run: would merge**\n`main` would be merged to branch',
+    );
+  });
+
+  it('merges after the gate with no version commit and no version line', async () => {
+    const { api, calls } = fakeApi(liveResponses(plainPr));
+    const result = await run({ env: liveEnv(noVersions), api, log: quiet, sleep: async () => {} });
+    assert.equal(result, 'merged');
+    assert.ok(!calls.some((call) => call.path === '/repos/o/r/git/commits'));
+    assert.equal(posted(calls).at(-1).body.body, '**Merge successful**\n`main` merged to branch');
+  });
+
+  it('still waits for and checks the required checks', async () => {
+    const { api } = fakeApi({
+      ...plainPr,
+      'GET /repos/o/r/commits/abc/check-runs?per_page=100&page=1': {
+        check_runs: [{ name: 'Validate', status: 'completed', conclusion: 'failure' }],
+      },
+    });
+    assert.equal(await run({ env: env(noVersions), api, log: quiet }), 'refused');
+  });
+
+  it('ignores a conflicting label rather than refusing for it', async () => {
+    const { api } = fakeApi({
+      'GET /repos/o/r/pulls/7': {
+        ...plainPr['GET /repos/o/r/pulls/7'],
+        labels: [{ name: 'bump:patch' }, { name: 'bump:major' }],
+      },
+    });
+    assert.equal(await run({ env: env(noVersions), api, log: quiet }), 'would-merge');
+  });
+
+  it('uses the configured directories: a change outside them needs no label', async () => {
+    const { api } = fakeApi({
+      'GET /repos/o/r/pulls/7': { ...plainPr['GET /repos/o/r/pulls/7'], labels: [] },
+    });
+    assert.equal(await run({ env: env({ VERSION_PATHS: 'src' }), api, log: quiet }), 'would-merge');
+    const again = fakeApi({
+      'GET /repos/o/r/pulls/7': { ...plainPr['GET /repos/o/r/pulls/7'], labels: [] },
+    });
+    assert.equal(
+      await run({ env: env({ VERSION_PATHS: 'lib' }), api: again.api, log: quiet }),
+      'refused',
+    );
+  });
+
+  it('refuses to run without VERSION_PATHS, so a missing setting is never read as "no versions"', async () => {
+    const { api, calls } = fakeApi();
+    const { VERSION_PATHS, ...without } = env();
+    await assert.rejects(run({ env: without, api, log: quiet }), /VERSION_PATHS must be set/);
+    assert.deepEqual(calls, []);
+  });
+
+  it('rejects an unsafe VERSION_PATHS entry', async () => {
+    const { api } = fakeApi();
+    await assert.rejects(
+      run({ env: env({ VERSION_PATHS: 'lib,../x' }), api, log: quiet }),
+      /plain relative directory/,
+    );
   });
 });
