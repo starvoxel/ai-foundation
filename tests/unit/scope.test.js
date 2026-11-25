@@ -17,8 +17,8 @@ import { diffInstall, diffMcpServers } from '../../lib/commands/install-check.js
 import { isDefaultBundle } from '../../lib/resolver.js';
 
 describe('parseScope', () => {
-  it('defaults to global when absent', () => {
-    assert.equal(parseScope(undefined), 'global');
+  it('defaults to project when absent', () => {
+    assert.equal(parseScope(undefined), 'project');
   });
 
   it('accepts global and project', () => {
