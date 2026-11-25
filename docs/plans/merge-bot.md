@@ -75,6 +75,8 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 - The AI-identity check is dropped: agents' GitHub API calls run as the human's account, so a login list could not catch them. The steering rule and the `pr-stewardship` note forbid agents from posting `/merge` (human, 2026-11-25).
 - The label-based version check, the `bump:*` labels and the hand-bump stripping move from milestone 3 to milestone 4, since they can only switch on when the bot is live (human, 2026-11-25).
 
+- A comment starting with `/merge` plus more text gets a fixed "not supported" reply, only from a writer; any commenter whose login contains `[bot]` or whose type is `Bot` is never answered, so the App's own replies cannot trigger a loop (human, 2026-11-25).
+
 ## Open questions
 
 - The App's own check runs: if a required check is an Actions job, does the ruleset accept bypass-merge of a head with a bot commit and no check results? Test in milestone 3; the research could not confirm it.

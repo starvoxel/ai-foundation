@@ -79,11 +79,47 @@ const mutations = (calls) => calls.filter((call) => !['GET', 'POST'].includes(ca
 const quiet = () => {};
 
 describe('run', () => {
-  it('ignores a comment that is not exactly /merge, without any API call', async () => {
+  it('ignores prose that only mentions /merge, without any API call', async () => {
+    for (const COMMENT_BODY of ['please /merge', '/merged', 'looks good']) {
+      const { api, calls } = fakeApi();
+      const result = await run({ env: env({ COMMENT_BODY }), api, log: quiet });
+      assert.equal(result, 'ignored');
+      assert.deepEqual(calls, []);
+    }
+  });
+
+  it('answers an unsupported command from a writer once, without reading the PR', async () => {
     const { api, calls } = fakeApi();
-    const result = await run({ env: env({ COMMENT_BODY: '/merge please' }), api, log: quiet });
+    const result = await run({ env: env({ COMMENT_BODY: '/merge now' }), api, log: quiet });
+    assert.equal(result, 'unsupported');
+    assert.equal(posted(calls).length, 1);
+    assert.match(posted(calls)[0].body.body, /not supported/);
+    assert.doesNotMatch(posted(calls)[0].body.body, /now/);
+    assert.deepEqual(mutations(calls), []);
+    assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
+  });
+
+  it('stays silent on an unsupported command from someone without write access', async () => {
+    const { api, calls } = fakeApi({
+      'GET /repos/o/r/collaborators/jo/permission': { permission: 'read' },
+    });
+    const result = await run({ env: env({ COMMENT_BODY: '/merge now' }), api, log: quiet });
     assert.equal(result, 'ignored');
-    assert.deepEqual(calls, []);
+    assert.deepEqual(posted(calls), []);
+  });
+
+  it('never replies to a bot, whatever it says, and makes no API call', async () => {
+    for (const overrides of [
+      { COMMENTER_LOGIN: 'github-actions[bot]', COMMENTER_TYPE: 'Bot' },
+      { COMMENTER_LOGIN: 'some-app[bot]', COMMENTER_TYPE: 'User' },
+    ]) {
+      for (const COMMENT_BODY of ['/merge', '/merge now']) {
+        const { api, calls } = fakeApi();
+        const result = await run({ env: env({ ...overrides, COMMENT_BODY }), api, log: quiet });
+        assert.equal(result, 'ignored');
+        assert.deepEqual(calls, []);
+      }
+    }
   });
 
   it('reports what it would merge and never writes anything but the comment', async () => {
@@ -104,20 +140,6 @@ describe('run', () => {
     const result = await run({ env: env(), api, log: quiet });
     assert.equal(result, 'refused');
     assert.match(posted(calls)[0].body.body, /does not have write permission/);
-    assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
-  });
-
-  it('refuses a bot commenter even with admin access, and does not read the PR', async () => {
-    const { api, calls } = fakeApi({
-      'GET /repos/o/r/collaborators/a-bot/permission': { permission: 'admin' },
-    });
-    const result = await run({
-      env: env({ COMMENTER_LOGIN: 'a-bot', COMMENTER_TYPE: 'Bot' }),
-      api,
-      log: quiet,
-    });
-    assert.equal(result, 'refused');
-    assert.match(posted(calls)[0].body.body, /commenter is a bot/);
     assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
   });
 

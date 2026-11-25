@@ -53,13 +53,33 @@ export const REFUSALS = {
   'check-failed': 'A required check did not pass on the head commit.',
 };
 
+/** The reply to a comment that starts with `/merge` but is not exactly it. It never echoes the comment. */
+export const UNSUPPORTED_REPLY =
+  'That command is not supported. Comment exactly `/merge`, with nothing after it.';
+
 /**
- * Whether a comment body is exactly the merge command. Pure.
+ * Classify a comment: the merge command, a near miss, or not ours. A comment is ours only when its
+ * first word is exactly `/merge`, so prose that merely mentions the command, and words such as
+ * `/merged`, are left alone. Pure.
  * @param {unknown} body - The comment text
- * @returns {boolean}
+ * @returns {'merge' | 'unsupported' | 'none'} `merge` for exactly `/merge`, `unsupported` for `/merge`
+ *   followed by more text, `none` otherwise
  */
-export function parseCommand(body) {
-  return typeof body === 'string' && body.trim() === '/merge';
+export function classifyComment(body) {
+  if (typeof body !== 'string') return 'none';
+  const text = body.trim();
+  if (text === '/merge') return 'merge';
+  return /^\/merge\s/.test(text) ? 'unsupported' : 'none';
+}
+
+/**
+ * Whether a commenter is a bot account, which the bot never answers. Pure.
+ * @param {string} login - The commenter's login
+ * @param {string} type - The API user type (`User`, `Bot`, ...)
+ * @returns {boolean} true for the `Bot` type or any login containing `[bot]`
+ */
+export function isBotCommenter(login, type) {
+  return type === 'Bot' || login.includes('[bot]');
 }
 
 /**
