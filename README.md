@@ -155,6 +155,19 @@ See `AGENTS.md` for the full schema and `projects/_template/` for defaults.
 
 ---
 
+## Merging with `/merge`
+
+A human with write access comments exactly `/merge` on a PR. The bot checks it (open, not a draft, same repository, targets `main`, mergeable, one `bump:patch|minor|major` label when shipped content changes, no hand-edited version, every required check green on the head), then merges `main` into the branch if it is behind, commits the version (`major` bumps the minor below 1.0), and merges. `release.yml` tags the merge as before. Anything else after `/merge` gets a "not supported" reply, and bots are ignored. An agent never posts `/merge`: the bot cannot tell an agent from the human whose account it acts as, so only `steering/engineering/git-workflow.md` guards that.
+
+It starts as a dry run that only comments what it would do. To turn it on:
+
+1. Create a GitHub App (contents and pull requests: read and write; checks: read), install it on this repository, and add its client ID as the variable `MERGE_APP_CLIENT_ID` and its private key as the secret `MERGE_APP_PRIVATE_KEY`.
+2. Add the App as the only bypass actor, for pull requests, of the ruleset that protects `main`.
+3. Create the labels `bump:patch`, `bump:minor` and `bump:major`.
+4. Set the variable `MERGE_BOT_LIVE` to `true`. That one switch makes the workflow merge for real and makes CI reject a PR that edits the package version.
+
+Design and reasoning: `docs/plans/merge-bot.md`.
+
 ## Testing
 
 ```bash
