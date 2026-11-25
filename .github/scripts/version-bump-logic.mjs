@@ -123,6 +123,22 @@ export function packageBumpError({ changedPaths, baseJson, headJson }) {
 }
 
 /**
+ * The error for a PR that edits `package.json`'s version when the `/merge` bot owns it, or null when
+ * the version is untouched or unreadable. Pure.
+ * @param {{ baseJson: string|null, headJson: string|null }} input - `package.json` texts at the base and head refs
+ * @returns {string|null}
+ */
+export function packageVersionEditError({ baseJson, headJson }) {
+  if (baseJson === null || headJson === null) return null;
+  const baseVersion = readVersion(baseJson);
+  const headVersion = readVersion(headJson);
+  if (baseVersion === undefined || headVersion === undefined || baseVersion === headVersion) {
+    return null;
+  }
+  return `package.json: version changed ('${baseVersion}' -> '${headVersion}'), but the /merge bot sets it; revert that edit`;
+}
+
+/**
  * Pick the branch a PR was most recently forked from: the candidate whose merge-base with HEAD is
  * the most recent. On a tie, `preferredRef` (the default branch) wins over an unrelated open
  * branch that merely contains the same tip, such as another PR that merged `main`; otherwise the

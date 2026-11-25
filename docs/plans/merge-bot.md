@@ -77,6 +77,11 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 - A comment starting with `/merge` plus more text gets a fixed "not supported" reply, only from a writer; any commenter whose login contains `[bot]` or whose type is `Bot` is never answered, so the App's own replies cannot trigger a loop (human, 2026-11-25).
 
+- Go-live is one repository variable, `MERGE_BOT_LIVE`: until it is `true` the workflow stays a dry run and CI keeps requiring a hand bump, so merging the code changes nothing and no release is skipped in between (built 2026-11-25).
+- CI does not require a `bump:*` label: a label change would re-run all of CI, and the bot already refuses a shipped change without one. CI only forbids a PR editing the version once the bot is live (built 2026-11-25; reverse if a label check in CI is wanted).
+- The bot's commits carry `[skip ci]` so no runner time is spent re-testing a version-only commit; `main`'s own CI and `release.yml` still run on the merge (built 2026-11-25; the skip behaviour is unverified until the first live merge).
+- The App-token action is `actions/create-github-app-token` v3.3.0, pinned to the SHA in `docs/research/create-github-app-token-pin.md`; the SHA is from a researcher brief and not independently verified (2026-11-25).
+
 ## Open questions
 
 - The App's own check runs: if a required check is an Actions job, does the ruleset accept bypass-merge of a head with a bot commit and no check results? Test in milestone 3; the research could not confirm it.

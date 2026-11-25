@@ -7,9 +7,9 @@
 // ------------------------------
 
 /**
- * Plan: merge-bot (Milestone 3). The `/merge` workflow runs on a comment from anyone, so it must
- * run only the default branch's scripts, hold the least permissions, stay a dry run, and never put
- * untrusted event data inline in a shell.
+ * Plan: merge-bot (Milestones 3 and 4). The `/merge` workflow runs on a comment from anyone, so it
+ * must run only the default branch's scripts, hold the least permissions, stay a dry run until the
+ * repository variable switches it live, and never put untrusted event data inline in a shell.
  */
 
 import { describe, it } from 'node:test';
@@ -21,7 +21,7 @@ import YAML from 'yaml';
 const FILE = resolve(import.meta.dirname, '../../.github/workflows/merge.yml');
 const text = readFileSync(FILE, 'utf8');
 const workflow = YAML.parse(text);
-const job = workflow.jobs['dry-run'];
+const job = workflow.jobs.merge;
 
 describe('.github/workflows/merge.yml', () => {
   it('triggers only on created issue comments, never pull_request_target', () => {
@@ -61,9 +61,22 @@ describe('.github/workflows/merge.yml', () => {
     }
   });
 
-  it('stays a dry run', () => {
+  it('is a dry run unless MERGE_BOT_LIVE is exactly true', () => {
     const decide = job.steps.find((step) => step.run?.includes('merge.mjs'));
-    assert.equal(decide.env.DRY_RUN, 'true');
+    assert.equal(decide.env.DRY_RUN, "${{ vars.MERGE_BOT_LIVE == 'true' && 'false' || 'true' }}");
+  });
+
+  it('creates the App token only when live, scoped to this repository, from a variable and a secret', () => {
+    const app = job.steps.find((step) => step.uses?.startsWith('actions/create-github-app-token@'));
+    assert.equal(app.if, "vars.MERGE_BOT_LIVE == 'true'");
+    assert.equal(app.with['client-id'], '${{ vars.MERGE_APP_CLIENT_ID }}');
+    assert.equal(app.with['private-key'], '${{ secrets.MERGE_APP_PRIVATE_KEY }}');
+    assert.ok(!('owner' in app.with) && !('repositories' in app.with), 'token must be repo-scoped');
+  });
+
+  it('uses the App token when there is one and the job token otherwise', () => {
+    const decide = job.steps.find((step) => step.run?.includes('merge.mjs'));
+    assert.equal(decide.env.GITHUB_TOKEN, '${{ steps.app.outputs.token || github.token }}');
   });
 
   it('keeps event data out of the shell: only env, no inline expressions in run', () => {

@@ -34,7 +34,10 @@ const {
   renderDryRun,
   requiredChecksFromRules,
   toGateInput,
+  firstParentIs,
+  updateCommitMessage,
   verifyVersionOnly,
+  versionCommitMessage,
 } = await import(LOGIC);
 
 /** A PR that passes every gate; tests override one field to break it. */
@@ -592,5 +595,26 @@ describe('renderDryRun', () => {
   it('lists the refusal reasons', () => {
     const text = renderDryRun({ action: 'refuse', reasons: ['draft'] }, context);
     assert.match(text, /Would refuse:\n- The PR is a draft\./);
+  });
+});
+
+describe('commit messages', () => {
+  it('skip CI on the bot commits and name what they do', () => {
+    assert.equal(updateCommitMessage('feat/x', 'main'), 'Merge main into feat/x [skip ci]');
+    assert.equal(versionCommitMessage('0.6.0'), 'Set the version to 0.6.0 [skip ci]');
+  });
+});
+
+describe('firstParentIs', () => {
+  it('is true only when the first parent matches', () => {
+    assert.equal(firstParentIs([{ sha: 'a' }, { sha: 'b' }], 'a'), true);
+    assert.equal(firstParentIs([{ sha: 'b' }, { sha: 'a' }], 'a'), false);
+  });
+
+  it('is false for no parents or a malformed value', () => {
+    assert.equal(firstParentIs([], 'a'), false);
+    assert.equal(firstParentIs(undefined, 'a'), false);
+    assert.equal(firstParentIs(null, 'a'), false);
+    assert.equal(firstParentIs([null], 'a'), false);
   });
 });
