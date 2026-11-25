@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow'
-version: '1.2.0'
+version: '1.3.0'
 description: 'Git workflow for every repo — atomic incremental commits, ai-git usage, branch + PR landing, the required-CI gate, and when a plan needs a committed approval.'
 requires_skills:
   - 'pr-authoring'
@@ -49,7 +49,7 @@ All agents, in every repository.
 
 **Rationale:** The PR is the human's review point, and rewriting pushed commits invalidates CI results and review context.
 
-**Exceptions:** None. Branch names are free-form but should describe the work.
+**Exceptions:** The merge bot (`docs/plans/merge-bot.md`) merges a PR when a human comments `/merge` and its gate passes; that comment is the human's merge decision. No agent, including the AI identity, may post it. Branch names are free-form but should describe the work.
 
 ---
 
@@ -60,7 +60,7 @@ All agents, in every repository.
 
 **Rationale:** A bypassed gate makes every later green meaningless.
 
-**Exceptions:** None.
+**Exceptions:** The merge bot is the only ruleset bypass actor. It merges only after verifying every required check is green on the head it started from, and its own commits (a merge of `main` into the branch, and the version fields) change no code. Nobody else bypasses.
 
 ---
 
@@ -99,4 +99,4 @@ All agents, in every repository.
 
 ## Enforcement
 
-Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Raising warnings in the session is not checkable at PR review, since reviewers cannot see the session; it relies on the human in the session noticing an omission. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
+Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge outside the merge bot's `/merge` path, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Raising warnings in the session is not checkable at PR review, since reviewers cannot see the session; it relies on the human in the session noticing an omission. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
