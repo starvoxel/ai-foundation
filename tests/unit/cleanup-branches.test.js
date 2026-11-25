@@ -17,6 +17,8 @@ const {
   classify,
   createApi,
   isPlainBranchName,
+  buildThrowawayWords,
+  DEFAULT_THROWAWAY_WORDS,
   isThrowawayTestName,
   parseBranchList,
   rankBranches,
@@ -221,7 +223,12 @@ describe('classify', () => {
     ],
     [
       'an unrelated spike branch ages out',
-      { name: 'spike/slice-tauri', ahead: null, lastCommit: daysAgo(30) },
+      {
+        name: 'spike/slice-tauri',
+        ahead: null,
+        lastCommit: daysAgo(30),
+        cfg: { throwawayWords: buildThrowawayWords('test(s|ing|ed)? spikes?') },
+      },
       'Archive',
       /30d/,
     ],
@@ -306,8 +313,6 @@ describe('isThrowawayTestName', () => {
       'test',
       'test/ping',
       'spike/verify-import',
-      'spike/slice-tauri',
-      'spikes',
       'e-test/1',
       'agent-testing',
       'x_validation_y',
@@ -322,8 +327,6 @@ describe('isThrowawayTestName', () => {
   });
   it('does not match a test word inside another word', () => {
     for (const n of [
-      'spiked',
-      'spikey/x',
       'latest',
       'contest/x',
       'attestation',
@@ -341,6 +344,35 @@ describe('isThrowawayTestName', () => {
     }
     assert.equal(isThrowawayTestName('waif-retest/x', 'AIF'), false);
     assert.equal(isThrowawayTestName('AIFretest', 'AIF'), false);
+  });
+});
+
+describe('buildThrowawayWords', () => {
+  it('uses test, validate and verify when the list is unset or empty', () => {
+    for (const list of [undefined, '', '   ']) {
+      const re = buildThrowawayWords(list);
+      assert.equal(re.test('Testing'), true);
+      assert.equal(re.test('validation'), true);
+      assert.equal(re.test('verify'), true);
+      assert.equal(re.test('spike'), false);
+    }
+    assert.equal(DEFAULT_THROWAWAY_WORDS.length, 3);
+  });
+  it('replaces the defaults with the listed words, whole segment only', () => {
+    const re = buildThrowawayWords('spikes? scratch');
+    for (const w of ['spike', 'Spikes', 'scratch']) assert.equal(re.test(w), true, w);
+    for (const w of ['spiked', 'spikey', 'test', 'scratchy', 'a spike']) {
+      assert.equal(re.test(w), false, w);
+    }
+  });
+  it('is used by isThrowawayTestName', () => {
+    const words = buildThrowawayWords('spikes?');
+    assert.equal(isThrowawayTestName('spike/slice-tauri', '', words), true);
+    assert.equal(isThrowawayTestName('test/x', '', words), false);
+    assert.equal(isThrowawayTestName('spiked/x', '', words), false);
+  });
+  it('rejects an entry that is not a regular expression', () => {
+    assert.throws(() => buildThrowawayWords('ok (unclosed'), /not a valid regular expression/);
   });
 });
 
@@ -665,6 +697,24 @@ describe('run', () => {
     const dropped = await cat({ KEEP_EMPTY_BRANCHES: 'false', KEEP_UNRELATED_BRANCHES: 'false' });
     assert.equal(dropped['AIF-1/idle'], 'Archive');
     assert.equal(dropped['latest/legacy'], 'Archive');
+  });
+
+  it('THROWAWAY_WORDS sets the words that age out an unrelated branch', async () => {
+    const world = () => {
+      const w = WORLD();
+      w.branches.push(branch('spike/slice-tauri', 'sha_spike', 40, null));
+      return w;
+    };
+    const cat = async (extra) => {
+      const { rows } = await run(
+        { ...env, ACTIVE_BRANCHES: '0', ARCHIVE_BRANCHES: '0', ...extra },
+        fakeApi(world()),
+        { now: NOW },
+      );
+      return rows.find((r) => r.name === 'spike/slice-tauri').category;
+    };
+    assert.equal(await cat({}), 'Mandatory');
+    assert.equal(await cat({ THROWAWAY_WORDS: 'test(s|ing|ed)? spikes?' }), 'Archive');
   });
 
   it('requires REPO', async () => {

@@ -53,6 +53,11 @@
  *                            project_shortname (else project_name). Without
  *                            one, only the whole-word test names count (see
  *                            isThrowawayTestName).
+ *   THROWAWAY_WORDS          space-separated regular expressions, each
+ *                            matching one whole name segment that marks a
+ *                            throwaway test branch (default: test, validate
+ *                            and verify with their variations). Replaces the
+ *                            defaults, so repeat them to keep them.
  *   KEEP_EMPTY_BRANCHES      "false": an empty branch ages out whatever its
  *                            name. Default "true" (kept unless AI or test).
  *   KEEP_UNRELATED_BRANCHES  "false": an unrelated-history branch ages out
@@ -90,6 +95,7 @@ export const STALE_LABEL = 'stale';
  * @property {string[]} protectedBranches
  * @property {string} shortcode  Project short code; '' when unknown.
  * @property {string[]} aiPrefixes  Branch name prefixes used by AI sessions, e.g. 'claude/'.
+ * @property {RegExp} [throwawayWords]  Whole-segment matcher for throwaway test names; the defaults when unset.
  * @property {boolean} [keepEmpty]  Keep empty branches that are not AI or test branches; unset counts as true.
  * @property {boolean} [keepUnrelated]  Keep unrelated-history branches that are not test branches; unset counts as true.
  * @property {number} activeDays
@@ -100,24 +106,54 @@ export const STALE_LABEL = 'stale';
  * @typedef {{category: 'Mandatory'|'Archive'|'Active'|'Stale', reason: string}} Verdict
  */
 
-/** A whole name segment that is a test, validate, verify or spike word or a variation. */
-const TEST_WORD =
-  /^(test(s|ing|ed)?|valid(ate[sd]?|ating|ation)?|verif(y|ies|ied|ying|ication)|spikes?)$/i;
+/**
+ * The words that mark a throwaway test branch when THROWAWAY_WORDS is unset:
+ * each a regular expression for one whole name segment.
+ */
+export const DEFAULT_THROWAWAY_WORDS = [
+  'test(s|ing|ed)?',
+  'valid(ate[sd]?|ating|ation)?',
+  'verif(y|ies|ied|ying|ication)',
+];
+
+/**
+ * Builds the matcher for a whole name segment from a space-separated list of
+ * regular expressions (THROWAWAY_WORDS), each matching the whole segment,
+ * case-insensitively. An empty or unset list means the defaults.
+ *
+ * @param {string|undefined} list
+ * @returns {RegExp}
+ */
+export function buildThrowawayWords(list) {
+  const words = (list ?? '').split(/\s+/).filter(Boolean);
+  const parts = words.length > 0 ? words : DEFAULT_THROWAWAY_WORDS;
+  for (const w of parts) {
+    try {
+      new RegExp(w);
+    } catch {
+      throw new Error(`THROWAWAY_WORDS entry is not a valid regular expression: ${w}`);
+    }
+  }
+  return new RegExp(`^(${parts.join('|')})$`, 'i');
+}
+
+const DEFAULT_WORD_MATCHER = buildThrowawayWords('');
 
 /**
  * A throwaway test branch has a whole segment (split on anything that is not a
- * letter or digit) that is a test, validate, verify or spike word or a
- * variation (`test/x`, `spike/slice-tauri`, `validation`), so `latest` and
- * `contest` do not count. With a project short code, any test, valid or verif text in a
+ * letter or digit) that is a test, validate or verify word or a variation, or
+ * another word the project lists in THROWAWAY_WORDS (`test/x`, `validation`,
+ * `spike/slice-tauri`), so `latest` and `contest` do not count. With a project short code, any test, valid or verif text in a
  * name that also carries the code counts too (`AIF-010-verification`,
  * `aif_retest`). Long-lived branches such as `agent-testing` must be listed in
  * PROTECTED_BRANCHES, which is checked first.
  *
  * @param {string} name
  * @param {string} shortcode
+ * @param {RegExp} [words]  From buildThrowawayWords; the defaults when omitted.
  */
-export function isThrowawayTestName(name, shortcode) {
-  if (name.split(/[^a-z0-9]+/i).some((part) => TEST_WORD.test(part))) return true;
+export function isThrowawayTestName(name, shortcode, words = DEFAULT_WORD_MATCHER) {
+  if (name.split(/[^a-z0-9]+/i).some((part) => words.test(part))) return true;
   if (!shortcode) return false;
   const escaped = shortcode.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const hasShortcode = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i').test(name);
@@ -132,13 +168,13 @@ export function isThrowawayTestName(name, shortcode) {
  * `keepEmpty` is false.
  *
  * @param {string} name
- * @param {Pick<Config, 'aiPrefixes' | 'shortcode' | 'keepEmpty'>} cfg
+ * @param {Pick<Config, 'aiPrefixes' | 'shortcode' | 'keepEmpty' | 'throwawayWords'>} cfg
  */
 export function agesWhenEmpty(name, cfg) {
   return (
     cfg.keepEmpty === false ||
     cfg.aiPrefixes.some((prefix) => name.startsWith(prefix)) ||
-    isThrowawayTestName(name, cfg.shortcode)
+    isThrowawayTestName(name, cfg.shortcode, cfg.throwawayWords)
   );
 }
 
@@ -147,10 +183,12 @@ export function agesWhenEmpty(name, cfg) {
  * `keepUnrelated` is false or its name marks it as a throwaway test.
  *
  * @param {string} name
- * @param {Pick<Config, 'shortcode' | 'keepUnrelated'>} cfg
+ * @param {Pick<Config, 'shortcode' | 'keepUnrelated' | 'throwawayWords'>} cfg
  */
 function keepsUnrelated(name, cfg) {
-  return cfg.keepUnrelated !== false && !isThrowawayTestName(name, cfg.shortcode);
+  return (
+    cfg.keepUnrelated !== false && !isThrowawayTestName(name, cfg.shortcode, cfg.throwawayWords)
+  );
 }
 
 /**
@@ -693,6 +731,7 @@ export async function run(
     archiveDays: Number(env.ARCHIVE_DAYS ?? 30),
     activeBranches: Number(env.ACTIVE_BRANCHES ?? 5),
     archiveBranches: Number(env.ARCHIVE_BRANCHES ?? 15),
+    throwawayWords: buildThrowawayWords(env.THROWAWAY_WORDS),
     keepEmpty: env.KEEP_EMPTY_BRANCHES !== 'false',
     keepUnrelated: env.KEEP_UNRELATED_BRANCHES !== 'false',
   };
