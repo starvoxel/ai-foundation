@@ -47,7 +47,7 @@
  *                            instead of running the sweep (see runList)
  *   PROTECTED_BRANCHES       space-separated names that are never touched
  *   AI_BRANCH_PREFIXES       space-separated prefixes of AI session branches
- *                            (default: "copilot/ kiro/ claude/ ai/")
+ *                            (default: "copilot/ kiro/ claude/ ccr- ai/")
  *   PROJECT_SHORTCODE        e.g. AIF; defaults to .aiconfig.json's
  *                            project_shortname (else project_name). Without
  *                            one, no branch counts as a throwaway test, so
@@ -109,9 +109,9 @@ export function isThrowawayTestName(name, shortcode) {
 
 /**
  * Whether an empty branch (no commits of its own) goes through the age-out
- * flow instead of being kept: AI session branches (`claude/…`, `copilot/…`,
- * `kiro/…`, `ai/…`), which are created and then often never used, and
- * throwaway test branches. Any other empty branch is kept.
+ * flow instead of being kept: AI session branches (`claude/…`, `ccr-…`,
+ * `copilot/…`, `kiro/…`, `ai/…`), which are created and then often never
+ * used, and throwaway test branches. Any other empty branch is kept.
  *
  * @param {string} name
  * @param {Pick<Config, 'aiPrefixes' | 'shortcode'>} cfg
@@ -656,7 +656,7 @@ export async function run(
     defaultBranch: data.default_branch,
     protectedBranches: (env.PROTECTED_BRANCHES ?? '').split(/\s+/).filter(Boolean),
     shortcode: env.PROJECT_SHORTCODE ?? shortcodeFrom(readAiconfig()),
-    aiPrefixes: (env.AI_BRANCH_PREFIXES ?? 'copilot/ kiro/ claude/ ai/')
+    aiPrefixes: (env.AI_BRANCH_PREFIXES ?? 'copilot/ kiro/ claude/ ccr- ai/')
       .split(/\s+/)
       .filter(Boolean),
     activeDays: Number(env.ACTIVE_DAYS ?? 14),

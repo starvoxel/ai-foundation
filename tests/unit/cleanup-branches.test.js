@@ -32,7 +32,7 @@ const CFG = {
   defaultBranch: 'main',
   protectedBranches: ['cloud-sandbox', 'agent-testing', 'docs'],
   shortcode: 'AIF',
-  aiPrefixes: ['copilot/', 'kiro/', 'claude/', 'ai/'],
+  aiPrefixes: ['copilot/', 'kiro/', 'claude/', 'ccr-', 'ai/'],
   activeDays: 7,
   archiveDays: 14,
 };
@@ -154,8 +154,8 @@ describe('classify', () => {
       /creation date unknown, tip 5d old/,
     ],
     [
-      'copilot/, kiro/ and ai/ empty branches age out too',
-      { name: 'kiro/unused', ahead: 0, createdAt: daysAgo(20) },
+      'copilot/, kiro/, ccr- and ai/ empty branches age out too',
+      { name: 'ccr-0a1b2c3d-unused', ahead: 0, createdAt: daysAgo(20) },
       'Archive',
       /created 20d ago/,
     ],
@@ -254,6 +254,7 @@ describe('agesWhenEmpty', () => {
   it('is true for AI session prefixes and throwaway test names only', () => {
     for (const n of [
       'claude/x',
+      'ccr-0a1b2c3d-x',
       'copilot/x',
       'kiro/x',
       'ai/x',

@@ -47,7 +47,7 @@ env:
   # Branches AI sessions create, which are often never used. An empty one
   # (no commits of its own) of these, or a throwaway test branch, ages out from
   # its creation date; any other empty branch is kept.
-  AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ai/"
+  AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ccr- ai/"
   # A branch is Active under ACTIVE_DAYS, Stale up to ARCHIVE_DAYS, then Archive.
   # The ACTIVE_BRANCHES / ARCHIVE_BRANCHES most recently active branches count
   # as Active / at least Stale whatever their age, so a quiet repo keeps its
