@@ -58,7 +58,7 @@ aif uninstall -B engineering -H claude
 aif status
 
 # Project integrations: git hooks, session script and CI workflows (project scope only)
-aif install -I all             # or -I checks,update,hooks,session-start
+aif install -I all             # or -I checks,update,merge,hooks,session-start
 aif install -I hooks --force   # overwrite an integration file you edited
 
 # Global scope: install for your user (~/.claude/, ~/.kiro/) instead
@@ -98,7 +98,7 @@ Installs are copies (transformed per-harness), tracked by a manifest for clean u
 
 #### Project integrations
 
-Every project that uses ai-foundation wants the same files: git hooks that rebuild the architecture index and warn on undocumented `key_files` changes, a session-start script, and two CI workflows. `aif install -I <name>` writes them (`checks`, `update`, `hooks`, `session-start`, or `all`); `aif init` installs all four. They are recorded in `.aif/.installs.yaml`.
+Every project that uses ai-foundation wants the same files: git hooks that rebuild the architecture index and warn on undocumented `key_files` changes, a session-start script, and three CI workflows. `aif install -I <name>` writes them (`checks`, `update`, `merge`, `hooks`, `session-start`, or `all`); `aif init` installs every one. They are recorded in `.aif/.installs.yaml`.
 
 - A second run changes nothing. A file you edited is never overwritten without `--force`, and a target that crosses a symlink is always refused.
 - The workflows are thin callers of AIF's actions, pinned to the latest release tag in your ai-foundation checkout (`--pin <sha> --pin-version <vX.Y.Z>` overrides). Dependabot bumps the pins; a bumped pin is not an edit. A bare `aif install --update` refreshes only the hooks and the session script; re-run `-I <name>` to refresh a workflow.
@@ -183,7 +183,11 @@ It starts as a dry run that only comments what it would do. To turn it on:
 3. Create the labels `bump:patch`, `bump:minor` and `bump:major`.
 4. Set the variable `MERGE_BOT_LIVE` to `true`. That one switch makes the workflow merge for real and makes CI reject a PR that edits the package version.
 
-Design and reasoning: `docs/plans/merge-bot.md`.
+If a required check is still running, the bot comments that it is waiting, adds the `merge-queued` label, and merges once CI finishes green. It gives up after 4 hours, if the branch changes, or if you remove the label.
+
+**In another project:** `aif install -I merge` writes `.github/workflows/aif-merge.yml`, a thin caller of the `merge` action (`.github/actions/merge`) pinned to the latest release; Dependabot bumps the pin. It is a dry run until `MERGE_BOT_LIVE` is `true`. The same App can serve several repositories: install it on each, then in each repository set `MERGE_APP_CLIENT_ID`, `MERGE_APP_PRIVATE_KEY` and `MERGE_BOT_LIVE`, and make the App a bypass actor of every ruleset that requires status checks. Two lines in the installed file are the project's to edit: `workflows: [CI]` must name its CI workflow, and `version-paths` lists the directories whose changes need a `bump:*` label and a version commit (empty, the default, for a project with no versioned releases, which then needs no labels).
+
+Design and reasoning: `docs/plans/merge-bot.md`, `docs/plans/merge-bot-integration.md`.
 
 ## Testing
 
