@@ -1,17 +1,13 @@
 name: Cleanup branches
 
-# Cloud sessions can't delete remote branches, so GitHub does it here, twice a
-# week. There is deliberately no push trigger: `main` is pushed many times a
-# week, and every job is billed a full minute minimum however short it runs.
+# Cloud sessions can't delete remote branches, so GitHub does it here, twice a week. This repository
+# runs its own `cleanup-branches` action from the same checkout, the way projects run the pinned copy
+# that `aif install -I cleanup` installs (lib/integrations/assets/aif-cleanup.yml). The rules are in
+# .github/scripts/cleanup-branches.mjs and summarised in docs/architecture/02_constraints.md. Tune
+# them with the repository variables CLEANUP_* (the action's README lists them); each is optional.
 #
-# The rules (categories, thresholds, what is kept) live in
-# .github/scripts/cleanup-branches.mjs and are summarised in
-# docs/architecture/02_constraints.md: "Branches Age Out Unless
-# Protected". Every run writes a report to the job summary, including the list
-# of Stale branches.
-#
-# A manual dispatch can instead name specific branches to delete; the sweep is
-# then skipped. Both modes have a dry run.
+# There is deliberately no push trigger: `main` is pushed many times a week, and every job is
+# billed a full minute minimum however short it runs.
 on:
   schedule:
     # Mondays and Thursdays, 06:17 UTC.
@@ -31,57 +27,36 @@ permissions:
   contents: write
   pull-requests: write
 
-env:
-  GH_TOKEN: ${{ github.token }}
-  REPO: ${{ github.repository }}
-  # "true": scheduled and manual sweeps delete Archive branches and close Stale
-  # PRs. Set it to "false" to go back to report only. A manual dispatch with
-  # dry_run ticked is always report only, whatever this says.
-  ENFORCE: "true"
-  # Empty on a scheduled run, so only a manual dispatch can set these.
-  DRY_RUN: ${{ inputs.dry_run }}
-  BRANCHES: ${{ inputs.branches }}
-  # Never touched, and never deleted by an explicit list. The default branch is
-  # always protected too. List long-lived branches here, including any orphan
-  # (unrelated-history) branch such as gh-pages. Edit this list as needed.
-  PROTECTED_BRANCHES: "cloud-sandbox agent-testing docs"
-  # Branches AI sessions create, which are often never used. An empty one
-  # (no commits of its own) of these, or a throwaway test branch, ages out from
-  # its creation date.
-  AI_BRANCH_PREFIXES: "copilot/ kiro/ claude/ ccr- ai/"
-  # Words that mark a throwaway test branch when a whole segment of its name is
-  # one (split on / - _ .): space-separated regular expressions, each matching a
-  # whole segment, case-insensitively. The project short code plus test, valid
-  # or verif text in a name also counts. Add words (for example spikes?) here.
-  THROWAWAY_WORDS: "test(s|ing|ed)? valid(ate[sd]?|ating|ation)? verif(y|ies|ied|ying|ication) spikes?"
-  # "true": any other empty branch, and any branch with unrelated history that is
-  # not a throwaway test, is kept for ever. "false": it ages out like any other.
-  KEEP_EMPTY_BRANCHES: "true"
-  KEEP_UNRELATED_BRANCHES: "true"
-  # A branch is Active under ACTIVE_DAYS, Stale up to ARCHIVE_DAYS, then Archive.
-  # The ACTIVE_BRANCHES / ARCHIVE_BRANCHES most recently active branches count
-  # as Active / at least Stale whatever their age, so a quiet repo keeps its
-  # latest work.
-  ACTIVE_DAYS: 14
-  ARCHIVE_DAYS: 30
-  ACTIVE_BRANCHES: 5
-  ARCHIVE_BRANCHES: 15
-
 jobs:
   cleanup:
     name: Sort, report and clean up branches
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      # The script also reads the project short code from .aiconfig.json.
-      - name: Checkout the cleanup script
+      # The action, the script and the project short code in .aiconfig.json.
+      - name: Checkout the action and config
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           sparse-checkout: |
+            /.github/actions/cleanup-branches/
             /.github/scripts/
             /.aiconfig.json
           sparse-checkout-cone-mode: false
           persist-credentials: false
 
       - name: Run branch cleanup
-        run: node .github/scripts/cleanup-branches.mjs
+        uses: ./.github/actions/cleanup-branches
+        with:
+          enforce: ${{ vars.CLEANUP_ENFORCE }}
+          dry-run: ${{ inputs.dry_run }}
+          branches: ${{ inputs.branches }}
+          # The fallback keeps this repository's long-lived branches safe until the variable is set.
+          protected-branches: ${{ vars.CLEANUP_PROTECTED_BRANCHES || 'cloud-sandbox agent-testing docs' }}
+          ai-branch-prefixes: ${{ vars.CLEANUP_AI_BRANCH_PREFIXES }}
+          throwaway-words: ${{ vars.CLEANUP_THROWAWAY_WORDS }}
+          keep-empty-branches: ${{ vars.CLEANUP_KEEP_EMPTY_BRANCHES }}
+          keep-unrelated-branches: ${{ vars.CLEANUP_KEEP_UNRELATED_BRANCHES }}
+          active-days: ${{ vars.CLEANUP_ACTIVE_DAYS }}
+          archive-days: ${{ vars.CLEANUP_ARCHIVE_DAYS }}
+          active-branches: ${{ vars.CLEANUP_ACTIVE_BRANCHES }}
+          archive-branches: ${{ vars.CLEANUP_ARCHIVE_BRANCHES }}
