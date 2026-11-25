@@ -121,3 +121,26 @@ export function packageBumpError({ changedPaths, baseJson, headJson }) {
   }
   return null;
 }
+
+/**
+ * Pick the branch a PR was most recently forked from: the candidate whose merge-base with HEAD is
+ * the most recent. On a tie, `preferredRef` (the default branch) wins over an unrelated open
+ * branch that merely contains the same tip, such as another PR that merged `main`; otherwise the
+ * first candidate wins. Pure.
+ * @param {Array<{ ref: string, date: number }>} candidates - Other branches with their merge-base commit time
+ * @param {string} preferredRef - The ref to favour on a tie, e.g. `refs/remotes/origin/main`
+ * @returns {string|null} The chosen ref, or null with no candidates
+ */
+export function pickParentRef(candidates, preferredRef) {
+  let best = null;
+  for (const candidate of candidates) {
+    if (
+      !best ||
+      candidate.date > best.date ||
+      (candidate.date === best.date && candidate.ref === preferredRef && best.ref !== preferredRef)
+    ) {
+      best = candidate;
+    }
+  }
+  return best ? best.ref : null;
+}

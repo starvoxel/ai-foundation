@@ -38,7 +38,12 @@ import { execFileSync } from 'node:child_process';
 import { extname } from 'node:path';
 import YAML from 'yaml';
 
-import { isOlder, needsPackageBump, packageBumpError } from './version-bump-logic.mjs';
+import {
+  isOlder,
+  needsPackageBump,
+  packageBumpError,
+  pickParentRef,
+} from './version-bump-logic.mjs';
 
 const [mode, modeArg, headRef = 'HEAD'] = process.argv.slice(2);
 
@@ -51,7 +56,9 @@ function git(args) {
  * from: among all other origin branches, the one whose merge-base with HEAD
  * is the most recent commit. A branch cut from a feature branch has a later
  * merge-base with that feature branch than with main, since the feature
- * branch's own fork-from-main point necessarily predates it.
+ * branch's own fork-from-main point necessarily predates it. On a tie `main`
+ * wins (see `pickParentRef`), so an unrelated open PR that also contains
+ * main's tip is never mistaken for the parent.
  *
  * @param {string} currentBranch
  * @returns {string|null} e.g. "origin/feature-x", or null if no candidates.
@@ -65,7 +72,7 @@ function findParentBranchBase(currentBranch) {
     .filter((r) => r !== 'refs/remotes/origin/HEAD')
     .filter((r) => r !== `refs/remotes/origin/${currentBranch}`);
 
-  let best = null;
+  const candidates = [];
   for (const ref of refs) {
     let mergeBase;
     try {
@@ -74,9 +81,9 @@ function findParentBranchBase(currentBranch) {
       continue; // unrelated history
     }
     const date = Number(git(['show', '-s', '--format=%ct', mergeBase]).trim());
-    if (!best || date > best.date) best = { ref, date };
+    candidates.push({ ref, date });
   }
-  return best ? best.ref : null;
+  return pickParentRef(candidates, 'refs/remotes/origin/main');
 }
 
 let baseSha;
