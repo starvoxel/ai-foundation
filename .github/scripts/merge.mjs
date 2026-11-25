@@ -29,14 +29,14 @@ import {
   classifyComment,
   decideAuthorization,
   decideMerge,
-  describeRefusal,
   firstParentIs,
-  formatAudit,
   isBotCommenter,
   isVersionOnlyPaths,
   nextVersion,
+  renderApiFailure,
   renderDryRun,
   renderRefusal,
+  renderSuccess,
   requiredChecksFromRules,
   toGateInput,
   updateCommitMessage,
@@ -84,11 +84,12 @@ export function createApi(token, fetchImpl = fetch) {
       const data = await response.json().catch(() => null);
       const detail =
         typeof data?.message === 'string' ? data.message.slice(0, MAX_ERROR_DETAIL) : '';
-      /** @type {Error & { status?: number }} */
+      /** @type {Error & { status?: number, detail?: string }} */
       const err = new Error(
         `GitHub ${method} ${path} failed: ${response.status} ${response.statusText}${detail ? `: ${detail}` : ''}`,
       );
       err.status = response.status;
+      err.detail = detail || undefined;
       throw err;
     }
     return response.status === 204 ? null : response.json();
@@ -283,7 +284,7 @@ async function mergeWithRetry(api, repo, number, head, sleep, log) {
  * is read again here so the number is assigned against `main` as it is now.
  * @param {{ api: (method: string, path: string, body?: unknown) => Promise<any>, repo: string,
  *   number: number, pull: any, defaultBranch: string, decision: { bump: { level: string, from: string, to: string } | null,
- *   updateBranch: boolean }, headSha: string, login: string, checks: string[], log: (line: string) => void,
+ *   updateBranch: boolean }, headSha: string, login: string, log: (line: string) => void,
  *   comment: (text: string) => Promise<any>, sleep: (ms: number) => Promise<void> }} input
  * @returns {Promise<'merged'|'refused'>}
  * @throws {Error} When an API call fails; the caller reports it
@@ -297,7 +298,6 @@ async function mergeLive({
   decision,
   headSha,
   login,
-  checks,
   log,
   comment,
   sleep,
@@ -306,7 +306,7 @@ async function mergeLive({
   const fresh = await api('GET', `/repos/${repo}/pulls/${number}`);
   if (fresh.head.sha !== headSha) {
     log(`refused: #${number} head moved from ${headSha} to ${fresh.head.sha}`);
-    await comment(`/merge refused:\n${describeRefusal(['head-moved'])}`);
+    await comment(renderRefusal(['head-moved']));
     return 'refused';
   }
 
@@ -323,7 +323,7 @@ async function mergeLive({
     } catch (err) {
       if (err.status !== 409) throw err;
       log(`refused: merging ${defaultBranch} into ${branch} conflicts`);
-      await comment(`/merge refused:\n${describeRefusal(['update-conflict'])}`);
+      await comment(renderRefusal(['update-conflict']));
       return 'refused';
     }
     if (merged !== null) {
@@ -350,15 +350,7 @@ async function mergeLive({
   await waitForMergeable(api, repo, number, sleep, log);
   await mergeWithRetry(api, repo, number, head, sleep, log);
   log(`merged: #${number} at ${head} requested by @${login}`);
-  await comment(
-    formatAudit({
-      commenter: login,
-      bump,
-      headSha,
-      checks,
-      updatedBranch: updated,
-    }),
-  );
+  await comment(renderSuccess({ bump, updatedBranch: updated }));
   return 'merged';
 }
 
@@ -412,7 +404,7 @@ export async function run({
   }
   if ('reason' in auth) {
     log(`refused: @${login} may not merge #${number} (${auth.reason})`);
-    await comment(`/merge refused:\n${describeRefusal([auth.reason])}`);
+    await comment(renderRefusal([auth.reason]));
     return 'refused';
   }
 
@@ -451,16 +443,13 @@ export async function run({
 
   log(`${decision.action}: #${number} at ${headSha} requested by @${login}`);
   if (decision.action === 'refuse') {
-    const context = { pullNumber: number, headSha };
     await comment(
-      env.DRY_RUN === 'true'
-        ? renderDryRun(decision, context)
-        : renderRefusal(decision.reasons, context),
+      env.DRY_RUN === 'true' ? renderDryRun(decision) : renderRefusal(decision.reasons),
     );
     return 'refused';
   }
   if (env.DRY_RUN === 'true') {
-    await comment(renderDryRun(decision, { pullNumber: number, headSha }));
+    await comment(renderDryRun(decision));
     return 'would-merge';
   }
   try {
@@ -473,15 +462,12 @@ export async function run({
       decision,
       headSha,
       login,
-      checks: input.requiredChecks,
       log,
       comment,
       sleep,
     });
   } catch (err) {
-    await comment(
-      `/merge failed: ${err.message}\n\nCheck the workflow run. If the branch was already updated, push a commit so CI runs on it, then comment \`/merge\` again.`,
-    );
+    await comment(renderApiFailure(err));
     throw err;
   }
 }

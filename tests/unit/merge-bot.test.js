@@ -99,7 +99,7 @@ describe('run', () => {
     const result = await run({ env: env({ COMMENT_BODY: '/merge now' }), api, log: quiet });
     assert.equal(result, 'unsupported');
     assert.equal(posted(calls).length, 1);
-    assert.match(posted(calls)[0].body.body, /not supported/);
+    assert.equal(posted(calls)[0].body.body, 'Unsupported command. Comment exactly `/merge`.');
     assert.doesNotMatch(posted(calls)[0].body.body, /now/);
     assert.deepEqual(mutations(calls), []);
     assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
@@ -135,8 +135,10 @@ describe('run', () => {
     assert.deepEqual(mutations(calls), []);
     assert.equal(posted(calls).length, 1);
     const body = posted(calls)[0].body.body;
-    assert.match(body, /Version: 0\.5\.4 -> 0\.5\.5 \(patch\)/);
-    assert.match(body, /merge `main` into the branch first/);
+    assert.equal(
+      body,
+      '**Dry run: would merge**\nVersion would be bumped from v0.5.4 -> v0.5.5\n`main` would be merged to branch',
+    );
   });
 
   it('refuses a commenter without write access and does not read the PR', async () => {
@@ -145,7 +147,7 @@ describe('run', () => {
     });
     const result = await run({ env: env(), api, log: quiet });
     assert.equal(result, 'refused');
-    assert.match(posted(calls)[0].body.body, /does not have write permission/);
+    assert.match(posted(calls)[0].body.body, /You need write access to merge this PR\./);
     assert.ok(!calls.some((call) => call.path.startsWith('/repos/o/r/pulls/')));
   });
 
@@ -168,13 +170,13 @@ describe('run', () => {
     assert.equal(result, 'refused');
     const body = posted(calls)[0].body.body;
     assert.match(body, /is a draft/);
-    assert.match(body, /still running/);
+    assert.match(body, /Not all checks have finished\. Try again once all are done\./);
   });
 
   it('refuses when the required checks cannot be determined', async () => {
     const { api, calls } = fakeApi({ 'GET /repos/o/r/rules/branches/main': [] });
     assert.equal(await run({ env: env(), api, log: quiet }), 'refused');
-    assert.match(posted(calls)[0].body.body, /required checks could not be determined/);
+    assert.match(posted(calls)[0].body.body, /Could not read the required checks\./);
   });
 
   it('rejects a bad repository or PR number', async () => {
@@ -241,7 +243,8 @@ describe('paginate', () => {
 });
 
 /** An error shaped like the API wrapper's, with an HTTP status. */
-const httpError = (status) => Object.assign(new Error(`HTTP ${status}`), { status });
+const httpError = (status, detail) =>
+  Object.assign(new Error(`HTTP ${status}`), { status, detail });
 
 /** The extra endpoints the live path calls, for a PR that is behind main and has no lock file. */
 function liveResponses(overrides = {}) {
@@ -303,8 +306,10 @@ describe('run, live', () => {
         idx(calls, 'PUT /repos/o/r/pulls/7/merge'),
     );
     const audit = posted(calls).at(-1).body.body;
-    assert.match(audit, /Merged by \/merge from @jo: 0\.5\.4 -> 0\.5\.5 \(patch\)/);
-    assert.match(audit, /gated head abc; branch updated from main; checks: Validate/);
+    assert.equal(
+      audit,
+      '**Merge successful**\nVersion bumped from v0.5.4 -> v0.5.5\n`main` merged to branch',
+    );
   });
 
   it('writes only the version into package.json, nothing else', async () => {
@@ -369,7 +374,10 @@ describe('run, live', () => {
     assert.deepEqual(calls.find((call) => call.path.endsWith('/git/commits')).body.parents, [
       'abc',
     ]);
-    assert.match(posted(calls).at(-1).body.body, /branch up to date/);
+    assert.equal(
+      posted(calls).at(-1).body.body,
+      '**Merge successful**\nVersion bumped from v0.5.4 -> v0.5.5',
+    );
   });
 
   it('does not claim a branch update when GitHub had nothing to merge', async () => {
@@ -388,7 +396,10 @@ describe('run, live', () => {
     assert.deepEqual(calls.find((call) => call.path.endsWith('/git/commits')).body.parents, [
       'abc',
     ]);
-    assert.match(posted(calls).at(-1).body.body, /branch up to date/);
+    assert.equal(
+      posted(calls).at(-1).body.body,
+      '**Merge successful**\nVersion bumped from v0.5.4 -> v0.5.5',
+    );
   });
 
   it('merges without any commit when nothing shipped changed', async () => {
@@ -405,7 +416,7 @@ describe('run, live', () => {
       sha: 'abc',
       merge_method: 'merge',
     });
-    assert.match(posted(calls).at(-1).body.body, /no version change/);
+    assert.equal(posted(calls).at(-1).body.body, '**Merge successful**\nNo version change');
   });
 
   it('still refuses on the gate before touching anything', async () => {
@@ -419,7 +430,7 @@ describe('run, live', () => {
     assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
     assert.deepEqual(mutations(calls), []);
     assert.equal(posted(calls).length, 1);
-    assert.match(posted(calls)[0].body.body, /did not pass/);
+    assert.match(posted(calls)[0].body.body, /A required check failed\. Fix it and try again\./);
   });
 
   it('refuses, changing nothing, when the head moved after the checks were read', async () => {
@@ -441,7 +452,7 @@ describe('run, live', () => {
     assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
     assert.deepEqual(mutations(calls), []);
     assert.ok(!names(calls).includes('POST /repos/o/r/merges'));
-    assert.match(posted(calls).at(-1).body.body, /head changed/);
+    assert.match(posted(calls).at(-1).body.body, /The branch changed while merging\. Try again\./);
   });
 
   it('refuses when merging main into the branch conflicts, and stops there', async () => {
@@ -449,7 +460,10 @@ describe('run, live', () => {
     assert.equal(await run({ env: liveEnv(), api, log: quiet }), 'refused');
     assert.ok(!names(calls).includes('POST /repos/o/r/git/commits'));
     assert.deepEqual(mutations(calls), []);
-    assert.match(posted(calls).at(-1).body.body, /conflicts/);
+    assert.match(
+      posted(calls).at(-1).body.body,
+      /^\*\*Merge failed\*\*\nMerging `main` into the branch conflicts\./,
+    );
   });
 
   it('fails without merging when the branch moved during the update', async () => {
@@ -460,7 +474,7 @@ describe('run, live', () => {
     );
     await assert.rejects(run({ env: liveEnv(), api, log: quiet }), /branch moved/);
     assert.ok(!names(calls).includes('PUT /repos/o/r/pulls/7/merge'));
-    assert.match(posted(calls).at(-1).body.body, /merge failed/);
+    assert.match(posted(calls).at(-1).body.body, /^\*\*Merge failed\*\*\nError: The branch moved/);
   });
 
   it('fails without moving the branch when package.json is not a JSON object', async () => {
@@ -474,7 +488,9 @@ describe('run, live', () => {
 
   it('reports a merge that is refused every time, after retrying, with the recovery hint', async () => {
     const { api, calls } = fakeApi(
-      liveResponses({ 'PUT /repos/o/r/pulls/7/merge': httpError(405) }),
+      liveResponses({
+        'PUT /repos/o/r/pulls/7/merge': httpError(405, 'Pull Request is not mergeable'),
+      }),
     );
     const sleeps = [];
     await assert.rejects(
@@ -484,8 +500,10 @@ describe('run, live', () => {
     assert.equal(calls.filter((call) => call.method === 'PUT').length, 3);
     assert.deepEqual(sleeps, [3000, 3000]);
     const failure = posted(calls).at(-1).body.body;
-    assert.match(failure, /merge failed: HTTP 405/);
-    assert.match(failure, /push a commit so CI runs on it/);
+    assert.equal(
+      failure,
+      '**Merge failed**\nError 405: Pull Request is not mergeable\nTry again. If the branch was just updated, push a commit so the checks run on it.',
+    );
   });
 
   it('does not retry an error other than 405', async () => {
@@ -510,7 +528,7 @@ describe('run, live', () => {
     const result = await run({ env: liveEnv(), api, log: quiet, sleep: async () => {} });
     assert.equal(result, 'merged');
     assert.equal(calls.filter((call) => call.method === 'PUT').length, 3);
-    assert.match(posted(calls).at(-1).body.body, /Merged by \/merge/);
+    assert.match(posted(calls).at(-1).body.body, /^\*\*Merge successful\*\*/);
   });
 
   it('waits for GitHub to compute mergeability before merging', async () => {
@@ -578,8 +596,7 @@ describe('run, live', () => {
     );
     await run({ env: liveEnv(), api, log: quiet });
     const text = posted(calls)[0].body.body;
-    assert.match(text, /\*\*\/merge refused\*\* for #7 at `abc`\. Nothing was changed\./);
-    assert.doesNotMatch(text, /dry run/);
+    assert.equal(text, '**Merge failed**\nA required check failed. Fix it and try again.');
   });
 
   it('never replies to a bot in live mode either, and makes no call', async () => {
