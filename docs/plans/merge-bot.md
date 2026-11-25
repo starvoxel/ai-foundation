@@ -90,7 +90,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 - A pending `/merge` waits for checks instead of being refused, for up to 4 hours (human, 2026-11-25). The wait is the label plus a bot-written marker; removing the label cancels it. Wake-ups reuse the `merge` concurrency group, and GitHub keeps only one pending run per group, so a wake-up can replace a `/merge` comment run still pending behind a running merge; comment again if the bot stays silent.
 
-- A PR in a GitHub stack cannot be merged through the usual merge endpoint (403 "Merging stacked PRs via this endpoint is not supported"), so the bot falls back to `PUT /pulls/{n}/merge-async` and polls it. The endpoint's shape comes from user reports, not GitHub's own docs, which the researcher could not read; the first real stacked merge is the test (2026-11-25).
+- A PR in a GitHub stack cannot be merged through the usual merge endpoint (403 "Merging stacked PRs via this endpoint is not supported"), so the bot falls back to `PUT /pulls/{n}/merge-async` and polls it. The endpoint's shape comes from user reports, not GitHub's own docs, which the researcher could not read; the first real stacked merge is the test. It failed with "3 of 3 required status checks are expected" until the request also carried `bypass_rules: true` (from a third-party report, itself unconfirmed); the call must ask for the bypass that the ordinary endpoint gives a bypass actor on its own (2026-11-25).
 
 - A retry after a merge that failed part-way is gated on the commit beneath the bot's own `[skip ci]` commits, each verified as the bot's (author, exact message, version-only diff or an update from `main`), so the user need not push a commit to get CI on a head the bot made (human, 2026-11-25).
 
