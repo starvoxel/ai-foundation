@@ -2,7 +2,7 @@
 
 | Field       | Value                             |
 | ----------- | --------------------------------- |
-| Status      | Approved                          |
+| Status      | Done                              |
 | Approved by | jeremysmellie@gmail.com (in chat) |
 | Created     | 2026-11-25                        |
 
@@ -57,4 +57,8 @@ The `/merge` bot ([merge-bot.md](merge-bot.md)) runs only in ai-foundation, from
 
 ## Open questions
 
-- Whether `github.action_path` keeps the scripts' relative imports intact on a runner. Run from another directory with the action's relative path, the script starts and imports cleanly (2026-11-25); the first real run in a consumer repository confirms it.
+- Whether `github.action_path` keeps the scripts' relative imports intact on a runner: confirmed by the first real runs in Folio (2026-11-26).
+
+## Outcome
+
+Shipped in AIF v0.8.0 and v0.8.1 and installed in Folio (PR 72). In Folio the bot waited for the full CI chain on a throwaway PR (73) and merged it with a bare `Merge successful`, since Folio has no versioned releases. v0.8.1 fixed the template, which had a quoted empty `version-paths` that a project's Prettier rewrote.
