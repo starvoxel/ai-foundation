@@ -16,17 +16,16 @@ name: AIF cleanup branches
 on:
   schedule:
     # Mondays and Thursdays, 06:17 UTC.
-    - cron: "17 6 * * 1,4"
+    - cron: 17 6 * * 1,4
   workflow_dispatch:
     inputs:
       dry_run:
-        description: "Only report what would be done"
+        description: Only report what would be done
         type: boolean
         default: false
       branches:
-        description: "Branches to delete instead of the sweep (space or comma separated). The default branch, protected branches and branches with an open PR are refused."
+        description: Branches to delete instead of the sweep (space or comma separated). The default branch, protected branches and branches with an open PR are refused.
         type: string
-        default: ""
 
 permissions:
   contents: write
