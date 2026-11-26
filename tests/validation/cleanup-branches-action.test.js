@@ -60,7 +60,7 @@ describe('.github/actions/cleanup-branches', () => {
   it('has an optional input for every CLEANUP_* variable, plus dry-run, branches and token', () => {
     assert.deepEqual(
       Object.keys(action.inputs).sort(),
-      [...Object.values(VARIABLES), 'dry-run', 'branches', 'token'].sort(),
+      [...Object.values(VARIABLES), 'dry-run', 'delete-stale', 'branches', 'token'].sort(),
     );
     for (const input of Object.values(action.inputs)) assert.equal(input.required, false);
   });
@@ -94,6 +94,16 @@ describe('the callers of the action', () => {
         assert.match(inputs[input], new RegExp(`vars\\.${name}`), `${input} from ${name}`);
       }
     }
+  });
+
+  it('offer a delete_stale toggle on a manual run only, off by default', () => {
+    for (const workflow of [caller, own]) {
+      const toggle = workflow.on.workflow_dispatch.inputs.delete_stale;
+      assert.equal(toggle.type, 'boolean');
+      assert.equal(toggle.default, false);
+      assert.equal(withOf(workflow)['delete-stale'], '${{ inputs.delete_stale }}');
+    }
+    assert.equal(action.inputs['delete-stale'].default, 'false');
   });
 
   it('grant contents and pull-requests write and nothing else', () => {

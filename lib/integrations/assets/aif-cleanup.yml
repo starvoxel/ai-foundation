@@ -9,7 +9,7 @@ name: AIF cleanup branches
 # optional: CLEANUP_ENFORCE (`false` reports only), CLEANUP_PROTECTED_BRANCHES, CLEANUP_AI_BRANCH_PREFIXES,
 # CLEANUP_THROWAWAY_WORDS, CLEANUP_KEEP_EMPTY_BRANCHES, CLEANUP_KEEP_UNRELATED_BRANCHES, CLEANUP_ACTIVE_DAYS,
 # CLEANUP_ARCHIVE_DAYS, CLEANUP_ACTIVE_BRANCHES and CLEANUP_ARCHIVE_BRANCHES (the action's README has the
-# defaults). A manual dispatch can dry-run, or name branches to delete instead of the sweep.
+# defaults). A manual dispatch can dry-run, delete Stale branches too, or name branches to delete instead of the sweep.
 #
 # There is deliberately no push trigger: the default branch is pushed many times a week and every job
 # is billed a full minute minimum.
@@ -21,6 +21,10 @@ on:
     inputs:
       dry_run:
         description: Only report what would be done
+        type: boolean
+        default: false
+      delete_stale:
+        description: Also delete Stale branches that have no open PR (one with an open PR still only has the PR closed)
         type: boolean
         default: false
       branches:
@@ -50,6 +54,7 @@ jobs:
         with:
           enforce: ${{ vars.CLEANUP_ENFORCE }}
           dry-run: ${{ inputs.dry_run }}
+          delete-stale: ${{ inputs.delete_stale }}
           branches: ${{ inputs.branches }}
           protected-branches: ${{ vars.CLEANUP_PROTECTED_BRANCHES }}
           ai-branch-prefixes: ${{ vars.CLEANUP_AI_BRANCH_PREFIXES }}

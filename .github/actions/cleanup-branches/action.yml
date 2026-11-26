@@ -15,6 +15,10 @@ inputs:
     description: "'true' forces report only, whatever `enforce` says."
     required: false
     default: "false"
+  delete-stale:
+    description: "'true' also deletes Stale branches that have no open PR, as if they were Archive. A Stale branch with an open PR still only has the PR closed. Meant for a manual run."
+    required: false
+    default: "false"
   branches:
     description: Branches to delete instead of the sweep, space or comma separated. The default branch, protected branches and branches with an open PR are refused.
     required: false
@@ -71,6 +75,7 @@ runs:
         REPO: ${{ github.repository }}
         ENFORCE: ${{ inputs.enforce || 'true' }}
         DRY_RUN: ${{ inputs.dry-run }}
+        DELETE_STALE: ${{ inputs.delete-stale }}
         BRANCHES: ${{ inputs.branches }}
         PROTECTED_BRANCHES: ${{ inputs.protected-branches }}
         AI_BRANCH_PREFIXES: ${{ inputs.ai-branch-prefixes }}

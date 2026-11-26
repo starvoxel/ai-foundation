@@ -21,7 +21,7 @@ Each input is optional; empty means the default. The installed workflow passes e
 | `CLEANUP_ACTIVE_BRANCHES`         | `active-branches`         | `5`                                                                                          | The most recent N branches count as Active                              |
 | `CLEANUP_ARCHIVE_BRANCHES`        | `archive-branches`        | `15`                                                                                         | The most recent N branches count as at least Stale                      |
 
-Also an input: `dry-run` and `branches` (a manual dispatch can report only, or name branches to delete instead of the sweep) and `token` (default `github.token`).
+Also an input: `dry-run`, `delete-stale` and `branches`. A manual dispatch can report only (`dry-run`), delete Stale branches that have no open PR as well as Archive ones (`delete-stale`; a Stale branch with an open PR still only has the PR closed, and its branch goes on a later run), or name branches to delete instead of the sweep (`branches`). `delete-stale` is not a variable: it is a per-run choice and `token` (default `github.token`).
 
 ## Caller prerequisites
 
