@@ -1,6 +1,6 @@
 ---
 name: 'pr-authoring'
-version: '1.0.0'
+version: '1.1.0'
 description: 'Writes a pull request title and description that follows the repo PR template exactly and tells a reviewer why the change exists, what it does, and how it was verified.'
 ---
 
@@ -35,7 +35,7 @@ Include every section the template defines, in its order, adding and removing no
 
 ### Step 4 — Open or update it
 
-Create the PR with `ai-git` (in a cloud session through `ai-git gh-api`, per `skill/pr-stewardship`<!-- skill-ref: ignore -->). When later commits change what the PR does, update the description so it stays true.
+Create the PR with `ai-git` (in a cloud session through `ai-git gh-api`, per `skill/pr-stewardship`<!-- skill-ref: ignore -->). When later commits change what the PR does, update the description so it stays true. Where the repository gates merges on a version label, add the one `bump:` label with the PR (`steering/engineering/git-workflow.md`: "Label a PR With Its Version Bump").
 
 ## Outputs
 

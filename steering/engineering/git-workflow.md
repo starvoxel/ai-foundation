@@ -1,6 +1,6 @@
 ---
 name: 'git-workflow'
-version: '1.3.0'
+version: '1.4.0'
 description: 'Git workflow for every repo — atomic incremental commits, ai-git usage, branch + PR landing, the required-CI gate, and when a plan needs a committed approval.'
 requires_skills:
   - 'pr-authoring'
@@ -53,6 +53,19 @@ All agents, in every repository.
 
 ---
 
+### Rule: Label a PR With Its Version Bump
+
+- When a repository gates merges on a version label (the `/merge` bot's `bump:patch`, `bump:minor` or `bump:major`), add exactly one to every PR that changes shipped content, when you open it. A PR that changes none needs no label
+- Pick the level from the repository's own version policy. If the policy does not settle it, or the change looks like it needs more than a patch, ask the human rather than guess
+- Never edit the version fields by hand; the bot sets them on merge
+- A bot reply that the label is missing is fixed by adding it, never by bumping the version yourself
+
+**Rationale:** A PR without its label fails the merge gate, and a wrong level or a hand-edited version produces an accidental release bump.
+
+**Exceptions:** None. Adding the label is not the merge decision: the human still comments `/merge`.
+
+---
+
 ### Rule: Required CI Checks Gate Main — Never Bypass Them
 
 - `main` only accepts commits whose required checks passed. No admin override, ruleset bypass, or disabling, weakening, renaming, or skipping a required check
@@ -99,4 +112,4 @@ All agents, in every repository.
 
 ## Enforcement
 
-Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge outside the merge bot's `/merge` path, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. Raising warnings in the session is not checkable at PR review, since reviewers cannot see the session; it relies on the human in the session noticing an omission. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
+Non-atomic or batched commits are LOW. Raw `git`/`gh` or a supplied identity is HIGH; an echoed token is CRITICAL. A direct push to `main`, an agent merge outside the merge bot's `/merge` path, a history rewrite, bypassed CI, or an abandoned red PR is HIGH. A PR that changes shipped content with no bump label, or a hand-edited version, is MEDIUM. Raising warnings in the session is not checkable at PR review, since reviewers cannot see the session; it relies on the human in the session noticing an omission. Large work without a committed `Approved` plan stops until the approval commit exists, unless oversight is `none`.
