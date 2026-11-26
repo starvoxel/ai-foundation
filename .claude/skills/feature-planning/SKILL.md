@@ -1,6 +1,6 @@
 ---
 name: 'feature-planning'
-version: '1.0.1'
+version: '1.0.2'
 description: 'Plans a large feature as a single reviewable document with milestones and acceptance criteria, then commits it as Draft and Approved so the human can sign off before implementation.'
 ---
 
@@ -38,7 +38,7 @@ A verbal "go ahead" in chat does not count until the Approved commit exists. To 
 
 ### Step 5 — Close out
 
-When the described work is merged, set `Status: Done` and commit. This is informational and gates nothing.
+When all of the described work has merged, open a PR that sets `Status: Done` and adds a short outcome note: what shipped, in which releases, and anything that changed from the plan. A plan is not finished until that PR is open. It gates nothing.
 
 ## Outputs
 

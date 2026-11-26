@@ -2,7 +2,7 @@
 
 | Field       | Value                             |
 | ----------- | --------------------------------- |
-| Status      | Approved                          |
+| Status      | Done                              |
 | Approved by | jeremysmellie@gmail.com (in chat) |
 | Created     | 2026-11-25                        |
 
@@ -98,3 +98,7 @@ Parallel PRs pick colliding or leapfrogging `package.json` versions because each
 
 - The App's own check runs: if a required check is an Actions job, does the ruleset accept bypass-merge of a head with a bot commit and no check results? Test in milestone 3; the research could not confirm it.
 - Does a failed concurrency run drop a pending `/merge`? The research could not confirm; test in milestone 4.
+
+## Outcome
+
+Shipped over AIF v0.5.6 to v0.8.1 and live in ai-foundation and Folio. Beyond the plan, the bot waits for running checks (`merge-queued` label, 4 hours), merges stacked PRs through GitHub's asynchronous endpoint with `bypass_rules`, and retries after a part-way failure by gating on the commit beneath its own `[skip ci]` commits. Of the open questions, the first is resolved: the App's bypass merge works on a head whose last commits carry no check results. Whether a failed concurrency run drops a pending `/merge` was never tested; a wake-up run can replace a pending comment run in the same group, so comment again if the bot stays silent. Making it installable in other projects is `docs/plans/merge-bot-integration.md`.
