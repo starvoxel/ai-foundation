@@ -44,6 +44,10 @@
  *   REPO                     owner/name
  *   ENFORCE                  "true" to act; anything else only reports
  *   DRY_RUN                  "true" forces report-only, overriding ENFORCE
+ *   DELETE_STALE             "true": a sweep also deletes Stale branches that have
+ *                            no open PR, as if they were Archive (a Stale branch's
+ *                            open PR is still only closed; its branch goes on a
+ *                            later run). Off by default; the manual-run toggle.
  *   BRANCHES                 optional space/comma list: delete exactly these
  *                            instead of running the sweep (see runList)
  *   PROTECTED_BRANCHES       space-separated names that are never touched
@@ -523,10 +527,21 @@ export async function gatherFacts(api, repo, cfg) {
  * branch's open PR is labelled, commented on and closed. Branches classified
  * Mandatory or Active, and Stale branches with no PR, need no action.
  *
- * @param {{api: ReturnType<typeof createApi>, repo: string, cfg: Config, enforce: boolean, now: Date, log?: (s: string) => void}} o
+ * `deleteStale` also deletes a Stale branch that has no open PR; one with an
+ * open PR is still only closed, since deleting its head would close it unseen.
+ *
+ * @param {{api: ReturnType<typeof createApi>, repo: string, cfg: Config, enforce: boolean, deleteStale?: boolean, now: Date, log?: (s: string) => void}} o
  * @returns {Promise<Row[]>}
  */
-export async function runSweep({ api, repo, cfg, enforce, now, log = () => {} }) {
+export async function runSweep({
+  api,
+  repo,
+  cfg,
+  enforce,
+  deleteStale = false,
+  now,
+  log = () => {},
+}) {
   const facts = await gatherFacts(api, repo, cfg);
   const ranks = rankBranches(facts, cfg);
   for (const f of facts) f.rank = ranks.get(f.name);
@@ -549,7 +564,7 @@ export async function runSweep({ api, repo, cfg, enforce, now, log = () => {} })
     const row = { name: f.name, category, reason, action: 'none', stale: category === 'Stale' };
 
     try {
-      if (category === 'Archive') {
+      if (category === 'Archive' || (category === 'Stale' && deleteStale && !f.openPr)) {
         if (enforce) {
           await api.request('DELETE', `/repos/${repo}/git/refs/heads/${refPath(f.name)}`);
           row.action = 'deleted';
@@ -750,10 +765,14 @@ export async function run(
     return { rows, summary, failed: rows.some((r) => r.failed) };
   }
   const enforce = env.ENFORCE === 'true' && !dryRun;
-  const rows = await runSweep({ api, repo, cfg, enforce, now, log });
+  const deleteStale = env.DELETE_STALE === 'true';
+  const rows = await runSweep({ api, repo, cfg, enforce, deleteStale, now, log });
   return {
     rows,
-    summary: renderSummary(rows, { mode: 'sweep', enforce }),
+    summary: renderSummary(rows, {
+      mode: deleteStale ? 'sweep, deleting Stale branches too' : 'sweep',
+      enforce,
+    }),
     failed: rows.some((r) => r.failed),
   };
 }

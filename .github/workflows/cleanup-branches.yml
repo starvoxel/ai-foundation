@@ -18,6 +18,10 @@ on:
         description: "Only report what would be done"
         type: boolean
         default: false
+      delete_stale:
+        description: Also delete Stale branches that have no open PR (one with an open PR still only has the PR closed)
+        type: boolean
+        default: false
       branches:
         description: "Branches to delete instead of the sweep (space or comma separated). The default branch, protected branches and branches with an open PR are refused."
         type: string
@@ -49,6 +53,7 @@ jobs:
         with:
           enforce: ${{ vars.CLEANUP_ENFORCE }}
           dry-run: ${{ inputs.dry_run }}
+          delete-stale: ${{ inputs.delete_stale }}
           branches: ${{ inputs.branches }}
           # The fallback keeps this repository's long-lived branches safe until the variable is set.
           protected-branches: ${{ vars.CLEANUP_PROTECTED_BRANCHES || 'cloud-sandbox agent-testing docs' }}

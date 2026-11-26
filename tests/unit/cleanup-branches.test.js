@@ -530,6 +530,44 @@ describe('runSweep', () => {
     assert.match(get('claude/stale-pr').action, /would close PR #11/);
   });
 
+  it('deleteStale also deletes a Stale branch with no PR, never one with an open PR', async () => {
+    const api = fakeApi(WORLD());
+    const rows = await runSweep({
+      api,
+      repo: 'o/r',
+      cfg,
+      enforce: true,
+      deleteStale: true,
+      now: NOW,
+    });
+    const get = (name) => rows.find((r) => r.name === name);
+    assert.equal(get('claude/stale-one').action, 'deleted');
+    assert.match(get('claude/stale-pr').action, /closed PR #11/);
+    const deleted = api.calls.filter((c) => c.method === 'DELETE').map((c) => c.path);
+    assert.ok(deleted.some((p) => p.endsWith('claude/stale-one')));
+    assert.ok(!deleted.some((p) => p.endsWith('claude/stale-pr')));
+  });
+
+  it('deleteStale only reports on a dry run', async () => {
+    const api = fakeApi(WORLD());
+    const rows = await runSweep({
+      api,
+      repo: 'o/r',
+      cfg,
+      enforce: false,
+      deleteStale: true,
+      now: NOW,
+    });
+    assert.deepEqual(api.calls, []);
+    assert.equal(rows.find((r) => r.name === 'claude/stale-one').action, 'would delete');
+  });
+
+  it('leaves a Stale branch with no PR alone without deleteStale', async () => {
+    const api = fakeApi(WORLD());
+    const rows = await runSweep({ api, repo: 'o/r', cfg, enforce: true, now: NOW });
+    assert.equal(rows.find((r) => r.name === 'claude/stale-one').action, 'none');
+  });
+
   it('sorts every branch except the default into the expected category', async () => {
     const api = fakeApi(WORLD());
     const rows = await runSweep({ api, repo: 'o/r', cfg, enforce: false, now: NOW });
@@ -669,6 +707,31 @@ describe('run', () => {
     const api = fakeApi(WORLD());
     await run({ ...env, ENFORCE: 'true' }, api, { now: NOW });
     assert.ok(api.calls.some((c) => c.method === 'DELETE'));
+  });
+
+  it('DELETE_STALE deletes Stale branches and says so in the summary', async () => {
+    const api = fakeApi(WORLD());
+    const sweep = { ...env, ACTIVE_DAYS: '7', ARCHIVE_DAYS: '14', ACTIVE_BRANCHES: '0' };
+    const { rows, summary } = await run(
+      { ...sweep, ARCHIVE_BRANCHES: '0', ENFORCE: 'true', DELETE_STALE: 'true' },
+      api,
+      { now: NOW },
+    );
+    assert.equal(rows.find((r) => r.name === 'claude/stale-one').action, 'deleted');
+    assert.match(summary, /sweep, deleting Stale branches too/);
+  });
+
+  it('DELETE_STALE does nothing unless it is exactly "true"', async () => {
+    for (const value of ['', 'false', 'yes']) {
+      const api = fakeApi(WORLD());
+      const sweep = { ...env, ACTIVE_DAYS: '7', ARCHIVE_DAYS: '14', ACTIVE_BRANCHES: '0' };
+      const { rows } = await run(
+        { ...sweep, ARCHIVE_BRANCHES: '0', ENFORCE: 'true', DELETE_STALE: value },
+        api,
+        { now: NOW },
+      );
+      assert.equal(rows.find((r) => r.name === 'claude/stale-one').action, 'none', value);
+    }
   });
 
   it('BRANCHES switches to list mode, which does not need ENFORCE', async () => {
