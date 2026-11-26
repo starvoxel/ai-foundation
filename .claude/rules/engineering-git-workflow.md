@@ -92,9 +92,10 @@ All agents, in every repository.
 ### Rule: Large Work Gets a Committed, Approved Plan First
 
 - Work too large to review in one pass needs a plan committed as `Draft`, then committed as `Approved` after the human explicitly confirms, before implementation begins — follow `skill/feature-planning`
+- When all of a plan's work has merged, open a PR that sets the plan's `Status: Done` with a short outcome note. Never leave a finished plan at `Approved`
 - Small work needs no plan commit; a summary at the end is enough
 
-**Rationale:** The approval commit makes "approved" checkable in `git log` where a wrong turn is expensive.
+**Rationale:** The approval commit makes "approved" checkable in `git log` where a wrong turn is expensive; the Done PR keeps the plan's status true.
 
 **Exceptions:** Oversight level `none` (`skill/oversight`<!-- skill-ref: ignore -->): the human has chosen to skip the plan and every checkpoint; the independent review still runs.
 
