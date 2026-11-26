@@ -230,15 +230,6 @@ describe('integration: init command', () => {
     assert.doesNotMatch(output.join('\n'), /Cloud setup/);
   });
 
-  it('scaffolds the cleanup-branches script identical to this repo copy', async () => {
-    await quiet(() => runInit({ args: { name: 'cleanup' }, positional: [] }));
-    const root = join(import.meta.dirname, '..', '..');
-    assert.equal(
-      readFileSync(join(workDir, 'cleanup', '.github', 'scripts', 'cleanup-branches.mjs'), 'utf8'),
-      readFileSync(join(root, '.github', 'scripts', 'cleanup-branches.mjs'), 'utf8'),
-    );
-  });
-
   it('prints no cloud setup steps when init fails', async () => {
     const { code, output } = await quiet(() =>
       runInit({ args: { name: 'bad/name' }, positional: [] }),
@@ -361,17 +352,16 @@ describe('integration: init command', () => {
     assert.equal(settings.agent, 'engineer');
   });
 
-  it('scaffolds the branch-cleanup workflow and script, neutral and without per-project edits', async () => {
-    await quiet(() => runInit({ args: { name: 'qol' }, positional: [] }));
-    const gh = join(workDir, 'qol', '.github');
-    const wf = readFileSync(join(gh, 'workflows', 'cleanup-branches.yml'), 'utf8');
-    assert.ok(existsSync(join(gh, 'scripts', 'cleanup-branches.mjs')));
-    assert.match(wf, /^ {2}PROTECTED_BRANCHES: "docs"$/m);
-    assert.doesNotMatch(wf, /cloud-sandbox|agent-testing|02_constraints/);
-    assert.match(
-      readFileSync(join(gh, 'scripts', 'cleanup-branches.mjs'), 'utf8'),
-      /\.aiconfig\.json/,
+  it('installs the branch-cleanup workflow as an integration, with no copied script', async () => {
+    const pin = 'b'.repeat(40);
+    await quiet(() =>
+      runInit({ args: { name: 'qol', pin, 'pin-version': 'v0.6.0' }, positional: [] }),
     );
+    const gh = join(workDir, 'qol', '.github');
+    const wf = readFileSync(join(gh, 'workflows', 'aif-cleanup.yml'), 'utf8');
+    assert.match(wf, new RegExp(`actions/cleanup-branches@${pin} # v0.6.0`));
+    assert.ok(!existsSync(join(gh, 'scripts')), 'the rules run from the pinned action');
+    assert.ok(!existsSync(join(gh, 'workflows', 'cleanup-branches.yml')));
   });
 
   it('scaffolds neutral .gitignore entries and keeps the architecture-index ignore', async () => {

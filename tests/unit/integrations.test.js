@@ -36,9 +36,10 @@ describe('registry', () => {
     integration.files.map((file) => ({ name, file })),
   );
 
-  it('offers checks, update, merge, hooks and session-start', () => {
+  it('offers checks, update, merge, cleanup, hooks and session-start', () => {
     assert.deepEqual([...INTEGRATION_NAMES].sort(), [
       'checks',
+      'cleanup',
       'hooks',
       'merge',
       'session-start',
@@ -307,6 +308,23 @@ describe('carryPins', () => {
     assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v0.7.0')), aif(a, 'v0.7.0'));
     assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v0.10.0')), aif(a, 'v0.10.0'));
     assert.equal(carryPins(aif(b, 'v0.7.0'), aif(a, 'v1.0.0')), aif(a, 'v1.0.0'));
+  });
+});
+
+describe('the cleanup integration', () => {
+  it('installs one pinned workflow that Dependabot owns', () => {
+    assert.deepEqual(INTEGRATIONS.cleanup.files, [
+      {
+        target: '.github/workflows/aif-cleanup.yml',
+        source: 'lib/integrations/assets/aif-cleanup.yml',
+        pinned: true,
+      },
+    ]);
+    assert.deepEqual(INTEGRATIONS.cleanup.snippets, ['dependabot']);
+  });
+
+  it('is part of all', () => {
+    assert.ok(expandIntegrationNames('all').names.includes('cleanup'));
   });
 });
 

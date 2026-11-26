@@ -1,0 +1,63 @@
+name: AIF cleanup branches
+
+# Cloud sessions can't delete remote branches, so GitHub does it, twice a week: it sorts branches into
+# Active, Stale (PR closed and labelled `stale`) and Archive (deleted) and writes a report to the job
+# summary. Installed by `aif install -I cleanup`; the rules are ai-foundation's `cleanup-branches`
+# action, whose pin below is bumped by Dependabot's github-actions ecosystem.
+#
+# Nothing here is yours to edit. Tune it with repository or organisation Actions variables, all
+# optional: CLEANUP_ENFORCE (`false` reports only), CLEANUP_PROTECTED_BRANCHES, CLEANUP_AI_BRANCH_PREFIXES,
+# CLEANUP_THROWAWAY_WORDS, CLEANUP_KEEP_EMPTY_BRANCHES, CLEANUP_KEEP_UNRELATED_BRANCHES, CLEANUP_ACTIVE_DAYS,
+# CLEANUP_ARCHIVE_DAYS, CLEANUP_ACTIVE_BRANCHES and CLEANUP_ARCHIVE_BRANCHES (the action's README has the
+# defaults). A manual dispatch can dry-run, or name branches to delete instead of the sweep.
+#
+# There is deliberately no push trigger: the default branch is pushed many times a week and every job
+# is billed a full minute minimum.
+on:
+  schedule:
+    # Mondays and Thursdays, 06:17 UTC.
+    - cron: "17 6 * * 1,4"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report what would be done"
+        type: boolean
+        default: false
+      branches:
+        description: "Branches to delete instead of the sweep (space or comma separated). The default branch, protected branches and branches with an open PR are refused."
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  cleanup:
+    name: Sort, report and clean up branches
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # The script reads the project short code from .aiconfig.json.
+      - name: Checkout the project config
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: /.aiconfig.json
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+
+      - name: Run branch cleanup
+        uses: starvoxel/ai-foundation/.github/actions/cleanup-branches@{{AIF_SHA}} # {{AIF_VERSION}}
+        with:
+          enforce: ${{ vars.CLEANUP_ENFORCE }}
+          dry-run: ${{ inputs.dry_run }}
+          branches: ${{ inputs.branches }}
+          protected-branches: ${{ vars.CLEANUP_PROTECTED_BRANCHES }}
+          ai-branch-prefixes: ${{ vars.CLEANUP_AI_BRANCH_PREFIXES }}
+          throwaway-words: ${{ vars.CLEANUP_THROWAWAY_WORDS }}
+          keep-empty-branches: ${{ vars.CLEANUP_KEEP_EMPTY_BRANCHES }}
+          keep-unrelated-branches: ${{ vars.CLEANUP_KEEP_UNRELATED_BRANCHES }}
+          active-days: ${{ vars.CLEANUP_ACTIVE_DAYS }}
+          archive-days: ${{ vars.CLEANUP_ARCHIVE_DAYS }}
+          active-branches: ${{ vars.CLEANUP_ACTIVE_BRANCHES }}
+          archive-branches: ${{ vars.CLEANUP_ARCHIVE_BRANCHES }}
